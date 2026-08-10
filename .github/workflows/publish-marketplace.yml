@@ -57,8 +57,17 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
-          git add .claude-plugin/marketplace.json
-          git add --all 'plugins/*/.mcp.json'
+          # A plugin only has a .mcp.json once it declares MCP servers, and a plugin that drops
+          # its last server has one to delete. Build the pathspec from what is actually present
+          # or tracked: a literal glob would abort the job whenever it matched nothing.
+          shopt -s nullglob
+          targets=(.claude-plugin/marketplace.json)
+          targets+=(plugins/*/.mcp.json)
+          while IFS= read -r tracked; do
+            targets+=("$tracked")
+          done < <(git ls-files 'plugins/*/.mcp.json')
+
+          git add -A -- "${targets[@]}"
 
           if git diff --cached --quiet; then
             echo "Claude compatibility layer already up to date."

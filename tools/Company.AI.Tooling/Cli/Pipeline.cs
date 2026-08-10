@@ -51,6 +51,8 @@ internal sealed class Pipeline(RepositoryContext context)
     {
         var root = options.OutputRoot ?? context.Root;
 
+        RemoveStaleFiles(files, root, options);
+
         foreach (var file in files)
         {
             var destination = Path.Combine(root, file.RelativePath);
@@ -77,6 +79,52 @@ internal sealed class Pipeline(RepositoryContext context)
                     "does not match what the source generates. It is a generated file: " +
                     "run 'generate-claude' and commit the result instead of editing it.");
             }
+        }
+    }
+
+    /// <summary>
+    /// Deletes generated files the source no longer produces. A plugin that drops its last MCP
+    /// server stops generating a .mcp.json, and leaving the old one behind would keep Claude
+    /// loading a server nobody declares any more.
+    /// </summary>
+    private void RemoveStaleFiles(IReadOnlyList<GeneratedFile> files, string root, CommandOptions options)
+    {
+        var expected = files
+            .Select(f => f.RelativePath.Replace('\\', '/'))
+            .ToHashSet(StringComparer.Ordinal);
+
+        if (!Directory.Exists(context.PluginsRoot))
+        {
+            return;
+        }
+
+        foreach (var pluginDirectory in Directory.GetDirectories(context.PluginsRoot)
+                     .OrderBy(d => d, StringComparer.Ordinal))
+        {
+            var relative = $"plugins/{Path.GetFileName(pluginDirectory)}/.mcp.json";
+
+            if (expected.Contains(relative))
+            {
+                continue;
+            }
+
+            var path = Path.Combine(root, relative.Replace('/', Path.DirectorySeparatorChar));
+
+            if (!File.Exists(path))
+            {
+                continue;
+            }
+
+            if (options.Check)
+            {
+                context.Diagnostics.Policy(
+                    relative,
+                    "is left over from a previous generation: the plugin no longer declares MCP servers. " +
+                    "Run 'generate-claude' and commit the deletion.");
+                continue;
+            }
+
+            File.Delete(path);
         }
     }
 

@@ -129,6 +129,46 @@ public class GenerationTests
     }
 
     [Fact]
+    public void Dropping_the_last_mcp_server_deletes_the_generated_file()
+    {
+        using var repo = new TestRepository().WithValidPlugin().WithMcp(StdioAndRemote);
+        repo.ValidateAndGenerate();
+
+        var generated = Path.Combine(repo.PluginDirectory(), ".mcp.json");
+        Assert.True(File.Exists(generated));
+
+        repo.WithMcp("""
+            {
+              "$schema": "https://agent-plugins.org/schemas/1.0.0/mcp.schema.json",
+              "mcpServers": {}
+            }
+            """);
+
+        repo.ValidateAndGenerate();
+
+        // Leaving it behind would keep Claude loading servers the source no longer declares.
+        Assert.False(File.Exists(generated));
+    }
+
+    [Fact]
+    public void Check_reports_a_leftover_generated_mcp_file()
+    {
+        using var repo = new TestRepository().WithValidPlugin().WithMcp(StdioAndRemote);
+        repo.ValidateAndGenerate();
+
+        repo.WithMcp("""
+            {
+              "$schema": "https://agent-plugins.org/schemas/1.0.0/mcp.schema.json",
+              "mcpServers": {}
+            }
+            """);
+
+        var run = repo.ValidateAndGenerate(new CommandOptions { Check = true });
+
+        Assert.Contains(run.Diagnostics, d => d.Message.Contains("left over from a previous generation"));
+    }
+
+    [Fact]
     public void A_portable_dotted_plugin_name_fails_marketplace_compatibility()
     {
         using var repo = new TestRepository().WithPlugin(manifest: """
