@@ -36,7 +36,7 @@ public class GenerationTests
         using var repo = new TestRepository().WithPlugin(manifest: """
             {
               "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
-              "name": "company-engineering",
+              "name": "engineering",
               "version": "0.1.0",
               "description": "Test plugin."
             }
@@ -45,7 +45,7 @@ public class GenerationTests
         var entry = FirstEntry(repo.ValidateAndGenerate());
 
         Assert.Null(entry["version"]);
-        Assert.Equal("./plugins/company-engineering", entry["source"]!.GetValue<string>());
+        Assert.Equal("./plugins/engineering", entry["source"]!.GetValue<string>());
         Assert.False(entry["strict"]!.GetValue<bool>());
     }
 
@@ -57,7 +57,6 @@ public class GenerationTests
         var entry = FirstEntry(repo.ValidateAndGenerate());
 
         Assert.Equal("./skills/", entry["skills"]!.GetValue<string>());
-        Assert.Null(entry["agents"]);
         Assert.Null(entry["mcpServers"]);
     }
 
@@ -70,7 +69,7 @@ public class GenerationTests
         var entry = FirstEntry(run);
 
         Assert.Equal("./.mcp.json", entry["mcpServers"]!.GetValue<string>());
-        Assert.True(run.HasFile("plugins/company-engineering/.mcp.json"));
+        Assert.True(run.HasFile("plugins/engineering/.mcp.json"));
         Assert.True(File.Exists(Path.Combine(repo.PluginDirectory(), ".mcp.json")));
     }
 
@@ -86,7 +85,7 @@ public class GenerationTests
 
         var run = repo.ValidateAndGenerate();
 
-        Assert.False(run.HasFile("plugins/company-engineering/.mcp.json"));
+        Assert.False(run.HasFile("plugins/engineering/.mcp.json"));
         Assert.Null(FirstEntry(run)["mcpServers"]);
     }
 
@@ -96,7 +95,7 @@ public class GenerationTests
         using var repo = new TestRepository().WithValidPlugin().WithMcp(StdioAndRemote);
 
         var servers = (JsonObject)repo.ValidateAndGenerate()
-            .File("plugins/company-engineering/.mcp.json").Content["mcpServers"]!;
+            .File("plugins/engineering/.mcp.json").Content["mcpServers"]!;
 
         var stdio = servers["validator"]!;
         var remote = servers["deployment-api"]!;
@@ -121,7 +120,7 @@ public class GenerationTests
         using var repo = new TestRepository().WithValidPlugin().WithMcp(StdioAndRemote);
 
         var servers = (JsonObject)repo.ValidateAndGenerate()
-            .File("plugins/company-engineering/.mcp.json").Content["mcpServers"]!;
+            .File("plugins/engineering/.mcp.json").Content["mcpServers"]!;
 
         Assert.Equal("stdio", servers["validator"]!["type"]!.GetValue<string>());
         Assert.Equal("http", servers["deployment-api"]!["type"]!.GetValue<string>());

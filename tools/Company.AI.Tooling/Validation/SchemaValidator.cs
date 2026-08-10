@@ -7,12 +7,12 @@ using Json.Schema;
 namespace Company.AI.Tooling.Validation;
 
 /// <summary>
-/// Runs the official Agent Plugins schemas, vendored under schemas/. The $schema value in a
-/// document is treated as an identifier and resolved to a local file — it is never fetched, so
-/// validation is offline and byte-identical everywhere.
+/// Fetches and runs the canonical Agent Plugins schemas selected by each document's $schema URL.
 /// </summary>
 internal sealed class SchemaValidator(RepositoryContext context)
 {
+    private static readonly HttpClient Http = new() { Timeout = TimeSpan.FromSeconds(30) };
+
     // JsonSchema.Net registers a built schema globally under its $id and refuses to register the
     // same $id twice, so the cache outlives a single validator instance. Lazy guarantees the
     // factory runs once even when several validators race for the same schema.
@@ -35,7 +35,7 @@ internal sealed class SchemaValidator(RepositoryContext context)
 
         if (declared != expectedSchemaUrl)
         {
-            if (!AgentPluginSpec.VendoredSchemas.ContainsKey(declared))
+            if (!AgentPluginSpec.SupportedSchemaUrls.Contains(declared))
             {
                 context.Diagnostics.SpecFatal(
                     relative,
@@ -84,20 +84,26 @@ internal sealed class SchemaValidator(RepositoryContext context)
         }
     }
 
-    private JsonSchema Load(string schemaUrl)
+    private static JsonSchema Load(string schemaUrl)
     {
-        var fileName = AgentPluginSpec.VendoredSchemas[schemaUrl];
-        var path = Path.Combine(context.SchemasRoot, fileName);
-
-        if (!File.Exists(path))
-        {
-            throw new FatalToolingException(
-                $"Vendored schema '{fileName}' is missing from schemas/. It is required for offline validation.");
-        }
-
         return Cache.GetOrAdd(
             schemaUrl,
-            _ => new Lazy<JsonSchema>(() => JsonSchema.FromFile(path), LazyThreadSafetyMode.ExecutionAndPublication))
+            url => new Lazy<JsonSchema>(
+                () => Fetch(url),
+                LazyThreadSafetyMode.ExecutionAndPublication))
             .Value;
+    }
+
+    private static JsonSchema Fetch(string schemaUrl)
+    {
+        try
+        {
+            var content = Http.GetStringAsync(schemaUrl).GetAwaiter().GetResult();
+            return JsonSchema.FromText(content);
+        }
+        catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException or JsonException)
+        {
+            throw new FatalToolingException($"Could not load official schema '{schemaUrl}': {ex.Message}");
+        }
     }
 }

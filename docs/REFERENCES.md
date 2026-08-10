@@ -10,7 +10,7 @@
 - Specification repository — https://github.com/agentplugins/agent-plugins-spec
 - Announcement — https://vercel.com/blog/introducing-agent-plugins
 
-Only two schemas exist, and both are vendored under `schemas/`:
+Validation uses the canonical published schemas directly:
 
 - https://agent-plugins.org/schemas/1.0.0/plugin.schema.json
 - https://agent-plugins.org/schemas/1.0.0/mcp.schema.json

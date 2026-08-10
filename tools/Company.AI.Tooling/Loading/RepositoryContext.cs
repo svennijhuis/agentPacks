@@ -12,10 +12,6 @@ internal sealed class RepositoryContext
 
     public string PluginsRoot => Path.Combine(Root, "plugins");
 
-    public string SchemasRoot => Path.Combine(Root, "schemas");
-
-    public string ExternalSourcesPath => Path.Combine(Root, "external", "sources.json");
-
     public string MarketplaceRelativePath => Path.Combine(".claude-plugin", "marketplace.json");
 
     public DiagnosticCollector Diagnostics { get; } = new();

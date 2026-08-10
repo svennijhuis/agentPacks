@@ -188,7 +188,7 @@ internal sealed class CompatibilityValidator(RepositoryContext context)
 
     private void ValidateComponentPaths(JsonObject entry, string name, string path)
     {
-        foreach (var field in (string[])["skills", "agents", "mcpServers"])
+        foreach (var field in (string[])["skills", "mcpServers"])
         {
             if (entry[field]?.GetValue<string>() is not { } value)
             {

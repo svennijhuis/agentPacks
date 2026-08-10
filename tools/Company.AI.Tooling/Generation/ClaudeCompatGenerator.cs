@@ -14,7 +14,7 @@ internal sealed record GeneratedFile(string RelativePath, JsonNode Content);
 internal sealed class ClaudeCompatGenerator(RepositoryContext context)
 {
     /// <summary>
-    /// Identifier developers type after '@' when installing, e.g. company-engineering@agentpacks.
+    /// Identifier developers type after '@' when installing, e.g. engineering@agentpacks.
     /// Marketplace names are kebab-case, so the repository's camel-case name is lowercased here.
     /// </summary>
     public const string MarketplaceName = "agentpacks";
@@ -29,15 +29,10 @@ internal sealed class ClaudeCompatGenerator(RepositoryContext context)
             entries.Add(BuildEntry(plugin, files));
         }
 
-        foreach (var source in ExternalSources.Load(context))
-        {
-            entries.Add(BuildExternalEntry(source));
-        }
-
         var marketplace = new JsonObject
         {
             ["name"] = MarketplaceName,
-            ["owner"] = new JsonObject { ["name"] = "Company Developer Platform" },
+            ["owner"] = new JsonObject { ["name"] = "agentPacks Maintainers" },
             ["metadata"] = new JsonObject
             {
                 ["description"] = "Private agentPacks plugins. Generated from the portable Agent Plugins source."
@@ -50,35 +45,6 @@ internal sealed class ClaudeCompatGenerator(RepositoryContext context)
         return files
             .OrderBy(f => f.RelativePath, StringComparer.Ordinal)
             .ToList();
-    }
-
-    /// <summary>
-    /// An external skill enters the catalog by reference, never by copy. Claude fetches the pinned
-    /// commit itself with a sparse clone of just that subdirectory, and a directory whose SKILL.md
-    /// sits at its root loads as a single skill. The skill's own frontmatter supplies its name and
-    /// description upstream; the metadata here is only what the catalog needs to list it.
-    /// </summary>
-    private static JsonObject BuildExternalEntry(ExternalSourceEntry source)
-    {
-        var entry = new JsonObject
-        {
-            ["name"] = source.Name,
-            ["source"] = new JsonObject
-            {
-                ["source"] = "git-subdir",
-                ["url"] = source.Repository,
-                ["path"] = source.Path,
-                ["sha"] = source.Commit
-            }
-        };
-
-        if (source.Description is { } description)
-        {
-            entry["description"] = description;
-        }
-
-        // No "strict": the upstream directory defines itself, and we add no components to it.
-        return entry;
     }
 
     private JsonObject BuildEntry(PluginPackage plugin, List<GeneratedFile> files)
@@ -107,11 +73,6 @@ internal sealed class ClaudeCompatGenerator(RepositoryContext context)
         if (plugin.HasSkillsDirectory)
         {
             entry["skills"] = "./skills/";
-        }
-
-        if (plugin.HasAgentsDirectory)
-        {
-            entry["agents"] = "./agents/";
         }
 
         if (plugin.Mcp?["mcpServers"] is JsonObject servers && servers.Count > 0)

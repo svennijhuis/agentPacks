@@ -40,8 +40,7 @@ internal static class PluginLoader
             Manifest = ReadObject(context, manifestPath, required: true),
             McpPath = File.Exists(mcpPath) ? mcpPath : null,
             Mcp = File.Exists(mcpPath) ? ReadObject(context, mcpPath, required: false) : null,
-            Skills = LoadSkills(context, directory),
-            Agents = LoadAgents(context, directory)
+            Skills = LoadSkills(context, directory)
         };
     }
 
@@ -112,24 +111,6 @@ internal static class PluginLoader
             }
 
             results.Add(new SkillDefinition(directory, skillFile, ReadFrontmatter(context, skillFile)));
-        }
-
-        return results;
-    }
-
-    private static List<AgentDefinition> LoadAgents(RepositoryContext context, string pluginDirectory)
-    {
-        var agentsRoot = Path.Combine(pluginDirectory, "agents");
-        var results = new List<AgentDefinition>();
-
-        if (!Directory.Exists(agentsRoot))
-        {
-            return results;
-        }
-
-        foreach (var file in Directory.GetFiles(agentsRoot, "*.md").OrderBy(f => f, StringComparer.Ordinal))
-        {
-            results.Add(new AgentDefinition(file, ReadFrontmatter(context, file)));
         }
 
         return results;

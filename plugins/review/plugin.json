@@ -1,0 +1,15 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "review",
+  "version": "0.1.0",
+  "description": "Focused code review skills.",
+  "author": {
+    "name": "agentPacks Maintainers"
+  },
+  "license": "UNLICENSED",
+  "keywords": [
+    "review",
+    "dotnet",
+    "quality"
+  ]
+}

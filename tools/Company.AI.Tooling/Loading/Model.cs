@@ -9,12 +9,6 @@ internal sealed record SkillDefinition(string Directory, string SkillFilePath, F
     public string DirectoryName => Path.GetFileName(Directory);
 }
 
-/// <summary>A shared agent definition. Not an Agent Plugins component; a company convention.</summary>
-internal sealed record AgentDefinition(string FilePath, Frontmatter? Frontmatter);
-
-/// <summary>An entry in external/sources.json.</summary>
-internal sealed record ExternalSource(JsonObject Raw);
-
 /// <summary>One plugin directory with everything loaded from it.</summary>
 internal sealed record PluginPackage
 {
@@ -32,13 +26,10 @@ internal sealed record PluginPackage
 
     public IReadOnlyList<SkillDefinition> Skills { get; init; } = [];
 
-    public IReadOnlyList<AgentDefinition> Agents { get; init; } = [];
-
     public string DirectoryName => Path.GetFileName(Directory);
 
     public string? Name => Manifest?["name"]?.GetValue<string>();
 
     public bool HasSkillsDirectory => System.IO.Directory.Exists(Path.Combine(Directory, "skills"));
 
-    public bool HasAgentsDirectory => System.IO.Directory.Exists(Path.Combine(Directory, "agents"));
 }

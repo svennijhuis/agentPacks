@@ -1,27 +1,25 @@
-# Claude Code — repository as plugin source
+# Claude Code — generated distribution branch
 
-The GitHub repository is the plugin source: Claude clones it and reads the generated catalog. Nothing is published to a public marketplace either way.
+Claude clones the repository's generated `distribution` branch. The authored `main` branch contains no Claude marketplace file.
 
 The repository is public today. Nothing about the setup changes when it becomes private, except that Claude then needs credentials for it — see [Authentication](#authentication).
 
 ## What is generated
 
-Two files, both produced by the .NET tooling and committed by GitHub Actions:
+GitHub Actions creates the complete installable tree on `distribution`. The catalog is always generated; an MCP adapter exists only for a plugin that declares real servers:
 
 ```
 .claude-plugin/marketplace.json          the plugin catalog
-plugins/company-engineering/.mcp.json    MCP config in Claude's own file name
+plugins/<plugin>/.mcp.json               only when that plugin has MCP servers
 ```
 
-There is no second copy of the skills or agents. The catalog entry points at the real plugin directory:
+The catalog entry points at the completed plugin directory on that same branch:
 
 ```json
 {
-  "name": "company-engineering",
-  "source": "./plugins/company-engineering",
+  "name": "engineering",
+  "source": "./plugins/engineering",
   "skills": "./skills/",
-  "agents": "./agents/",
-  "mcpServers": "./.mcp.json",
   "strict": false
 }
 ```
@@ -40,16 +38,18 @@ Claude resolves plugin updates from an explicit `version` first, and only falls 
 
 With `strict: false` the marketplace entry is the authority for component definitions. Claude reports a conflict if the plugin's own manifest *also* declares components — our root `plugin.json` is an Agent Plugins manifest with no component fields, so there is nothing to conflict with.
 
-If that ever changes, the fallback is `strict: true` and letting Claude discover `skills/`, `agents/` and `.mcp.json` by their default locations.
+If that ever changes, the fallback is `strict: true` and letting Claude discover `skills/` and `.mcp.json` by their default locations.
 
 ## Install
 
 ```bash
-/plugin marketplace add svennijhuis/agentPacks
+/plugin marketplace add https://github.com/svennijhuis/agentPacks.git#distribution
 ```
 
 ```bash
-/plugin install company-engineering@agentpacks
+/plugin install engineering@agentpacks
+/plugin install review@agentpacks
+/plugin install testing@agentpacks
 ```
 
 Update the catalog:
@@ -58,7 +58,7 @@ Update the catalog:
 /plugin marketplace update agentpacks
 ```
 
-Reload after an update when a non-skill component changed — edits to a `SKILL.md` apply immediately, but agents and MCP need a reload:
+Reload after an update when MCP configuration changed — edits to a `SKILL.md` apply immediately, but MCP needs a reload:
 
 ```bash
 /reload-plugins
@@ -82,11 +82,15 @@ A product repository can point Claude at agentPacks automatically:
 {
   "extraKnownMarketplaces": {
     "agentpacks": {
-      "source": { "source": "github", "repo": "svennijhuis/agentPacks" }
+      "source": {
+        "source": "url",
+        "url": "https://github.com/svennijhuis/agentPacks.git",
+        "ref": "distribution"
+      }
     }
   },
   "enabledPlugins": {
-    "company-engineering@agentpacks": true
+    "engineering@agentpacks": true
   }
 }
 ```

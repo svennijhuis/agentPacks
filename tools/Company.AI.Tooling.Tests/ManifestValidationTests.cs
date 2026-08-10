@@ -33,7 +33,7 @@ public class ManifestValidationTests
         using var repo = new TestRepository().WithPlugin(manifest: """
             {
               "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
-              "name": "company-engineering",
+              "name": "engineering",
               "hooks": "./hooks/"
             }
             """);
@@ -68,7 +68,7 @@ public class ManifestValidationTests
         using var repo = new TestRepository().WithPlugin(manifest: """
             {
               "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
-              "name": "company-engineering",
+              "name": "engineering",
               "author": "Company Developer Platform"
             }
             """);
@@ -84,7 +84,7 @@ public class ManifestValidationTests
         using var repo = new TestRepository().WithPlugin(manifest: """
             {
               "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
-              "name": "company-engineering",
+              "name": "engineering",
               "keywords": [1, 2]
             }
             """);
@@ -100,7 +100,7 @@ public class ManifestValidationTests
         using var repo = new TestRepository().WithPlugin(manifest: """
             {
               "$schema": "https://agent-plugins.org/schemas/2.0.0/plugin.schema.json",
-              "name": "company-engineering"
+              "name": "engineering"
             }
             """);
 
@@ -139,13 +139,13 @@ public class ManifestValidationTests
     }
 
     [Fact]
-    public void External_sources_file_is_required()
+    public void External_sources_file_is_optional()
     {
         using var repo = new TestRepository().WithValidPlugin().WithoutExternalSources();
 
         var run = repo.Validate();
 
-        Assert.Contains(run.Diagnostics, d => d.Path.EndsWith("sources.json") && d.Message.Contains("required"));
+        Assert.False(run.HasErrors);
     }
 
     [Fact]
@@ -184,15 +184,17 @@ public class ManifestValidationTests
     }
 
     [Fact]
-    public void A_stray_directory_at_the_plugin_root_is_tolerated()
+    public void A_file_only_client_extension_directory_is_tolerated()
     {
         using var repo = new TestRepository().WithValidPlugin();
 
-        Directory.CreateDirectory(Path.Combine(repo.PluginDirectory(), "com.github.copilot"));
+        repo.WithFile(
+            "plugins/engineering/com.example.client/hooks/hooks.json",
+            "{}\n");
 
         var run = repo.ValidateAndGenerate();
 
         Assert.False(run.HasErrors);
-        Assert.DoesNotContain("com.github.copilot", run.File(".claude-plugin/marketplace.json").Content.ToJsonString());
+        Assert.DoesNotContain("com.example.client", run.File(".claude-plugin/marketplace.json").Content.ToJsonString());
     }
 }
