@@ -42,14 +42,5 @@ jobs:
           --no-build
           -- validate-all --out "$RUNNER_TEMP/claude-compat"
 
-      # Offline check that vendored external skills match their pins and were not edited in place.
-      - name: Check vendored external skills
-        run: >
-          dotnet run
-          --project tools/Company.AI.Tooling
-          --configuration Release
-          --no-build
-          -- vendor --check
-
       - name: Confirm the working tree is unchanged
         run: git diff --exit-code

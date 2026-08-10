@@ -3,9 +3,13 @@ using Company.AI.Tooling.Io;
 
 namespace Company.AI.Tooling.Loading;
 
-/// <summary>One reviewed, pinned external skill.</summary>
+/// <summary>
+/// A reviewed external skill, referenced by URL and pinned commit. Nothing is copied into this
+/// repository: the generated catalog points clients straight at the upstream directory.
+/// </summary>
 internal sealed record ExternalSourceEntry
 {
+    /// <summary>Name the skill is installed and invoked under.</summary>
     public required string Name { get; init; }
 
     public required string Repository { get; init; }
@@ -18,16 +22,12 @@ internal sealed record ExternalSourceEntry
 
     public required string License { get; init; }
 
-    public required string Owner { get; init; }
-
-    /// <summary>Plugin to vendor into. Optional when the repository holds a single plugin.</summary>
-    public string? Plugin { get; init; }
+    /// <summary>Optional one-line summary for the catalog.</summary>
+    public string? Description { get; init; }
 }
 
 internal static class ExternalSources
 {
-    public const string MarkerFileName = ".vendored.json";
-
     /// <summary>
     /// Reads external/sources.json. Returns an empty list when the file is missing or malformed;
     /// PluginValidator reports those cases, so this stays quiet rather than double-reporting.
@@ -55,10 +55,8 @@ internal static class ExternalSources
             var path = entry["path"]?.GetValue<string>();
             var commit = entry["commit"]?.GetValue<string>();
             var license = entry["license"]?.GetValue<string>();
-            var owner = entry["owner"]?.GetValue<string>();
 
-            if (name is null || repository is null || path is null ||
-                commit is null || license is null || owner is null)
+            if (name is null || repository is null || path is null || commit is null || license is null)
             {
                 continue;
             }
@@ -70,8 +68,7 @@ internal static class ExternalSources
                 Path = path,
                 Commit = commit,
                 License = license,
-                Owner = owner,
-                Plugin = entry["plugin"]?.GetValue<string>()
+                Description = entry["description"]?.GetValue<string>()
             });
         }
 

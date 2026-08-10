@@ -1,81 +1,72 @@
-# External sources
+# External skills
 
-External skills and MCP servers are allowed only after review. Approved sources are recorded in `external/sources.json`.
+External skills are **referenced, never copied**. This repository stores a URL, a pinned commit and a little metadata; the skill's own content stays in its own repository, where its author maintains it.
 
-The file must exist even when nothing is approved:
+Approved sources live in `external/sources.json`. The file must exist even when nothing is approved:
 
 ```json
 { "sources": [] }
 ```
 
-An empty file is deliberate: it makes the policy discoverable instead of leaving newcomers to guess whether one exists.
-
-## Import, not copy-paste
-
-Nobody copies an external skill by hand. Record it in `external/sources.json` and run:
-
-```bash
-dotnet run --project tools/Company.AI.Tooling -- vendor
-```
-
-The tooling fetches the pinned commit with a sparse, blobless clone, writes the skill into `plugins/<plugin>/skills/<name>/`, and drops a `.vendored.json` marker recording the origin, the commit and a content hash. Bumping the pin is a one-line edit plus a re-run.
-
-Vendored content **is** committed: that is what makes the skill portable to every client.
-
-### Why vendoring rather than a reference
-
-Agent Plugins v1 has no import mechanism. `skills/` is a fixed location, each skill must be a real directory whose `SKILL.md` "resolves to a regular file", and symlinks may not be used to escape the package. So a genuine reference is only possible in marketplaces that support git sources — Claude and Copilot can point a catalog entry at `{"source": "git-subdir", "url": ..., "path": ..., "sha": ...}` — while Cursor, Codex and Kiro cannot. Vendoring works everywhere, which is why it is the default here.
-
-The two approaches are mutually exclusive per skill: vendoring it *and* importing it into the Claude catalog would load it twice.
-
-### Drift
-
-```bash
-dotnet run --project tools/Company.AI.Tooling -- vendor --check
-```
-
-Runs offline and fails when a source was never vendored, the pinned commit no longer matches what was written, someone edited vendored content locally, or a vendored directory survives after its entry was removed. The scheduled drift workflow runs it.
-
-Edits to vendored skills are rejected on purpose. Fix it upstream and bump the pin, or the next `vendor` silently discards the change.
-
-## Required fields
+## Adding one
 
 ```json
 {
-  "sources": [
-    {
-      "name": "pdf-processing",
-      "repository": "https://github.com/example/skills",
-      "path": "skills/pdf-processing",
-      "commit": "0b8f4c2d9e1a6f3b7c5d2e8a4f6b1c3d5e7a9b0c",
-      "license": "Apache-2.0",
-      "owner": "platform-team"
-    }
-  ]
+  "name": "code-review",
+  "description": "Two-axis review of a diff: repository standards and the originating spec.",
+  "repository": "https://github.com/mattpocock/skills",
+  "path": "skills/engineering/code-review",
+  "commit": "84fdeffd12f2ee307994d1eb6feb48173b6e0502",
+  "license": "MIT"
 }
 ```
 
 | Field | Why |
 |---|---|
-| `name` | What the skill is called. |
-| `repository` | Where it came from. |
-| `path` | Which part of that repository we use. |
-| `commit` | An exact 40-character Git commit SHA. |
+| `name` | What the skill installs and is invoked as. |
+| `description` | One line for the catalog. Optional. |
+| `repository` | Where it lives. |
+| `path` | Which directory inside that repository is the skill. |
+| `commit` | Exact 40-character commit SHA. |
 | `license` | Reviewed before adoption. |
-| `owner` | A named internal owner, not a team-shaped shrug. |
-| `plugin` | Optional. Which plugin to vendor into. Required once the repository holds more than one. |
+
+Run `validate-all`, then open a pull request. Generation turns each entry into a catalog entry:
+
+```json
+{
+  "name": "code-review",
+  "source": {
+    "source": "git-subdir",
+    "url": "https://github.com/mattpocock/skills",
+    "path": "skills/engineering/code-review",
+    "sha": "84fdeffd12f2ee307994d1eb6feb48173b6e0502"
+  }
+}
+```
+
+The client does a sparse clone of just that subdirectory at that commit. A directory whose `SKILL.md` sits at its root loads as a single skill, and its own frontmatter supplies the name and description that the agent sees.
 
 ## Never track a branch
 
-`main` is not a version. The validator rejects anything that is not a full commit SHA, because a moving reference means the content a developer runs today is not the content that was reviewed.
+`main` is not a version. The validator rejects anything that is not a full commit SHA, in `sources.json` and again in the generated entry, because a moving reference means the content someone runs today is not the content that was reviewed.
 
-Updating an external source is a deliberate act: bump the SHA in a pull request, re-review the diff, and merge.
+Updating is deliberate: bump the SHA in a pull request, re-review the diff upstream, merge.
+
+## Which clients get them
+
+Catalog entries are read by Claude Code and by Copilot CLI, which also looks for `.claude-plugin/marketplace.json`. Cursor, Codex and Kiro install the portable plugin only; Agent Plugins v1 has no import mechanism, since `skills/` is a fixed local location and symlinks may not escape the package. Those clients can install the upstream skill directly instead — it is somebody else's repository, not ours to re-publish.
+
+## Watch for wrapper skills
+
+Some skills are thin wrappers that delegate to a sibling. `grill-me` is little more than "run a `/grilling` session", and referencing it without `grilling` gives you a skill that loads and then dead-ends.
+
+The validator catches this: any `` `/name` `` a skill invokes must resolve to a skill in this plugin or to an entry in `sources.json`. When it fires, either add the sibling or drop the wrapper.
 
 ## Review checklist
 
-1. Identify the source and confirm it is a project we are willing to depend on.
-2. Read the skill body and any `scripts/` it ships. Scripts run on developer machines.
-3. Check the license is compatible with internal use.
+1. Identify the source and confirm it is a project worth depending on.
+2. Read the skill and any `scripts/` it ships. Scripts run on developer machines.
+3. Check the license permits internal use. **No LICENSE file means no permission** — default copyright is all rights reserved, so an unlicensed repository is not adoptable however useful it looks.
 4. Pin the exact commit.
-5. Name an owner who will handle updates.
+5. Check what the skill invokes, and bring its siblings along.
 6. Open a pull request.

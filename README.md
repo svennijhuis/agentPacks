@@ -80,17 +80,7 @@ dotnet run --project tools/Company.AI.Tooling -- validate-all
 
 `validate` checks the portable source. `validate-all` also regenerates the Claude layer and validates the result. Use `generate-claude --check` to confirm the committed generated files still match the source without writing anything.
 
-External skills are imported rather than copied by hand: record the source and its pinned commit in `external/sources.json`, then run `vendor`.
-
-```bash
-dotnet run --project tools/Company.AI.Tooling -- vendor
-```
-
-```bash
-dotnet run --project tools/Company.AI.Tooling -- vendor --check
-```
-
-`vendor` fetches each pinned commit into `skills/` and records a `.vendored.json` marker; `vendor --check` verifies offline that nothing drifted or was edited in place. See [docs/EXTERNAL-SOURCES.md](docs/EXTERNAL-SOURCES.md).
+External skills are referenced, never copied. Record the URL, the directory and an exact commit in `external/sources.json`, and generation adds a pinned catalog entry pointing at the upstream repository. No third-party markdown lands in this repository. See [docs/EXTERNAL-SOURCES.md](docs/EXTERNAL-SOURCES.md).
 
 The validator reports every finding in one run, tagged by severity: `spec` for something a client would reject, `spec(tolerated)` for a violation clients ignore but we do not, `policy` for our own rules, and `warning` for advice that does not fail the build.
 

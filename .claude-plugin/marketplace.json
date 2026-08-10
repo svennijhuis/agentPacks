@@ -25,6 +25,116 @@
       "skills": "./skills/",
       "agents": "./agents/",
       "strict": false
+    },
+    {
+      "name": "caveman",
+      "source": {
+        "source": "git-subdir",
+        "url": "https://github.com/juliusbrussee/caveman",
+        "path": "skills/caveman",
+        "sha": "11ddc0c9813c8f75365cd5be2f753df08712f154"
+      },
+      "description": "Ultra-compressed communication mode that cuts token usage while keeping technical accuracy."
+    },
+    {
+      "name": "code-review",
+      "source": {
+        "source": "git-subdir",
+        "url": "https://github.com/mattpocock/skills",
+        "path": "skills/engineering/code-review",
+        "sha": "84fdeffd12f2ee307994d1eb6feb48173b6e0502"
+      },
+      "description": "Two-axis review of a diff: repository standards and the originating spec, run as parallel sub-agents."
+    },
+    {
+      "name": "codebase-design",
+      "source": {
+        "source": "git-subdir",
+        "url": "https://github.com/mattpocock/skills",
+        "path": "skills/engineering/codebase-design",
+        "sha": "84fdeffd12f2ee307994d1eb6feb48173b6e0502"
+      },
+      "description": "Shared vocabulary for designing deep modules."
+    },
+    {
+      "name": "diagnosing-bugs",
+      "source": {
+        "source": "git-subdir",
+        "url": "https://github.com/mattpocock/skills",
+        "path": "skills/engineering/diagnosing-bugs",
+        "sha": "84fdeffd12f2ee307994d1eb6feb48173b6e0502"
+      },
+      "description": "Diagnosis loop for hard bugs and performance regressions."
+    },
+    {
+      "name": "domain-modeling",
+      "source": {
+        "source": "git-subdir",
+        "url": "https://github.com/mattpocock/skills",
+        "path": "skills/engineering/domain-modeling",
+        "sha": "84fdeffd12f2ee307994d1eb6feb48173b6e0502"
+      },
+      "description": "Build and sharpen a project's domain model and ubiquitous language."
+    },
+    {
+      "name": "grill-me",
+      "source": {
+        "source": "git-subdir",
+        "url": "https://github.com/mattpocock/skills",
+        "path": "skills/productivity/grill-me",
+        "sha": "84fdeffd12f2ee307994d1eb6feb48173b6e0502"
+      },
+      "description": "A relentless interview to sharpen a plan or design. Wraps grilling."
+    },
+    {
+      "name": "grilling",
+      "source": {
+        "source": "git-subdir",
+        "url": "https://github.com/mattpocock/skills",
+        "path": "skills/productivity/grilling",
+        "sha": "84fdeffd12f2ee307994d1eb6feb48173b6e0502"
+      },
+      "description": "Stress-test a plan, decision or idea by grilling the user relentlessly."
+    },
+    {
+      "name": "improve-codebase-architecture",
+      "source": {
+        "source": "git-subdir",
+        "url": "https://github.com/mattpocock/skills",
+        "path": "skills/engineering/improve-codebase-architecture",
+        "sha": "84fdeffd12f2ee307994d1eb6feb48173b6e0502"
+      },
+      "description": "Scan a codebase for deepening opportunities and report them, then grill through one."
+    },
+    {
+      "name": "setup-matt-pocock-skills",
+      "source": {
+        "source": "git-subdir",
+        "url": "https://github.com/mattpocock/skills",
+        "path": "skills/engineering/setup-matt-pocock-skills",
+        "sha": "84fdeffd12f2ee307994d1eb6feb48173b6e0502"
+      },
+      "description": "One-off repository setup the engineering skills expect: issue tracker, triage labels, domain docs."
+    },
+    {
+      "name": "to-tickets",
+      "source": {
+        "source": "git-subdir",
+        "url": "https://github.com/mattpocock/skills",
+        "path": "skills/engineering/to-tickets",
+        "sha": "84fdeffd12f2ee307994d1eb6feb48173b6e0502"
+      },
+      "description": "Break a plan or spec into tracer-bullet tickets, each declaring its blockers."
+    },
+    {
+      "name": "writing-for-agents",
+      "source": {
+        "source": "git-subdir",
+        "url": "https://github.com/mattpocock/skills",
+        "path": "skills/productivity/writing-for-agents",
+        "sha": "84fdeffd12f2ee307994d1eb6feb48173b6e0502"
+      },
+      "description": "Writing documents agents consume: skills, AGENTS.md, CLAUDE.md. Use when creating or editing a skill."
     }
   ]
 }

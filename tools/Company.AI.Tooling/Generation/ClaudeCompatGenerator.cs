@@ -29,6 +29,11 @@ internal sealed class ClaudeCompatGenerator(RepositoryContext context)
             entries.Add(BuildEntry(plugin, files));
         }
 
+        foreach (var source in ExternalSources.Load(context))
+        {
+            entries.Add(BuildExternalEntry(source));
+        }
+
         var marketplace = new JsonObject
         {
             ["name"] = MarketplaceName,
@@ -45,6 +50,35 @@ internal sealed class ClaudeCompatGenerator(RepositoryContext context)
         return files
             .OrderBy(f => f.RelativePath, StringComparer.Ordinal)
             .ToList();
+    }
+
+    /// <summary>
+    /// An external skill enters the catalog by reference, never by copy. Claude fetches the pinned
+    /// commit itself with a sparse clone of just that subdirectory, and a directory whose SKILL.md
+    /// sits at its root loads as a single skill. The skill's own frontmatter supplies its name and
+    /// description upstream; the metadata here is only what the catalog needs to list it.
+    /// </summary>
+    private static JsonObject BuildExternalEntry(ExternalSourceEntry source)
+    {
+        var entry = new JsonObject
+        {
+            ["name"] = source.Name,
+            ["source"] = new JsonObject
+            {
+                ["source"] = "git-subdir",
+                ["url"] = source.Repository,
+                ["path"] = source.Path,
+                ["sha"] = source.Commit
+            }
+        };
+
+        if (source.Description is { } description)
+        {
+            entry["description"] = description;
+        }
+
+        // No "strict": the upstream directory defines itself, and we add no components to it.
+        return entry;
     }
 
     private JsonObject BuildEntry(PluginPackage plugin, List<GeneratedFile> files)

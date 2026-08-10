@@ -2,7 +2,6 @@ using Company.AI.Tooling.Cli;
 using Company.AI.Tooling.Generation;
 using Company.AI.Tooling.Loading;
 using Company.AI.Tooling.Validation;
-using Company.AI.Tooling.Vendoring;
 
 namespace Company.AI.Tooling.Tests;
 
@@ -189,16 +188,6 @@ internal sealed class TestRepository : IDisposable
         pipeline.Emit(files, options ?? new CommandOptions());
 
         return new ValidationRun(context, plugins, files);
-    }
-
-    /// <summary>Runs the offline half of vendoring: verify what is committed against the pins.</summary>
-    public ValidationRun VendorCheck()
-    {
-        var context = new RepositoryContext { Root = Root };
-
-        new Vendorer(context).Check(ExternalSources.Load(context));
-
-        return new ValidationRun(context, [], []);
     }
 
     public void Dispose()

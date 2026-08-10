@@ -1,5 +1,4 @@
 using Company.AI.Tooling.Loading;
-using Company.AI.Tooling.Vendoring;
 
 namespace Company.AI.Tooling.Cli;
 
@@ -12,10 +11,9 @@ internal static class CommandRouter
           validate          Validate the portable Agent Plugins source.
           generate-claude   Validate, then write the generated Claude compatibility files.
           validate-all      Validate the source, generate, and validate the generated output.
-          vendor            Fetch reviewed external skills at their pinned commits into skills/.
 
         Options:
-          --check           Compare generated or vendored files with what is committed; write nothing.
+          --check           Compare generated files with what is committed; write nothing.
           --out <dir>       Write generated files beneath <dir> instead of the repository root.
         """;
 
@@ -60,7 +58,6 @@ internal static class CommandRouter
             "validate" => Validate(pipeline),
             "generate-claude" => GenerateClaude(pipeline, options),
             "validate-all" => ValidateAll(pipeline, options),
-            "vendor" => Vendor(pipeline, options),
             _ => UnknownCommand(command)
         };
     }
@@ -100,24 +97,6 @@ internal static class CommandRouter
         pipeline.Emit(pipeline.Generate(plugins), options);
 
         return pipeline.Report("Source and generated Claude compatibility validation passed.");
-    }
-
-    private static ExitCode Vendor(Pipeline pipeline, CommandOptions options)
-    {
-        var sources = ExternalSources.Load(pipeline.Context);
-        var vendorer = new Vendorer(pipeline.Context);
-
-        if (options.Check)
-        {
-            vendorer.Check(sources);
-            return pipeline.Report("Vendored external skills are up to date.");
-        }
-
-        vendorer.Vendor(sources);
-
-        return pipeline.Report(sources.Count == 0
-            ? "No external sources are approved, so nothing was vendored."
-            : "Vendored external skills.");
     }
 
     private static ExitCode UnknownCommand(string command)

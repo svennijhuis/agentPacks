@@ -34,12 +34,3 @@ jobs:
           --configuration Release
           -- generate-claude --check
 
-      # Offline: verifies vendored external skills still match their pinned commits and have not
-      # been edited in place, and that no vendored directory outlived its source entry.
-      - name: Check vendored external skills
-        if: always()
-        run: >
-          dotnet run
-          --project tools/Company.AI.Tooling
-          --configuration Release
-          -- vendor --check

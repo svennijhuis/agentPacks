@@ -152,7 +152,7 @@ internal sealed class PluginValidator(RepositoryContext context, SchemaValidator
                 continue;
             }
 
-            foreach (var field in (string[])["name", "repository", "path", "license", "owner", "commit"])
+            foreach (var field in (string[])["name", "repository", "path", "license", "commit"])
             {
                 if (source[field] is not JsonValue value || value.GetValueKind() != System.Text.Json.JsonValueKind.String
                     || string.IsNullOrWhiteSpace(value.GetValue<string>()))
