@@ -1,11 +1,18 @@
 using System.Text.Json;
+using System.Text.Encodings.Web;
 using System.Text.Json.Nodes;
 
 namespace Company.AI.Tooling.Io;
 
 internal static class JsonFile
 {
-    private static readonly JsonSerializerOptions WriteOptions = new() { WriteIndented = true };
+    // Generated files are read by humans during review, so keep apostrophes, angle brackets and
+    // ampersands as themselves rather than '-style escapes. The output is still valid JSON.
+    private static readonly JsonSerializerOptions WriteOptions = new()
+    {
+        WriteIndented = true,
+        Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping
+    };
 
     private static readonly JsonDocumentOptions ParseOptions = new()
     {

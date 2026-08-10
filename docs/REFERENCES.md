@@ -49,6 +49,27 @@ There is no JSON Schema for skills. The normative frontmatter table in the speci
 - Discover and install — https://code.claude.com/docs/en/discover-plugins
 - MCP — https://code.claude.com/docs/en/mcp
 
+## Building MCP servers in .NET
+
+- MCP C# SDK v2.0 announcement — https://devblogs.microsoft.com/dotnet/announcing-v20-of-the-official-mcp-csharp-sdk/
+
+The official C# SDK is the natural way to build the company MCP servers this repository will point at. v2.0 is production-ready, implements the 2026-07-28 protocol revision, and is backward compatible with v1 apart from the experimental Tasks extension.
+
+| Package | Use |
+|---|---|
+| `ModelContextProtocol.Core` | Client and low-level server |
+| `ModelContextProtocol` | Stdio server and attribute-based tool discovery |
+| `ModelContextProtocol.AspNetCore` | HTTP server transport |
+| `ModelContextProtocol.Extensions.Tasks` | Long-running tools |
+| `ModelContextProtocol.Extensions.Apps` | Interactive UI delivery |
+
+Two v2.0 changes matter for how we declare servers in `mcp.json`:
+
+- **Stateless by default.** No `initialize` handshake or `Mcp-Session-Id` header is required, so a server can scale horizontally without sticky sessions. Combined with standardized `Mcp-Method` / `Mcp-Name` / `Mcp-Param-*` headers, ordinary HTTP infrastructure can route MCP traffic without inspecting payloads.
+- **Multi Round-Trip Requests.** A tool can ask for user input mid-execution by returning `InputRequiredResult`, so interactivity no longer implies a persistent session.
+
+Both point the same way as our own policy: prefer `streamable-http` over the deprecated `sse` transport, and keep authentication with the client rather than in `mcp.json`. Targets net8.0 through net10.0 and netstandard2.0.
+
 ## Examples worth reading
 
 - Microsoft Agent Skills — https://github.com/MicrosoftDocs/Agent-Skills

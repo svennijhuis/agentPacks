@@ -46,6 +46,12 @@ The `$schema` must match the specification version declared in `plugin.json`.
 
 Configured headers and environment values are literal, visible package data. Agent Plugins 1.0.0 defines no portable OAuth or credential-reference fields; authentication is client-managed. The validator rejects keys that look credential-related (`token`, `secret`, `authorization`, `api-key`, and similar).
 
+## Writing the server
+
+Company MCP servers are .NET services, so use the official [MCP C# SDK](https://devblogs.microsoft.com/dotnet/announcing-v20-of-the-official-mcp-csharp-sdk/). Reference `ModelContextProtocol.AspNetCore` for an HTTP server or `ModelContextProtocol` for stdio with attribute-based tool discovery.
+
+Prefer `streamable-http` here: v2.0 servers are stateless by default, with no `initialize` handshake or session header, so they scale horizontally behind ordinary HTTP infrastructure. A tool that needs input mid-execution returns `InputRequiredResult` rather than holding a session open.
+
 ## Start read-only
 
 For the first phase, prefer lookups over writes: architecture search, coding standard search, service lookup, owner lookup. Add deployment or resource tooling later, and do not start with production write access.

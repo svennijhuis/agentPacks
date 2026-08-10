@@ -1,3 +1,60 @@
 {
-  "sources": []
+  "sources": [
+    {
+      "name": "caveman",
+      "repository": "https://github.com/juliusbrussee/caveman",
+      "path": "skills/caveman",
+      "commit": "11ddc0c9813c8f75365cd5be2f753df08712f154",
+      "license": "MIT",
+      "owner": "svennijhuis"
+    },
+    {
+      "name": "code-review",
+      "repository": "https://github.com/mattpocock/skills",
+      "path": "skills/engineering/code-review",
+      "commit": "84fdeffd12f2ee307994d1eb6feb48173b6e0502",
+      "license": "MIT",
+      "owner": "svennijhuis"
+    },
+    {
+      "name": "codebase-design",
+      "repository": "https://github.com/mattpocock/skills",
+      "path": "skills/engineering/codebase-design",
+      "commit": "84fdeffd12f2ee307994d1eb6feb48173b6e0502",
+      "license": "MIT",
+      "owner": "svennijhuis"
+    },
+    {
+      "name": "diagnosing-bugs",
+      "repository": "https://github.com/mattpocock/skills",
+      "path": "skills/engineering/diagnosing-bugs",
+      "commit": "84fdeffd12f2ee307994d1eb6feb48173b6e0502",
+      "license": "MIT",
+      "owner": "svennijhuis"
+    },
+    {
+      "name": "grill-me",
+      "repository": "https://github.com/mattpocock/skills",
+      "path": "skills/productivity/grill-me",
+      "commit": "84fdeffd12f2ee307994d1eb6feb48173b6e0502",
+      "license": "MIT",
+      "owner": "svennijhuis"
+    },
+    {
+      "name": "writing-for-agents",
+      "repository": "https://github.com/mattpocock/skills",
+      "path": "skills/productivity/writing-for-agents",
+      "commit": "84fdeffd12f2ee307994d1eb6feb48173b6e0502",
+      "license": "MIT",
+      "owner": "svennijhuis"
+    },
+    {
+      "name": "to-tickets",
+      "repository": "https://github.com/mattpocock/skills",
+      "path": "skills/engineering/to-tickets",
+      "commit": "84fdeffd12f2ee307994d1eb6feb48173b6e0502",
+      "license": "MIT",
+      "owner": "svennijhuis"
+    }
+  ]
 }
