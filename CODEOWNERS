@@ -1,0 +1,20 @@
+# Replace YOUR-ORG team handles before enabling branch protection.
+
+# Everything has a default owner.
+*                           @YOUR-ORG/developer-platform
+
+# Validation and generation decide what the whole company can ship.
+/tools/                     @YOUR-ORG/developer-platform
+/schemas/                   @YOUR-ORG/developer-platform
+
+# Workflow changes affect the trust boundary of the generated files.
+/.github/                   @YOUR-ORG/developer-platform
+
+# MCP servers reach internal systems.
+/plugins/*/mcp.json         @YOUR-ORG/developer-platform @YOUR-ORG/security
+
+# External code adoption is a review gate, not a preference.
+/external/                  @YOUR-ORG/developer-platform @YOUR-ORG/security
+
+# Generated. Changes here should only ever arrive from automation.
+/.claude-plugin/            @YOUR-ORG/developer-platform

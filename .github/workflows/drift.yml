@@ -1,0 +1,45 @@
+name: Detect generated-file drift
+
+on:
+  schedule:
+    # Monday morning, before the working week starts.
+    - cron: "0 6 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
+        with:
+          global-json-file: global.json
+
+      - name: Restore
+        run: dotnet restore tools/Company.AI.Tooling.slnx --locked-mode
+
+      # Fails when the committed Claude files no longer match what the portable source generates,
+      # which normally means someone edited a generated file by hand.
+      - name: Check generated files
+        run: >
+          dotnet run
+          --project tools/Company.AI.Tooling
+          --configuration Release
+          -- generate-claude --check
+
+      # Offline: verifies vendored external skills still match their pinned commits and have not
+      # been edited in place, and that no vendored directory outlived its source entry.
+      - name: Check vendored external skills
+        if: always()
+        run: >
+          dotnet run
+          --project tools/Company.AI.Tooling
+          --configuration Release
+          -- vendor --check

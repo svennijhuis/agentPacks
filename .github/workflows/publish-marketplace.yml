@@ -1,0 +1,77 @@
+name: Publish private Claude catalog
+
+on:
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - ".claude-plugin/marketplace.json"
+      - "plugins/*/.mcp.json"
+
+permissions:
+  contents: write
+
+# Two pushes to main must not race to write the same generated files.
+concurrency:
+  group: publish-marketplace
+  cancel-in-progress: false
+
+jobs:
+  generate:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
+        with:
+          global-json-file: global.json
+
+      - name: Restore
+        run: dotnet restore tools/Company.AI.Tooling.slnx --locked-mode
+
+      - name: Build
+        run: dotnet build tools/Company.AI.Tooling.slnx --configuration Release --no-restore
+
+      # This job runs the same gate itself rather than trusting the validate workflow: both are
+      # triggered by the same push and run concurrently, so neither can assume the other passed.
+      - name: Test
+        run: dotnet test tools/Company.AI.Tooling.slnx --configuration Release --no-build
+
+      - name: Generate the Claude compatibility layer
+        run: >
+          dotnet run
+          --project tools/Company.AI.Tooling
+          --configuration Release
+          --no-build
+          -- generate-claude
+
+      - name: Commit generated files
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git add .claude-plugin/marketplace.json
+          git add --all 'plugins/*/.mcp.json'
+
+          if git diff --cached --quiet; then
+            echo "Claude compatibility layer already up to date."
+            exit 0
+          fi
+
+          git commit -m "chore: regenerate Claude compatibility layer [skip ci]"
+          git push
+
+      - name: Assert the committed output matches the source
+        run: >
+          dotnet run
+          --project tools/Company.AI.Tooling
+          --configuration Release
+          --no-build
+          -- generate-claude --check

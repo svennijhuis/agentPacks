@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="Company.AI.Tooling.Tests/Company.AI.Tooling.Tests.csproj" />
+  <Project Path="Company.AI.Tooling/Company.AI.Tooling.csproj" />
+</Solution>
