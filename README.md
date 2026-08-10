@@ -72,24 +72,6 @@ Edit `plugins/<plugin>/mcp.json` to add a server. An empty `mcpServers` object i
 
 Add manifest data under `plugin.json` → `extensions` and/or add a top-level directory whose name exactly matches the reverse-domain namespace, for example `com.example.client/hooks/hooks.json`. Agent Plugins defines the namespace boundary, not the contents; use the owning client's documentation for fields and validation. See [docs/ADD-CLIENT-EXTENSION.md](docs/ADD-CLIENT-EXTENSION.md).
 
-## Validate locally
-
-Requires the .NET SDK pinned in `global.json` (.NET 10).
-
-```bash
-dotnet test tools/Company.AI.Tooling.slnx -c Release
-```
-
-```bash
-dotnet run --project tools/Company.AI.Tooling -- validate
-```
-
-```bash
-dotnet run --project tools/Company.AI.Tooling -- validate-all
-```
-
-`validate` checks the portable source. `validate-all` also builds and validates the Claude layer in memory without writing it into `main`. A deliberate generation requires `generate-claude --out <dir>`; GitHub publication supplies its distribution workspace.
-
 For an external skill, record its URL, directory and exact commit in `plugins/<plugin>/external-skills.json`. Ownership is visible from the path and no separate plugin selector is needed. Nothing is copied by a contributor. After merge, GitHub Actions fetches it into that plugin's portable `skills/` tree and generates Claude's marketplace from the completed package. See [docs/EXTERNAL-SKILLS.md](docs/EXTERNAL-SKILLS.md).
 
 The validator reports every finding in one run, tagged by severity: `spec` for something a client would reject, `spec(tolerated)` for a violation clients ignore but we do not, `policy` for our own rules, and `warning` for advice that does not fail the build.
@@ -99,6 +81,10 @@ Validation fetches the canonical `$schema` URLs from `agent-plugins.org`; schema
 ## Install
 
 Install from the generated `distribution` branch. It contains the completed portable plugins, including materialized external URL skills and Claude's generated marketplace. Choose the plugins from the table above that you need.
+
+Adding the marketplace registers all available plugins but does not install them automatically. Install `engineering`, `review`, and/or `testing` separately.
+
+> Copilot treats `OWNER/REPO` as shorthand for a GitHub.com repository's default branch. This repository publishes its marketplace on `distribution`, not the default `main` branch, so use the full URL ending in `#distribution`. Plain `svennijhuis/agentPacks` would inspect the wrong branch.
 
 | Scope | GitHub Copilot | Claude Code |
 | --- | --- | --- |
