@@ -1,13 +1,15 @@
-# Claude Code — private company repository
+# Claude Code — repository as plugin source
 
-Nothing here is published publicly. The private GitHub repository acts as the plugin source, and Claude reads it with your normal Git credentials.
+The GitHub repository is the plugin source: Claude clones it and reads the generated catalog. Nothing is published to a public marketplace either way.
+
+The repository is public today. Nothing about the setup changes when it becomes private, except that Claude then needs credentials for it — see [Authentication](#authentication).
 
 ## What is generated
 
 Two files, both produced by the .NET tooling and committed by GitHub Actions:
 
 ```
-.claude-plugin/marketplace.json          the private catalog
+.claude-plugin/marketplace.json          the plugin catalog
 plugins/company-engineering/.mcp.json    MCP config in Claude's own file name
 ```
 
@@ -43,7 +45,7 @@ If that ever changes, the fallback is `strict: true` and letting Claude discover
 ## Install
 
 ```bash
-/plugin marketplace add YOUR-ORG/agentPacks
+/plugin marketplace add svennijhuis/agentPacks
 ```
 
 ```bash
@@ -80,7 +82,7 @@ A product repository can point Claude at agentPacks automatically:
 {
   "extraKnownMarketplaces": {
     "agentpacks": {
-      "source": { "source": "github", "repo": "YOUR-ORG/agentPacks" }
+      "source": { "source": "github", "repo": "svennijhuis/agentPacks" }
     }
   },
   "enabledPlugins": {

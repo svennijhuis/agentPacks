@@ -1,6 +1,8 @@
 # agentPacks
 
-Private company repository for sharing Agent Plugins: skills, MCP integrations and specialized agents.
+Repository for sharing Agent Plugins: skills, MCP integrations and specialized agents.
+
+Currently a public repository. Everything here works the same way once it moves into a private company org — the only difference is that clients then authenticate with normal Git credentials.
 
 The portable content follows the open [Agent Plugins v1](https://agent-plugins.org/) specification, so one plugin works across ChatGPT/Codex, Cursor, GitHub Copilot, Kiro and VS Code without any per-client packaging. Claude Code is the single exception, and it is handled by a small generated compatibility layer that points at the same directory.
 
@@ -101,7 +103,7 @@ Validation is offline. The `$schema` URL in a manifest is an identifier, not a f
 These clients support Agent Plugins directly and read `plugins/company-engineering/` with no adapter. For Copilot CLI:
 
 ```bash
-copilot plugin marketplace add YOUR-ORG/agentPacks
+copilot plugin marketplace add svennijhuis/agentPacks
 ```
 
 ```bash
@@ -111,14 +113,14 @@ copilot plugin install company-engineering@agentpacks
 ### Claude Code
 
 ```bash
-/plugin marketplace add YOUR-ORG/agentPacks
+/plugin marketplace add svennijhuis/agentPacks
 ```
 
 ```bash
 /plugin install company-engineering@agentpacks
 ```
 
-Refresh with `/plugin marketplace update agentpacks`. Claude uses your normal Git credentials for the private repository. See [docs/CLAUDE-PRIVATE-REPO.md](docs/CLAUDE-PRIVATE-REPO.md).
+Refresh with `/plugin marketplace update agentpacks`. Claude reads the repository over Git; once it is private, your normal Git credentials apply. See [docs/CLAUDE-PRIVATE-REPO.md](docs/CLAUDE-PRIVATE-REPO.md).
 
 ## Versioning and updates
 
@@ -132,7 +134,7 @@ After a merge to `main`, a separate job re-runs the same gate and commits the re
 
 ## Scope
 
-First proof of concept: one private repository, one `company-engineering` plugin, shared skills, thin agents, read-only MCP first, external skills only when reviewed and pinned, C# validation, GitHub Actions, and a generated private Claude catalog. GitHub Agentic Workflows stay in the application repositories that consume these capabilities — see [docs/GITHUB-AGENTIC-WORKFLOWS.md](docs/GITHUB-AGENTIC-WORKFLOWS.md).
+First proof of concept: one repository, one `company-engineering` plugin, shared skills, thin agents, read-only MCP first, external skills only when reviewed and pinned, C# validation, GitHub Actions, and a generated Claude catalog. GitHub Agentic Workflows stay in the application repositories that consume these capabilities — see [docs/GITHUB-AGENTIC-WORKFLOWS.md](docs/GITHUB-AGENTIC-WORKFLOWS.md).
 
 Avoid building an internal framework until the standards settle and teams have proven they need more.
 
