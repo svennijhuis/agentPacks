@@ -1,0 +1,12 @@
+{
+  "sources": [
+    {
+      "name": "code-review",
+      "description": "Two-axis review of a diff: repository standards and the originating spec, run as parallel sub-agents.",
+      "repository": "https://github.com/mattpocock/skills",
+      "path": "skills/engineering/code-review",
+      "commit": "84fdeffd12f2ee307994d1eb6feb48173b6e0502",
+      "license": "MIT"
+    }
+  ]
+}

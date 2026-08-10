@@ -1,6 +1,17 @@
 # Add an MCP server
 
-Edit `plugins/company-engineering/mcp.json`. The file lives at the plugin root, and the specification forbids declaring MCP anywhere else — not inline in `plugin.json`, not under an alternative path. Every Agent Plugins client reads it from there, so no per-client work is needed.
+Each plugin may declare portable MCP configuration in `plugins/<plugin>/mcp.json`. This repository keeps an empty scaffold in `engineering` so the location and canonical schema are visible. The file lives at the plugin root, and the specification forbids declaring MCP anywhere else — not inline in `plugin.json`, not under an alternative path.
+
+An empty scaffold is valid:
+
+```json
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/mcp.schema.json",
+  "mcpServers": {}
+}
+```
+
+Replace or extend `mcpServers` when there is a real server. The Claude generator deliberately emits no `.mcp.json` for an empty object.
 
 ## Document shape
 
@@ -58,4 +69,4 @@ For the first phase, prefer lookups over writes: architecture search, coding sta
 
 ## Generated Claude file
 
-Committing a server here also regenerates `plugins/company-engineering/.mcp.json`, which is what Claude loads. It is derived output — never edit it.
+Publishing a server generates `plugins/<plugin>/.mcp.json` on the `distribution` branch, which is what Claude loads. It never appears on `main` and is never edited manually.

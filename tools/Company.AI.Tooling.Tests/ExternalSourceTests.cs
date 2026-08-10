@@ -1,10 +1,12 @@
-using System.Text.Json.Nodes;
-
 namespace Company.AI.Tooling.Tests;
 
+using Company.AI.Tooling.Importing;
+using Company.AI.Tooling.Io;
+using Company.AI.Tooling.Loading;
+
 /// <summary>
-/// External skills are referenced, never copied: the catalog points clients at the upstream
-/// directory at a pinned commit, and this repository stores only the URL and a little metadata.
+/// External skills remain URL records in authored source. Publication materializes them into the
+/// portable plugin before the Claude marketplace is generated from that completed package.
 /// </summary>
 public class ExternalSourceTests
 {
@@ -25,26 +27,20 @@ public class ExternalSourceTests
         }
         """;
 
-    private static JsonObject ExternalEntry(ValidationRun run) =>
-        ((JsonArray)run.File(".claude-plugin/marketplace.json").Content["plugins"]!)
-        .OfType<JsonObject>()
-        .Single(e => e["name"]!.GetValue<string>() == "code-review");
-
     [Fact]
-    public void An_external_skill_becomes_a_pinned_git_subdir_entry()
+    public void External_urls_do_not_become_separate_Claude_plugins()
     {
         using var repo = new TestRepository().WithValidPlugin().WithExternalSources(OneSource);
 
-        var source = (JsonObject)ExternalEntry(repo.ValidateAndGenerate())["source"]!;
+        var plugins = repo.ValidateAndGenerate()
+            .File(".claude-plugin/marketplace.json").Content["plugins"]!.AsArray();
 
-        Assert.Equal("git-subdir", source["source"]!.GetValue<string>());
-        Assert.Equal("https://github.com/mattpocock/skills", source["url"]!.GetValue<string>());
-        Assert.Equal("skills/engineering/code-review", source["path"]!.GetValue<string>());
-        Assert.Equal(Sha, source["sha"]!.GetValue<string>());
+        Assert.Single(plugins);
+        Assert.Equal("engineering", plugins[0]!["name"]!.GetValue<string>());
     }
 
     [Fact]
-    public void Nothing_from_the_external_skill_is_written_into_this_repository()
+    public void Local_generation_does_not_fetch_external_urls()
     {
         using var repo = new TestRepository().WithValidPlugin().WithExternalSources(OneSource);
 
@@ -54,19 +50,45 @@ public class ExternalSourceTests
     }
 
     [Fact]
-    public void Only_the_catalog_metadata_is_carried_across()
+    public void Source_ownership_is_inferred_from_the_containing_plugin()
     {
         using var repo = new TestRepository().WithValidPlugin().WithExternalSources(OneSource);
 
-        var entry = ExternalEntry(repo.ValidateAndGenerate());
+        var run = repo.Validate();
+        var source = ExternalSources.Load(run.Context).Single();
 
-        Assert.Equal("Two-axis review of a diff.", entry["description"]!.GetValue<string>());
+        Assert.Equal(repo.PluginDirectory(), source.PluginDirectory);
+        Assert.EndsWith(
+            "plugins/engineering/external-skills.json",
+            source.SourceFile.Replace('\\', '/'));
+    }
 
-        // The upstream directory defines itself; we neither restate its components nor claim
-        // authority over them with "strict".
-        Assert.Null(entry["skills"]);
-        Assert.Null(entry["strict"]);
-        Assert.Null(entry["version"]);
+    [Fact]
+    public void Generated_external_content_is_verified_offline()
+    {
+        using var repo = new TestRepository().WithValidPlugin().WithExternalSources(OneSource)
+            .WithSkill("code-review");
+        var target = Path.Combine(repo.PluginDirectory(), "skills", "code-review");
+        var marker = new ExternalSourceMarker(
+            "code-review",
+            "https://github.com/mattpocock/skills",
+            "skills/engineering/code-review",
+            Sha,
+            ExternalSourceMarker.HashDirectory(target));
+        JsonFile.Write(Path.Combine(target, ExternalSourceMarker.FileName), marker.ToJson());
+
+        Assert.Empty(repo.CheckExternalSources().Diagnostics);
+    }
+
+    [Fact]
+    public void Materialization_never_overwrites_an_authored_skill()
+    {
+        using var repo = new TestRepository().WithValidPlugin().WithExternalSources(OneSource)
+            .WithSkill("code-review");
+
+        var run = repo.MaterializeExternalSources();
+
+        Assert.Contains(run.Diagnostics, d => d.Message.Contains("over an authored skill"));
     }
 
     [Fact]
@@ -110,6 +132,30 @@ public class ExternalSourceTests
         var run = repo.Validate();
 
         Assert.Contains(run.Diagnostics, d => d.Message.Contains("'license'"));
+    }
+
+    [Fact]
+    public void Import_targets_cannot_escape_the_plugin_or_use_local_urls()
+    {
+        using var repo = new TestRepository().WithValidPlugin().WithExternalSources($$"""
+            {
+              "sources": [
+                {
+                  "name": "../escape",
+                  "repository": "file:///tmp/skills",
+                  "path": "../outside",
+                  "commit": "{{Sha}}",
+                  "license": "MIT"
+                }
+              ]
+            }
+            """);
+
+        var run = repo.Validate();
+
+        Assert.Contains(run.Diagnostics, d => d.Message.Contains("invalid skill name"));
+        Assert.Contains(run.Diagnostics, d => d.Message.Contains("repository-relative path"));
+        Assert.Contains(run.Diagnostics, d => d.Message.Contains("HTTPS repository URL"));
     }
 
     [Fact]

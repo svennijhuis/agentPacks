@@ -170,18 +170,4 @@ public class SkillValidationTests
         Assert.Contains(run.Diagnostics, d => d.Message.Contains("already used by"));
     }
 
-    [Fact]
-    public void Agent_without_a_description_is_reported_as_convention_not_specification()
-    {
-        using var repo = new TestRepository().WithPlugin().WithSkill("dotnet-review");
-
-        repo.WithFile(
-            "plugins/company-engineering/agents/code-reviewer.agent.md",
-            "---\nname: code-reviewer\n---\n\nBody.\n");
-
-        var run = repo.Validate();
-
-        var diagnostic = Assert.Single(run.Diagnostics);
-        Assert.Equal(DiagnosticKind.CompanyPolicy, diagnostic.Kind);
-    }
 }

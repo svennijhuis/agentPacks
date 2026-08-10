@@ -12,15 +12,10 @@ internal static partial class AgentPluginSpec
     public const string McpSchemaUrl = "https://agent-plugins.org/schemas/1.0.0/mcp.schema.json";
 
     /// <summary>
-    /// Known <c>$schema</c> identifiers mapped to their vendored file name under <c>schemas/</c>.
-    /// The URL is an identifier, never fetched: validation stays offline and reproducible.
+    /// Canonical schema URLs supported by this tooling.
     /// </summary>
-    public static readonly IReadOnlyDictionary<string, string> VendoredSchemas =
-        new Dictionary<string, string>(StringComparer.Ordinal)
-        {
-            [PluginSchemaUrl] = "plugin.schema.json",
-            [McpSchemaUrl] = "mcp.schema.json"
-        };
+    public static readonly IReadOnlySet<string> SupportedSchemaUrls =
+        new HashSet<string>(StringComparer.Ordinal) { PluginSchemaUrl, McpSchemaUrl };
 
     /// <summary>Spec version a <c>$schema</c> identifier targets, used for the cross-file match.</summary>
     public static string? SpecVersionOf(string? schemaUrl) => schemaUrl switch

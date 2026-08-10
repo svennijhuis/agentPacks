@@ -1,28 +1,23 @@
-name: Publish private Claude catalog
+name: Publish generated plugin distribution
 
 on:
   push:
     branches:
       - main
-    paths-ignore:
-      - ".claude-plugin/marketplace.json"
-      - "plugins/*/.mcp.json"
 
 permissions:
   contents: write
 
-# Two pushes to main must not race to write the same generated files.
 concurrency:
-  group: publish-marketplace
+  group: publish-plugin-distribution
   cancel-in-progress: false
 
 jobs:
   generate:
-    if: github.actor != 'github-actions[bot]'
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout
+      - name: Checkout source
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
@@ -38,49 +33,67 @@ jobs:
       - name: Build
         run: dotnet build tools/Company.AI.Tooling.slnx --configuration Release --no-restore
 
-      # This job runs the same gate itself rather than trusting the validate workflow: both are
-      # triggered by the same push and run concurrently, so neither can assume the other passed.
       - name: Test
         run: dotnet test tools/Company.AI.Tooling.slnx --configuration Release --no-build
 
-      - name: Generate the Claude compatibility layer
+      - name: Materialize external URL sources
         run: >
           dotnet run
           --project tools/Company.AI.Tooling
           --configuration Release
           --no-build
-          -- generate-claude
+          -- materialize-external --out "$GITHUB_WORKSPACE"
 
-      - name: Commit generated files
+      - name: Validate completed portable plugin
+        run: >
+          dotnet run
+          --project tools/Company.AI.Tooling
+          --configuration Release
+          --no-build
+          -- validate
+
+      - name: Generate Claude compatibility
+        run: >
+          dotnet run
+          --project tools/Company.AI.Tooling
+          --configuration Release
+          --no-build
+          -- generate-claude --out "$GITHUB_WORKSPACE"
+
+      - name: Verify generated output
+        run: |
+          dotnet run \
+            --project tools/Company.AI.Tooling \
+            --configuration Release \
+            --no-build \
+            -- generate-claude --check
+          dotnet run \
+            --project tools/Company.AI.Tooling \
+            --configuration Release \
+            --no-build \
+            -- materialize-external --check
+
+      - name: Publish distribution branch
         shell: bash
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
-          # A plugin only has a .mcp.json once it declares MCP servers, and a plugin that drops
-          # its last server has one to delete. Build the pathspec from what is actually present
-          # or tracked: a literal glob would abort the job whenever it matched nothing.
           shopt -s nullglob
-          targets=(.claude-plugin/marketplace.json)
+          targets=(.claude-plugin/marketplace.json plugins/*/skills)
           targets+=(plugins/*/.mcp.json)
           while IFS= read -r tracked; do
             targets+=("$tracked")
           done < <(git ls-files 'plugins/*/.mcp.json')
 
           git add -A -- "${targets[@]}"
+          git commit -m "chore: generate plugin distribution from ${GITHUB_SHA::7}"
 
-          if git diff --cached --quiet; then
-            echo "Claude compatibility layer already up to date."
-            exit 0
+          remote_sha="$(git ls-remote --heads origin refs/heads/distribution | cut -f1)"
+          if [[ -n "$remote_sha" ]]; then
+            git push \
+              --force-with-lease="refs/heads/distribution:$remote_sha" \
+              origin HEAD:distribution
+          else
+            git push origin HEAD:distribution
           fi
-
-          git commit -m "chore: regenerate Claude compatibility layer [skip ci]"
-          git push
-
-      - name: Assert the committed output matches the source
-        run: >
-          dotnet run
-          --project tools/Company.AI.Tooling
-          --configuration Release
-          --no-build
-          -- generate-claude --check

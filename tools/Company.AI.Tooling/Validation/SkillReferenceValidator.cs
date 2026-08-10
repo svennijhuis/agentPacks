@@ -1,5 +1,6 @@
 using System.Text.RegularExpressions;
 using Company.AI.Tooling.Loading;
+using Company.AI.Tooling.Importing;
 
 namespace Company.AI.Tooling.Validation;
 
@@ -34,19 +35,26 @@ internal sealed partial class SkillReferenceValidator(RepositoryContext context)
 
     public void Validate(IReadOnlyList<PluginPackage> plugins)
     {
-        var external = ExternalSources.Load(context)
-            .Select(s => s.Name)
-            .ToHashSet(StringComparer.OrdinalIgnoreCase);
+        var external = ExternalSources.Load(context);
 
         foreach (var plugin in plugins)
         {
             var available = plugin.Skills
                 .Select(s => s.DirectoryName)
-                .Concat(external)
+                .Concat(external
+                    .Where(s => string.Equals(s.PluginDirectory, plugin.Directory, StringComparison.Ordinal))
+                    .Select(s => s.Name))
                 .ToHashSet(StringComparer.OrdinalIgnoreCase);
 
             foreach (var skill in plugin.Skills)
             {
+                // URL-backed skills are immutable generated upstream content. Validate their
+                // Agent Skills frontmatter, but do not reinterpret repository-relative docs.
+                if (File.Exists(Path.Combine(skill.Directory, ExternalSourceMarker.FileName)))
+                {
+                    continue;
+                }
+
                 ValidateSkill(skill, available);
             }
         }
@@ -89,7 +97,7 @@ internal sealed partial class SkillReferenceValidator(RepositoryContext context)
             context.Diagnostics.Policy(
                 relative,
                 $"invokes `/{name}`, but no skill named '{name}' ships in this plugin and none is " +
-                "referenced in external/sources.json. Add it, or the instruction dead-ends.");
+                "referenced in this plugin's external-skills.json. Add it, or the instruction dead-ends.");
         }
     }
 
