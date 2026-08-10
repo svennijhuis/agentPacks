@@ -17,9 +17,8 @@ internal sealed class PluginValidator(RepositoryContext context, SchemaValidator
         foreach (var plugin in plugins)
         {
             ValidatePlugin(plugin, seenNames);
+            ValidateExternalSources(plugin);
         }
-
-        ValidateExternalSources();
     }
 
     private void ValidatePlugin(PluginPackage plugin, Dictionary<string, string> seenNames)
@@ -112,16 +111,13 @@ internal sealed class PluginValidator(RepositoryContext context, SchemaValidator
         }
     }
 
-    private void ValidateExternalSources()
+    private void ValidateExternalSources(PluginPackage plugin)
     {
-        var path = context.ExternalSourcesPath;
+        var path = Path.Combine(plugin.Directory, ExternalSources.FileName);
         var relative = context.Relative(path);
 
         if (!File.Exists(path))
         {
-            context.Diagnostics.Policy(
-                relative,
-                "is required. Use {\"sources\": []} when no external sources are approved yet.");
             return;
         }
 
@@ -140,6 +136,7 @@ internal sealed class PluginValidator(RepositoryContext context, SchemaValidator
         }
 
         var index = 0;
+        var names = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
         foreach (var entry in sources)
         {
@@ -152,7 +149,7 @@ internal sealed class PluginValidator(RepositoryContext context, SchemaValidator
                 continue;
             }
 
-            foreach (var field in (string[])["name", "repository", "path", "license", "owner", "commit"])
+            foreach (var field in (string[])["name", "repository", "path", "license", "commit"])
             {
                 if (source[field] is not JsonValue value || value.GetValueKind() != System.Text.Json.JsonValueKind.String
                     || string.IsNullOrWhiteSpace(value.GetValue<string>()))
@@ -167,6 +164,30 @@ internal sealed class PluginValidator(RepositoryContext context, SchemaValidator
                 context.Diagnostics.Policy(
                     label,
                     "must pin an exact 40-character Git commit SHA. Tracking a branch is not allowed.");
+            }
+
+            if (source["name"]?.GetValue<string>() is { } name)
+            {
+                if (name.Length > AgentPluginSpec.SkillNameMaxLength || !AgentPluginSpec.SkillName.IsMatch(name))
+                {
+                    context.Diagnostics.Policy(label, $"has invalid skill name '{name}'.");
+                }
+                else if (!names.Add(name))
+                {
+                    context.Diagnostics.Policy(label, $"duplicates external skill name '{name}'.");
+                }
+            }
+
+            if (source["path"]?.GetValue<string>() is { } sourcePath &&
+                (Path.IsPathRooted(sourcePath) || PathUtils.HasTraversalSegment(sourcePath)))
+            {
+                context.Diagnostics.Policy(label, "must use a repository-relative path without '..' segments.");
+            }
+
+            if (source["repository"]?.GetValue<string>() is { } repository &&
+                (!Uri.TryCreate(repository, UriKind.Absolute, out var uri) || uri.Scheme != Uri.UriSchemeHttps))
+            {
+                context.Diagnostics.Policy(label, "must use an absolute HTTPS repository URL.");
             }
         }
     }

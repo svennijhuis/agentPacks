@@ -14,7 +14,7 @@ internal sealed record GeneratedFile(string RelativePath, JsonNode Content);
 internal sealed class ClaudeCompatGenerator(RepositoryContext context)
 {
     /// <summary>
-    /// Identifier developers type after '@' when installing, e.g. company-engineering@agentpacks.
+    /// Identifier developers type after '@' when installing, e.g. engineering@agentpacks.
     /// Marketplace names are kebab-case, so the repository's camel-case name is lowercased here.
     /// </summary>
     public const string MarketplaceName = "agentpacks";
@@ -32,7 +32,7 @@ internal sealed class ClaudeCompatGenerator(RepositoryContext context)
         var marketplace = new JsonObject
         {
             ["name"] = MarketplaceName,
-            ["owner"] = new JsonObject { ["name"] = "Company Developer Platform" },
+            ["owner"] = new JsonObject { ["name"] = "agentPacks Maintainers" },
             ["metadata"] = new JsonObject
             {
                 ["description"] = "Private agentPacks plugins. Generated from the portable Agent Plugins source."
@@ -73,11 +73,6 @@ internal sealed class ClaudeCompatGenerator(RepositoryContext context)
         if (plugin.HasSkillsDirectory)
         {
             entry["skills"] = "./skills/";
-        }
-
-        if (plugin.HasAgentsDirectory)
-        {
-            entry["agents"] = "./agents/";
         }
 
         if (plugin.Mcp?["mcpServers"] is JsonObject servers && servers.Count > 0)

@@ -1,6 +1,6 @@
 ---
 name: dotnet-review
-description: Review .NET and C# changes for correctness, API design, async usage, error handling and testability. Use when reviewing a C# pull request, diff or file, or when asked whether .NET code follows company standards.
+description: Review .NET and C# changes for correctness, API design, async usage, error handling and testability. Use when reviewing a C# pull request, diff or file, or checking whether .NET code follows the installed standards.
 license: UNLICENSED
 ---
 

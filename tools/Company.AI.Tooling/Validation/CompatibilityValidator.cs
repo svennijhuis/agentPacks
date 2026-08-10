@@ -112,6 +112,14 @@ internal sealed class CompatibilityValidator(RepositoryContext context)
 
     private void ValidateSource(JsonObject entry, string name, string path)
     {
+        // An external skill is referenced, not shipped: its source is an object naming the
+        // upstream repository and the exact commit to fetch.
+        if (entry["source"] is JsonObject remote)
+        {
+            ValidateRemoteSource(remote, name, path);
+            return;
+        }
+
         var source = entry["source"]?.GetValue<string>();
 
         if (string.IsNullOrWhiteSpace(source))
@@ -141,9 +149,46 @@ internal sealed class CompatibilityValidator(RepositoryContext context)
         }
     }
 
+    /// <summary>
+    /// Git-backed sources must pin an exact commit. A branch or tag can move under us, which is
+    /// the whole reason external content is reviewed once and pinned.
+    /// </summary>
+    private void ValidateRemoteSource(JsonObject remote, string name, string path)
+    {
+        var kind = remote["source"]?.GetValue<string>();
+
+        if (kind is not ("git-subdir" or "github" or "url"))
+        {
+            context.Diagnostics.Policy(
+                path, $"external entry '{name}' has source type '{kind}', which clients do not fetch by git.");
+            return;
+        }
+
+        if (string.IsNullOrWhiteSpace(remote["url"]?.GetValue<string>()) &&
+            string.IsNullOrWhiteSpace(remote["repo"]?.GetValue<string>()))
+        {
+            context.Diagnostics.Policy(path, $"external entry '{name}' must name the repository to fetch.");
+        }
+
+        if (kind == "git-subdir" && string.IsNullOrWhiteSpace(remote["path"]?.GetValue<string>()))
+        {
+            context.Diagnostics.Policy(path, $"external entry '{name}' must give the subdirectory to fetch.");
+        }
+
+        var sha = remote["sha"]?.GetValue<string>();
+
+        if (sha is null || !AgentPluginSpec.GitCommitSha.IsMatch(sha))
+        {
+            context.Diagnostics.Policy(
+                path,
+                $"external entry '{name}' must pin a full 40-character commit SHA. " +
+                "A branch or tag would let reviewed content change underneath us.");
+        }
+    }
+
     private void ValidateComponentPaths(JsonObject entry, string name, string path)
     {
-        foreach (var field in (string[])["skills", "agents", "mcpServers"])
+        foreach (var field in (string[])["skills", "mcpServers"])
         {
             if (entry[field]?.GetValue<string>() is not { } value)
             {

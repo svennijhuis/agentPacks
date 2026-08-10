@@ -4,7 +4,7 @@ Skills are the portable, reusable part of agentPacks. Every compatible client lo
 
 ## Steps
 
-1. Create `plugins/company-engineering/skills/<name>/SKILL.md`.
+1. Create `plugins/<plugin>/skills/<name>/SKILL.md` in the plugin that owns the capability.
 2. Write the frontmatter and the instructions.
 3. Run `dotnet run --project tools/Company.AI.Tooling -- validate`.
 4. Open a pull request.

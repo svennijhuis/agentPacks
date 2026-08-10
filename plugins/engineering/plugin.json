@@ -1,0 +1,21 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "engineering",
+  "version": "0.1.0",
+  "description": "General engineering workflow skills and MCP integrations.",
+  "author": {
+    "name": "agentPacks Maintainers"
+  },
+  "license": "UNLICENSED",
+  "keywords": [
+    "engineering",
+    "architecture",
+    "debugging",
+    "productivity"
+  ],
+  "extensions": {
+    "com.example.client": {
+      "setting": true
+    }
+  }
+}

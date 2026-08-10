@@ -5,7 +5,6 @@ namespace Company.AI.Tooling.Validation;
 
 /// <summary>
 /// Agent Skills publishes no JSON Schema, so its normative frontmatter table is transcribed here.
-/// Agents reuse the symmetric checks, reported as company convention rather than conformance.
 /// </summary>
 internal sealed class SkillValidator(RepositoryContext context)
 {
@@ -14,7 +13,6 @@ internal sealed class SkillValidator(RepositoryContext context)
         foreach (var plugin in plugins)
         {
             ValidateSkills(plugin);
-            ValidateAgents(plugin);
         }
     }
 
@@ -160,44 +158,4 @@ internal sealed class SkillValidator(RepositoryContext context)
         }
     }
 
-    private void ValidateAgents(PluginPackage plugin)
-    {
-        var seen = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
-
-        foreach (var agent in plugin.Agents)
-        {
-            if (agent.Frontmatter is not { } frontmatter)
-            {
-                continue;
-            }
-
-            var relative = context.Relative(agent.FilePath);
-            var name = frontmatter.Scalar("name");
-
-            if (string.IsNullOrWhiteSpace(name))
-            {
-                context.Diagnostics.Policy(relative, "frontmatter must define a non-empty 'name'.");
-                continue;
-            }
-
-            if (string.IsNullOrWhiteSpace(frontmatter.Scalar("description")))
-            {
-                context.Diagnostics.Policy(relative, "frontmatter must define a non-empty 'description'.");
-            }
-
-            if (string.IsNullOrWhiteSpace(frontmatter.Body))
-            {
-                context.Diagnostics.Policy(relative, "has no Markdown body.");
-            }
-
-            if (seen.TryGetValue(name, out var first))
-            {
-                context.Diagnostics.Policy(relative, $"agent name '{name}' is already used by {first}.");
-            }
-            else
-            {
-                seen[name] = relative;
-            }
-        }
-    }
 }

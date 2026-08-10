@@ -1,6 +1,17 @@
 # Add an MCP server
 
-Edit `plugins/company-engineering/mcp.json`. The file lives at the plugin root, and the specification forbids declaring MCP anywhere else — not inline in `plugin.json`, not under an alternative path. Every Agent Plugins client reads it from there, so no per-client work is needed.
+Each plugin may declare portable MCP configuration in `plugins/<plugin>/mcp.json`. This repository keeps an empty scaffold in `engineering` so the location and canonical schema are visible. The file lives at the plugin root, and the specification forbids declaring MCP anywhere else — not inline in `plugin.json`, not under an alternative path.
+
+An empty scaffold is valid:
+
+```json
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/mcp.schema.json",
+  "mcpServers": {}
+}
+```
+
+Replace or extend `mcpServers` when there is a real server. The Claude generator deliberately emits no `.mcp.json` for an empty object.
 
 ## Document shape
 
@@ -46,10 +57,16 @@ The `$schema` must match the specification version declared in `plugin.json`.
 
 Configured headers and environment values are literal, visible package data. Agent Plugins 1.0.0 defines no portable OAuth or credential-reference fields; authentication is client-managed. The validator rejects keys that look credential-related (`token`, `secret`, `authorization`, `api-key`, and similar).
 
+## Writing the server
+
+Company MCP servers are .NET services, so use the official [MCP C# SDK](https://devblogs.microsoft.com/dotnet/announcing-v20-of-the-official-mcp-csharp-sdk/). Reference `ModelContextProtocol.AspNetCore` for an HTTP server or `ModelContextProtocol` for stdio with attribute-based tool discovery.
+
+Prefer `streamable-http` here: v2.0 servers are stateless by default, with no `initialize` handshake or session header, so they scale horizontally behind ordinary HTTP infrastructure. A tool that needs input mid-execution returns `InputRequiredResult` rather than holding a session open.
+
 ## Start read-only
 
 For the first phase, prefer lookups over writes: architecture search, coding standard search, service lookup, owner lookup. Add deployment or resource tooling later, and do not start with production write access.
 
 ## Generated Claude file
 
-Committing a server here also regenerates `plugins/company-engineering/.mcp.json`, which is what Claude loads. It is derived output — never edit it.
+Publishing a server generates `plugins/<plugin>/.mcp.json` on the `distribution` branch, which is what Claude loads. It never appears on `main` and is never edited manually.

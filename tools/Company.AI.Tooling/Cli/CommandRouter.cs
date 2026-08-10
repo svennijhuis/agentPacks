@@ -1,5 +1,5 @@
 using Company.AI.Tooling.Loading;
-using Company.AI.Tooling.Vendoring;
+using Company.AI.Tooling.Importing;
 
 namespace Company.AI.Tooling.Cli;
 
@@ -12,11 +12,12 @@ internal static class CommandRouter
           validate          Validate the portable Agent Plugins source.
           generate-claude   Validate, then write the generated Claude compatibility files.
           validate-all      Validate the source, generate, and validate the generated output.
-          vendor            Fetch reviewed external skills at their pinned commits into skills/.
+          materialize-external
+                            Generate real skills/ directories from external URL sources.
 
         Options:
-          --check           Compare generated or vendored files with what is committed; write nothing.
-          --out <dir>       Write generated files beneath <dir> instead of the repository root.
+          --check           Compare generated files with what is committed; write nothing.
+          --out <dir>       Write generated files beneath <dir>. Required for generate-claude writes.
         """;
 
     public static int Run(string[] args)
@@ -60,7 +61,7 @@ internal static class CommandRouter
             "validate" => Validate(pipeline),
             "generate-claude" => GenerateClaude(pipeline, options),
             "validate-all" => ValidateAll(pipeline, options),
-            "vendor" => Vendor(pipeline, options),
+            "materialize-external" => MaterializeExternal(pipeline, options),
             _ => UnknownCommand(command)
         };
     }
@@ -73,6 +74,14 @@ internal static class CommandRouter
 
     private static ExitCode GenerateClaude(Pipeline pipeline, CommandOptions options)
     {
+        if (!options.Check && options.OutputRoot is null)
+        {
+            Console.Error.WriteLine(
+                "error: generate-claude writes generated output and requires '--out <dir>'. " +
+                "GitHub publication passes its distribution workspace explicitly.");
+            return ExitCode.UsageError;
+        }
+
         var plugins = pipeline.ValidateSource();
 
         // Generating from invalid source would bake the problem into the committed output.
@@ -97,27 +106,39 @@ internal static class CommandRouter
             return pipeline.Report(string.Empty);
         }
 
-        pipeline.Emit(pipeline.Generate(plugins), options);
+        var files = pipeline.Generate(plugins);
+
+        // validate-all is read-only unless the caller explicitly requests an output directory
+        // or asks to compare a generated distribution with --check.
+        if (options.OutputRoot is not null || options.Check)
+        {
+            pipeline.Emit(files, options);
+        }
 
         return pipeline.Report("Source and generated Claude compatibility validation passed.");
     }
 
-    private static ExitCode Vendor(Pipeline pipeline, CommandOptions options)
+    private static ExitCode MaterializeExternal(Pipeline pipeline, CommandOptions options)
     {
+        var materializer = new ExternalSourceMaterializer(pipeline.Context);
         var sources = ExternalSources.Load(pipeline.Context);
-        var vendorer = new Vendorer(pipeline.Context);
 
         if (options.Check)
         {
-            vendorer.Check(sources);
-            return pipeline.Report("Vendored external skills are up to date.");
+            materializer.Check(sources);
+            return pipeline.Report("Generated external skills are up to date.");
         }
 
-        vendorer.Vendor(sources);
+        if (options.OutputRoot is null)
+        {
+            Console.Error.WriteLine(
+                "error: materialize-external requires '--out <repository-root>' because it writes " +
+                "the generated distribution in place. GitHub publication supplies this explicitly.");
+            return ExitCode.UsageError;
+        }
 
-        return pipeline.Report(sources.Count == 0
-            ? "No external sources are approved, so nothing was vendored."
-            : "Vendored external skills.");
+        materializer.Materialize(sources);
+        return pipeline.Report("Generated external skills from URL sources.");
     }
 
     private static ExitCode UnknownCommand(string command)

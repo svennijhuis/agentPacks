@@ -33,6 +33,7 @@ internal sealed class Pipeline(RepositoryContext context)
 
         new PluginValidator(context, schemaValidator).Validate(plugins);
         new SkillValidator(context).Validate(plugins);
+        new SkillReferenceValidator(context).Validate(plugins);
         new McpValidator(context).Validate(plugins);
 
         return plugins;
