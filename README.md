@@ -15,7 +15,7 @@ Adding the marketplace makes all plugins discoverable. Install only the plugins 
 ## GitHub Copilot CLI
 
 ```shell
-copilot plugin marketplace add https://github.com/svennijhuis/agentPacks.git#distribution
+copilot plugin marketplace add https://github.com/svennijhuis/agentPacks.git#marketplace
 copilot plugin install engineering@agentpacks
 copilot plugin install review@agentpacks
 copilot plugin install testing@agentpacks
@@ -30,7 +30,7 @@ copilot plugin marketplace update agentpacks
 ## Codex
 
 ```shell
-codex plugin marketplace add svennijhuis/agentPacks --ref distribution
+codex plugin marketplace add svennijhuis/agentPacks --ref marketplace
 codex plugin add engineering@agentpacks
 codex plugin add review@agentpacks
 codex plugin add testing@agentpacks
@@ -45,7 +45,7 @@ codex plugin marketplace upgrade agentpacks
 ## Claude Code
 
 ```shell
-claude plugin marketplace add https://github.com/svennijhuis/agentPacks.git#distribution --scope user
+claude plugin marketplace add https://github.com/svennijhuis/agentPacks.git#marketplace --scope user
 claude plugin install engineering@agentpacks --scope user
 claude plugin install review@agentpacks --scope user
 claude plugin install testing@agentpacks --scope user
@@ -62,7 +62,7 @@ claude plugin marketplace update agentpacks
 Cursor supports the Agent Plugins standard. Until this repository is listed in a Cursor marketplace, install the plugins through Cursor's supported local plugin directory:
 
 ```shell
-git clone --branch distribution --single-branch https://github.com/svennijhuis/agentPacks.git ~/.cursor/agentPacks
+git clone --branch marketplace --single-branch https://github.com/svennijhuis/agentPacks.git ~/.cursor/agentPacks
 mkdir -p ~/.cursor/plugins/local
 ln -s ~/.cursor/agentPacks/plugins/engineering ~/.cursor/plugins/local/engineering
 ln -s ~/.cursor/agentPacks/plugins/review ~/.cursor/plugins/local/review
@@ -75,7 +75,7 @@ Create only the links for the plugins you want, then restart Cursor or run **Dev
 git -C ~/.cursor/agentPacks pull --ff-only
 ```
 
-Teams and Enterprise administrators can instead import this repository's `distribution` branch as a team marketplace; users can then install plugins from **Customize**.
+Teams and Enterprise administrators can instead import this repository's `marketplace` branch as a team marketplace; users can then install plugins from **Customize**.
 
 ## Using the plugins
 

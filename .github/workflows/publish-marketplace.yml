@@ -1,4 +1,4 @@
-name: Publish generated plugin distribution
+name: Publish generated plugin marketplace
 
 on:
   push:
@@ -9,7 +9,7 @@ permissions:
   contents: write
 
 concurrency:
-  group: publish-plugin-distribution
+  group: publish-plugin-marketplace
   cancel-in-progress: false
 
 jobs:
@@ -28,18 +28,18 @@ jobs:
           global-json-file: global.json
 
       - name: Restore
-        run: dotnet restore tools/Company.AI.Tooling.slnx --locked-mode
+        run: dotnet restore tools/AgentPacks.slnx --locked-mode
 
       - name: Build
-        run: dotnet build tools/Company.AI.Tooling.slnx --configuration Release --no-restore
+        run: dotnet build tools/AgentPacks.slnx --configuration Release --no-restore
 
       - name: Test
-        run: dotnet test tools/Company.AI.Tooling.slnx --configuration Release --no-build
+        run: dotnet test tools/AgentPacks.slnx --configuration Release --no-build
 
       - name: Materialize external URL sources
         run: >
           dotnet run
-          --project tools/Company.AI.Tooling
+          --project tools/AgentPacks.Cli
           --configuration Release
           --no-build
           -- materialize-external --out "$GITHUB_WORKSPACE"
@@ -47,7 +47,7 @@ jobs:
       - name: Validate completed portable plugin
         run: >
           dotnet run
-          --project tools/Company.AI.Tooling
+          --project tools/AgentPacks.Cli
           --configuration Release
           --no-build
           -- validate
@@ -55,7 +55,7 @@ jobs:
       - name: Generate Claude compatibility
         run: >
           dotnet run
-          --project tools/Company.AI.Tooling
+          --project tools/AgentPacks.Cli
           --configuration Release
           --no-build
           -- generate-claude --out "$GITHUB_WORKSPACE"
@@ -63,17 +63,17 @@ jobs:
       - name: Verify generated output
         run: |
           dotnet run \
-            --project tools/Company.AI.Tooling \
+            --project tools/AgentPacks.Cli \
             --configuration Release \
             --no-build \
             -- generate-claude --check
           dotnet run \
-            --project tools/Company.AI.Tooling \
+            --project tools/AgentPacks.Cli \
             --configuration Release \
             --no-build \
             -- materialize-external --check
 
-      - name: Publish distribution branch
+      - name: Publish marketplace branch
         shell: bash
         run: |
           git config user.name "github-actions[bot]"
@@ -87,13 +87,13 @@ jobs:
           done < <(git ls-files 'plugins/*/.mcp.json')
 
           git add -A -- "${targets[@]}"
-          git commit -m "chore: generate plugin distribution from ${GITHUB_SHA::7}"
+          git commit -m "chore: generate plugin marketplace from ${GITHUB_SHA::7}"
 
-          remote_sha="$(git ls-remote --heads origin refs/heads/distribution | cut -f1)"
+          remote_sha="$(git ls-remote --heads origin refs/heads/marketplace | cut -f1)"
           if [[ -n "$remote_sha" ]]; then
             git push \
-              --force-with-lease="refs/heads/distribution:$remote_sha" \
-              origin HEAD:distribution
+              --force-with-lease="refs/heads/marketplace:$remote_sha" \
+              origin HEAD:marketplace
           else
-            git push origin HEAD:distribution
+            git push origin HEAD:marketplace
           fi

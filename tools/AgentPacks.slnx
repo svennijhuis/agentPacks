@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="AgentPacks.Cli.Tests/AgentPacks.Cli.Tests.csproj" />
+  <Project Path="AgentPacks.Cli/AgentPacks.Cli.csproj" />
+</Solution>

@@ -69,4 +69,4 @@ For the first phase, prefer lookups over writes: architecture search, coding sta
 
 ## Generated Claude file
 
-Publishing a server generates `plugins/<plugin>/.mcp.json` on the `distribution` branch, which is what Claude loads. It never appears on `main` and is never edited manually.
+Publishing a server generates `plugins/<plugin>/.mcp.json` on the `marketplace` branch, which is what Claude loads. It never appears on `main` and is never edited manually.

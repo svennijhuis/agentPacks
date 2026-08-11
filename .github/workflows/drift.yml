@@ -17,7 +17,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          ref: distribution
+          ref: marketplace
 
       - name: Setup .NET
         uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
@@ -25,14 +25,14 @@ jobs:
           global-json-file: global.json
 
       - name: Restore
-        run: dotnet restore tools/Company.AI.Tooling.slnx --locked-mode
+        run: dotnet restore tools/AgentPacks.slnx --locked-mode
 
       # Fails when the committed Claude files no longer match what the portable source generates,
       # which normally means someone edited a generated file by hand.
       - name: Check generated files
         run: >
           dotnet run
-          --project tools/Company.AI.Tooling
+          --project tools/AgentPacks.Cli
           --configuration Release
           -- generate-claude --check
 
@@ -40,6 +40,6 @@ jobs:
         if: always()
         run: >
           dotnet run
-          --project tools/Company.AI.Tooling
+          --project tools/AgentPacks.Cli
           --configuration Release
           -- materialize-external --check

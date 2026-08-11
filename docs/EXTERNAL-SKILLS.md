@@ -24,7 +24,7 @@ After a merge to `main`, GitHub Actions performs both generated steps:
 1. `materialize-external` fetches each URL at its pinned commit and writes the real files beneath `plugins/<plugin>/skills/<name>/`.
 2. `generate-claude` builds `.claude-plugin/marketplace.json` and any Claude MCP adapter from the completed portable plugin.
 
-The workflow publishes these outputs to the generated `distribution` branch. A generated skill contains `.external-source.json`; `main` retains only the URL record beside its owning plugin. Removing a source entry removes its generated directory from the next distribution.
+The workflow publishes these outputs to the generated `marketplace` branch. A generated skill contains `.external-source.json`; `main` retains only the URL record beside its owning plugin. Removing a source entry removes its generated directory from the next marketplace publication.
 
 This staging step is necessary because Agent Plugins v1 discovers real immediate child directories beneath `skills/` and has no manifest field for URL imports. Once materialized, the external skill is part of the same portable package for Codex, Cursor, Copilot, Kiro, VS Code, and Claude.
 

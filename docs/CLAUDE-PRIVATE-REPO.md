@@ -1,12 +1,12 @@
-# Claude Code — generated distribution branch
+# Claude Code — generated marketplace branch
 
-Claude clones the repository's generated `distribution` branch. The authored `main` branch contains no Claude marketplace file.
+Claude clones the repository's generated `marketplace` branch. The authored `main` branch contains no Claude marketplace file.
 
 The repository is public today. Nothing about the setup changes when it becomes private, except that Claude then needs credentials for it — see [Authentication](#authentication).
 
 ## What is generated
 
-GitHub Actions creates the complete installable tree on `distribution`. The catalog is always generated; an MCP adapter exists only for a plugin that declares real servers:
+GitHub Actions creates the complete installable tree on `marketplace`. The catalog is always generated; an MCP adapter exists only for a plugin that declares real servers:
 
 ```
 .claude-plugin/marketplace.json          the plugin catalog
@@ -43,7 +43,7 @@ If that ever changes, the fallback is `strict: true` and letting Claude discover
 ## Install
 
 ```bash
-/plugin marketplace add https://github.com/svennijhuis/agentPacks.git#distribution
+/plugin marketplace add https://github.com/svennijhuis/agentPacks.git#marketplace
 ```
 
 ```bash
@@ -85,7 +85,7 @@ A product repository can point Claude at agentPacks automatically:
       "source": {
         "source": "url",
         "url": "https://github.com/svennijhuis/agentPacks.git",
-        "ref": "distribution"
+        "ref": "marketplace"
       }
     }
   },

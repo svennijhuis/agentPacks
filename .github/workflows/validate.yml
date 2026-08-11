@@ -23,13 +23,13 @@ jobs:
           global-json-file: global.json
 
       - name: Restore
-        run: dotnet restore tools/Company.AI.Tooling.slnx --locked-mode
+        run: dotnet restore tools/AgentPacks.slnx --locked-mode
 
       - name: Build
-        run: dotnet build tools/Company.AI.Tooling.slnx --configuration Release --no-restore
+        run: dotnet build tools/AgentPacks.slnx --configuration Release --no-restore
 
       - name: Test
-        run: dotnet test tools/Company.AI.Tooling.slnx --configuration Release --no-build
+        run: dotnet test tools/AgentPacks.slnx --configuration Release --no-build
 
       # Generation is written to a temporary directory and validated there. A pull request is not
       # failed for a stale committed catalog: automation owns the generated files, so contributors
@@ -37,7 +37,7 @@ jobs:
       - name: Validate source and prove generation
         run: >
           dotnet run
-          --project tools/Company.AI.Tooling
+          --project tools/AgentPacks.Cli
           --configuration Release
           --no-build
           -- validate-all --out "$RUNNER_TEMP/claude-compat"
