@@ -9,6 +9,10 @@ on:
 permissions:
   contents: read
 
+env:
+  SOLUTION: tools/AgentPacks.slnx
+  CLI_PROJECT: tools/AgentPacks.Cli
+
 jobs:
   validate:
     runs-on: ubuntu-latest
@@ -23,13 +27,13 @@ jobs:
           global-json-file: global.json
 
       - name: Restore
-        run: dotnet restore tools/AgentPacks.slnx --locked-mode
+        run: dotnet restore "$SOLUTION" --locked-mode
 
       - name: Build
-        run: dotnet build tools/AgentPacks.slnx --configuration Release --no-restore
+        run: dotnet build "$SOLUTION" --configuration Release --no-restore
 
       - name: Test
-        run: dotnet test tools/AgentPacks.slnx --configuration Release --no-build
+        run: dotnet test "$SOLUTION" --configuration Release --no-build
 
       # Generation is written to a temporary directory and validated there. A pull request is not
       # failed for a stale committed catalog: automation owns the generated files, so contributors
@@ -37,7 +41,7 @@ jobs:
       - name: Validate source and prove generation
         run: >
           dotnet run
-          --project tools/AgentPacks.Cli
+          --project "$CLI_PROJECT"
           --configuration Release
           --no-build
           -- validate-all --out "$RUNNER_TEMP/claude-compat"

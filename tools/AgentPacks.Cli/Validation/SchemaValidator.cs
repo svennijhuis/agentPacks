@@ -103,7 +103,7 @@ internal sealed class SchemaValidator(RepositoryContext context)
         }
         catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException or JsonException)
         {
-            throw new FatalToolingException($"Could not load official schema '{schemaUrl}': {ex.Message}");
+            throw new FatalCliException($"Could not load official schema '{schemaUrl}': {ex.Message}");
         }
     }
 }

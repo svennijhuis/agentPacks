@@ -4,7 +4,7 @@ using AgentPacks.Cli.Validation;
 namespace AgentPacks.Cli.Loading;
 
 /// <summary>Thrown only for conditions that make the run impossible, never for a finding.</summary>
-internal sealed class FatalToolingException(string message) : Exception(message);
+internal sealed class FatalCliException(string message) : Exception(message);
 
 internal sealed class RepositoryContext
 {
@@ -37,7 +37,7 @@ internal static class RepositoryLocator
             current = current.Parent;
         }
 
-        throw new FatalToolingException(
+        throw new FatalCliException(
             "Could not find a repository root containing both plugins/ and tools/.");
     }
 }

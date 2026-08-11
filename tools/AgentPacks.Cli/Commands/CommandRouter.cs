@@ -5,8 +5,10 @@ namespace AgentPacks.Cli.Commands;
 
 internal static class CommandRouter
 {
-    private const string Usage = """
-        Usage: company-ai-tooling <command> [options]
+    // The program name is derived so the banner survives renames and matches however the
+    // process was started (dotnet run, a built binary, or a packaged tool).
+    private static readonly string Usage = $"""
+        Usage: {AppDomain.CurrentDomain.FriendlyName} <command> [options]
 
         Commands:
           validate          Validate the portable Agent Plugins source.
@@ -26,7 +28,7 @@ internal static class CommandRouter
         {
             return (int)Execute(args);
         }
-        catch (FatalToolingException ex)
+        catch (FatalCliException ex)
         {
             Console.Error.WriteLine($"error: {ex.Message}");
             return (int)ExitCode.ValidationFailed;
@@ -78,7 +80,7 @@ internal static class CommandRouter
         {
             Console.Error.WriteLine(
                 "error: generate-claude writes generated output and requires '--out <dir>'. " +
-                "GitHub publication passes its distribution workspace explicitly.");
+                "GitHub publication passes its marketplace workspace explicitly.");
             return ExitCode.UsageError;
         }
 
@@ -109,7 +111,7 @@ internal static class CommandRouter
         var files = pipeline.Generate(plugins);
 
         // validate-all is read-only unless the caller explicitly requests an output directory
-        // or asks to compare a generated distribution with --check.
+        // or asks to compare generated output with --check.
         if (options.OutputRoot is not null || options.Check)
         {
             pipeline.Emit(files, options);
@@ -133,7 +135,7 @@ internal static class CommandRouter
         {
             Console.Error.WriteLine(
                 "error: materialize-external requires '--out <repository-root>' because it writes " +
-                "the generated distribution in place. GitHub publication supplies this explicitly.");
+                "the generated marketplace in place. GitHub publication supplies this explicitly.");
             return ExitCode.UsageError;
         }
 

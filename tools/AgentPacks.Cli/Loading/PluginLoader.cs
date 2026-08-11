@@ -13,7 +13,7 @@ internal static class PluginLoader
     {
         if (!Directory.Exists(context.PluginsRoot))
         {
-            throw new FatalToolingException("plugins/ directory does not exist.");
+            throw new FatalCliException("plugins/ directory does not exist.");
         }
 
         var directories = Directory.GetDirectories(context.PluginsRoot)

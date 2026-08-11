@@ -23,7 +23,7 @@ internal sealed class TestRepository : IDisposable
 
     public TestRepository()
     {
-        Root = Path.Combine(Path.GetTempPath(), "company-ai-tests", Guid.NewGuid().ToString("N"));
+        Root = Path.Combine(Path.GetTempPath(), "agentpacks-tests", Guid.NewGuid().ToString("N"));
 
         Directory.CreateDirectory(Path.Combine(Root, "plugins"));
         Directory.CreateDirectory(Path.Combine(Root, "tools"));

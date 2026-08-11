@@ -12,6 +12,11 @@ concurrency:
   group: publish-plugin-marketplace
   cancel-in-progress: false
 
+env:
+  MARKETPLACE_BRANCH: marketplace
+  SOLUTION: tools/AgentPacks.slnx
+  CLI_PROJECT: tools/AgentPacks.Cli
+
 jobs:
   generate:
     runs-on: ubuntu-latest
@@ -28,18 +33,18 @@ jobs:
           global-json-file: global.json
 
       - name: Restore
-        run: dotnet restore tools/AgentPacks.slnx --locked-mode
+        run: dotnet restore "$SOLUTION" --locked-mode
 
       - name: Build
-        run: dotnet build tools/AgentPacks.slnx --configuration Release --no-restore
+        run: dotnet build "$SOLUTION" --configuration Release --no-restore
 
       - name: Test
-        run: dotnet test tools/AgentPacks.slnx --configuration Release --no-build
+        run: dotnet test "$SOLUTION" --configuration Release --no-build
 
       - name: Materialize external URL sources
         run: >
           dotnet run
-          --project tools/AgentPacks.Cli
+          --project "$CLI_PROJECT"
           --configuration Release
           --no-build
           -- materialize-external --out "$GITHUB_WORKSPACE"
@@ -47,7 +52,7 @@ jobs:
       - name: Validate completed portable plugin
         run: >
           dotnet run
-          --project tools/AgentPacks.Cli
+          --project "$CLI_PROJECT"
           --configuration Release
           --no-build
           -- validate
@@ -55,7 +60,7 @@ jobs:
       - name: Generate Claude compatibility
         run: >
           dotnet run
-          --project tools/AgentPacks.Cli
+          --project "$CLI_PROJECT"
           --configuration Release
           --no-build
           -- generate-claude --out "$GITHUB_WORKSPACE"
@@ -63,12 +68,12 @@ jobs:
       - name: Verify generated output
         run: |
           dotnet run \
-            --project tools/AgentPacks.Cli \
+            --project "$CLI_PROJECT" \
             --configuration Release \
             --no-build \
             -- generate-claude --check
           dotnet run \
-            --project tools/AgentPacks.Cli \
+            --project "$CLI_PROJECT" \
             --configuration Release \
             --no-build \
             -- materialize-external --check
@@ -82,6 +87,8 @@ jobs:
           shopt -s nullglob
           targets=(.claude-plugin/marketplace.json plugins/*/skills)
           targets+=(plugins/*/.mcp.json)
+          # Tracked-but-deleted .mcp.json files never match the glob; list them so their
+          # removal is staged too.
           while IFS= read -r tracked; do
             targets+=("$tracked")
           done < <(git ls-files 'plugins/*/.mcp.json')
@@ -89,11 +96,11 @@ jobs:
           git add -A -- "${targets[@]}"
           git commit -m "chore: generate plugin marketplace from ${GITHUB_SHA::7}"
 
-          remote_sha="$(git ls-remote --heads origin refs/heads/marketplace | cut -f1)"
+          remote_sha="$(git ls-remote --heads origin "refs/heads/$MARKETPLACE_BRANCH" | cut -f1)"
           if [[ -n "$remote_sha" ]]; then
             git push \
-              --force-with-lease="refs/heads/marketplace:$remote_sha" \
-              origin HEAD:marketplace
+              --force-with-lease="refs/heads/$MARKETPLACE_BRANCH:$remote_sha" \
+              origin "HEAD:$MARKETPLACE_BRANCH"
           else
-            git push origin HEAD:marketplace
+            git push origin "HEAD:$MARKETPLACE_BRANCH"
           fi

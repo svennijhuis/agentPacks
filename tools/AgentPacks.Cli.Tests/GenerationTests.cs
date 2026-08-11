@@ -220,7 +220,7 @@ public class GenerationTests
     public void Out_writes_outside_the_repository_and_leaves_the_source_tree_clean()
     {
         using var repo = new TestRepository().WithValidPlugin().WithMcp(StdioAndRemote);
-        var output = Path.Combine(Path.GetTempPath(), "company-ai-out", Guid.NewGuid().ToString("N"));
+        var output = Path.Combine(Path.GetTempPath(), "agentpacks-out", Guid.NewGuid().ToString("N"));
 
         try
         {
