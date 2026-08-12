@@ -1,11 +1,11 @@
 {
   "sources": [
     {
-      "name": "caveman",
-      "description": "Ultra-compressed communication mode that cuts token usage while keeping technical accuracy.",
-      "repository": "https://github.com/juliusbrussee/caveman",
-      "path": "skills/caveman",
-      "commit": "11ddc0c9813c8f75365cd5be2f753df08712f154",
+      "name": "code-review",
+      "description": "Two-axis review of a diff: repository standards and the originating spec, run as parallel sub-agents.",
+      "repository": "https://github.com/mattpocock/skills",
+      "path": "skills/engineering/code-review",
+      "commit": "84fdeffd12f2ee307994d1eb6feb48173b6e0502",
       "license": "MIT"
     },
     {
@@ -33,16 +33,16 @@
       "license": "MIT"
     },
     {
-      "name": "grill-me",
-      "description": "A relentless interview to sharpen a plan or design. Wraps grilling.",
+      "name": "grill-with-docs",
+      "description": "A relentless interview to sharpen a plan or design, which also creates docs (ADRs and a glossary) as it goes. Imported because setup-matt-pocock-skills points its domain documentation flow at it.",
       "repository": "https://github.com/mattpocock/skills",
-      "path": "skills/productivity/grill-me",
+      "path": "skills/engineering/grill-with-docs",
       "commit": "84fdeffd12f2ee307994d1eb6feb48173b6e0502",
       "license": "MIT"
     },
     {
       "name": "grilling",
-      "description": "Stress-test a plan, decision or idea by grilling the user relentlessly.",
+      "description": "Stress-test a plan, decision or idea by grilling the user relentlessly. Imported here because improve-codebase-architecture, triage, wayfinder and grill-with-docs all invoke it.",
       "repository": "https://github.com/mattpocock/skills",
       "path": "skills/productivity/grilling",
       "commit": "84fdeffd12f2ee307994d1eb6feb48173b6e0502",
@@ -53,6 +53,14 @@
       "description": "Scan a codebase for deepening opportunities and report them, then grill through one.",
       "repository": "https://github.com/mattpocock/skills",
       "path": "skills/engineering/improve-codebase-architecture",
+      "commit": "84fdeffd12f2ee307994d1eb6feb48173b6e0502",
+      "license": "MIT"
+    },
+    {
+      "name": "research",
+      "description": "Investigate a question against high-trust primary sources and capture the findings as a Markdown file in the repository. Imported because wayfinder delegates its reading legwork to it.",
+      "repository": "https://github.com/mattpocock/skills",
+      "path": "skills/engineering/research",
       "commit": "84fdeffd12f2ee307994d1eb6feb48173b6e0502",
       "license": "MIT"
     },
@@ -73,10 +81,18 @@
       "license": "MIT"
     },
     {
-      "name": "writing-for-agents",
-      "description": "Writing documents agents consume: skills, AGENTS.md, CLAUDE.md. Use when creating or editing a skill.",
+      "name": "triage",
+      "description": "Move issues and external pull requests through a state machine of triage roles: categorise, verify, grill if needed, and write agent-ready briefs.",
       "repository": "https://github.com/mattpocock/skills",
-      "path": "skills/productivity/writing-for-agents",
+      "path": "skills/engineering/triage",
+      "commit": "84fdeffd12f2ee307994d1eb6feb48173b6e0502",
+      "license": "MIT"
+    },
+    {
+      "name": "wayfinder",
+      "description": "Plan a chunk of work larger than one agent session as a map of decision tickets on the issue tracker, then resolve them one at a time.",
+      "repository": "https://github.com/mattpocock/skills",
+      "path": "skills/engineering/wayfinder",
       "commit": "84fdeffd12f2ee307994d1eb6feb48173b6e0502",
       "license": "MIT"
     }

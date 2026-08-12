@@ -2,7 +2,7 @@
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "engineering",
   "version": "0.1.0",
-  "description": "General engineering workflow skills and MCP integrations.",
+  "description": "Cross-language engineering craft: domain modeling, codebase design, debugging, review and ticket breakdown. Language-specific work lives in the language packs.",
   "author": {
     "name": "agentPacks Maintainers"
   },
@@ -11,11 +11,6 @@
     "engineering",
     "architecture",
     "debugging",
-    "productivity"
-  ],
-  "extensions": {
-    "com.example.client": {
-      "setting": true
-    }
-  }
+    "review"
+  ]
 }

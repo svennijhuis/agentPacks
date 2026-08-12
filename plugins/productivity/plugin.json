@@ -1,0 +1,16 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "productivity",
+  "version": "0.1.0",
+  "description": "Skills for working with agents at all: sharpening plans, writing documents agents consume, and keeping responses compact.",
+  "author": {
+    "name": "agentPacks Maintainers"
+  },
+  "license": "UNLICENSED",
+  "keywords": [
+    "productivity",
+    "planning",
+    "agents",
+    "writing"
+  ]
+}

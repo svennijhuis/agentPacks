@@ -1,0 +1,16 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "rust",
+  "version": "0.1.0",
+  "description": "Rust skills: building, reviewing and testing Rust code. Framework guidance such as Axum ships as skills inside this pack.",
+  "author": {
+    "name": "agentPacks Maintainers"
+  },
+  "license": "UNLICENSED",
+  "keywords": [
+    "rust",
+    "axum",
+    "cargo",
+    "review"
+  ]
+}

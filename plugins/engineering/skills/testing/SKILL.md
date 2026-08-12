@@ -32,7 +32,7 @@ Do not test: language features, third-party libraries, or getters that only retu
 
 ## Failure quality
 
-A failing test must say what broke without a debugger. Assert on values, not booleans — `Assert.Equal(expected, actual)` prints both sides; `Assert.True(a == b)` prints nothing useful.
+A failing test must say what broke without a debugger. Assert on values, not booleans: an equality assertion prints the expected and actual side, while asserting that a boolean expression is true prints nothing useful.
 
 ## When to delete a test
 

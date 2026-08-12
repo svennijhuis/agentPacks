@@ -47,9 +47,9 @@ If that ever changes, the fallback is `strict: true` and letting Claude discover
 ```
 
 ```bash
+/plugin install dotnet@agentpacks
 /plugin install engineering@agentpacks
-/plugin install review@agentpacks
-/plugin install testing@agentpacks
+/plugin install productivity@agentpacks
 ```
 
 Update the catalog:

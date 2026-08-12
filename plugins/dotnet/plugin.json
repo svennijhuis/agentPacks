@@ -1,15 +1,16 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
-  "name": "review",
+  "name": "dotnet",
   "version": "0.1.0",
-  "description": "Focused code review skills.",
+  "description": "C# and .NET skills: building, reviewing, testing and securing .NET code. ASP.NET and EF Core guidance ships as skills inside this pack.",
   "author": {
     "name": "agentPacks Maintainers"
   },
   "license": "UNLICENSED",
   "keywords": [
-    "review",
     "dotnet",
-    "quality"
+    "csharp",
+    "aspnet",
+    "review"
   ]
 }
