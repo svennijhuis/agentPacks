@@ -35,7 +35,7 @@ jobs:
       - name: Build
         run: dotnet build "$SOLUTION" --configuration Release --no-restore
 
-      # Fails when the committed Claude files no longer match what the portable source generates,
+      # Fails when the committed client files no longer match what the portable source generates,
       # which normally means someone edited a generated file by hand.
       - name: Check generated files
         run: >
@@ -43,7 +43,7 @@ jobs:
           --project "$CLI_PROJECT"
           --configuration Release
           --no-build
-          -- generate-claude --check
+          -- generate --check
 
       - name: Check generated external skills
         if: always()

@@ -12,14 +12,15 @@ internal static class CommandRouter
 
         Commands:
           validate          Validate the portable Agent Plugins source.
-          generate-claude   Validate, then write the generated Claude compatibility files.
+          generate          Validate, then write the generated client trees for Claude, Cursor,
+                            Codex and Copilot. 'generate-claude' is kept as an alias.
           validate-all      Validate the source, generate, and validate the generated output.
           materialize-external
                             Generate real skills/ directories from external URL sources.
 
         Options:
           --check           Compare generated files with what is committed; write nothing.
-          --out <dir>       Write generated files beneath <dir>. Required for generate-claude writes.
+          --out <dir>       Write generated files beneath <dir>. Required for generate writes.
         """;
 
     public static int Run(string[] args)
@@ -61,7 +62,9 @@ internal static class CommandRouter
         return command switch
         {
             "validate" => Validate(pipeline),
-            "generate-claude" => GenerateClaude(pipeline, options),
+            // The old name stays valid: it is wired into three workflows and every contributor's
+            // muscle memory, and the command does strictly more than it used to, not less.
+            "generate" or "generate-claude" => Generate(pipeline, options),
             "validate-all" => ValidateAll(pipeline, options),
             "materialize-external" => MaterializeExternal(pipeline, options),
             _ => UnknownCommand(command)
@@ -74,12 +77,12 @@ internal static class CommandRouter
         return pipeline.Report("Source validation passed.");
     }
 
-    private static ExitCode GenerateClaude(Pipeline pipeline, CommandOptions options)
+    private static ExitCode Generate(Pipeline pipeline, CommandOptions options)
     {
         if (!options.Check && options.OutputRoot is null)
         {
             Console.Error.WriteLine(
-                "error: generate-claude writes generated output and requires '--out <dir>'. " +
+                "error: generate writes generated output and requires '--out <dir>'. " +
                 "GitHub publication passes its marketplace workspace explicitly.");
             return ExitCode.UsageError;
         }
@@ -95,8 +98,8 @@ internal static class CommandRouter
         pipeline.Emit(pipeline.Generate(plugins), options);
 
         return pipeline.Report(options.Check
-            ? "Generated Claude compatibility files are up to date."
-            : "Generated Claude compatibility files.");
+            ? "Generated client files are up to date."
+            : "Generated client files.");
     }
 
     private static ExitCode ValidateAll(Pipeline pipeline, CommandOptions options)
@@ -117,7 +120,7 @@ internal static class CommandRouter
             pipeline.Emit(files, options);
         }
 
-        return pipeline.Report("Source and generated Claude compatibility validation passed.");
+        return pipeline.Report("Source and generated client validation passed.");
     }
 
     private static ExitCode MaterializeExternal(Pipeline pipeline, CommandOptions options)

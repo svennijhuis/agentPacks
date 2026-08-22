@@ -1,0 +1,12 @@
+{
+  "$schema": "../../schema/hooks.schema.json",
+  "description": "The loop hands work over uncommitted; landing it is the human's step. This flags the commands that land work, so a phase cannot cross that line quietly.",
+  "hooks": {
+    "beforeShellExecution": [
+      {
+        "script": "loop-guard",
+        "matcher": "git +commit|git +push|git +merge|gh +pr +(create|merge)"
+      }
+    ]
+  }
+}

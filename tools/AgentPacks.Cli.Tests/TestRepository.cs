@@ -96,6 +96,103 @@ internal sealed class TestRepository : IDisposable
         return this;
     }
 
+    /// <summary>Writes a neutral agent. Passing null for the name uses the filename.</summary>
+    public TestRepository WithAgent(
+        string fileName,
+        string? name = null,
+        string description = "Reviews a change for defects. Use before opening a pull request.",
+        string? extraFrontmatter = "model: inherit\nreadonly: true\ntools:\n  - read\n  - grep",
+        string body = "You review changes.",
+        string plugin = "engineering") =>
+        WithMarkdownComponent("agents", $"{fileName}.md", name ?? fileName, description, extraFrontmatter, body, plugin);
+
+    public TestRepository WithCommand(
+        string fileName,
+        string? name = null,
+        string description = "Reviews the current diff and reports findings.",
+        string body = "Review the diff.",
+        string plugin = "engineering") =>
+        WithMarkdownComponent("commands", $"{fileName}.md", name ?? fileName, description, null, body, plugin);
+
+    /// <summary>A rule carries no name: in Cursor's .mdc format the filename is the identity.</summary>
+    public TestRepository WithRule(
+        string fileName,
+        string description = "Standards that apply while reviewing.",
+        string scope = "alwaysApply: true",
+        string body = "- Changes do one thing.",
+        string plugin = "engineering") =>
+        WithMarkdownComponent("rules", $"{fileName}.mdc", null, description, scope, body, plugin);
+
+    private TestRepository WithMarkdownComponent(
+        string directoryName,
+        string fileName,
+        string? name,
+        string description,
+        string? extraFrontmatter,
+        string body,
+        string plugin)
+    {
+        var directory = Path.Combine(PluginDirectory(plugin), directoryName);
+        Directory.CreateDirectory(directory);
+
+        var frontmatter = name is null ? $"description: {description}" : $"name: {name}\ndescription: {description}";
+
+        if (extraFrontmatter is not null)
+        {
+            frontmatter += "\n" + extraFrontmatter;
+        }
+
+        File.WriteAllText(Path.Combine(directory, fileName), $"---\n{frontmatter}\n---\n\n{body}\n");
+
+        return this;
+    }
+
+    /// <summary>Writes the neutral hook manifest. The scripts it names must exist separately.</summary>
+    public TestRepository WithHooks(string json, string plugin = "engineering")
+    {
+        File.WriteAllText(Path.Combine(PluginDirectory(plugin), PluginLoader.HooksFileName), json);
+        return this;
+    }
+
+    /// <summary>
+    /// Writes a hook script pair. Omitting a half is how the "runs on one platform only" cases are
+    /// built, which is exactly what the validator has to catch.
+    /// </summary>
+    public TestRepository WithScript(
+        string name,
+        bool posix = true,
+        bool powerShell = true,
+        string plugin = "engineering")
+    {
+        var directory = Path.Combine(PluginDirectory(plugin), "scripts");
+        Directory.CreateDirectory(directory);
+
+        if (posix)
+        {
+            File.WriteAllText(Path.Combine(directory, $"{name}.sh"), "#!/usr/bin/env bash\nexit 0\n");
+        }
+
+        if (powerShell)
+        {
+            File.WriteAllText(Path.Combine(directory, $"{name}.ps1"), "exit 0\n");
+        }
+
+        return this;
+    }
+
+    /// <summary>A plugin with one hook wired end to end: manifest entry plus both script halves.</summary>
+    public TestRepository WithHook(string neutralEvent, string? matcher = null, string script = "guard")
+    {
+        var entry = matcher is null
+            ? $$"""{ "script": "{{script}}" }"""
+            : $$"""{ "script": "{{script}}", "matcher": "{{matcher}}" }""";
+
+        return WithScript(script)
+            .WithHooks($$"""
+                { "hooks": { "{{neutralEvent}}": [{{entry}}] } }
+                """);
+    }
+
     public TestRepository WithFile(string relativePath, string content)
     {
         var path = Path.Combine(Root, relativePath);

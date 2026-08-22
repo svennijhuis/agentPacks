@@ -5,7 +5,7 @@
 
 # Validation and generation decide what the whole company can ship.
 /tools/                     @svennijhuis
-/schemas/                   @svennijhuis
+/schema/                    @svennijhuis
 
 # Workflow changes affect the trust boundary of the generated files.
 /.github/                   @svennijhuis
@@ -14,7 +14,11 @@
 /plugins/*/mcp.json         @svennijhuis
 
 # External code adoption is a review gate, not a preference.
-/external/                  @svennijhuis
+/plugins/*/external-skills.json  @svennijhuis
+
+# Hooks run code on a developer's machine at moments they did not trigger.
+/plugins/*/hooks.source.json     @svennijhuis
+/plugins/*/scripts/              @svennijhuis
 
 # Generated. Changes here should only ever arrive from automation.
 /.claude-plugin/            @svennijhuis

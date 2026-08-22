@@ -1,0 +1,63 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/svennijhuis/agentPacks/schema/external-skills.schema.json",
+  "title": "External skills manifest",
+  "description": "Reviewed external skills imported into one plugin. Contributors edit this file; the publication workflow materializes plugins/<plugin>/skills/<name>.",
+  "type": "object",
+  "required": ["sources"],
+  "additionalProperties": false,
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "sources": {
+      "type": "array",
+      "description": "One entry per imported skill, unique by name.",
+      "items": { "$ref": "#/$defs/source" },
+      "uniqueItems": true
+    }
+  },
+  "$defs": {
+    "source": {
+      "type": "object",
+      "required": ["name", "repository", "path", "commit", "license"],
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Skill directory name under plugins/<plugin>/skills/.",
+          "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$",
+          "minLength": 1,
+          "maxLength": 64
+        },
+        "description": {
+          "type": "string",
+          "description": "Why this skill is imported, and what it does.",
+          "minLength": 1
+        },
+        "repository": {
+          "type": "string",
+          "description": "HTTPS URL of the upstream git repository.",
+          "format": "uri",
+          "pattern": "^https://[^\\s]+$"
+        },
+        "path": {
+          "type": "string",
+          "description": "Repository-relative path to the skill directory containing SKILL.md. No leading slash, no '..' segments.",
+          "pattern": "^(?!/)(?!.*(^|/)\\.\\.(/|$))[^\\s]+$",
+          "minLength": 1
+        },
+        "commit": {
+          "type": "string",
+          "description": "Full 40-character upstream commit SHA the import is pinned to.",
+          "pattern": "^[0-9a-f]{40}$"
+        },
+        "license": {
+          "type": "string",
+          "description": "SPDX license identifier of the upstream skill.",
+          "minLength": 1
+        }
+      }
+    }
+  }
+}

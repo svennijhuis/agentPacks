@@ -3,9 +3,6 @@ using AgentPacks.Cli.Loading;
 
 namespace AgentPacks.Cli.Generation;
 
-/// <summary>A generated file, identified by its repository-relative path.</summary>
-internal sealed record GeneratedFile(string RelativePath, JsonNode Content);
-
 /// <summary>
 /// Builds the Claude compatibility layer from the portable source. Two files come out:
 /// the private marketplace catalog, and one .mcp.json per plugin that declares MCP servers.
@@ -14,7 +11,7 @@ internal sealed record GeneratedFile(string RelativePath, JsonNode Content);
 internal sealed class ClaudeCompatGenerator(RepositoryContext context)
 {
     /// <summary>
-    /// Identifier developers type after '@' when installing, e.g. engineering@agentpacks.
+    /// Identifier developers type after '@' when installing, e.g. delivery-loop@agentpacks.
     /// Marketplace names are kebab-case, so the repository's camel-case name is lowercased here.
     /// </summary>
     public const string MarketplaceName = "agentpacks";
@@ -40,7 +37,7 @@ internal sealed class ClaudeCompatGenerator(RepositoryContext context)
             ["plugins"] = entries
         };
 
-        files.Add(new GeneratedFile(context.MarketplaceRelativePath, marketplace));
+        files.Add(GeneratedFile.FromJson(context.MarketplaceRelativePath, marketplace));
 
         return files
             .OrderBy(f => f.RelativePath, StringComparer.Ordinal)
@@ -75,6 +72,32 @@ internal sealed class ClaudeCompatGenerator(RepositoryContext context)
             entry["skills"] = "./skills/";
         }
 
+        // Claude auto-discovers agents/, commands/ and hooks/hooks.json at the plugin root, but the
+        // root holds Cursor's dialect of all three — Cursor is the only client that cannot be
+        // pointed elsewhere. These explicit paths send Claude to its own namespace instead.
+        var claude = ClientProfile.Claude;
+
+        if (plugin.Agents.Count > 0)
+        {
+            entry["agents"] = new JsonArray { $"./{claude.Directory}/agents/" };
+        }
+
+        if (plugin.Commands.Count > 0)
+        {
+            entry["commands"] = new JsonArray { $"./{claude.Directory}/commands/" };
+        }
+
+        // Keyed on what ClientTreeGenerator actually writes, not on hooks.source.json existing: an
+        // event declared with an empty entry array produces no hooks.json, and an entry pointing at
+        // a file that was never written fails the plugin at install time.
+        var hasHooks = HookGenerator.Build(plugin, claude) is not null
+            || plugin.Rules.Any(r => r.Frontmatter?.Scalar("alwaysApply") == "true");
+
+        if (hasHooks)
+        {
+            entry["hooks"] = $"./{claude.Directory}/hooks/hooks.json";
+        }
+
         if (plugin.Mcp?["mcpServers"] is JsonObject servers && servers.Count > 0)
         {
             var mcpFile = new JsonObject
@@ -82,7 +105,7 @@ internal sealed class ClaudeCompatGenerator(RepositoryContext context)
                 ["mcpServers"] = ClaudeValueConverter.ConvertServers(servers)
             };
 
-            files.Add(new GeneratedFile(
+            files.Add(GeneratedFile.FromJson(
                 Path.Combine("plugins", plugin.DirectoryName, ".mcp.json"),
                 mcpFile));
 

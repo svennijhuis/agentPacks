@@ -17,11 +17,17 @@ internal sealed class CompatibilityValidator(RepositoryContext context)
     {
         foreach (var file in files)
         {
-            if (Path.GetFileName(file.RelativePath) == ".mcp.json")
+            var relative = file.RelativePath.Replace('\\', '/');
+
+            if (Path.GetFileName(relative) == ".mcp.json")
             {
                 ValidateGeneratedMcp(file);
             }
-            else
+            else if (relative.EndsWith("hooks/hooks.json", StringComparison.Ordinal))
+            {
+                ValidateGeneratedHooks(file);
+            }
+            else if (string.Equals(relative, context.MarketplaceRelativePath.Replace('\\', '/'), StringComparison.Ordinal))
             {
                 ValidateMarketplace(file);
             }
@@ -188,18 +194,90 @@ internal sealed class CompatibilityValidator(RepositoryContext context)
 
     private void ValidateComponentPaths(JsonObject entry, string name, string path)
     {
-        foreach (var field in (string[])["skills", "mcpServers"])
+        // Claude expresses skills and hooks as a single path and agents and commands as arrays of
+        // them, so both node kinds are unwrapped before the same rules are applied.
+        foreach (var field in (string[])["skills", "mcpServers", "hooks", "agents", "commands"])
         {
-            if (entry[field]?.GetValue<string>() is not { } value)
+            foreach (var value in ComponentPaths(entry[field]))
             {
+                if (!value.StartsWith("./", StringComparison.Ordinal) || PathUtils.HasTraversalSegment(value))
+                {
+                    context.Diagnostics.Policy(
+                        path,
+                        $"plugin entry '{name}' {field} path '{value}' must be plugin-relative and must not traverse.");
+                }
+            }
+        }
+    }
+
+    private static IEnumerable<string> ComponentPaths(JsonNode? node) => node switch
+    {
+        JsonArray array => array.Select(item => item?.GetValue<string>()).OfType<string>(),
+        null => [],
+        _ => node.GetValueKind() == System.Text.Json.JsonValueKind.String
+            ? [node.GetValue<string>()]
+            : []
+    };
+
+    /// <summary>
+    /// A generated hooks file runs commands on a developer's machine, so the last check before it
+    /// is published is that every entry actually names one — a hook with no command is a client
+    /// error at session start, and one that reaches outside the plugin should never have been
+    /// generated in the first place.
+    /// </summary>
+    private void ValidateGeneratedHooks(GeneratedFile file)
+    {
+        var path = file.RelativePath.Replace('\\', '/');
+
+        if (file.Content is not JsonObject document || document["hooks"] is not JsonObject events)
+        {
+            context.Diagnostics.Policy(path, "generated hooks config must contain a 'hooks' object.");
+            return;
+        }
+
+        foreach (var (name, node) in events)
+        {
+            if (node is not JsonArray entries || entries.Count == 0)
+            {
+                context.Diagnostics.Policy(path, $"event '{name}' must hold at least one hook.");
                 continue;
             }
 
-            if (!value.StartsWith("./", StringComparison.Ordinal) || PathUtils.HasTraversalSegment(value))
+            foreach (var command in entries.OfType<JsonObject>().SelectMany(Commands))
             {
-                context.Diagnostics.Policy(
-                    path,
-                    $"plugin entry '{name}' {field} path '{value}' must be plugin-relative and must not traverse.");
+                if (string.IsNullOrWhiteSpace(command))
+                {
+                    context.Diagnostics.Policy(path, $"a hook on '{name}' generated an empty command.");
+                    continue;
+                }
+
+                if (PathUtils.HasTraversalSegment(command))
+                {
+                    context.Diagnostics.Policy(
+                        path, $"a hook on '{name}' generated a command that traverses outside the plugin: {command}");
+                }
+            }
+        }
+    }
+
+    /// <summary>
+    /// Commands in an entry, flattening the nested dialects into the flat one. 'command' is
+    /// required and reported when missing; 'commandWindows' is Codex-only, so it is checked when
+    /// present and never demanded.
+    /// </summary>
+    private static IEnumerable<string?> Commands(JsonObject entry)
+    {
+        var sources = entry["hooks"] is JsonArray nested
+            ? nested.OfType<JsonObject>()
+            : [entry];
+
+        foreach (var source in sources)
+        {
+            yield return source["command"]?.GetValue<string>();
+
+            if (source["commandWindows"] is { } windows)
+            {
+                yield return windows.GetValue<string>();
             }
         }
     }

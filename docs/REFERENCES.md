@@ -49,6 +49,16 @@ There is no JSON Schema for skills. The normative frontmatter table in the speci
 - Discover and install — https://code.claude.com/docs/en/discover-plugins
 - MCP — https://code.claude.com/docs/en/mcp
 
+## Security
+
+The `loop-security-reviewer` subagent works from these, and links each category from its own checklist.
+
+- OWASP Top 10 (2021) — https://owasp.org/Top10/
+- Cheat Sheet Series, the reference for what a good control looks like — https://cheatsheetseries.owasp.org/
+- Application Security Verification Standard, the reference for what "verified" means — https://owasp.org/www-project-application-security-verification-standard/
+
+The 2021 edition is pinned deliberately: the categories are cited by number in the subagent's checklist, and renumbering them silently would leave findings pointing at the wrong category.
+
 ## Building MCP servers in .NET
 
 - MCP C# SDK v2.0 announcement — https://devblogs.microsoft.com/dotnet/announcing-v20-of-the-official-mcp-csharp-sdk/
