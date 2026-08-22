@@ -20,8 +20,7 @@ The loop ends at a hand-off summary. **No phase commits, merges or pushes** — 
 
 | Component | Name | What it does |
 |---|---|---|
-| Skill | `delivery-loop` | The doctrine: proportional process, the plan artifact, the hand-off contract, evidence over claims, the fix-round cap |
-| Skill | `code-review` | The order to review in: correctness, then security, then maintainability |
+| Skill | `delivery-loop` | The doctrine: proportional process, the plan artifact, the hand-off contract, the severity scale, the report formats, the fix-round cap |
 | Rule | `delivery-loop-standards` | Standards for the change, role boundaries, and the no-commit hand-off. Always on |
 | Rule | `review-checklist` | Checklist applied to source files, scoped by glob |
 | Agent | `loop-planner` | Request to numbered, testable acceptance criteria in `docs/plans/<slug>.md` |
@@ -38,11 +37,13 @@ The loop ends at a hand-off summary. **No phase commits, merges or pushes** — 
 
 An earlier version of this repository split review into its own pack. It did not survive contact with this one: both shipped a security reviewer, both shipped a diff reviewer, and the only real difference was whether a finding cost a fix round or was just printed.
 
-So review is a phase of the loop, not a neighbouring pack. `/code-review` is the order to work in, `loop-reviewer` applies it against a plan, `loop-security-reviewer` is the gate, `loop-simplifier` asks what the change could have skipped, and `/review-diff` runs the review alone when a change turns up with no plan behind it.
+So review is a phase of the loop, not a neighbouring pack. `loop-reviewer` measures the change against a plan, `loop-security-reviewer` is the gate, `loop-simplifier` asks what the change could have skipped, and `/review-diff` runs the same three without a plan when a change turns up already written.
+
+The pack briefly carried the old pack's `code-review` skill as well. It went the same way: its three sections had become three agents, and its instruction to *stop at the first category with findings* was actively wrong once the reviewers started running in parallel.
 
 ## What each client receives
 
-| | Skills | Rules | Agents | Command | Hook |
+| | Skill | Rules | Agents | Command | Hook |
 |---|---|---|---|---|---|
 | **Claude** | yes | always-on only, injected at session start | yes | yes | yes |
 | **Cursor** | yes | yes, including glob scope | yes | yes | yes |

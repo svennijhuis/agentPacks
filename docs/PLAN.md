@@ -65,7 +65,7 @@ Capability packs — installed because of a workflow you want wired into the age
 
 | Plugin | Who installs it | Holds |
 | --- | --- | --- |
-| `delivery-loop` | anyone who wants a change planned before it is built and checked after | the `delivery-loop` and `code-review` skills, standards and role boundaries as rules, `loop-orchestrator`, `loop-planner`, `loop-implementer`, `loop-verifier`, `loop-reviewer`, `loop-security-reviewer` and `loop-simplifier` subagents, the `review-diff` command, and a hook that flags the commands that land work |
+| `delivery-loop` | anyone who wants a change planned before it is built and checked after | the `delivery-loop` skill, standards and role boundaries as rules, `loop-orchestrator`, `loop-planner`, `loop-implementer`, `loop-verifier`, `loop-reviewer`, `loop-security-reviewer` and `loop-simplifier` subagents, the `review-diff` command, and a hook that flags the commands that land work |
 
 A capability pack is the exception to "a role is a role pack", and it earns the exception only by shipping components a skill cannot express: rules that apply without being invoked, subagents, commands, or hooks. A pack that would hold nothing but skills is a role pack, not a capability pack.
 
@@ -77,7 +77,7 @@ Language packs — installed because of the ecosystem you live in, one per langu
 
 | Plugin | Holds |
 | --- | --- |
-| `dotnet` | C# and .NET build, review, test and .NET-specific security skills |
+| `dotnet` | An `afterFileEdit` hook that runs `dotnet format` on the C# file an agent just wrote; C# and .NET build, review, test and .NET-specific security skills come next |
 | `typescript` | TypeScript frontend *and* backend; React and NestJS as skills |
 | `rust` | Rust build, review and test; Axum as skills *(empty for now)* |
 

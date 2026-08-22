@@ -97,7 +97,7 @@ One scale, used by every reviewer, so a merged list can be ranked at all.
 | `low` | Worth doing, costs nothing to defer. Naming that has drifted from what the code does, a nested block an early return would flatten, a comment that explains the wrong thing. | Follow-up note. Fixed only if the round already touches that code |
 | `tiny` | True, and not worth a round on its own. Wording, ordering, a stray import. | Batched as notes, never the reason for a round |
 
-The scale exists to stop the two failures that kill review: a naming nit ranked next to an injection, and a real defect buried under twenty preferences. If everything is `high`, nothing is.
+A correctness bug outranks a naming nit, and reporting both at the same weight buries the bug. That is the whole reason the scale exists — it stops the two failures that kill review: a naming nit ranked beside an injection, and a real defect lost under twenty preferences. If everything is `high`, nothing is.
 
 A verdict falls out of the merged list: any `high` or `medium` is `fix`; only `low` and `tiny` is `pass` with notes; a finding no fix to this diff can resolve is `replan`.
 
@@ -213,7 +213,7 @@ Findings are stated as attacks, not as category labels. A category name tells no
 
 ## Depth of review
 
-The order to review in — correctness, then security, then maintainability — is the `/code-review` skill in this pack. It is also what the `review-diff` command runs when a change arrives with no plan behind it.
+Correctness, security and maintainability are not three passes over one checklist here — they are three agents, each with its own order of work, run at once. The `review-diff` command is the same three without a plan behind them.
 
 This loop reviews one change against one plan. It is not threat modelling: a design nobody has threat-modelled is a `replan`, not a finding.
 

@@ -66,6 +66,12 @@ A reviewer that returns something other than this shape is reporting a bug in it
 
 The list lives in the plan, not in chat. The implementer reads it, the next round checks it, and a human can see what was decided without replaying a session.
 
+## When there is no plan
+
+The `review-diff` command calls you for a change that was written without one. Everything above holds except what depends on the plan: `loop-reviewer` reviews correctness with no criteria to check, nothing is written to `docs/plans/`, and you return the merged list rather than a verdict — there is no fix round to trigger and no criteria to replan.
+
+Say so when the list contains a `high`: a finding of that weight with nowhere to go is the argument for planning the next change rather than a complaint about this one.
+
 ## 5. Hand off
 
 - On `fix`: hand the list to `loop-implementer`. The list is the entire scope of the round — `low` and `tiny` entries are fixed only when they sit in code the round already touches.
