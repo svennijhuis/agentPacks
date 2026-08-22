@@ -4,13 +4,14 @@ Portable [Agent Plugins](https://agent-plugins.org) that wire a workflow into th
 
 ## Available plugins
 
-One capability pack, installed because you want the workflow in the loop rather than knowledge sitting on a shelf:
+One capability pack, installed because you want the workflow in the loop rather than knowledge sitting on a shelf, and one language pack, installed because of the ecosystem you compile in:
 
 | Plugin | Use it for |
 | --- | --- |
 | `delivery-loop` | Running a change through plan, implement, verify and review as separate roles — three reviewers in parallel behind an orchestrator that merges their findings into one ranked fix list — with an OWASP security gate, a bounded fix round, and a hand-off that stops short of committing |
+| `dotnet` | Formatting a C# file the moment an agent writes it, so the diff a human reviews is already formatted and formatting never costs a review comment |
 
-That is the whole catalog today, deliberately. Role packs (`engineering`, `productivity`, `security`) and language packs (`dotnet`, `typescript`, `rust`) are planned and have their own rules for what earns one — a pack that ships nothing but an empty `plugin.json` advertises an install that does nothing, so they are added when there is real content to add. The reasoning is in [`docs/PLAN.md`](docs/PLAN.md).
+That is the whole catalog today, deliberately. The remaining role packs (`engineering`, `productivity`, `security`) and language packs (`typescript`, `rust`) are planned and have their own rules for what earns one — a pack that ships nothing but an empty `plugin.json` advertises an install that does nothing, so they are added when there is real content to add. The reasoning is in [`docs/PLAN.md`](docs/PLAN.md).
 
 Adding the marketplace makes all plugins discoverable. Install only the plugins you want. The commands install globally for your user.
 
@@ -19,6 +20,7 @@ Adding the marketplace makes all plugins discoverable. Install only the plugins 
 ```shell
 copilot plugin marketplace add https://github.com/svennijhuis/agentPacks.git#marketplace
 copilot plugin install delivery-loop@agentpacks
+copilot plugin install dotnet@agentpacks
 ```
 
 Update later with:
@@ -32,6 +34,7 @@ copilot plugin marketplace update agentpacks
 ```shell
 codex plugin marketplace add svennijhuis/agentPacks --ref marketplace
 codex plugin add delivery-loop@agentpacks
+codex plugin add dotnet@agentpacks
 ```
 
 Open `/plugins` in Codex to inspect the installed plugins. Update later with:
@@ -45,6 +48,7 @@ codex plugin marketplace upgrade agentpacks
 ```shell
 claude plugin marketplace add https://github.com/svennijhuis/agentPacks.git#marketplace --scope user
 claude plugin install delivery-loop@agentpacks --scope user
+claude plugin install dotnet@agentpacks --scope user
 ```
 
 Update later with:
@@ -61,6 +65,7 @@ Cursor supports the Agent Plugins standard. Until this repository is listed in a
 git clone --branch marketplace --single-branch https://github.com/svennijhuis/agentPacks.git ~/.cursor/agentPacks
 mkdir -p ~/.cursor/plugins/local
 ln -s ~/.cursor/agentPacks/plugins/delivery-loop ~/.cursor/plugins/local/delivery-loop
+ln -s ~/.cursor/agentPacks/plugins/dotnet ~/.cursor/plugins/local/dotnet
 ```
 
 Create only the links for the plugins you want, then restart Cursor or run **Developer: Reload Window**. Update later with:
@@ -92,6 +97,8 @@ Start a new agent session after installation and ask naturally, for example:
 - “Plan this change, then build it.” — `delivery-loop` splits it into plan, implement, verify and review, runs the security gate when the change touches a trust boundary, and hands the result back uncommitted.
 - “Is this change safe to ship?” — the OWASP gate, as its own verdict.
 - “What can this change drop?” — reuse and simplification, ranked, not bundled into the bug list.
+
+`dotnet` has nothing to ask: its hook runs on its own after every C# edit. [Its README](plugins/dotnet/README.md) covers the `AGENTPACKS_DOTNET_FORMAT` switch between whitespace-only (the default) and a full style and analyzer pass.
 
 Installed skills are selected when relevant to your request.
 
