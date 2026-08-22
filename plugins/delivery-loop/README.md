@@ -10,6 +10,8 @@ plan -> implement -> verify -> review -> (fix -> verify -> review) x 2 max -> ha
                                        loop-simplifier      ┘
 ```
 
+Planning is an interview, not a first draft. `loop-planner` maps the decisions the work requires, asks the ones whose prerequisites are settled in one numbered round with a recommendation each, waits, then recomputes — until nothing is left assumed. Facts it looks up itself; only decisions reach the user. An open question never becomes a criterion, because a criterion vague enough to be true either way passes review while the change does the wrong thing.
+
 Every phase returns a fixed shape — the reviewers all emit the same `Severity | Location | Problem | Fix` table, the verifier a criterion-by-criterion evidence table. That is what makes merging mechanical instead of interpretive; the formats are in the `delivery-loop` skill.
 
 Three reviewers read the same diff and answer different questions, so they run at once rather than in a queue. `loop-orchestrator` merges what comes back into one list — deduplicated by location at the highest severity reported — ranks it `high` / `medium` / `low` / `tiny`, and writes it into the plan. `high` or `medium` costs a fix round; `low` and `tiny` ride along as notes. The implementer picks the list up and works it in order.

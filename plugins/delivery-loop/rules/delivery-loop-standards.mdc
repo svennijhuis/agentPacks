@@ -17,6 +17,7 @@ alwaysApply: true
 
 - No agent commits, merges or pushes. The loop ends by handing a reviewed working tree to the human, who decides what lands. A `pass` verdict is a recommendation, not permission.
 - Plan first for behaviour changes and anything touching more than two files. Skip the plan for a typo — process is proportional to the work.
+- The planner interviews before it writes: it asks the settled-prerequisite questions in rounds, each with a recommended answer, and waits. An open question is never written down as a criterion, and a fact the repository can answer is never asked of the user.
 - Plan state lives in `docs/plans/<slug>.md`, not in chat. What is not written down did not survive the session.
 - Acceptance criteria are numbered, observable and able to fail. A criterion that cannot fail cannot be verified.
 - The implementer does not verify its own work, the verifier does not fix, the reviewers do not edit, the planner does not implement.

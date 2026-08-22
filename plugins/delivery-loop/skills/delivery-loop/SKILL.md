@@ -26,6 +26,23 @@ The loop ends at a hand-off summary for the human. **No phase commits, merges or
 
 Planning a typo wastes the same attention that a real plan needs. Skipping the plan on a behaviour change means review has nothing to review against.
 
+## Planning is an interview, not a first draft
+
+Everything downstream is measured against the plan, so a question the planner answered on the user's behalf becomes a criterion nobody agreed to — and the loop then faithfully builds the wrong thing, verifies it against the wrong criterion, and passes it. The failure is invisible precisely because every phase did its job.
+
+So planning is an interview. `loop-planner` runs it as a subagent; anyone driving the loop by hand runs the same protocol. It is defined here once:
+
+1. **Map the decisions** the work requires — the points where it could reasonably go more than one way. Decisions hang off each other; that dependency is a tree.
+2. **Ask the frontier** — every decision whose prerequisites are settled — in one round. Numbered, each with a recommended answer, then stop and wait. A question that depends on another still open belongs to a later round.
+3. **Find facts yourself.** What the repository can answer is never a question for the user. "Vitest or Jest" is a fact to look up; "existing suite or its own" is a decision to ask.
+4. **Recompute and repeat** until the frontier is empty, then confirm the shared understanding before writing anything.
+
+Every question carries a recommendation. An interview that only asks makes the user do the planner's thinking; the recommendation is what makes a round cheap — confirm, correct, or pick differently.
+
+**An open question is never a criterion.** Not as a guess written down as a decision, and not as a criterion vague enough to be true either way — that is worse, because it passes review while the change does the wrong thing. An assumption that genuinely cannot be resolved is written into the plan under its own heading, so the reviewer can challenge it, never laundered into a criterion.
+
+The interview scales with the work. Grilling a typo is its own failure; a change to a public interface earns as many rounds as it takes.
+
 ## The plan artifact
 
 Lives at `docs/plans/<slug>.md` in the repository being worked on, and changes with the work. Chat is not storage: a plan that exists only in a session is gone the next morning, and the reviewer cannot check a change against something it cannot read.
@@ -35,6 +52,10 @@ Lives at `docs/plans/<slug>.md` in the repository being worked on, and changes w
 
 ## Problem
 What is wrong or missing now.
+
+## Decisions
+What was settled in the interview, and why — so a reviewer can tell a deliberate
+choice from a default.
 
 ## Acceptance criteria
 1. <observable, testable statement>
@@ -67,7 +88,7 @@ Each phase ends in the shape the next phase consumes. Anything else is conversat
 
 | Phase | Ends with |
 |---|---|
-| Plan | The plan file, with numbered acceptance criteria and a verification command. |
+| Plan | The plan file, with the decisions that were settled, numbered acceptance criteria, and a verification command. No open question left inside it. |
 | Implement | The diff, and which criteria it claims by number. Nothing about whether they pass. |
 | Verify | Per criterion: the command run, its exact output, and pass or fail. |
 | Review | One merged, deduplicated fix list ranked by severity, plus a verdict — `pass`, `fix` or `replan`. |
@@ -221,6 +242,9 @@ This loop reviews one change against one plan. It is not threat modelling: a des
 
 - Planning work smaller than the plan.
 - Implementing before criteria exist, then writing criteria that describe what was built.
+- Filling in an open question to keep the plan moving. The loop's speed is not worth a criterion nobody agreed to.
+- Asking the user something the repository already answers.
+- Asking a whole tree of questions at once, including the ones whose answers depend on the answers you are still waiting for.
 - The implementer reporting its own work as verified.
 - A reviewer that edits the code it is reviewing — the finding disappears and nobody learns of it.
 - Running the reviewers one after another. They do not read each other's output; sequencing them buys nothing.
