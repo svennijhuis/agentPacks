@@ -1,0 +1,12 @@
+{
+  "$schema": "../../schema/hooks.schema.json",
+  "description": "Review guardrails. Written once in the neutral vocabulary and generated per client.",
+  "hooks": {
+    "beforeShellExecution": [
+      {
+        "script": "review-guard",
+        "matcher": "git +push|git +commit +--no-verify|rm +-rf"
+      }
+    ]
+  }
+}

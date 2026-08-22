@@ -1,0 +1,22 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "code-review",
+  "version": "0.1.0",
+  "description": "Reviewing changes end to end: standards that always apply, a review skill, focused review subagents, a review command, and hooks that keep the loop honest.",
+  "author": {
+    "name": "agentPacks Maintainers"
+  },
+  "license": "UNLICENSED",
+  "keywords": [
+    "review",
+    "quality",
+    "security",
+    "hooks",
+    "agents"
+  ],
+  "extensions": {
+    "com.anthropic.claude-code": {},
+    "com.openai.codex": {},
+    "com.github.copilot": {}
+  }
+}

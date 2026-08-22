@@ -63,7 +63,7 @@ jobs:
           --project "$CLI_PROJECT"
           --configuration Release
           --no-build
-          -- generate-claude --out "$GITHUB_WORKSPACE"
+          -- generate --out "$GITHUB_WORKSPACE"
 
       - name: Verify generated output
         run: |
@@ -71,7 +71,7 @@ jobs:
             --project "$CLI_PROJECT" \
             --configuration Release \
             --no-build \
-            -- generate-claude --check
+            -- generate --check
           dotnet run \
             --project "$CLI_PROJECT" \
             --configuration Release \
@@ -86,12 +86,17 @@ jobs:
 
           shopt -s nullglob
           targets=(.claude-plugin/marketplace.json plugins/*/skills)
-          targets+=(plugins/*/.mcp.json)
-          # Tracked-but-deleted .mcp.json files never match the glob; list them so their
-          # removal is staged too.
+          # One generated tree per client, plus the manifests that point Claude and Codex at
+          # theirs, plus the Windows shims generated beside each authored script pair.
+          targets+=(plugins/*/.mcp.json plugins/*/hooks plugins/*/scripts)
+          targets+=(plugins/*/.cursor-plugin plugins/*/.codex-plugin plugins/*/com.*)
+          # Tracked-but-deleted generated files never match a glob; list them so their removal
+          # is staged too.
           while IFS= read -r tracked; do
             targets+=("$tracked")
-          done < <(git ls-files 'plugins/*/.mcp.json')
+          done < <(git ls-files 'plugins/*/.mcp.json' 'plugins/*/hooks/*' 'plugins/*/com.*' \
+                                'plugins/*/.cursor-plugin/*' 'plugins/*/.codex-plugin/*' \
+                                'plugins/*/scripts/*.cmd')
 
           git add -A -- "${targets[@]}"
           git commit -m "chore: generate plugin marketplace from ${GITHUB_SHA::7}"

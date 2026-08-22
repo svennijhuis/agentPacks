@@ -32,6 +32,7 @@ internal static class PluginLoader
     {
         var manifestPath = Path.Combine(directory, "plugin.json");
         var mcpPath = Path.Combine(directory, "mcp.json");
+        var hooksPath = Path.Combine(directory, HooksFileName);
 
         return new PluginPackage
         {
@@ -40,9 +41,22 @@ internal static class PluginLoader
             Manifest = ReadObject(context, manifestPath, required: true),
             McpPath = File.Exists(mcpPath) ? mcpPath : null,
             Mcp = File.Exists(mcpPath) ? ReadObject(context, mcpPath, required: false) : null,
-            Skills = LoadSkills(context, directory)
+            Skills = LoadSkills(context, directory),
+            Agents = LoadMarkdownComponents(context, directory, "agents", "*.md", "agent"),
+            Commands = LoadMarkdownComponents(context, directory, "commands", "*.md", "command"),
+            Rules = LoadMarkdownComponents(context, directory, "rules", "*.mdc", "rule"),
+            HooksPath = File.Exists(hooksPath) ? hooksPath : null,
+            Hooks = File.Exists(hooksPath) ? ReadObject(context, hooksPath, required: false) : null,
+            Scripts = LoadScripts(directory)
         };
     }
+
+    /// <summary>
+    /// The neutral hook manifest. It is deliberately not hooks/hooks.json: Claude, Cursor and Codex
+    /// all auto-discover that path in three incompatible dialects, and Copilot claims the root
+    /// hooks.json. This name is discovered by no client and generated into all four.
+    /// </summary>
+    public const string HooksFileName = "hooks.source.json";
 
     private static JsonObject? ReadObject(RepositoryContext context, string path, bool required)
     {
@@ -114,6 +128,101 @@ internal static class PluginLoader
         }
 
         return results;
+    }
+
+    /// <summary>
+    /// Loads one directory of single-file Markdown components. A directory that is absent is not an
+    /// error: a plugin declares only the components it has.
+    /// </summary>
+    private static List<MarkdownComponent> LoadMarkdownComponents(
+        RepositoryContext context,
+        string pluginDirectory,
+        string directoryName,
+        string pattern,
+        string kind)
+    {
+        var root = Path.Combine(pluginDirectory, directoryName);
+        var results = new List<MarkdownComponent>();
+
+        if (!Directory.Exists(root))
+        {
+            if (File.Exists(root))
+            {
+                context.Diagnostics.SpecFatal(
+                    context.Relative(root),
+                    $"exists but is not a directory, so the {kind} component cannot load.");
+            }
+
+            return results;
+        }
+
+        foreach (var file in Directory.GetFiles(root, pattern).OrderBy(f => f, StringComparer.Ordinal))
+        {
+            results.Add(new MarkdownComponent(kind, file, ReadFrontmatter(context, file)));
+        }
+
+        // A stray file in a component directory is nearly always a mis-named component: agents/foo.txt
+        // or rules/bar.md is silently ignored by every client, which reads as "my rule does nothing".
+        foreach (var stray in Directory.GetFiles(root)
+                     .Where(f => !MatchesPattern(f, pattern))
+                     .OrderBy(f => f, StringComparer.Ordinal))
+        {
+            context.Diagnostics.Policy(
+                context.Relative(stray),
+                $"is not a {pattern} file, so no client loads it as a {kind}. Rename or remove it.");
+        }
+
+        return results;
+    }
+
+    private static bool MatchesPattern(string path, string pattern) =>
+        Path.GetExtension(path).Equals(Path.GetExtension(pattern), StringComparison.OrdinalIgnoreCase);
+
+    /// <summary>
+    /// Pairs scripts/ by basename. Hooks name a basename, never a command line, so the generator
+    /// owns the invocation and the validator can insist both platform halves exist.
+    /// </summary>
+    private static List<ScriptDefinition> LoadScripts(string pluginDirectory)
+    {
+        var root = Path.Combine(pluginDirectory, "scripts");
+
+        if (!Directory.Exists(root))
+        {
+            return [];
+        }
+
+        var posix = new Dictionary<string, string>(StringComparer.Ordinal);
+        var powershell = new Dictionary<string, string>(StringComparer.Ordinal);
+
+        foreach (var file in Directory.GetFiles(root).OrderBy(f => f, StringComparer.Ordinal))
+        {
+            var name = Path.GetFileNameWithoutExtension(file);
+
+            switch (Path.GetExtension(file))
+            {
+                case ".sh":
+                    posix[name] = file;
+                    break;
+
+                case ".ps1":
+                    powershell[name] = file;
+                    break;
+
+                // .cmd is the generated Windows shim. It sits beside the authored pair on the
+                // published branch, where validation also runs, so it is ignored rather than
+                // reported — the staleness sweep is what removes one that no longer belongs.
+            }
+        }
+
+        return posix.Keys
+            .Concat(powershell.Keys)
+            .Distinct(StringComparer.Ordinal)
+            .OrderBy(name => name, StringComparer.Ordinal)
+            .Select(name => new ScriptDefinition(
+                name,
+                posix.GetValueOrDefault(name),
+                powershell.GetValueOrDefault(name)))
+            .ToList();
     }
 
     private static Frontmatter? ReadFrontmatter(RepositoryContext context, string path)

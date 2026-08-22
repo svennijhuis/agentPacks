@@ -1,4 +1,5 @@
 {
+  "$schema": "../../schema/external-skills.schema.json",
   "sources": [
     {
       "name": "code-review",

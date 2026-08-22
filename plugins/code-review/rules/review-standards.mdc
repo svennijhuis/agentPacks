@@ -1,0 +1,12 @@
+---
+description: Standards that apply to every change under review
+alwaysApply: true
+---
+
+# Review standards
+
+- A change does one thing. Unrelated edits belong in their own change.
+- Behaviour changes come with a test that fails without them.
+- Error paths are handled where they occur, not swallowed and re-raised as a generic failure.
+- Public API changes are called out explicitly, including new required fields and changed defaults.
+- No secrets, tokens or credentials in source, logs or fixtures.

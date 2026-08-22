@@ -3,9 +3,6 @@ using AgentPacks.Cli.Loading;
 
 namespace AgentPacks.Cli.Generation;
 
-/// <summary>A generated file, identified by its repository-relative path.</summary>
-internal sealed record GeneratedFile(string RelativePath, JsonNode Content);
-
 /// <summary>
 /// Builds the Claude compatibility layer from the portable source. Two files come out:
 /// the private marketplace catalog, and one .mcp.json per plugin that declares MCP servers.
@@ -40,7 +37,7 @@ internal sealed class ClaudeCompatGenerator(RepositoryContext context)
             ["plugins"] = entries
         };
 
-        files.Add(new GeneratedFile(context.MarketplaceRelativePath, marketplace));
+        files.Add(GeneratedFile.FromJson(context.MarketplaceRelativePath, marketplace));
 
         return files
             .OrderBy(f => f.RelativePath, StringComparer.Ordinal)
@@ -75,6 +72,26 @@ internal sealed class ClaudeCompatGenerator(RepositoryContext context)
             entry["skills"] = "./skills/";
         }
 
+        // Claude auto-discovers agents/, commands/ and hooks/hooks.json at the plugin root, but the
+        // root holds Cursor's dialect of all three — Cursor is the only client that cannot be
+        // pointed elsewhere. These explicit paths send Claude to its own namespace instead.
+        var claude = ClientProfile.Claude;
+
+        if (plugin.Agents.Count > 0)
+        {
+            entry["agents"] = new JsonArray { $"./{claude.Directory}/agents/" };
+        }
+
+        if (plugin.Commands.Count > 0)
+        {
+            entry["commands"] = new JsonArray { $"./{claude.Directory}/commands/" };
+        }
+
+        if (plugin.Hooks is not null || plugin.Rules.Any(r => r.Frontmatter?.Scalar("alwaysApply") == "true"))
+        {
+            entry["hooks"] = $"./{claude.Directory}/hooks/hooks.json";
+        }
+
         if (plugin.Mcp?["mcpServers"] is JsonObject servers && servers.Count > 0)
         {
             var mcpFile = new JsonObject
@@ -82,7 +99,7 @@ internal sealed class ClaudeCompatGenerator(RepositoryContext context)
                 ["mcpServers"] = ClaudeValueConverter.ConvertServers(servers)
             };
 
-            files.Add(new GeneratedFile(
+            files.Add(GeneratedFile.FromJson(
                 Path.Combine("plugins", plugin.DirectoryName, ".mcp.json"),
                 mcpFile));
 

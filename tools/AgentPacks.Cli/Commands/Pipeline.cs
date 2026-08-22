@@ -35,13 +35,19 @@ internal sealed class Pipeline(RepositoryContext context)
         new SkillValidator(context).Validate(plugins);
         new SkillReferenceValidator(context).Validate(plugins);
         new McpValidator(context).Validate(plugins);
+        new ComponentValidator(context).Validate(plugins);
+        new HookValidator(context).Validate(plugins);
 
         return plugins;
     }
 
     public IReadOnlyList<GeneratedFile> Generate(IReadOnlyList<PluginPackage> plugins)
     {
-        var files = new ClaudeCompatGenerator(context).Generate(plugins);
+        var files = new ClaudeCompatGenerator(context).Generate(plugins)
+            .Concat(new ClientTreeGenerator(context).Generate(plugins))
+            .OrderBy(f => f.RelativePath, StringComparer.Ordinal)
+            .ToList();
+
         new CompatibilityValidator(context).Validate(files);
 
         return files;
@@ -57,11 +63,11 @@ internal sealed class Pipeline(RepositoryContext context)
         foreach (var file in files)
         {
             var destination = Path.Combine(root, file.RelativePath);
-            var expected = JsonFile.Serialize(file.Content);
+            var expected = TextFile.Normalize(file.Text);
 
             if (!options.Check)
             {
-                JsonFile.Write(destination, file.Content);
+                TextFile.Write(destination, file.Text, file.Executable);
                 continue;
             }
 
@@ -69,16 +75,16 @@ internal sealed class Pipeline(RepositoryContext context)
 
             if (!File.Exists(destination))
             {
-                context.Diagnostics.Policy(relative, "is missing. Run 'generate-claude' and commit the result.");
+                context.Diagnostics.Policy(relative, "is missing. Run 'generate' and commit the result.");
                 continue;
             }
 
-            if (!string.Equals(File.ReadAllText(destination), expected, StringComparison.Ordinal))
+            if (!string.Equals(TextFile.ReadNormalized(destination), expected, StringComparison.Ordinal))
             {
                 context.Diagnostics.Policy(
                     relative,
                     "does not match what the source generates. It is a generated file: " +
-                    "run 'generate-claude' and commit the result instead of editing it.");
+                    "run 'generate' and commit the result instead of editing it.");
             }
         }
     }
@@ -86,7 +92,8 @@ internal sealed class Pipeline(RepositoryContext context)
     /// <summary>
     /// Deletes generated files the source no longer produces. A plugin that drops its last MCP
     /// server stops generating a .mcp.json, and leaving the old one behind would keep Claude
-    /// loading a server nobody declares any more.
+    /// loading a server nobody declares any more. The same applies to every client tree: a deleted
+    /// agent or hook has to disappear from all four, not just stop being regenerated.
     /// </summary>
     private void RemoveStaleFiles(IReadOnlyList<GeneratedFile> files, string root, CommandOptions options)
     {
@@ -94,38 +101,84 @@ internal sealed class Pipeline(RepositoryContext context)
             .Select(f => f.RelativePath.Replace('\\', '/'))
             .ToHashSet(StringComparer.Ordinal);
 
-        if (!Directory.Exists(context.PluginsRoot))
+        var pluginsRoot = Path.Combine(root, "plugins");
+
+        if (!Directory.Exists(pluginsRoot))
         {
             return;
         }
 
-        foreach (var pluginDirectory in Directory.GetDirectories(context.PluginsRoot)
+        foreach (var pluginDirectory in Directory.GetDirectories(pluginsRoot)
                      .OrderBy(d => d, StringComparer.Ordinal))
         {
-            var relative = $"plugins/{Path.GetFileName(pluginDirectory)}/.mcp.json";
+            var pluginName = Path.GetFileName(pluginDirectory);
 
-            if (expected.Contains(relative))
+            foreach (var path in Directory.GetFiles(pluginDirectory, "*", SearchOption.AllDirectories)
+                         .OrderBy(p => p, StringComparer.Ordinal))
             {
-                continue;
+                var pluginRelative = Path.GetRelativePath(pluginDirectory, path).Replace('\\', '/');
+
+                if (!GeneratedPaths.IsGenerated(pluginRelative))
+                {
+                    continue;
+                }
+
+                var relative = $"plugins/{pluginName}/{pluginRelative}";
+
+                if (expected.Contains(relative))
+                {
+                    continue;
+                }
+
+                if (options.Check)
+                {
+                    context.Diagnostics.Policy(
+                        relative,
+                        "is left over from a previous generation: the source no longer produces it. " +
+                        "Run 'generate' and commit the deletion.");
+                    continue;
+                }
+
+                File.Delete(path);
             }
 
-            var path = Path.Combine(root, relative.Replace('/', Path.DirectorySeparatorChar));
+            RemoveEmptyGeneratedDirectories(pluginDirectory, options);
+        }
+    }
 
-            if (!File.Exists(path))
-            {
-                continue;
-            }
+    /// <summary>
+    /// A client tree that loses its last file must not leave an empty directory behind: Claude and
+    /// Cursor both treat the presence of a component directory as a declaration.
+    /// </summary>
+    private static void RemoveEmptyGeneratedDirectories(string pluginDirectory, CommandOptions options)
+    {
+        if (options.Check)
+        {
+            return;
+        }
 
-            if (options.Check)
-            {
-                context.Diagnostics.Policy(
-                    relative,
-                    "is left over from a previous generation: the plugin no longer declares MCP servers. " +
-                    "Run 'generate-claude' and commit the deletion.");
-                continue;
-            }
+        foreach (var name in GeneratedPaths.OwnedDirectories)
+        {
+            RemoveIfEmpty(Path.Combine(pluginDirectory, name));
+        }
+    }
 
-            File.Delete(path);
+    /// <summary>Removes a directory once nothing is left under it, deepest first.</summary>
+    private static void RemoveIfEmpty(string directory)
+    {
+        if (!Directory.Exists(directory))
+        {
+            return;
+        }
+
+        foreach (var child in Directory.GetDirectories(directory))
+        {
+            RemoveIfEmpty(child);
+        }
+
+        if (!Directory.EnumerateFileSystemEntries(directory).Any())
+        {
+            Directory.Delete(directory);
         }
     }
 
