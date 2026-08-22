@@ -29,10 +29,12 @@ internal static class GeneratedPaths
             return true;
         }
 
-        // The Windows shim is generated beside the authored .sh and .ps1 pair.
+        // The extensionless POSIX dispatcher and the Windows .cmd shim are generated beside the
+        // authored .sh and .ps1 pair. Everything else under scripts/ is authored.
         if (path.StartsWith("scripts/", StringComparison.Ordinal))
         {
-            return path.EndsWith(".cmd", StringComparison.Ordinal);
+            return path.EndsWith(".cmd", StringComparison.Ordinal)
+                || Path.GetExtension(path).Length == 0;
         }
 
         return OwnedDirectories.Any(directory =>

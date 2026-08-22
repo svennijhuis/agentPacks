@@ -87,7 +87,13 @@ internal sealed class ClaudeCompatGenerator(RepositoryContext context)
             entry["commands"] = new JsonArray { $"./{claude.Directory}/commands/" };
         }
 
-        if (plugin.Hooks is not null || plugin.Rules.Any(r => r.Frontmatter?.Scalar("alwaysApply") == "true"))
+        // Keyed on what ClientTreeGenerator actually writes, not on hooks.source.json existing: an
+        // event declared with an empty entry array produces no hooks.json, and an entry pointing at
+        // a file that was never written fails the plugin at install time.
+        var hasHooks = HookGenerator.Build(plugin, claude) is not null
+            || plugin.Rules.Any(r => r.Frontmatter?.Scalar("alwaysApply") == "true");
+
+        if (hasHooks)
         {
             entry["hooks"] = $"./{claude.Directory}/hooks/hooks.json";
         }

@@ -103,7 +103,7 @@ public sealed class HookDialectTests
         var command = ((JsonArray)group["hooks"]!)[0]!["command"]!.GetValue<string>();
 
         Assert.Equal("Bash", group["matcher"]!.GetValue<string>());
-        Assert.Contains("--matcher \"rm +-rf\"", command, StringComparison.Ordinal);
+        Assert.Contains("-Matcher \"rm +-rf\"", command, StringComparison.Ordinal);
     }
 
     /// <summary>Cursor's shell matcher does filter command text, so it is applied natively.</summary>
@@ -118,7 +118,7 @@ public sealed class HookDialectTests
         var entry = (JsonObject)Events(run, CursorHooks)["beforeShellExecution"]![0]!;
 
         Assert.Equal("rm +-rf", entry["matcher"]!.GetValue<string>());
-        Assert.DoesNotContain("--matcher", entry["command"]!.GetValue<string>(), StringComparison.Ordinal);
+        Assert.DoesNotContain("-Matcher", entry["command"]!.GetValue<string>(), StringComparison.Ordinal);
     }
 
     /// <summary>A tool matcher means the same thing everywhere, so every client applies it itself.</summary>
@@ -135,7 +135,7 @@ public sealed class HookDialectTests
             var command = ((JsonArray)group["hooks"]!)[0]!["command"]!.GetValue<string>();
 
             Assert.Equal("Read", group["matcher"]!.GetValue<string>());
-            Assert.DoesNotContain("--matcher", command, StringComparison.Ordinal);
+            Assert.DoesNotContain("-Matcher", command, StringComparison.Ordinal);
         }
     }
 
@@ -182,6 +182,67 @@ public sealed class HookDialectTests
             .GetValue<string>();
 
         Assert.Equal("\"${CLAUDE_PLUGIN_ROOT}/scripts/guard\"", claude);
+    }
+
+    /// <summary>
+    /// The extensionless command has to name a file that exists. Only .sh and .ps1 are authored, so
+    /// the generator owes the POSIX side a dispatcher: without it every hook resolves to nothing on
+    /// macOS and Linux and fails with "No such file or directory".
+    /// </summary>
+    [Fact]
+    public void Every_hook_command_resolves_to_a_file_that_is_generated()
+    {
+        using var repo = new TestRepository();
+        var run = repo.WithValidPlugin().WithHook("sessionStart").ValidateAndGenerate();
+
+        var command = ((JsonArray)Events(run, ClaudeHooks)["SessionStart"]![0]!["hooks"]!)[0]!["command"]!
+            .GetValue<string>()
+            .Trim('"');
+
+        var pluginRelative = command.Replace("${CLAUDE_PLUGIN_ROOT}/", string.Empty, StringComparison.Ordinal);
+
+        Assert.True(run.HasFile($"plugins/engineering/{pluginRelative}"));
+        Assert.True(run.File($"plugins/engineering/{pluginRelative}").Executable);
+        Assert.True(run.HasFile($"plugins/engineering/{pluginRelative}.cmd"));
+    }
+
+    /// <summary>
+    /// The dispatcher only forwards. Its whole reason to exist is that one extensionless string has
+    /// to work in a POSIX shell and under cmd.exe, so it must reach the authored .sh with the
+    /// arguments untouched — the matcher travels in them.
+    /// </summary>
+    [Fact]
+    public void The_posix_dispatcher_forwards_to_the_authored_script()
+    {
+        using var repo = new TestRepository();
+        var run = repo.WithValidPlugin().WithHook("sessionStart").ValidateAndGenerate();
+
+        var dispatcher = run.File("plugins/engineering/scripts/guard").Text;
+
+        Assert.StartsWith("#!/usr/bin/env bash", dispatcher, StringComparison.Ordinal);
+        Assert.Contains("guard.sh\" \"$@\"", dispatcher, StringComparison.Ordinal);
+    }
+
+    /// <summary>
+    /// The matcher argument has to bind in two parsers. PowerShell has no double-dash parameter
+    /// names, so "--matcher" would be swallowed as the value of param($Matcher) and the regex
+    /// behind it would fail to bind, taking the whole hook down on Windows.
+    /// </summary>
+    [Fact]
+    public void The_matcher_argument_binds_as_a_powershell_parameter()
+    {
+        using var repo = new TestRepository();
+
+        var run = repo.WithValidPlugin()
+            .WithHook("beforeShellExecution", "rm +-rf")
+            .ValidateAndGenerate();
+
+        var windows = ((JsonArray)Events(run, CodexHooks)["PreToolUse"]![0]!["hooks"]!)[0]!["commandWindows"]!
+            .GetValue<string>();
+
+        Assert.StartsWith("-", HookDialect.MatcherArgument, StringComparison.Ordinal);
+        Assert.DoesNotContain("--", HookDialect.MatcherArgument, StringComparison.Ordinal);
+        Assert.Contains("-Matcher \"rm +-rf\"", windows, StringComparison.Ordinal);
     }
 
     [Fact]

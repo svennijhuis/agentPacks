@@ -101,7 +101,7 @@ internal sealed class TestRepository : IDisposable
         string fileName,
         string? name = null,
         string description = "Reviews a change for defects. Use before opening a pull request.",
-        string? extraFrontmatter = "model: inherit\nreadonly: true",
+        string? extraFrontmatter = "model: inherit\nreadonly: true\ntools:\n  - read\n  - grep",
         string body = "You review changes.",
         string plugin = "engineering") =>
         WithMarkdownComponent("agents", $"{fileName}.md", name ?? fileName, description, extraFrontmatter, body, plugin);

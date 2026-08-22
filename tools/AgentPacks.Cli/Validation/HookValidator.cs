@@ -79,6 +79,17 @@ internal sealed class HookValidator(RepositoryContext context)
             return;
         }
 
+        // An empty array generates no hooks file at all, while the Claude and Codex manifests would
+        // still have to decide whether to point at one. Rejecting it here keeps "the plugin declares
+        // hooks" and "a hooks.json exists" from disagreeing.
+        if (entries.Count == 0)
+        {
+            context.Diagnostics.SpecFatal(
+                relative,
+                $"event '{name}' declares no hooks. Remove the event instead of leaving it empty.");
+            return;
+        }
+
         foreach (var entry in entries)
         {
             if (entry is not JsonObject hook)

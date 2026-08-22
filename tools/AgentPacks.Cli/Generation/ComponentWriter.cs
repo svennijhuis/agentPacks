@@ -59,11 +59,21 @@ internal static class ComponentWriter
         builder.Append('\n')
             .Append(multilineKey)
             .Append(" = \"\"\"\n")
-            .Append(multilineValue.TrimEnd('\n').Replace("\"\"\"", "\\\"\\\"\\\"", StringComparison.Ordinal))
+            .Append(TomlMultiline(multilineValue))
             .Append("\n\"\"\"\n");
 
         return builder.ToString();
     }
+
+    /// <summary>
+    /// The body of a TOML multi-line basic string. Backslashes are escaped first: a basic string
+    /// only permits a fixed escape set, so an agent body containing a regex like \d or a path like
+    /// C:\src is a parse error, and \t or \n would silently rewrite the instruction text.
+    /// </summary>
+    private static string TomlMultiline(string value) =>
+        value.TrimEnd('\n')
+            .Replace("\\", "\\\\", StringComparison.Ordinal)
+            .Replace("\"\"\"", "\\\"\\\"\\\"", StringComparison.Ordinal);
 
     private static string TomlString(string value) =>
         "\"" + value.Replace("\\", "\\\\", StringComparison.Ordinal)

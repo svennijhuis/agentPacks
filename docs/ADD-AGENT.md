@@ -29,9 +29,11 @@ tools:
 | `description` | yes | What it does *and* when to delegate to it. This is the only thing the main agent uses to decide. |
 | `model` | no | `inherit`, `opus`, `sonnet` or `haiku`. Defaults to `inherit`. |
 | `tools` | no | List of lowercase tool names. Translated to each client's spelling. |
-| `readonly` | no | `true` or `false`. Cursor honours it directly; elsewhere it is expressed by the tools you grant. |
+| `readonly` | no | `true` or `false`. Cursor honours it directly; elsewhere it is expressed by the tools you grant, so `readonly: true` requires a `tools` list and rejects `write` and `edit`. |
 
 Anything else is rejected: a key three of the four clients ignore looks like a working restriction and is not one.
+
+`readonly` is validated rather than generated, for the same reason. No client but Cursor has a read-only flag, so what actually carries the restriction into the other three is the tool list: an agent with no `tools` inherits everything the client has, and one that lists `write` gets `write`. Declaring `readonly: true` therefore commits you to a tool list that backs it up. Note that `bash` is not counted as a writing tool — a verifier needs it to run a test suite — so an agent that grants `bash` is trusting the prompt, not the tool list, for that part.
 
 ## Writing the prompt
 

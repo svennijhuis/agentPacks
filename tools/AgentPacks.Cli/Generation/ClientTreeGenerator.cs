@@ -103,6 +103,16 @@ internal sealed class ClientTreeGenerator(RepositoryContext context)
 
         var always = AlwaysApplyRules(plugin);
 
+        // Warned before the early return: a plugin whose rules are all path-scoped generates
+        // nothing for Claude, which is exactly the case the author most needs to hear about.
+        foreach (var scoped in plugin.Rules.Except(always))
+        {
+            context.Diagnostics.Warning(
+                context.Relative(scoped.FilePath),
+                "is scoped with 'globs'. Claude has no path-scoped rule concept, so this rule is " +
+                "not generated for Claude. Cursor and Copilot still receive it.");
+        }
+
         if (always.Count == 0)
         {
             if (HookGenerator.Build(plugin, profile) is { } authored)
@@ -113,18 +123,11 @@ internal sealed class ClientTreeGenerator(RepositoryContext context)
             return;
         }
 
-        foreach (var scoped in plugin.Rules.Except(always))
-        {
-            context.Diagnostics.Warning(
-                context.Relative(scoped.FilePath),
-                "is scoped with 'globs'. Claude has no path-scoped rule concept, so this rule is " +
-                "not generated for Claude. Cursor and Copilot still receive it.");
-        }
-
         var text = string.Join("\n\n", always.Select(rule => rule.Body.TrimEnd('\n')));
 
         add(profile.PluginRelative("scripts/rules-context.sh"), RulesScriptPosix(text), true);
         add(profile.PluginRelative("scripts/rules-context.ps1"), RulesScriptPowerShell(text), false);
+        add(profile.PluginRelative("scripts/rules-context"), Dispatcher("rules-context"), true);
         add(profile.PluginRelative("scripts/rules-context.cmd"), ShimCommand("rules-context"), false);
 
         addJson(profile.PluginRelative("hooks/hooks.json"), ClaudeHooksWithRules(plugin, profile));
@@ -153,26 +156,32 @@ internal sealed class ClientTreeGenerator(RepositoryContext context)
         var document = HookGenerator.Build(plugin, profile) ?? new JsonObject { ["hooks"] = new JsonObject() };
         var hooks = (JsonObject)document["hooks"]!;
 
-        var entry = new JsonObject
+        var command = new JsonObject
         {
-            ["hooks"] = new JsonArray
-            {
-                new JsonObject
-                {
-                    ["type"] = "command",
-                    ["command"] = $"\"{profile.PluginRootToken}/{profile.Directory}/scripts/rules-context\""
-                }
-            }
+            ["type"] = "command",
+            ["command"] = $"\"{profile.PluginRootToken}/{profile.Directory}/scripts/rules-context\""
         };
 
-        if (hooks["SessionStart"] is JsonArray existing)
+        if (hooks["SessionStart"] is not JsonArray existing)
         {
-            existing.Add(entry);
+            existing = [];
+            hooks["SessionStart"] = existing;
         }
-        else
+
+        // The rules hook carries no matcher, so it belongs in the matcher-less group rather than in
+        // a second one beside it: Claude groups by matcher, and two groups with the same matcher
+        // mean one of them silently wins.
+        var group = existing
+            .OfType<JsonObject>()
+            .FirstOrDefault(candidate => candidate["matcher"] is null);
+
+        if (group is null)
         {
-            hooks["SessionStart"] = new JsonArray { entry };
+            group = new JsonObject { ["hooks"] = new JsonArray() };
+            existing.Add(group);
         }
+
+        ((JsonArray)group["hooks"]!).Add(command);
 
         return document;
     }
@@ -258,7 +267,10 @@ internal sealed class ClientTreeGenerator(RepositoryContext context)
             codex["skills"] = "./skills/";
         }
 
-        if (plugin.Hooks is not null)
+        // Keyed on what the generator actually produces, not on the source file existing: an event
+        // declared with an empty entry array yields no hooks.json, and a manifest pointing at a
+        // file that was never written fails the plugin at install time.
+        if (HookGenerator.Build(plugin, profile) is not null)
         {
             codex["hooks"] = $"./{profile.Directory}/hooks/hooks.json";
         }
@@ -360,16 +372,28 @@ internal sealed class ClientTreeGenerator(RepositoryContext context)
     // ---------------------------------------------------------------- Shared
 
     /// <summary>
-    /// The Windows half of an authored script pair. Claude, Cursor and Copilot have no per-OS hook
-    /// field, so the emitted command is extensionless and cmd.exe resolves this shim via PATHEXT.
+    /// The two halves that make one extensionless hook command work on both platforms. Claude,
+    /// Cursor and Copilot have no per-OS hook field, so the emitted command names scripts/&lt;name&gt;
+    /// with no extension: a POSIX shell runs the dispatcher, and cmd.exe — which never executes an
+    /// extensionless file — appends PATHEXT and finds the .cmd shim instead.
     /// </summary>
     private static void GenerateShims(PluginPackage plugin, Action<string, string, bool> add)
     {
         foreach (var script in plugin.Scripts.Where(s => s.IsComplete))
         {
+            add($"scripts/{script.Name}", Dispatcher(script.Name), true);
             add($"scripts/{script.Name}.cmd", ShimCommand(script.Name), false);
         }
     }
+
+    // The POSIX half of the extensionless command. It only forwards: the authored .sh keeps its
+    // extension so the pair stays obvious in the tree and the validator can insist on both halves.
+    private static string Dispatcher(string name) =>
+        "#!/usr/bin/env bash\n" +
+        "# Generated. The hook command is extensionless so one string works on POSIX and on Windows;\n" +
+        $"# this forwards to the authored {name}.sh. Editing it is pointless: it is regenerated.\n" +
+        "set -euo pipefail\n" +
+        $"exec \"$(dirname \"$0\")/{name}.sh\" \"$@\"\n";
 
     // Line endings stay LF: cmd.exe runs an LF batch file, and generated output is byte-compared
     // in CI, where a CRLF file written on Windows would report drift against the Linux runner.

@@ -185,4 +185,43 @@ public sealed class HookValidationTests
 
         Assert.False(run.HasErrors, run.Text);
     }
+
+    /// <summary>
+    /// An event with no entries generates no hooks file, while the plugin still reads as declaring
+    /// hooks. Rejecting it keeps the manifests from pointing at a file that was never written.
+    /// </summary>
+    [Fact]
+    public void An_event_declared_with_no_hooks_fails()
+    {
+        using var repo = new TestRepository();
+
+        var run = repo.WithValidPlugin()
+            .WithScript("guard")
+            .WithHooks("""
+                { "hooks": { "stop": [] } }
+                """)
+            .Validate();
+
+        Assert.True(run.HasErrors);
+        Assert.Contains("declares no hooks", run.Text, StringComparison.Ordinal);
+    }
+
+    /// <summary>
+    /// A manifest that names a hooks file the generator did not write fails the plugin at install
+    /// time, so the two decisions are made from the same fact rather than from two similar ones.
+    /// </summary>
+    [Fact]
+    public void No_manifest_points_at_a_hooks_file_that_was_not_generated()
+    {
+        using var repo = new TestRepository();
+        var run = repo.WithValidPlugin().ValidateAndGenerate();
+
+        var marketplace = run.File(".claude-plugin/marketplace.json").Text;
+        var codex = run.File("plugins/engineering/.codex-plugin/plugin.json").Text;
+
+        Assert.False(run.HasFile("plugins/engineering/com.anthropic.claude-code/hooks/hooks.json"));
+        Assert.False(run.HasFile("plugins/engineering/com.openai.codex/hooks/hooks.json"));
+        Assert.DoesNotContain("hooks/hooks.json", marketplace, StringComparison.Ordinal);
+        Assert.DoesNotContain("hooks/hooks.json", codex, StringComparison.Ordinal);
+    }
 }

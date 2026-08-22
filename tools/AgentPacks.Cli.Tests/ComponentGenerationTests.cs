@@ -1,3 +1,5 @@
+using System.Text.Json.Nodes;
+
 namespace AgentPacks.Cli.Tests;
 
 /// <summary>
@@ -51,7 +53,9 @@ public sealed class ComponentGenerationTests
 
     /// <summary>
     /// 'readonly' is Cursor's key. Copying it into a Claude or Copilot agent would put a key in the
-    /// frontmatter that neither reads, which looks like a working restriction and is not one.
+    /// frontmatter that neither reads, which looks like a working restriction and is not one. What
+    /// carries the restriction into every client is the tool list, which ComponentValidator forces
+    /// a read-only agent to declare.
     /// </summary>
     [Fact]
     public void Frontmatter_keys_a_client_does_not_read_are_dropped()
@@ -59,7 +63,7 @@ public sealed class ComponentGenerationTests
         using var repo = new TestRepository();
 
         var run = repo.WithValidPlugin()
-            .WithAgent("reviewer", extraFrontmatter: "readonly: true")
+            .WithAgent("reviewer", extraFrontmatter: "readonly: true\ntools:\n  - read")
             .ValidateAndGenerate();
 
         Assert.DoesNotContain(
@@ -261,5 +265,130 @@ public sealed class ComponentGenerationTests
 
         Assert.True(run.File($"{Plugin}/com.anthropic.claude-code/scripts/rules-context.sh").Executable);
         Assert.False(run.File($"{Plugin}/com.anthropic.claude-code/scripts/rules-context.cmd").Executable);
+    }
+
+    /// <summary>
+    /// The rules hook command is extensionless like every other one, so the same dispatcher has to
+    /// exist here. Without it the always-on rules reach no Claude session on macOS or Linux, and
+    /// nothing says so: the hook simply fails to launch.
+    /// </summary>
+    [Fact]
+    public void The_rules_hook_command_resolves_to_a_generated_dispatcher()
+    {
+        using var repo = new TestRepository();
+        var run = repo.WithValidPlugin().WithRule("standards").ValidateAndGenerate();
+
+        var command = ((JsonArray)((JsonObject)run
+                .File($"{Plugin}/com.anthropic.claude-code/hooks/hooks.json").Content["hooks"]!)["SessionStart"]![0]!["hooks"]!)[0]!["command"]!
+            .GetValue<string>()
+            .Trim('"');
+
+        var pluginRelative = command.Replace("${CLAUDE_PLUGIN_ROOT}/", string.Empty, StringComparison.Ordinal);
+
+        Assert.True(run.HasFile($"{Plugin}/{pluginRelative}"));
+        Assert.True(run.File($"{Plugin}/{pluginRelative}").Executable);
+    }
+
+    /// <summary>
+    /// Claude groups SessionStart hooks by matcher, and two groups carrying the same matcher mean
+    /// one of them silently wins. The generated rules hook has no matcher, so it belongs inside the
+    /// authored matcher-less group rather than in a second one beside it.
+    /// </summary>
+    [Fact]
+    public void The_rules_hook_joins_the_authored_session_start_group()
+    {
+        using var repo = new TestRepository();
+
+        var run = repo.WithValidPlugin()
+            .WithRule("standards")
+            .WithHook("sessionStart")
+            .ValidateAndGenerate();
+
+        var sessionStart = ((JsonObject)run
+            .File($"{Plugin}/com.anthropic.claude-code/hooks/hooks.json").Content["hooks"]!)["SessionStart"]!.AsArray();
+
+        Assert.Single(sessionStart);
+
+        var commands = ((JsonArray)sessionStart[0]!["hooks"]!)
+            .Select(entry => entry!["command"]!.GetValue<string>())
+            .ToList();
+
+        Assert.Equal(2, commands.Count);
+        Assert.Contains(commands, c => c.Contains("scripts/guard", StringComparison.Ordinal));
+        Assert.Contains(commands, c => c.Contains("scripts/rules-context", StringComparison.Ordinal));
+    }
+
+    /// <summary>
+    /// The warning is the only signal a scoped rule gives, and it is most needed when there is no
+    /// always-on rule to generate: nothing at all reaches Claude, and the generator would otherwise
+    /// return before saying so.
+    /// </summary>
+    [Fact]
+    public void A_plugin_with_only_scoped_rules_still_warns_about_claude()
+    {
+        using var repo = new TestRepository();
+
+        var run = repo.WithValidPlugin()
+            .WithRule("checklist", scope: "globs:\n  - \"**/*.cs\"")
+            .ValidateAndGenerate();
+
+        Assert.False(run.HasErrors, run.Text);
+        Assert.Contains("Claude has no path-scoped rule concept", run.Text, StringComparison.Ordinal);
+        Assert.False(run.HasFile($"{Plugin}/com.anthropic.claude-code/scripts/rules-context.sh"));
+        Assert.True(run.HasFile($"{Plugin}/com.github.copilot/instructions/checklist.instructions.md"));
+    }
+
+    /// <summary>
+    /// No client has a read-only flag, so an agent that declares one and no tools inherits every
+    /// tool the client has — the flag reads as a restriction and is not one.
+    /// </summary>
+    [Fact]
+    public void A_read_only_agent_without_tools_fails()
+    {
+        using var repo = new TestRepository();
+
+        var run = repo.WithValidPlugin()
+            .WithAgent("reviewer", extraFrontmatter: "readonly: true")
+            .Validate();
+
+        Assert.True(run.HasErrors);
+        Assert.Contains("'readonly: true' but no 'tools'", run.Text, StringComparison.Ordinal);
+    }
+
+    /// <summary>
+    /// The tool list is the only thing that carries the restriction into the generated trees, so a
+    /// read-only agent asking for a writing tool gets exactly that tool and the flag means nothing.
+    /// </summary>
+    [Fact]
+    public void A_read_only_agent_requesting_a_writing_tool_fails()
+    {
+        using var repo = new TestRepository();
+
+        var run = repo.WithValidPlugin()
+            .WithAgent("reviewer", extraFrontmatter: "readonly: true\ntools:\n  - read\n  - write")
+            .Validate();
+
+        Assert.True(run.HasErrors);
+        Assert.Contains("but requests write", run.Text, StringComparison.Ordinal);
+    }
+
+    /// <summary>
+    /// A TOML basic string only accepts a fixed escape set, so an unescaped backslash in an agent
+    /// body is a parse error Codex reports at load — and \t or \n would parse and silently rewrite
+    /// the instruction instead.
+    /// </summary>
+    [Fact]
+    public void A_codex_agent_body_escapes_backslashes()
+    {
+        using var repo = new TestRepository();
+
+        var run = repo.WithValidPlugin()
+            .WithAgent("reviewer", body: @"Match [0-9]\d+ and read C:\src\app.")
+            .ValidateAndGenerate();
+
+        var toml = run.File($"{Plugin}/com.openai.codex/agents/reviewer.toml").Text;
+
+        Assert.Contains(@"[0-9]\\d+", toml, StringComparison.Ordinal);
+        Assert.Contains(@"C:\\src\\app", toml, StringComparison.Ordinal);
     }
 }

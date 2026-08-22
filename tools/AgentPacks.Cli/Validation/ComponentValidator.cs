@@ -1,3 +1,4 @@
+using AgentPacks.Cli.Generation;
 using AgentPacks.Cli.Io;
 using AgentPacks.Cli.Loading;
 using YamlDotNet.RepresentationModel;
@@ -12,6 +13,13 @@ namespace AgentPacks.Cli.Validation;
 /// </summary>
 internal sealed class ComponentValidator(RepositoryContext context)
 {
+    /// <summary>
+    /// Tools that can change the working tree. No client expresses "read-only" as a flag, so the
+    /// only place the neutral 'readonly' can be enforced is here, against the declared tool list.
+    /// </summary>
+    private static readonly IReadOnlySet<string> WritingTools =
+        new HashSet<string>(StringComparer.Ordinal) { "write", "edit" };
+
     /// <summary>Models a neutral agent may request. 'inherit' is the portable default.</summary>
     private static readonly IReadOnlySet<string> AllowedModels =
         new HashSet<string>(StringComparer.Ordinal) { "inherit", "opus", "sonnet", "haiku" };
@@ -177,6 +185,43 @@ internal sealed class ComponentValidator(RepositoryContext context)
         if (readOnly is not null && readOnly is not ("true" or "false"))
         {
             context.Diagnostics.SpecFatal(relative, "agent 'readonly' must be true or false.");
+            return;
+        }
+
+        if (readOnly == "true")
+        {
+            ValidateReadOnly(agent, relative);
+        }
+    }
+
+    /// <summary>
+    /// 'readonly' is not a key any client understands, so it is generated into none of the four
+    /// trees. What carries it is the tool list: an agent that declares no tools inherits every tool
+    /// the client has, and one that declares a writing tool can write whatever the flag claims it
+    /// cannot. Both are enforced here so the flag means something rather than reading as assurance.
+    /// </summary>
+    private void ValidateReadOnly(MarkdownComponent agent, string relative)
+    {
+        var tools = ComponentWriter.Sequence(agent, "tools");
+
+        if (tools.Count == 0)
+        {
+            context.Diagnostics.SpecFatal(
+                relative,
+                "agent declares 'readonly: true' but no 'tools'. No client has a read-only flag, so " +
+                "the restriction is only ever expressed as a tool list, and an agent without one " +
+                "inherits every tool the client has.");
+            return;
+        }
+
+        var writing = tools.Where(WritingTools.Contains).Order(StringComparer.Ordinal).ToList();
+
+        if (writing.Count > 0)
+        {
+            context.Diagnostics.SpecFatal(
+                relative,
+                $"agent declares 'readonly: true' but requests {string.Join(", ", writing)}. Drop the " +
+                "tool or drop the flag: the generated agent gets exactly the tools it lists.");
         }
     }
 

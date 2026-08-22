@@ -53,8 +53,15 @@ internal sealed record HookEvent(string Name, MatcherSubject Subject, Dictionary
 /// </summary>
 internal static class HookDialect
 {
-    /// <summary>Argument carrying an authored matcher the client itself cannot express.</summary>
-    public const string MatcherArgument = "--matcher";
+    /// <summary>
+    /// Argument carrying an authored matcher the client itself cannot express.
+    ///
+    /// Spelled with a single dash and a capital because the same argument list has to bind in two
+    /// parsers: a POSIX script reads it positionally, and PowerShell binds it to param($Matcher).
+    /// PowerShell has no double-dash parameter names, so "--matcher" would be taken as the value of
+    /// $Matcher and the regex behind it would fail to bind at all.
+    /// </summary>
+    public const string MatcherArgument = "-Matcher";
 
     private static readonly Dictionary<string, HookEvent> Map = new(StringComparer.Ordinal)
     {

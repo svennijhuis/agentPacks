@@ -4,15 +4,16 @@
 # The delivery loop stops at a hand-off, so none of its phases should reach here. Reads the client's
 # hook event JSON on stdin. Clients disagree on how a hook blocks an action, so this deliberately
 # never blocks: it writes one line of advice and exits 0, which every client treats as "allow, and
-# show this". The regex arrives as --matcher because only Cursor can filter on command text itself;
-# the other three spend their matcher naming the shell tool.
+# show this". The regex arrives as -Matcher because only Cursor can filter on command text itself;
+# the other three spend their matcher naming the shell tool. The flag is spelled the one way both
+# parsers accept: PowerShell binds -Matcher to param($Matcher) and has no double-dash parameters.
 set -euo pipefail
 
 matcher=""
 
 while [ "$#" -gt 0 ]; do
   case "$1" in
-    --matcher)
+    -Matcher)
       matcher="${2-}"
       shift 2
       ;;
