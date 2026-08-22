@@ -45,15 +45,24 @@ Delegate to all three **at the same time**, in one batch. They do not depend on 
 
 ## 4. Write it down
 
-Append to `docs/plans/<slug>.md`:
+Every reviewer hands you the same shape — a table of `Severity | Location | Problem | Fix` — which is what makes merging mechanical rather than interpretive. Append the merged result to `docs/plans/<slug>.md`:
 
 ```markdown
 ## Fix list — round <n>
 
+**Verdict:** fix | pass | replan
+
 | # | Severity | Location | Problem | Fix | Found by |
 |---|---|---|---|---|---|
-| 1 | high | src/foo.ts:42 | ... | ... | loop-reviewer, loop-security-reviewer |
+| 1 | high | src/auth/session.ts:88 | Session token has no expiry, so a leaked token is valid forever. | Set `expiresAt` on issue and reject expired tokens in `verify`. | loop-reviewer, loop-security-reviewer |
+
+**Lowered:** <finding, and why — omit if none>
+**Notes carried forward:** <`low` and `tiny` entries nobody acted on>
 ```
+
+Renumber `#` across the merged list; the numbers in each reviewer's report are local to it. Carry `Location`, `Problem` and `Fix` through unchanged unless two reports describe one finding, in which case write the clearer sentence and name both sources.
+
+A reviewer that returns something other than this shape is reporting a bug in itself. Ask it again rather than parsing prose.
 
 The list lives in the plan, not in chat. The implementer reads it, the next round checks it, and a human can see what was decided without replaying a session.
 

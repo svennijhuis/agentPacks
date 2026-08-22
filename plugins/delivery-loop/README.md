@@ -10,6 +10,8 @@ plan -> implement -> verify -> review -> (fix -> verify -> review) x 2 max -> ha
                                        loop-simplifier      ┘
 ```
 
+Every phase returns a fixed shape — the reviewers all emit the same `Severity | Location | Problem | Fix` table, the verifier a criterion-by-criterion evidence table. That is what makes merging mechanical instead of interpretive; the formats are in the `delivery-loop` skill.
+
 Three reviewers read the same diff and answer different questions, so they run at once rather than in a queue. `loop-orchestrator` merges what comes back into one list — deduplicated by location at the highest severity reported — ranks it `high` / `medium` / `low` / `tiny`, and writes it into the plan. `high` or `medium` costs a fix round; `low` and `tiny` ride along as notes. The implementer picks the list up and works it in order.
 
 The loop ends at a hand-off summary. **No phase commits, merges or pushes** — landing the work is the human's step. `pass` means "ready to look at", not "ready to land".

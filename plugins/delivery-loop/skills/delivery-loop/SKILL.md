@@ -101,6 +101,86 @@ The scale exists to stop the two failures that kill review: a naming nit ranked 
 
 A verdict falls out of the merged list: any `high` or `medium` is `fix`; only `low` and `tiny` is `pass` with notes; a finding no fix to this diff can resolve is `replan`.
 
+## Report formats
+
+Every phase returns a fixed shape. This is not ceremony: `loop-orchestrator` merges three reviewer reports into one list, and it can only deduplicate by location and rank by severity if all three report location and severity the same way. Prose that has to be interpreted is prose that gets interpreted differently each round.
+
+Rules that hold for every report below.
+
+| Field | Rule |
+|---|---|
+| Location | `path:line`, or `path` when the finding is the whole file. Never "in the auth code". |
+| Severity | Exactly one of `high`, `medium`, `low`, `tiny`. Lowercase. |
+| Problem | One sentence, stating the defect. No rationale, no consequence clause. |
+| Fix | Imperative and specific enough to act on without asking a question. |
+| Empty | An empty table is a valid result. Write `No findings.` and say what you examined — never pad a table to look thorough. |
+
+### Reviewer report
+
+All three reviewers return this, and only this:
+
+```markdown
+## <agent-name> — round <n>
+
+**Examined:** <what was in scope>
+**Not examined:** <what was skipped, and why — omit the line if nothing was>
+
+| # | Severity | Location | Problem | Fix |
+|---|---|---|---|---|
+| 1 | high | src/auth/session.ts:88 | Session token has no expiry, so a leaked token is valid forever. | Set `expiresAt` on issue and reject expired tokens in `verify`. |
+| 2 | low | src/auth/session.ts:12 | `doCheck` no longer describes what the function does after the change. | Rename to `assertSessionActive`. |
+
+**Replan:** <one line, only when no fix to this diff can resolve something — otherwise omit>
+```
+
+Rows are ordered most severe first. The `#` column is local to this report; the orchestrator renumbers on merge.
+
+### Verifier report
+
+```markdown
+## loop-verifier — round <n>
+
+| Criterion | Result | Command | Evidence |
+|---|---|---|---|
+| 1 | pass | `npm test -- session` | `12 passing` |
+| 2 | fail | `npm test -- expiry` | `expected 401, got 200` |
+| 3 | not verified | — | No command covers this; needs a manual probe. |
+
+**Suite:** <the wider run, and whether anything failed that this change did not touch>
+```
+
+`not verified` is a first-class result. A criterion with no evidence is never reported as `pass`.
+
+### Implementer report
+
+```markdown
+## loop-implementer — round <n>
+
+**Criteria claimed:** 1, 2, 4
+**Fix list entries resolved:** 1, 2, 5 — <and which `low`/`tiny` entries were left, if any>
+**Files touched:** <paths>
+**Follow-ups noticed, not done:** <one line each, or `None`>
+```
+
+No statement about whether anything passes. That is the verifier's report, and duplicating it here is how an unverified claim enters the record.
+
+### Orchestrator report
+
+The merged list, written to the plan and repeated in the hand-off:
+
+```markdown
+## Fix list — round <n>
+
+**Verdict:** fix | pass | replan
+
+| # | Severity | Location | Problem | Fix | Found by |
+|---|---|---|---|---|---|
+| 1 | high | src/auth/session.ts:88 | ... | ... | loop-reviewer, loop-security-reviewer |
+
+**Lowered:** <finding, and why — omit if none>
+**Notes carried forward:** <`low` and `tiny` entries nobody acted on>
+```
+
 ## Evidence, not claims
 
 "Tests pass" is a claim. The command and its output are evidence. A phase that did not run something reports it as not run — an unverified criterion is a known unknown, and a criterion reported as passing without a command is a defect that has been laundered into a status update.

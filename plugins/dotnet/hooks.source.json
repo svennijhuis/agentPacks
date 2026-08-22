@@ -1,0 +1,13 @@
+{
+  "$schema": "../../schema/hooks.schema.json",
+  "description": "An agent writes C# faster than it reads .editorconfig. This formats the file it just wrote, so formatting never shows up as a review finding and the human reads a clean diff.",
+  "hooks": {
+    "afterFileEdit": [
+      {
+        "script": "dotnet-format",
+        "matcher": "[.](cs|csx|vb)",
+        "timeout": 60
+      }
+    ]
+  }
+}
