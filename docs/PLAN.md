@@ -43,7 +43,7 @@ Both give a Rust shop a way to avoid installing .NET skills. Only one stays read
 
 ## What ships today
 
-The repository currently ships **two capability packs and nothing else**: `code-review` and `delivery-loop`.
+The repository currently ships **one capability pack and nothing else**: `delivery-loop`.
 
 The earlier catalog carried five role packs and three language packs, six of which held nothing but a `plugin.json`. An empty pack is not a placeholder — it is an install that appears in the marketplace, resolves, and does nothing, which is worse than not being listed. They were removed in the same branch that added `delivery-loop`; the pinned external-skill imports and the two authored skills (`engineering/testing`, `dotnet/dotnet-review`) are in history at `007f609` and can be restored when there is a pack around them worth installing.
 
@@ -65,12 +65,13 @@ Capability packs — installed because of a workflow you want wired into the age
 
 | Plugin | Who installs it | Holds |
 | --- | --- | --- |
-| `code-review` | teams that review every change | the `code-review` skill, review standards as rules, `security-reviewer` and `diff-reviewer` subagents, the `review-diff` command, and a hook that flags commands skipping review |
-| `delivery-loop` | anyone who wants a change planned before it is built and checked after | the `delivery-loop` skill, role boundaries as an always-on rule, `loop-planner`, `loop-implementer`, `loop-verifier`, `loop-reviewer` and `loop-security-reviewer` subagents, and a hook that flags the commands that land work |
+| `delivery-loop` | anyone who wants a change planned before it is built and checked after | the `delivery-loop` and `code-review` skills, standards and role boundaries as rules, `loop-planner`, `loop-implementer`, `loop-verifier`, `loop-reviewer` and `loop-security-reviewer` subagents, the `review-diff` command, and a hook that flags the commands that land work |
 
-A capability pack is the exception to "a role is a role pack", and it earns the exception only by shipping components a skill cannot express: rules that apply without being invoked, subagents, commands, or hooks. A pack that would hold nothing but skills is a role pack, not a capability pack. `code-review` overlaps `engineering` on purpose: the skill is the shared knowledge, and the pack is the machinery around it that a team opts into.
+A capability pack is the exception to "a role is a role pack", and it earns the exception only by shipping components a skill cannot express: rules that apply without being invoked, subagents, commands, or hooks. A pack that would hold nothing but skills is a role pack, not a capability pack.
 
-Two capability packs is not a slippery slope, because they answer different questions. `code-review` is the machinery around **one phase** — is this diff correct and safe. `delivery-loop` is the **sequence of phases**: plan, implement, verify, review, and the route from a review finding back into another implement round. Neither is expressible as a skill: one needs a rule that applies without being invoked and subagents with their own context, the other needs role boundaries the agent cannot talk its way out of. A third capability pack has to clear the same bar — components a skill cannot express, and a workflow that is not already someone else's phase.
+There was briefly a second one. `code-review` shipped a review skill, review standards, a security subagent, a diff subagent and a review command; `delivery-loop` then shipped a review phase with its own security gate and its own diff reviewer. Two packs, one subject, and the only real difference was whether a finding cost a fix round or was merely printed. Review folded into the loop as a phase, and the pack was removed.
+
+The rule that falls out of it: **a capability pack is a workflow, and a phase of an existing workflow is not a new pack.** A third has to clear both bars — components a skill cannot express, and a loop that is not already someone else's phase.
 
 Language packs — installed because of the ecosystem you live in, one per language family:
 
@@ -84,7 +85,6 @@ Typical installs:
 
 ```
 .NET shop        dotnet + engineering + security + productivity
-Review-heavy     code-review + the packs above
 TypeScript shop  typescript + engineering + security + productivity
 Rust API         rust + engineering + security
 Product owner    product + productivity

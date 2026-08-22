@@ -57,5 +57,5 @@ Claude has no rules component. Always-on rules are baked into a generated `Sessi
 Codex reads `AGENTS.md` from the workspace, not from a plugin. The generated file is ready to copy into the repository that needs it:
 
 ```shell
-cp plugins/code-review/com.openai.codex/AGENTS.md ./AGENTS.md
+cp plugins/delivery-loop/com.openai.codex/AGENTS.md ./AGENTS.md
 ```

@@ -17,7 +17,7 @@ Use a reverse-domain namespace in the manifest when the client needs manifest da
 Put client-owned files in a top-level directory with exactly the same namespace:
 
 ```text
-plugins/code-review/
+plugins/delivery-loop/
 ├── plugin.json
 └── com.example.client/
     └── hooks/
@@ -31,7 +31,7 @@ A client can use the manifest object, the directory, or both. Agent Plugins assi
 Rules, agents, commands and hooks are not portable components — the specification leaves all four out. This repository authors them once in a neutral form at the plugin root and generates a tree per client inside that client's namespace directory:
 
 ```text
-plugins/code-review/
+plugins/delivery-loop/
 ├── plugin.json                     # declares the namespaces under "extensions"
 ├── rules/  agents/  commands/      # authored, and read directly by Cursor
 ├── hooks.source.json               # authored, neutral

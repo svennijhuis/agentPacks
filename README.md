@@ -4,14 +4,13 @@ Portable [Agent Plugins](https://agent-plugins.org) that wire a workflow into th
 
 ## Available plugins
 
-Capability packs, installed because you want the workflow in the loop rather than knowledge sitting on a shelf:
+One capability pack, installed because you want the workflow in the loop rather than knowledge sitting on a shelf:
 
 | Plugin | Use it for |
 | --- | --- |
-| `code-review` | Reviewing changes: a review skill, always-on standards, security and diff subagents, a `/review-diff` command, and a guard hook |
 | `delivery-loop` | Running a change through plan, implement, verify and review as separate roles, with an OWASP security gate, a bounded fix round, and a hand-off that stops short of committing |
 
-That is the whole catalog today, deliberately. Role packs (`engineering`, `productivity`, `security`) and language packs (`dotnet`, `typescript`, `rust`) are planned and have their own rules for what earns one — a pack that ships nothing but an empty `plugin.json` advertises an install that does nothing, so they are added when there is real content to add. The reasoning, and the earlier catalog, is in [`docs/PLAN.md`](docs/PLAN.md).
+That is the whole catalog today, deliberately. Role packs (`engineering`, `productivity`, `security`) and language packs (`dotnet`, `typescript`, `rust`) are planned and have their own rules for what earns one — a pack that ships nothing but an empty `plugin.json` advertises an install that does nothing, so they are added when there is real content to add. The reasoning is in [`docs/PLAN.md`](docs/PLAN.md).
 
 Adding the marketplace makes all plugins discoverable. Install only the plugins you want. The commands install globally for your user.
 
@@ -19,7 +18,6 @@ Adding the marketplace makes all plugins discoverable. Install only the plugins 
 
 ```shell
 copilot plugin marketplace add https://github.com/svennijhuis/agentPacks.git#marketplace
-copilot plugin install code-review@agentpacks
 copilot plugin install delivery-loop@agentpacks
 ```
 
@@ -33,7 +31,6 @@ copilot plugin marketplace update agentpacks
 
 ```shell
 codex plugin marketplace add svennijhuis/agentPacks --ref marketplace
-codex plugin add code-review@agentpacks
 codex plugin add delivery-loop@agentpacks
 ```
 
@@ -47,7 +44,6 @@ codex plugin marketplace upgrade agentpacks
 
 ```shell
 claude plugin marketplace add https://github.com/svennijhuis/agentPacks.git#marketplace --scope user
-claude plugin install code-review@agentpacks --scope user
 claude plugin install delivery-loop@agentpacks --scope user
 ```
 
@@ -64,7 +60,6 @@ Cursor supports the Agent Plugins standard. Until this repository is listed in a
 ```shell
 git clone --branch marketplace --single-branch https://github.com/svennijhuis/agentPacks.git ~/.cursor/agentPacks
 mkdir -p ~/.cursor/plugins/local
-ln -s ~/.cursor/agentPacks/plugins/code-review ~/.cursor/plugins/local/code-review
 ln -s ~/.cursor/agentPacks/plugins/delivery-loop ~/.cursor/plugins/local/delivery-loop
 ```
 
@@ -87,13 +82,13 @@ Skills and MCP servers are portable: every client loads them from the same files
 | GitHub Copilot | yes | yes | yes | yes | yes | yes |
 | Codex | yes | yes | manual copy | manual copy | — | yes |
 
-Codex loads subagents only from `.codex/agents/` and reads `AGENTS.md` from the workspace rather than from a plugin, so those two arrive as generated files you copy once. The [`code-review`](plugins/code-review/README.md) and [`delivery-loop`](plugins/delivery-loop/README.md) READMEs have the commands.
+Codex loads subagents only from `.codex/agents/` and reads `AGENTS.md` from the workspace rather than from a plugin, so those two arrive as generated files you copy once. The [`delivery-loop`](plugins/delivery-loop/README.md) README has the commands.
 
 ## Using the plugins
 
 Start a new agent session after installation and ask naturally, for example:
 
-- “Review this diff.” — or `/review-diff` with the `code-review` pack installed.
+- “Review this diff.” — or the `/review-diff` command, for a change that arrived with no plan.
 - “Plan this change, then build it.” — `delivery-loop` splits it into plan, implement, verify and review, runs the security gate when the change touches a trust boundary, and hands the result back uncommitted.
 - “Is this change safe to ship?” — the OWASP gate, as its own verdict.
 

@@ -2,7 +2,7 @@
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "delivery-loop",
   "version": "0.1.0",
-  "description": "Runs a change through plan, implement, verify and review as separate roles, loops review findings back into a fix round, and stops at a hand-off: no agent commits, merges or pushes.",
+  "description": "Runs a change through plan, implement, verify and review as separate roles, with an OWASP security gate, a bounded fix round, and a hand-off that stops short of committing: no agent commits, merges or pushes.",
   "author": {
     "name": "agentPacks Maintainers"
   },
@@ -13,6 +13,8 @@
     "implementation",
     "testing",
     "review",
+    "security",
+    "owasp",
     "agents",
     "hooks"
   ],

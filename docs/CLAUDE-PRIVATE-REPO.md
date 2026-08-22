@@ -47,7 +47,7 @@ If that ever changes, the fallback is `strict: true` and letting Claude discover
 ```
 
 ```bash
-/plugin install code-review@agentpacks
+/plugin install delivery-loop@agentpacks
 /plugin install delivery-loop@agentpacks
 ```
 

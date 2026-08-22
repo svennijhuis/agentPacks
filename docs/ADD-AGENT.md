@@ -51,7 +51,7 @@ The body is the system prompt. Say what the agent does, in what order, and what 
 Codex loads subagents from `~/.codex/agents/` or `<repo>/.codex/agents/` only. Its plugin format has no agents component, so installing the plugin does **not** register them. The TOML is generated correctly and ready to copy:
 
 ```shell
-cp plugins/code-review/com.openai.codex/agents/*.toml .codex/agents/
+cp plugins/delivery-loop/com.openai.codex/agents/*.toml .codex/agents/
 ```
 
 If Codex gains plugin-shipped agents, only the generated manifest needs a field.

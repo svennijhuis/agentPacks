@@ -91,7 +91,9 @@ Findings are stated as attacks, not as category labels. A category name tells no
 
 ## Depth of review
 
-This loop reviews one change against one plan. It is not a substitute for a standing review practice or for threat modelling a whole system — the `code-review` capability pack in this marketplace carries the first, and a design nobody has threat-modelled is a `replan`, not a finding.
+The order to review in — correctness, then security, then maintainability — is the `/code-review` skill in this pack. It is also what the `review-diff` command runs when a change arrives with no plan behind it.
+
+This loop reviews one change against one plan. It is not threat modelling: a design nobody has threat-modelled is a `replan`, not a finding.
 
 ## Anti-patterns
 

@@ -5,6 +5,16 @@ alwaysApply: true
 
 # Delivery loop standards
 
+## The change
+
+- A change does one thing. Unrelated edits belong in their own change.
+- Behaviour changes come with a test that fails without them.
+- Error paths are handled where they occur, not swallowed and re-raised as a generic failure.
+- Public API changes are called out explicitly, including new required fields and changed defaults.
+- No secrets, tokens or credentials in source, logs or fixtures.
+
+## The loop
+
 - No agent commits, merges or pushes. The loop ends by handing a reviewed working tree to the human, who decides what lands. A `pass` verdict is a recommendation, not permission.
 - Plan first for behaviour changes and anything touching more than two files. Skip the plan for a typo — process is proportional to the work.
 - Plan state lives in `docs/plans/<slug>.md`, not in chat. What is not written down did not survive the session.
