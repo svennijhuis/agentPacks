@@ -2,7 +2,7 @@
 
 This is the rule that decides what becomes a plugin and what becomes a skill. Read it before adding either.
 
-> **Plugins are the install axis: a role that needs no compiler, or a whole language ecosystem.**
+> **Plugins are the install axis: a role that needs no compiler, a whole language ecosystem, or a capability that needs more than skills.**
 >
 > **Skills are the role and the framework inside that pack: `dotnet-review`, `react-…`, `axum-…`.**
 >
@@ -53,6 +53,17 @@ Role packs — installed because of how you work, not what you compile:
 | `engineering` | any builder | **only** cross-language craft: `domain-modeling`, `codebase-design`, `diagnosing-bugs`, `improve-codebase-architecture`, `code-review`, `to-tickets`, `triage`, `wayfinder`, `research`, `grill-with-docs`, `setup-matt-pocock-skills`, `grilling`, `testing` |
 | `security` | anyone shipping software | threat modeling and general checklists *(empty for now)* |
 
+Capability packs — installed because of a workflow you want wired into the agent loop, not just knowledge you want available:
+
+| Plugin | Who installs it | Holds |
+| --- | --- | --- |
+| `code-review` | teams that review every change | the `code-review` skill, review standards as rules, `security-reviewer` and `diff-reviewer` subagents, the `review-diff` command, and a hook that flags commands skipping review |
+| `delivery-loop` | anyone who wants a change planned before it is built and checked after | the `delivery-loop` skill, role boundaries as an always-on rule, `loop-planner`, `loop-implementer`, `loop-verifier` and `loop-reviewer` subagents, and a hook that flags the commands that land work |
+
+A capability pack is the exception to "a role is a role pack", and it earns the exception only by shipping components a skill cannot express: rules that apply without being invoked, subagents, commands, or hooks. A pack that would hold nothing but skills is a role pack, not a capability pack. `code-review` overlaps `engineering` on purpose: the skill is the shared knowledge, and the pack is the machinery around it that a team opts into.
+
+Two capability packs is not a slippery slope, because they answer different questions. `code-review` is the machinery around **one phase** — is this diff correct and safe. `delivery-loop` is the **sequence of phases**: plan, implement, verify, review, and the route from a review finding back into another implement round. Neither is expressible as a skill: one needs a rule that applies without being invoked and subagents with their own context, the other needs role boundaries the agent cannot talk its way out of. A third capability pack has to clear the same bar — components a skill cannot express, and a workflow that is not already someone else's phase.
+
 Language packs — installed because of the ecosystem you live in, one per language family:
 
 | Plugin | Holds |
@@ -65,6 +76,7 @@ Typical installs:
 
 ```
 .NET shop        dotnet + engineering + security + productivity
+Review-heavy     code-review + the packs above
 TypeScript shop  typescript + engineering + security + productivity
 Rust API         rust + engineering + security
 Product owner    product + productivity

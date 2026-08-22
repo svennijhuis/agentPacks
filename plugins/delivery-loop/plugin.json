@@ -1,0 +1,24 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "delivery-loop",
+  "version": "0.1.0",
+  "description": "Runs a change through plan, implement, verify and review as separate roles, loops review findings back into a fix round, and stops at a hand-off: no agent commits, merges or pushes.",
+  "author": {
+    "name": "agentPacks Maintainers"
+  },
+  "license": "UNLICENSED",
+  "keywords": [
+    "workflow",
+    "planning",
+    "implementation",
+    "testing",
+    "review",
+    "agents",
+    "hooks"
+  ],
+  "extensions": {
+    "com.anthropic.claude-code": {},
+    "com.openai.codex": {},
+    "com.github.copilot": {}
+  }
+}
