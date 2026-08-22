@@ -1,0 +1,17 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "apply_patch|write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"./scripts/dotnet-format\" -Matcher \"[.](cs|csx|vb)\"",
+            "commandWindows": "powershell -NoProfile -ExecutionPolicy Bypass -File \"./scripts/dotnet-format.ps1\" -Matcher \"[.](cs|csx|vb)\"",
+            "timeout": 60
+          }
+        ]
+      }
+    ]
+  }
+}

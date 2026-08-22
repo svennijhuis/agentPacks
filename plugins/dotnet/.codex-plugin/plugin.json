@@ -1,0 +1,6 @@
+{
+  "name": "dotnet",
+  "version": "0.1.0",
+  "description": "Formats a C# file the moment an agent writes it, so the diff a human reviews is already formatted and formatting never turns up as a review finding.",
+  "hooks": "./com.openai.codex/hooks/hooks.json"
+}

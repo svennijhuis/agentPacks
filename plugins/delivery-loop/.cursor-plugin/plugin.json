@@ -1,0 +1,20 @@
+{
+  "name": "delivery-loop",
+  "version": "0.1.0",
+  "description": "Runs a change through plan, implement, verify and review as separate roles, with an OWASP security gate, a bounded fix round, and a hand-off that stops short of committing: no agent commits, merges or pushes.",
+  "author": {
+    "name": "agentPacks Maintainers"
+  },
+  "license": "UNLICENSED",
+  "keywords": [
+    "workflow",
+    "planning",
+    "implementation",
+    "testing",
+    "review",
+    "security",
+    "owasp",
+    "agents",
+    "hooks"
+  ]
+}

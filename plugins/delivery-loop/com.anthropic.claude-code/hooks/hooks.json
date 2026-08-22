@@ -1,0 +1,25 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"${CLAUDE_PLUGIN_ROOT}/scripts/loop-guard\" -Matcher \"git +commit|git +push|git +merge|gh +pr +(create|merge)\""
+          }
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"${CLAUDE_PLUGIN_ROOT}/com.anthropic.claude-code/scripts/rules-context\""
+          }
+        ]
+      }
+    ]
+  }
+}

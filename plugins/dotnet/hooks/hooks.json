@@ -1,0 +1,11 @@
+{
+  "hooks": {
+    "afterFileEdit": [
+      {
+        "type": "command",
+        "command": "\"./scripts/dotnet-format\" -Matcher \"[.](cs|csx|vb)\"",
+        "timeout": 60
+      }
+    ]
+  }
+}

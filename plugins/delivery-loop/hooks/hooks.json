@@ -1,0 +1,11 @@
+{
+  "hooks": {
+    "beforeShellExecution": [
+      {
+        "type": "command",
+        "command": "\"./scripts/loop-guard\"",
+        "matcher": "git +commit|git +push|git +merge|gh +pr +(create|merge)"
+      }
+    ]
+  }
+}

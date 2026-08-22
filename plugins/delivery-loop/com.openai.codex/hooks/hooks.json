@@ -1,0 +1,16 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "shell",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"./scripts/loop-guard\" -Matcher \"git +commit|git +push|git +merge|gh +pr +(create|merge)\"",
+            "commandWindows": "powershell -NoProfile -ExecutionPolicy Bypass -File \"./scripts/loop-guard.ps1\" -Matcher \"git +commit|git +push|git +merge|gh +pr +(create|merge)\""
+          }
+        ]
+      }
+    ]
+  }
+}

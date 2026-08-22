@@ -1,0 +1,15 @@
+{
+  "hooks": {
+    "preToolUse": [
+      {
+        "matcher": "shell",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"${PLUGIN_ROOT}/scripts/loop-guard\" -Matcher \"git +commit|git +push|git +merge|gh +pr +(create|merge)\""
+          }
+        ]
+      }
+    ]
+  }
+}

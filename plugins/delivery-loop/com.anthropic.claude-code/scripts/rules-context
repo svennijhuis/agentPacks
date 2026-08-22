@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+# Generated. The hook command is extensionless so one string works on POSIX and on Windows;
+# this forwards to the authored rules-context.sh. Editing it is pointless: it is regenerated.
+set -euo pipefail
+exec "$(dirname "$0")/rules-context.sh" "$@"

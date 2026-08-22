@@ -1,0 +1,27 @@
+<!-- Generated from rules/*.mdc. Codex reads AGENTS.md from the workspace, not
+     from a plugin, so copy this file into the repository that needs it. -->
+
+# Delivery loop standards
+
+## The change
+
+- A change does one thing. Unrelated edits belong in their own change.
+- Behaviour changes come with a test that fails without them.
+- Error paths are handled where they occur, not swallowed and re-raised as a generic failure.
+- Public API changes are called out explicitly, including new required fields and changed defaults.
+- No secrets, tokens or credentials in source, logs or fixtures.
+
+## The loop
+
+- No agent commits, merges or pushes. The loop ends by handing a reviewed working tree to the human, who decides what lands. A `pass` verdict is a recommendation, not permission.
+- Plan first for behaviour changes and anything touching more than two files. Skip the plan for a typo — process is proportional to the work.
+- The planner interviews before it writes: it asks the settled-prerequisite questions in rounds, each with a recommended answer, and waits. An open question is never written down as a criterion, and a fact the repository can answer is never asked of the user.
+- Plan state lives in `docs/plans/<slug>.md`, not in chat. What is not written down did not survive the session.
+- Acceptance criteria are numbered, observable and able to fail. A criterion that cannot fail cannot be verified.
+- The implementer does not verify its own work, the verifier does not fix, the reviewers do not edit, the planner does not implement.
+- The review phase runs `loop-reviewer`, `loop-security-reviewer` and `loop-simplifier` **in parallel**. They answer different questions about the same diff and none is an input to another.
+- Every finding carries a severity: `high`, `medium`, `low` or `tiny`. `high` and `medium` force a fix round; `low` and `tiny` are notes. Inflating severity makes the list unrankable.
+- `loop-orchestrator` merges the three lists into one, deduplicated by location at the highest severity reported, and writes it into the plan as `## Fix list — round <n>`. The implementer works that list and nothing else.
+- Evidence, not claims: a criterion passes when a command and its output say so. Unrun is reported as unrun.
+- A fix round's scope is the finding list, nothing else.
+- Two fix rounds maximum. A third means the plan or the diagnosis is wrong — escalate to the human.
