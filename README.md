@@ -19,7 +19,7 @@ Capability packs, installed because you want the workflow wired into the agent l
 | Plugin | Use it for |
 | --- | --- |
 | `code-review` | Reviewing changes: a review skill, always-on standards, security and diff subagents, a `/review-diff` command, and a guard hook |
-| `delivery-loop` | Running a change through plan, implement, verify and review as separate roles, with a bounded fix round and a hand-off that stops short of committing |
+| `delivery-loop` | Running a change through plan, implement, verify and review as separate roles, with an OWASP security gate, a bounded fix round, and a hand-off that stops short of committing |
 
 Language packs, installed because of the ecosystem you live in:
 

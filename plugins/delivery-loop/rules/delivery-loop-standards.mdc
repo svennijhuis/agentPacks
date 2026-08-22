@@ -9,7 +9,8 @@ alwaysApply: true
 - Plan first for behaviour changes and anything touching more than two files. Skip the plan for a typo — process is proportional to the work.
 - Plan state lives in `docs/plans/<slug>.md`, not in chat. What is not written down did not survive the session.
 - Acceptance criteria are numbered, observable and able to fail. A criterion that cannot fail cannot be verified.
-- The implementer does not verify its own work, the verifier does not fix, the reviewer does not edit, the planner does not implement.
+- The implementer does not verify its own work, the verifier does not fix, the reviewers do not edit, the planner does not implement.
+- A change touching a trust boundary gets the security gate as well as the acceptance review, and the review phase returns the worse of the two verdicts.
 - Evidence, not claims: a criterion passes when a command and its output say so. Unrun is reported as unrun.
 - A fix round's scope is the finding list, nothing else.
 - Two fix rounds maximum. A third means the plan or the diagnosis is wrong — escalate to the human.

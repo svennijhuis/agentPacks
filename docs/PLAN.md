@@ -58,7 +58,7 @@ Capability packs — installed because of a workflow you want wired into the age
 | Plugin | Who installs it | Holds |
 | --- | --- | --- |
 | `code-review` | teams that review every change | the `code-review` skill, review standards as rules, `security-reviewer` and `diff-reviewer` subagents, the `review-diff` command, and a hook that flags commands skipping review |
-| `delivery-loop` | anyone who wants a change planned before it is built and checked after | the `delivery-loop` skill, role boundaries as an always-on rule, `loop-planner`, `loop-implementer`, `loop-verifier` and `loop-reviewer` subagents, and a hook that flags the commands that land work |
+| `delivery-loop` | anyone who wants a change planned before it is built and checked after | the `delivery-loop` skill, role boundaries as an always-on rule, `loop-planner`, `loop-implementer`, `loop-verifier`, `loop-reviewer` and `loop-security-reviewer` subagents, and a hook that flags the commands that land work |
 
 A capability pack is the exception to "a role is a role pack", and it earns the exception only by shipping components a skill cannot express: rules that apply without being invoked, subagents, commands, or hooks. A pack that would hold nothing but skills is a role pack, not a capability pack. `code-review` overlaps `engineering` on purpose: the skill is the shared knowledge, and the pack is the machinery around it that a team opts into.
 

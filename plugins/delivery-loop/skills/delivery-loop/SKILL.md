@@ -7,7 +7,7 @@ license: UNLICENSED
 # Delivery loop
 
 ```
-plan -> implement -> verify -> review -> (fix -> verify -> review) x 2 max -> hand off
+plan -> implement -> verify -> review (+ security gate) -> (fix -> verify -> review) x 2 max -> hand off
 ```
 
 The loop ends at a hand-off summary for the human. **No phase commits, merges or pushes.** A review verdict of `pass` is a recommendation that the work is ready to look at, never permission for it to land.
@@ -59,6 +59,8 @@ Each phase ends in the shape the next phase consumes. Anything else is conversat
 | Verify | Per criterion: the command run, its exact output, and pass or fail. |
 | Review | A verdict — `pass`, `fix` or `replan` — and one line per finding: location, problem, fix. |
 
+When the change touches a trust boundary, the review phase has two reviewers and returns the **worse** of their verdicts. A change can do exactly what the plan said and still be exploitable.
+
 ## Evidence, not claims
 
 "Tests pass" is a claim. The command and its output are evidence. A phase that did not run something reports it as not run — an unverified criterion is a known unknown, and a criterion reported as passing without a command is a defect that has been laundered into a status update.
@@ -77,9 +79,19 @@ What forces a fix round: an unmet acceptance criterion, a correctness defect, a 
 
 **Two fix rounds, maximum.** A third means the plan, the criteria or the diagnosis is wrong — not that a third attempt will land it. Escalate to the human with what was tried, what still fails, and what you now think the real problem is.
 
+## The security gate
+
+Acceptance review asks whether the change does what the plan said. Security review asks whether it can be abused. The second is not implied by the first, and no amount of passing criteria makes an injection safe.
+
+Run the security gate whenever the change touches authentication, authorisation, untrusted input, file paths, shell commands, cryptography, dependencies, deserialisation, outbound requests, or anything handling credentials. When in doubt, run it: the cost is one review, and the cost of skipping it is discovered by someone else.
+
+It walks the OWASP Top 10 and returns its own `pass` / `fix` / `replan`. A security `fix` outranks an acceptance `pass` — the fix round happens.
+
+Findings are stated as attacks, not as category labels. A category name tells nobody what to change.
+
 ## Depth of review
 
-This loop's review asks whether the change does what the plan said. It is not a substitute for a full correctness and security review — the `code-review` capability pack in this marketplace carries that, and a change touching authentication, untrusted input, file paths or credentials should get it in addition to this loop.
+This loop reviews one change against one plan. It is not a substitute for a standing review practice or for threat modelling a whole system — the `code-review` capability pack in this marketplace carries the first, and a design nobody has threat-modelled is a `replan`, not a finding.
 
 ## Anti-patterns
 
