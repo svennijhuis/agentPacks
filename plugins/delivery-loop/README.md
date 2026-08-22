@@ -3,8 +3,14 @@
 A capability pack: the phases a change goes through, as separate roles with a fixed hand-off between them.
 
 ```
-plan -> implement -> verify -> review (+ security gate) -> (fix -> verify -> review) x 2 max -> hand off
+plan -> implement -> verify -> review -> (fix -> verify -> review) x 2 max -> hand off
+
+                              review = loop-reviewer        ┐
+                                       loop-security-reviewer ├ in parallel -> loop-orchestrator merges
+                                       loop-simplifier      ┘
 ```
+
+Three reviewers read the same diff and answer different questions, so they run at once rather than in a queue. `loop-orchestrator` merges what comes back into one list — deduplicated by location at the highest severity reported — ranks it `high` / `medium` / `low` / `tiny`, and writes it into the plan. `high` or `medium` costs a fix round; `low` and `tiny` ride along as notes. The implementer picks the list up and works it in order.
 
 The loop ends at a hand-off summary. **No phase commits, merges or pushes** — landing the work is the human's step. `pass` means "ready to look at", not "ready to land".
 
@@ -19,8 +25,10 @@ The loop ends at a hand-off summary. **No phase commits, merges or pushes** — 
 | Agent | `loop-planner` | Request to numbered, testable acceptance criteria in `docs/plans/<slug>.md` |
 | Agent | `loop-implementer` | Builds against the criteria, reports the diff and what it claims |
 | Agent | `loop-verifier` | Runs the checks, reports pass or fail per criterion with real output |
-| Agent | `loop-reviewer` | Change against plan; returns `pass`, `fix` or `replan` plus findings |
-| Agent | `loop-security-reviewer` | The security gate: walks the OWASP Top 10 over the change and returns its own verdict |
+| Agent | `loop-reviewer` | Correctness and criteria: does the change do what the plan said |
+| Agent | `loop-security-reviewer` | The security gate: walks the [OWASP Top 10](https://owasp.org/Top10/), linked per category |
+| Agent | `loop-simplifier` | Reuse, simplification, efficiency, altitude — did it have to be this much code |
+| Agent | `loop-orchestrator` | Runs the three reviewers in parallel, merges their findings into one ranked list, decides the verdict, writes the fix list into the plan |
 | Command | `review-diff` | Reviews an uncommitted diff on its own, for a change that arrived without a plan |
 | Hook | `beforeShellExecution` | Flags the commands that land work: `git commit`, `git push`, `git merge`, `gh pr create/merge` |
 
@@ -28,7 +36,7 @@ The loop ends at a hand-off summary. **No phase commits, merges or pushes** — 
 
 An earlier version of this repository split review into its own pack. It did not survive contact with this one: both shipped a security reviewer, both shipped a diff reviewer, and the only real difference was whether a finding cost a fix round or was just printed.
 
-So review is a phase of the loop, not a neighbouring pack. `/code-review` is the order to work in, `loop-reviewer` applies it against a plan, `loop-security-reviewer` is the gate, and `/review-diff` runs the review phase alone when a change turns up with no plan behind it.
+So review is a phase of the loop, not a neighbouring pack. `/code-review` is the order to work in, `loop-reviewer` applies it against a plan, `loop-security-reviewer` is the gate, `loop-simplifier` asks what the change could have skipped, and `/review-diff` runs the review alone when a change turns up with no plan behind it.
 
 ## What each client receives
 

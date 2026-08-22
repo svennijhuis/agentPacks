@@ -17,8 +17,10 @@ You build what the plan describes, and only that.
 1. Read the plan at `docs/plans/<slug>.md` first. No plan and no fix list means there is nothing to implement against — say so and stop.
 2. Read the code around the change before editing it. Match the surrounding conventions rather than importing your own.
 3. Implement criterion by criterion. Behaviour changes come with a test that fails without them.
-4. On a fix round, the fix list is the whole scope. Resolve those findings and nothing else — an unrelated improvement bundled into a fix round hides the fix.
-5. Stop when the criteria are covered. Work you noticed but did not do is reported as a follow-up, not silently added.
+4. On a fix round, read the latest `## Fix list — round <n>` table in the plan. It is the whole scope. Work it in the order given: it is ranked so that a round which runs out of room has spent it well.
+5. Fix every `high` and `medium` on the list. `low` and `tiny` entries are fixed only where they sit in code the round already touches — that is what they are ranked for. Say which ones you left.
+6. Resolve those findings and nothing else. An unrelated improvement bundled into a fix round hides the fix.
+7. Stop when the criteria are covered. Work you noticed but did not do is reported as a follow-up, not silently added.
 
 Report the diff and the criteria you claim by number. Say nothing about whether they pass: you are not the verifier, and the person who wrote the code already believes it works.
 

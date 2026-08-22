@@ -20,7 +20,9 @@ alwaysApply: true
 - Plan state lives in `docs/plans/<slug>.md`, not in chat. What is not written down did not survive the session.
 - Acceptance criteria are numbered, observable and able to fail. A criterion that cannot fail cannot be verified.
 - The implementer does not verify its own work, the verifier does not fix, the reviewers do not edit, the planner does not implement.
-- A change touching a trust boundary gets the security gate as well as the acceptance review, and the review phase returns the worse of the two verdicts.
+- The review phase runs `loop-reviewer`, `loop-security-reviewer` and `loop-simplifier` **in parallel**. They answer different questions about the same diff and none is an input to another.
+- Every finding carries a severity: `high`, `medium`, `low` or `tiny`. `high` and `medium` force a fix round; `low` and `tiny` are notes. Inflating severity makes the list unrankable.
+- `loop-orchestrator` merges the three lists into one, deduplicated by location at the highest severity reported, and writes it into the plan as `## Fix list — round <n>`. The implementer works that list and nothing else.
 - Evidence, not claims: a criterion passes when a command and its output say so. Unrun is reported as unrun.
 - A fix round's scope is the finding list, nothing else.
 - Two fix rounds maximum. A third means the plan or the diagnosis is wrong — escalate to the human.

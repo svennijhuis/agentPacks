@@ -8,7 +8,7 @@ One capability pack, installed because you want the workflow in the loop rather 
 
 | Plugin | Use it for |
 | --- | --- |
-| `delivery-loop` | Running a change through plan, implement, verify and review as separate roles, with an OWASP security gate, a bounded fix round, and a hand-off that stops short of committing |
+| `delivery-loop` | Running a change through plan, implement, verify and review as separate roles — three reviewers in parallel behind an orchestrator that merges their findings into one ranked fix list — with an OWASP security gate, a bounded fix round, and a hand-off that stops short of committing |
 
 That is the whole catalog today, deliberately. Role packs (`engineering`, `productivity`, `security`) and language packs (`dotnet`, `typescript`, `rust`) are planned and have their own rules for what earns one — a pack that ships nothing but an empty `plugin.json` advertises an install that does nothing, so they are added when there is real content to add. The reasoning is in [`docs/PLAN.md`](docs/PLAN.md).
 
@@ -91,6 +91,7 @@ Start a new agent session after installation and ask naturally, for example:
 - “Review this diff.” — or the `/review-diff` command, for a change that arrived with no plan.
 - “Plan this change, then build it.” — `delivery-loop` splits it into plan, implement, verify and review, runs the security gate when the change touches a trust boundary, and hands the result back uncommitted.
 - “Is this change safe to ship?” — the OWASP gate, as its own verdict.
+- “What can this change drop?” — reuse and simplification, ranked, not bundled into the bug list.
 
 Installed skills are selected when relevant to your request.
 
