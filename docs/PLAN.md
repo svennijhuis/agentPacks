@@ -41,7 +41,15 @@ productivity, product, migrations, engineering, security + dotnet, typescript, r
 
 Both give a Rust shop a way to avoid installing .NET skills. Only one stays readable.
 
-## The catalog
+## What ships today
+
+The repository currently ships **two capability packs and nothing else**: `code-review` and `delivery-loop`.
+
+The earlier catalog carried five role packs and three language packs, six of which held nothing but a `plugin.json`. An empty pack is not a placeholder — it is an install that appears in the marketplace, resolves, and does nothing, which is worse than not being listed. They were removed in the same branch that added `delivery-loop`; the pinned external-skill imports and the two authored skills (`engineering/testing`, `dotnet/dotnet-review`) are in history at `007f609` and can be restored when there is a pack around them worth installing.
+
+The rest of this document is the rule for what earns a plugin, unchanged. The catalog below is the target, not an inventory.
+
+## The target catalog
 
 Role packs — installed because of how you work, not what you compile:
 
@@ -141,13 +149,17 @@ A skill that two packs both depend on is pinned in both. `grilling` is imported 
 
 The validator enforces closure for skills authored here, but it deliberately skips materialized external skills — upstream Markdown is not ours to reinterpret. So closure over imports is a review duty, checked when the pin is added or moved.
 
-This is why `engineering` holds thirteen skills rather than the three or four "small and strict" suggests. Every one of them is cross-language craft, and they arrive as one connected workflow: architecture, diagnosis, review, and the issue-tracker loop that carries the work. Small means *no language-specific skills*, not a low count. The lean alternative — dropping `code-review` and `to-tickets`, which takes `setup-matt-pocock-skills`, `triage`, `wayfinder`, `research` and `grill-with-docs` with them — is a five-skill pack that is also closed. It is a smaller pack with less capability, not a tidier rule.
+This is why `engineering` was sized at thirteen skills rather than the three or four "small and strict" suggests, and why it should be again. Every one of them is cross-language craft, and they arrive as one connected workflow: architecture, diagnosis, review, and the issue-tracker loop that carries the work. Small means *no language-specific skills*, not a low count. The lean alternative — dropping `code-review` and `to-tickets`, which takes `setup-matt-pocock-skills`, `triage`, `wayfinder`, `research` and `grill-with-docs` with them — is a five-skill pack that is also closed. It is a smaller pack with less capability, not a tidier rule.
 
-## Empty packs
+## No empty packs
 
-`product`, `migrations`, `security`, `typescript` and `rust` currently ship a `plugin.json` and no skills. They reserve the name and the shape so the first skill is a one-file pull request rather than a catalog debate. They appear in the generated marketplace with no `skills` entry, so installing one is harmless and useless — fill them before advertising them.
+An earlier version of this plan reserved names: `product`, `migrations`, `security`, `typescript` and `rust` shipped a `plugin.json` and no skills, so the first skill would be a one-file pull request rather than a catalog debate.
+
+That was the wrong trade. A reserved name still appears in the generated marketplace, still resolves, and still installs — it just does nothing afterwards, and the person who installed it has no way to tell the difference between an empty pack and a broken one. The name costs nothing to claim later; the empty install costs trust now. **A pack enters the catalog when it has content, not before.**
 
 ## How this catalog was reached
+
+*Historical record. The packs named below are the ones removed in the branch that added `delivery-loop`; the layout they describe is the target catalog, not what is on disk.*
 
 The previous catalog was `engineering`, `review` and `testing`: a role split with no language axis, which had already put a `.NET`-only skill inside a general `review` pack. Restructuring moved every existing skill to the home this rule gives it, without changing any skill content:
 

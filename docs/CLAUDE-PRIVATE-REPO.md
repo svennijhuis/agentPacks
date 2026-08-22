@@ -17,8 +17,8 @@ The catalog entry points at the completed plugin directory on that same branch:
 
 ```json
 {
-  "name": "engineering",
-  "source": "./plugins/engineering",
+  "name": "delivery-loop",
+  "source": "./plugins/delivery-loop",
   "skills": "./skills/",
   "strict": false
 }
@@ -47,9 +47,8 @@ If that ever changes, the fallback is `strict: true` and letting Claude discover
 ```
 
 ```bash
-/plugin install dotnet@agentpacks
-/plugin install engineering@agentpacks
-/plugin install productivity@agentpacks
+/plugin install code-review@agentpacks
+/plugin install delivery-loop@agentpacks
 ```
 
 Update the catalog:
@@ -90,7 +89,7 @@ A product repository can point Claude at agentPacks automatically:
     }
   },
   "enabledPlugins": {
-    "engineering@agentpacks": true
+    "delivery-loop@agentpacks": true
   }
 }
 ```

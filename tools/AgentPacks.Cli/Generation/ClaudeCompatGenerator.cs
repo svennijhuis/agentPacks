@@ -11,7 +11,7 @@ namespace AgentPacks.Cli.Generation;
 internal sealed class ClaudeCompatGenerator(RepositoryContext context)
 {
     /// <summary>
-    /// Identifier developers type after '@' when installing, e.g. engineering@agentpacks.
+    /// Identifier developers type after '@' when installing, e.g. delivery-loop@agentpacks.
     /// Marketplace names are kebab-case, so the repository's camel-case name is lowercased here.
     /// </summary>
     public const string MarketplaceName = "agentpacks";

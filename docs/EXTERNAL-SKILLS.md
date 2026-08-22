@@ -2,7 +2,7 @@
 
 External skills are authored as pinned URL records. Contributors do not copy upstream Markdown and do not add Claude marketplace entries.
 
-Add an entry to the plugin that owns the import, for example `plugins/engineering/external-skills.json`:
+Add an entry to the plugin that owns the import, at `plugins/<plugin>/external-skills.json`:
 
 ```json
 {
@@ -34,5 +34,5 @@ This staging step is necessary because Agent Plugins v1 discovers real immediate
 2. Review `SKILL.md`, scripts, references, and assets because they run or load on developer machines.
 3. Confirm the license permits redistribution and internal use.
 4. Pin an exact commit rather than a branch.
-5. Import every skill the imported one invokes into the same plugin. A wrapper whose body says `/grilling` dead-ends without it, which is why `grilling` is pinned in both `productivity` and `engineering`. See [the catalog plan](PLAN.md).
+5. Import every skill the imported one invokes into the same plugin. A wrapper whose body says `/grilling` dead-ends without it, so a skill imported by two packs is pinned in both. See [the catalog plan](PLAN.md).
 6. Merge the URL record; let publication generate client-facing files.

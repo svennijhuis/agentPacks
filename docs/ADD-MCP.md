@@ -1,6 +1,6 @@
 # Add an MCP server
 
-Each plugin may declare portable MCP configuration in `plugins/<plugin>/mcp.json`. This repository keeps an empty scaffold in `engineering` so the location and canonical schema are visible. The file lives at the plugin root, and the specification forbids declaring MCP anywhere else — not inline in `plugin.json`, not under an alternative path.
+Each plugin may declare portable MCP configuration in `plugins/<plugin>/mcp.json`. The file lives at the plugin root, and the specification forbids declaring MCP anywhere else — not inline in `plugin.json`, not under an alternative path.
 
 An empty scaffold is valid:
 
