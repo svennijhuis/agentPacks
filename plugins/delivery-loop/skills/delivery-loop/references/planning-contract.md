@@ -25,7 +25,24 @@ User confirmation: <exact confirmation, required only for write-plan>
 
 Missing evidence is explicit. The planner may inspect the repository or primary sources to fill factual gaps; it must not turn discoverable facts into user questions.
 
-## `next-round` output
+## Ask the frontier, in rounds
+
+The **frontier** is every decision whose prerequisites are already settled: the questions that can be
+asked now without guessing at an answer that has not been received yet.
+
+Ask the whole frontier in one round. Number the questions and give a recommended answer to each. A
+question whose answer depends on another question still open belongs to a later round. Every question
+carries a recommendation so the user can confirm, correct, or choose differently without doing the
+planner's analysis themselves.
+
+The planner returns exactly one round and stops. The main agent presents that round to the user and
+waits for the answers. It then supplies those answers and the returned state to a new planner
+invocation. The planner itself never waits across turns or assumes an answer.
+
+The user's answers reshape the decision tree. Settled decisions push the frontier outward and unblock
+their dependants. Recompute the tree before returning the next round.
+
+### `next-round` output
 
 Return exactly one planning round and stop:
 
@@ -48,11 +65,34 @@ Return exactly one planning round and stop:
 - Open frontier: <remaining decisions and dependencies, or Empty>
 ```
 
-Ask only the current frontier: decisions whose prerequisites are settled. Design consequential public interfaces, module boundaries, and seams in at least two viable shapes before recommending one. Every question includes a recommendation.
+Design consequential public interfaces, module boundaries, and seams in at least two viable shapes
+before recommending one.
 
-When the frontier becomes empty, the round asks the user to confirm the complete shared understanding. It still returns without writing a file.
+## Find facts yourself
 
-## `write-plan` behavior
+Finding facts is the planner's job, never the user's. Inspect the repository, tests, Git history, and
+tooling for anything they can answer. "Does this project use Vitest or Jest?" is a fact to discover;
+"Should the new tests join the existing suite or use their own?" is a decision for the frontier.
+
+Facts outside the repository come from primary sources such as official documentation, source,
+standards, or specifications, and the plan cites the source beside the decision it settled. Recalled
+facts without evidence remain unresolved.
+
+A fact still being researched is an unsettled prerequisite only for decisions downstream of that
+fact. Ask the rest of the current frontier now rather than blocking the whole round on one lookup.
+
+## Stop when the frontier is empty
+
+Planning ends only after every applicable branch has been visited and nothing remains silently
+assumed. When the frontier becomes empty, return one final `next-round` response that states the
+complete shared understanding as a numbered list and asks the user to confirm it. The main agent
+presents that confirmation round and waits; the planner still writes nothing.
+
+If the user says to stop asking and decide, treat that as an answer: use the planner's recommendations
+as the chosen decisions and record that the user accepted them. This is an explicit decision, not
+permission to silently fill unresolved branches.
+
+## Write the plan
 
 Write mode is valid only when the input includes the user's confirmation, every applicable decision branch is settled, and the open frontier is empty. Otherwise return the missing condition without writing.
 
@@ -90,3 +130,22 @@ None.
 ```
 
 An open question is never converted into an assumption or acceptance criterion. Completion means the user confirmed the shared understanding, `## Open questions` is exactly `None.`, and the planner returns the written plan path to the main agent.
+
+Each acceptance criterion is observable and can fail. "Handles errors well" is not a criterion;
+"returns 400 naming the missing field" is. State what is out of scope so review can distinguish a
+deliberate boundary from an omission. Give the exact verification commands; when a check does not
+exist yet, making that check is itself planned work.
+
+The plan lives in the file. The implementer builds from it, the verifier checks it, and reviewers
+measure the change against it.
+
+## The rule that outranks the rest
+
+**An open question is never a criterion.** Return it to the frontier. Never replace it with the
+planner's unconfirmed guess or soften it into wording that can pass under several incompatible
+answers. A vague criterion can make the loop verify and approve the wrong behavior.
+
+An assumption is valid only when the answer genuinely cannot be resolved before implementation,
+such as a value that exists only at runtime. Record it under `## Assumptions`, in the user's words
+when available, with enough detail for a reviewer to challenge it. An assumption never substitutes
+for an answer that the repository, a primary source, or the user can provide.

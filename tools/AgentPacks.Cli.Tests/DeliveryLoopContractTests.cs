@@ -58,8 +58,15 @@ public class DeliveryLoopContractTests
         Assert.Contains("User confirmation", contract, StringComparison.Ordinal);
         Assert.Contains("write exactly one file", contract, StringComparison.OrdinalIgnoreCase);
         Assert.Contains("docs/plans/<slug>.md", combined, StringComparison.Ordinal);
+        Assert.Contains("Ask the whole frontier in one round", contract, StringComparison.Ordinal);
+        Assert.Contains("Finding facts is the planner's job, never the user's", contract, StringComparison.Ordinal);
+        Assert.Contains("A fact still being researched is an unsettled prerequisite", contract, StringComparison.Ordinal);
+        Assert.Contains("If the user says to stop asking and decide", contract, StringComparison.Ordinal);
+        Assert.Contains("An open question is never a criterion", contract, StringComparison.Ordinal);
+        Assert.Contains("The main agent presents that round to the user and", contract, StringComparison.Ordinal);
+        Assert.Contains("waits for the answers", contract, StringComparison.Ordinal);
         Assert.DoesNotContain("docs/" + "research", combined, StringComparison.OrdinalIgnoreCase);
-        Assert.DoesNotContain("stop and " + "wait", combined, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("The planner itself never waits across turns or assumes an answer", contract, StringComparison.Ordinal);
     }
 
     [Fact]
