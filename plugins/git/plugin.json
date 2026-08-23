@@ -1,0 +1,22 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "git",
+  "version": "0.1.0",
+  "description": "Blocks the git commands that destroy work an agent cannot get back: reset --hard, clean -fd, push --force, branch -D, and checkout or restore over the working tree.",
+  "author": {
+    "name": "agentPacks Maintainers"
+  },
+  "license": "UNLICENSED",
+  "keywords": [
+    "git",
+    "guardrails",
+    "safety",
+    "data-loss",
+    "hooks"
+  ],
+  "extensions": {
+    "com.anthropic.claude-code": {},
+    "com.openai.codex": {},
+    "com.github.copilot": {}
+  }
+}

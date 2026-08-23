@@ -1,17 +1,16 @@
 ---
 name: review-diff
-description: Review the current uncommitted diff and report findings ranked by severity, without going through the full loop.
+description: Have the main agent review an existing diff in parallel and merge findings, without requiring a plan or starting a fix round.
 ---
 
 # Review the current diff
 
-For a change already written, when there is no plan to measure it against. The full loop is `plan -> implement -> verify -> review`; this is the review phase on its own.
+Load the `delivery-loop` skill and read `references/review-contract.md`. This command reviews an existing change with no plan.
 
-1. Get the change under review: `git diff` for unstaged work, `git diff --staged` when something is staged, and `git diff <base>...HEAD` on a branch.
-2. If the diff is empty, say so and stop.
-3. Delegate to `loop-orchestrator`, which runs `loop-reviewer`, `loop-simplifier` and — when the diff touches a trust boundary — `loop-security-reviewer` in parallel, then merges their findings into one list.
-4. Report the merged list ranked by severity.
+1. Resolve the diff under review: unstaged, staged, or `<base>...HEAD`. If it is empty, say so and stop.
+2. Decide whether the security gate applies and record the reason.
+3. The main agent directly launches `loop-reviewer`, `loop-simplifier`, and, when applicable, `loop-security-reviewer` in parallel against the same diff.
+4. After every report completes, pass the reports, security decision, `round number: 1`, `plan path: none`, and `verifier evidence: none` to `loop-orchestrator` for merge only.
+5. Return the ranked merged list. Do not assign a delivery verdict, write a plan, or start a fix round.
 
-Same three reviewers as the loop, minus the plan. What changes without one: `loop-reviewer` has no acceptance criteria to check, so it reviews correctness only, and nothing is written to `docs/plans/`.
-
-There is no verdict here and no fix round — both need a plan. A `high` finding that has nowhere to go is the signal that this change should have had one.
+Without a plan, `loop-reviewer` checks correctness but has no acceptance criteria or plan-specific standards. A high finding is still actionable; it does not retroactively create a delivery loop.

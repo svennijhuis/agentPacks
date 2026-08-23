@@ -22,6 +22,66 @@
 
   <ItemGroup>
     <None Include="Fixtures/**" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="../../plugins/delivery-loop/agents/loop-planner.md"
+          Link="Fixtures/delivery-loop/loop-planner.md"
+          CopyToOutputDirectory="PreserveNewest" />
+    <None Include="../../plugins/delivery-loop/agents/loop-implementer.md"
+          Link="Fixtures/delivery-loop/loop-implementer.md"
+          CopyToOutputDirectory="PreserveNewest" />
+    <None Include="../../plugins/delivery-loop/agents/loop-verifier.md"
+          Link="Fixtures/delivery-loop/loop-verifier.md"
+          CopyToOutputDirectory="PreserveNewest" />
+    <None Include="../../plugins/delivery-loop/skills/delivery-loop/SKILL.md"
+          Link="Fixtures/delivery-loop/SKILL.md"
+          CopyToOutputDirectory="PreserveNewest" />
+    <None Include="../../plugins/delivery-loop/commands/deliver.md"
+          Link="Fixtures/delivery-loop/deliver.md"
+          CopyToOutputDirectory="PreserveNewest" />
+    <None Include="../../plugins/delivery-loop/commands/review-diff.md"
+          Link="Fixtures/delivery-loop/review-diff.md"
+          CopyToOutputDirectory="PreserveNewest" />
+    <None Include="../../plugins/delivery-loop/agents/loop-orchestrator.md"
+          Link="Fixtures/delivery-loop/loop-orchestrator.md"
+          CopyToOutputDirectory="PreserveNewest" />
+    <None Include="../../plugins/delivery-loop/agents/loop-reviewer.md"
+          Link="Fixtures/delivery-loop/loop-reviewer.md"
+          CopyToOutputDirectory="PreserveNewest" />
+    <None Include="../../plugins/delivery-loop/agents/loop-security-reviewer.md"
+          Link="Fixtures/delivery-loop/loop-security-reviewer.md"
+          CopyToOutputDirectory="PreserveNewest" />
+    <None Include="../../plugins/delivery-loop/agents/loop-simplifier.md"
+          Link="Fixtures/delivery-loop/loop-simplifier.md"
+          CopyToOutputDirectory="PreserveNewest" />
+    <None Include="../../plugins/delivery-loop/skills/delivery-loop/references/review-contract.md"
+          Link="Fixtures/delivery-loop/review-contract.md"
+          CopyToOutputDirectory="PreserveNewest" />
+    <None Include="../../plugins/delivery-loop/skills/delivery-loop/references/planning-contract.md"
+          Link="Fixtures/delivery-loop/planning-contract.md"
+          CopyToOutputDirectory="PreserveNewest" />
+    <None Include="../../plugins/git/scripts/git-guard.sh"
+          Link="Fixtures/git/git-guard.sh"
+          CopyToOutputDirectory="PreserveNewest" />
+    <None Include="../../plugins/git/scripts/git-guard.ps1"
+          Link="Fixtures/git/git-guard.ps1"
+          CopyToOutputDirectory="PreserveNewest" />
+    <None Include="../../plugins/pack-check/plugin.json"
+          Link="Fixtures/pack-check/plugin.json"
+          CopyToOutputDirectory="PreserveNewest" />
+    <None Include="../../plugins/pack-check/hooks.source.json"
+          Link="Fixtures/pack-check/hooks.source.json"
+          CopyToOutputDirectory="PreserveNewest" />
+    <None Include="../../plugins/pack-check/skills/pack-check/SKILL.md"
+          Link="Fixtures/pack-check/SKILL.md"
+          CopyToOutputDirectory="PreserveNewest" />
+    <None Include="../../plugins/pack-check/skills/pack-check/references/packs.md"
+          Link="Fixtures/pack-check/packs.md"
+          CopyToOutputDirectory="PreserveNewest" />
+    <None Include="../../plugins/pack-check/scripts/pack-check-session.sh"
+          Link="Fixtures/pack-check/pack-check-session.sh"
+          CopyToOutputDirectory="PreserveNewest" />
+    <None Include="../../plugins/pack-check/scripts/pack-check-session.ps1"
+          Link="Fixtures/pack-check/pack-check-session.ps1"
+          CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
 </Project>

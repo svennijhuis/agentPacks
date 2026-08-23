@@ -33,6 +33,9 @@ internal sealed record ScriptDefinition(string Name, string? PosixPath, string? 
     public bool IsComplete => PosixPath is not null && PowerShellPath is not null;
 }
 
+/// <summary>The authored standards catalog for a plugin.</summary>
+internal sealed record StandardsDefinition(string FilePath, JsonObject Document);
+
 /// <summary>One plugin directory with everything loaded from it.</summary>
 internal sealed record PluginPackage
 {
@@ -66,6 +69,12 @@ internal sealed record PluginPackage
 
     /// <summary>Everything under scripts/, paired by basename.</summary>
     public IReadOnlyList<ScriptDefinition> Scripts { get; init; } = [];
+
+    /// <summary>
+    /// Canonical Markdown mapped into skill-local references during marketplace generation.
+    /// Null when the plugin declares no standards catalog.
+    /// </summary>
+    public StandardsDefinition? Standards { get; init; }
 
     public string DirectoryName => Path.GetFileName(Directory);
 

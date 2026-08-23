@@ -2,15 +2,18 @@ namespace AgentPacks.Cli.Generation;
 
 /// <summary>
 /// What one client needs from a generated tree: where its files go, how it refers to the plugin
-/// root, and whether its hooks nest. Keeping these differences in data rather than in four
-/// generators means a new client is a row, not a rewrite.
+/// root, and whether its hooks nest. This is the hook/paths adapter; a new client also needs
+/// component transforms, manifest routing, validation and fixtures.
 /// </summary>
 internal sealed record ClientProfile(
     Client Client,
     string Directory,
     string PluginRootToken,
     bool NestsHooks,
-    bool SupportsWindowsCommand)
+    string CommandField,
+    string? WindowsCommandField,
+    string TimeoutField,
+    int? HookDocumentVersion)
 {
     /// <summary>
     /// Claude reads the root agents/, commands/ and hooks/ by default, so its marketplace entry
@@ -21,7 +24,10 @@ internal sealed record ClientProfile(
         "com.anthropic.claude-code",
         "${CLAUDE_PLUGIN_ROOT}",
         NestsHooks: true,
-        SupportsWindowsCommand: false);
+        CommandField: "command",
+        WindowsCommandField: null,
+        TimeoutField: "timeout",
+        HookDocumentVersion: null);
 
     /// <summary>
     /// Cursor is the only client with no documented way to point at a custom path, so it keeps the
@@ -33,7 +39,10 @@ internal sealed record ClientProfile(
         string.Empty,
         ".",
         NestsHooks: false,
-        SupportsWindowsCommand: false);
+        CommandField: "command",
+        WindowsCommandField: null,
+        TimeoutField: "timeout",
+        HookDocumentVersion: null);
 
     /// <summary>
     /// Codex is the only client with a first-class per-OS hook command, so it gets the PowerShell
@@ -42,16 +51,29 @@ internal sealed record ClientProfile(
     public static readonly ClientProfile Codex = new(
         Client.Codex,
         "com.openai.codex",
-        ".",
+        "${PLUGIN_ROOT}",
         NestsHooks: true,
-        SupportsWindowsCommand: true);
+        CommandField: "command",
+        WindowsCommandField: "commandWindows",
+        TimeoutField: "timeout",
+        HookDocumentVersion: null);
 
+    /// <summary>
+    /// Copilot's hook document is the outlier: entries sit flat under the event with the matcher on
+    /// the entry itself, the POSIX command is keyed "bash" rather than "command", its Windows half
+    /// is an inline PowerShell command keyed "powershell", the timeout is "timeoutSec", and the
+    /// document carries a format version. Event names accept both casings, so the PascalCase
+    /// aliases are emitted for consistency with the other two nesting clients.
+    /// </summary>
     public static readonly ClientProfile Copilot = new(
         Client.Copilot,
         "com.github.copilot",
         "${PLUGIN_ROOT}",
-        NestsHooks: true,
-        SupportsWindowsCommand: false);
+        NestsHooks: false,
+        CommandField: "bash",
+        WindowsCommandField: "powershell",
+        TimeoutField: "timeoutSec",
+        HookDocumentVersion: 1);
 
     public static readonly IReadOnlyList<ClientProfile> All = [Claude, Codex, Copilot, Cursor];
 

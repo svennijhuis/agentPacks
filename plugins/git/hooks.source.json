@@ -1,0 +1,12 @@
+{
+  "$schema": "../../schema/hooks.schema.json",
+  "description": "An agent that runs 'git reset --hard' has destroyed work nobody can recover, and it will report the command as having succeeded. This blocks that class of command outright rather than advising against it.",
+  "hooks": {
+    "beforeShellExecution": [
+      {
+        "script": "git-guard",
+        "matcher": "git"
+      }
+    ]
+  }
+}

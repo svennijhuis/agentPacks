@@ -9,7 +9,8 @@ Hooks run a command at a lifecycle point the user did not trigger. Every client 
 3. Run `dotnet run --project tools/AgentPacks.Cli -- validate`.
 4. Open a pull request.
 
-Never create `hooks/hooks.json` by hand. Claude, Cursor and Codex all auto-discover that path in three incompatible dialects, and Copilot claims the root `hooks.json`. Both are generated.
+Never create `hooks/hooks.json` by hand. Cursor owns that default path; generated marketplace and
+manifest component paths route Claude, Codex and Copilot to their own dialects instead.
 
 ## The manifest
 
@@ -36,14 +37,33 @@ Only events every client can express are allowed. Anything else would work on so
 
 | Neutral | Claude | Cursor | Codex | Copilot |
 |---|---|---|---|---|
-| `sessionStart` | `SessionStart` | `sessionStart` | `SessionStart` | `sessionStart` |
-| `sessionEnd` | `SessionEnd` | `sessionEnd` | `SessionEnd` | `sessionEnd` |
-| `userPromptSubmit` | `UserPromptSubmit` | `beforeSubmitPrompt` | `UserPromptSubmit` | `userPromptSubmit` |
-| `stop` | `Stop` | `stop` | `Stop` | `stop` |
-| `preToolUse` | `PreToolUse` | `preToolUse` | `PreToolUse` | `preToolUse` |
-| `postToolUse` | `PostToolUse` | `postToolUse` | `PostToolUse` | `postToolUse` |
-| `beforeShellExecution` | `PreToolUse` + `Bash` | `beforeShellExecution` | `PreToolUse` + `shell` | `preToolUse` + `shell` |
-| `afterFileEdit` | `PostToolUse` + `Write\|Edit` | `afterFileEdit` | `PostToolUse` | `postToolUse` |
+| `sessionStart` | `SessionStart` | `sessionStart` | `SessionStart` | `SessionStart` |
+| `sessionEnd` | `SessionEnd` | `sessionEnd` | `SessionEnd` | `SessionEnd` |
+| `userPromptSubmit` | `UserPromptSubmit` | `beforeSubmitPrompt` | `UserPromptSubmit` | `UserPromptSubmit` |
+| `stop` | `Stop` | `stop` | `Stop` | `Stop` |
+| `preToolUse` | `PreToolUse` | `preToolUse` | `PreToolUse` | `PreToolUse` |
+| `postToolUse` | `PostToolUse` | `postToolUse` | `PostToolUse` | `PostToolUse` |
+| `beforeShellExecution` | `PreToolUse` + `Bash` | `beforeShellExecution` | `PreToolUse` + `Bash` | `PreToolUse` + `Bash` |
+| `afterFileEdit` | `PostToolUse` + `Write\|Edit` | `afterFileEdit` | `PostToolUse` + `apply_patch` | `PostToolUse` + `Write\|Edit` |
+
+Matchers follow the vocabulary of the emitted event. Copilot's PascalCase `PreToolUse` and
+`PostToolUse` events use the Claude-compatible aliases `Bash` and `Write|Edit`. Its `bash` and
+`powershell` fields are command fields, not matcher names. Do not mix camelCase runtime tool names
+such as `str_replace_editor` into a PascalCase event matcher.
+
+## Document shapes
+
+Three clients are not enough alike to share one writer:
+
+| | Claude | Cursor | Codex | Copilot |
+|---|---|---|---|---|
+| Entry placement | matcher group | flat | matcher group | flat |
+| POSIX command key | `command` | `command` | `command` | `bash` |
+| Windows command key | — | — | `commandWindows` | `powershell` |
+| Timeout key | `timeout` | `timeout` | `timeout` | `timeoutSec` |
+| Format version | — | — | — | `"version": 1` |
+
+These live in `ClientProfile`, so a client is a row rather than a branch in the generator.
 
 ## Where the matcher ends up
 
@@ -59,9 +79,11 @@ This is why a matcher may not contain `"`, `\`, `$` or `` ` ``: it is emitted ve
 
 Both halves receive the client's hook event JSON on **stdin** and are invoked with the same arguments. Keep them behaviourally identical — they are one hook, and a developer on the other operating system will not notice a divergence until it matters.
 
-Clients disagree on how a hook blocks an action, so prefer advisory hooks: write a line and exit 0. If you do need to block, verify the contract for each client before relying on it.
+Clients disagree on hook payloads and failure behavior. Blocking hooks must have provider payload
+fixtures and must be checked against each provider's current primary documentation. Never log the
+raw command payload; shell arguments can contain credentials.
 
-The generated hook command is the **extensionless** path `scripts/<name>`, because Claude, Cursor and Copilot have no per-OS hook field and one string has to work on both platforms. Nothing authored sits at that path, so the generator writes both halves of it: a POSIX dispatcher `scripts/<name>` that execs your `.sh`, and a `scripts/<name>.cmd` shim that calls your `.ps1`. `cmd.exe` never runs an extensionless file — it appends `PATHEXT` — so each platform picks up its own half. Codex is the only client with a real per-OS field, so it gets `commandWindows` and skips the shim.
+The generated hook command is the **extensionless** path `scripts/<name>`, because Claude and Cursor have no per-OS hook field and one string has to work on both platforms. Nothing authored sits at that path, so the generator writes both halves of it: a POSIX dispatcher `scripts/<name>` that execs your `.sh`, and a `scripts/<name>.cmd` shim that calls your `.ps1`. `cmd.exe` never runs an extensionless file — it appends `PATHEXT` — so each platform picks up its own half. Codex and Copilot both have a real per-OS field and skip the shim, spelled differently: Codex's `commandWindows` takes a full shell invocation, and Copilot's `powershell` is already a PowerShell context and takes `& "<script>.ps1"`.
 
 The matcher argument is spelled `-Matcher`, with one dash and a capital. That is the only spelling both parsers accept: PowerShell binds it to `param($Matcher)` and has no double-dash parameter names, so `--matcher` would be swallowed as the parameter's value and the regex behind it would fail to bind at all.
 

@@ -1,0 +1,23 @@
+{
+  "$schema": "../../schema/standards.schema.json",
+  "version": 1,
+  "documents": {
+    "csharp": "standards/csharp.md",
+    "async-errors": "standards/async-errors.md",
+    "testing": "standards/testing.md"
+  },
+  "consumers": {
+    "dotnet-build": [
+      "csharp",
+      "async-errors"
+    ],
+    "dotnet-test-patterns": [
+      "testing"
+    ],
+    "dotnet-review": [
+      "csharp",
+      "async-errors",
+      "testing"
+    ]
+  }
+}

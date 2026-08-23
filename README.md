@@ -4,12 +4,14 @@ Portable [Agent Plugins](https://agent-plugins.org) that wire a workflow into th
 
 ## Available plugins
 
-One capability pack, installed because you want the workflow in the loop rather than knowledge sitting on a shelf, and one language pack, installed because of the ecosystem you compile in:
+Three capability packs, installed because you want a behaviour wired into the agent loop rather than knowledge sitting on a shelf, and one language pack, installed because of the ecosystem you compile in:
 
 | Plugin | Use it for |
 | --- | --- |
-| `delivery-loop` | Running a change through plan, implement, verify and review as separate roles — three reviewers in parallel behind an orchestrator that merges their findings into one ranked fix list — with an OWASP security gate, a bounded fix round, and a hand-off that stops short of committing |
-| `dotnet` | Formatting a C# file the moment an agent writes it, so the diff a human reviews is already formatted and formatting never costs a review comment |
+| `delivery-loop` | Having the main agent mediate turn-based planning, run plan-bound implementation and verification, fan reviewers out in parallel, and merge at most two fix rounds before an uncommitted hand-off |
+| `pack-check` | Detecting the repository stack at session start and asking before installing the language pack that supplies its required build and test skills |
+| `git` | Blocking the git commands that destroy work an agent cannot get back — `reset --hard`, `clean -fd`, `push --force`, `branch -D`, `checkout .` — before the client runs them |
+| `dotnet` | Teaching the loop how C# is built, tested and reviewed, backed by one canonical set of standards distributed only to the skills that need each document |
 
 That is the whole catalog today, deliberately. The remaining role packs (`engineering`, `productivity`, `security`) and language packs (`typescript`, `rust`) are planned and have their own rules for what earns one — a pack that ships nothing but an empty `plugin.json` advertises an install that does nothing, so they are added when there is real content to add. The reasoning is in [`docs/PLAN.md`](docs/PLAN.md).
 
@@ -20,6 +22,8 @@ Adding the marketplace makes all plugins discoverable. Install only the plugins 
 ```shell
 copilot plugin marketplace add https://github.com/svennijhuis/agentPacks.git#marketplace
 copilot plugin install delivery-loop@agentpacks
+copilot plugin install pack-check@agentpacks
+copilot plugin install git@agentpacks
 copilot plugin install dotnet@agentpacks
 ```
 
@@ -34,6 +38,8 @@ copilot plugin marketplace update agentpacks
 ```shell
 codex plugin marketplace add svennijhuis/agentPacks --ref marketplace
 codex plugin add delivery-loop@agentpacks
+codex plugin add pack-check@agentpacks
+codex plugin add git@agentpacks
 codex plugin add dotnet@agentpacks
 ```
 
@@ -48,6 +54,8 @@ codex plugin marketplace upgrade agentpacks
 ```shell
 claude plugin marketplace add https://github.com/svennijhuis/agentPacks.git#marketplace --scope user
 claude plugin install delivery-loop@agentpacks --scope user
+claude plugin install pack-check@agentpacks --scope user
+claude plugin install git@agentpacks --scope user
 claude plugin install dotnet@agentpacks --scope user
 ```
 
@@ -65,6 +73,8 @@ Cursor supports the Agent Plugins standard. Until this repository is listed in a
 git clone --branch marketplace --single-branch https://github.com/svennijhuis/agentPacks.git ~/.cursor/agentPacks
 mkdir -p ~/.cursor/plugins/local
 ln -s ~/.cursor/agentPacks/plugins/delivery-loop ~/.cursor/plugins/local/delivery-loop
+ln -s ~/.cursor/agentPacks/plugins/pack-check ~/.cursor/plugins/local/pack-check
+ln -s ~/.cursor/agentPacks/plugins/git ~/.cursor/plugins/local/git
 ln -s ~/.cursor/agentPacks/plugins/dotnet ~/.cursor/plugins/local/dotnet
 ```
 
@@ -83,23 +93,59 @@ Skills and MCP servers are portable: every client loads them from the same files
 | | Skills | MCP | Rules | Agents | Commands | Hooks |
 | --- | --- | --- | --- | --- | --- | --- |
 | Claude Code | yes | yes | always-on only, at session start | yes | yes | yes |
-| Cursor | yes | yes | yes | yes | yes | yes |
-| GitHub Copilot | yes | yes | yes | yes | yes | yes |
-| Codex | yes | yes | manual copy | manual copy | — | yes |
+| Cursor | yes | yes | always-on and glob-scoped | yes | yes | yes |
+| GitHub Copilot | yes | yes | always-on only, at session start | yes | yes | yes |
+| Codex | yes | yes | always-on, manual copy | manual copy | — | yes |
 
-Codex loads subagents only from `.codex/agents/` and reads `AGENTS.md` from the workspace rather than from a plugin, so those two arrive as generated files you copy once. The [`delivery-loop`](plugins/delivery-loop/README.md) README has the commands.
+Codex loads subagents only from `.codex/agents/` and reads `AGENTS.md` from the workspace rather than from a plugin, so those arrive as generated files you copy once. Glob-scoped rules remain Cursor-only; other clients receive only always-on rules, and validation reports the expected portability warning. The [`delivery-loop`](plugins/delivery-loop/README.md) README has the details.
 
 ## Using the plugins
 
-Start a new agent session after installation and ask naturally, for example:
+Two slash commands, split by whether the code exists yet:
 
-- “Review this diff.” — or the `/review-diff` command, for a change that arrived with no plan.
-- “Plan this change, then build it.” — `delivery-loop` splits it into plan, implement, verify and review, runs the security gate when the change touches a trust boundary, and hands the result back uncommitted.
-- “Is this change safe to ship?” — the OWASP gate, as its own verdict.
-- “What can this change drop?” — reuse and simplification, ranked, not bundled into the bug list.
+```
+/deliver add an integration test for the orders endpoint
+```
 
-`dotnet` has nothing to ask: its hook runs on its own after every C# edit. [Its README](plugins/dotnet/README.md) covers the `AGENTPACKS_DOTNET_FORMAT` switch between whitespace-only (the default) and a full style and analyzer pass.
+The main agent controls the whole loop. It prints the detected stack and standards, relays one
+planner question round at a time, launches applicable reviewers in parallel, and ends at a hand-off
+with nothing committed. Obvious small changes are implemented and verified directly without phase agents.
+
+```
+/review-diff
+```
+
+The review phase on its own, for a change that arrived already written: correctness and simplification
+in parallel, with security added when needed. No plan means no verdict and no fix round.
+
+Asking naturally works too — “plan this change, then build it”, “is this safe to ship?”, “what can this change drop?” — and selects the same agents.
+
+`git` needs no invocation either, and has nothing to ask: its hook blocks `git reset --hard`, `git clean -fd`, `git push --force`, `git branch -D`, `git checkout .` and `git restore .` before the client runs them, with the reason on stderr. [Its README](plugins/git/README.md) covers the `AGENTPACKS_GIT_GUARD=off` switch and which clients the blocking contract is actually verified on.
+
+`pack-check` runs at session start. In a .NET repository it verifies that `dotnet-build` and
+`dotnet-test-patterns` resolve; when either is missing it asks once before installing the `dotnet`
+plugin. CLI clients run their own installer after approval, while Cursor uses **Customize**. Reload
+after installation so the new skills enter the next session. [Its README](plugins/pack-check/README.md)
+has the provider-specific behavior.
+
+`dotnet` needs no invocation. Its skills are loaded when the Loop detects a `.slnx`, `.sln`, or
+`.csproj`. [Its README](plugins/dotnet/README.md) explains how its canonical standards stay inside
+the plugin while agents match the repository they are working in.
 
 Installed skills are selected when relevant to your request.
+
+## Coding standards
+
+Standards ship entirely inside language plugins. Each pack keeps canonical Markdown under its own
+`standards/` directory and declares which skills consume each document in `standards.source.json`.
+Generation copies those references only to the `marketplace` branch or temporary output; generated
+files do not live on `main`.
+
+The planner records those plugin sources under `## Standards in force`. It separately inspects
+project configuration, directory layout, tests, and nearby code, then records concrete evidence
+under `## Repository conventions observed`. That lets every phase match the repository without
+creating or advertising another standards location on the repository or the developer's machine.
+
+[`docs/ADD-LANGUAGE-PACK.md`](docs/ADD-LANGUAGE-PACK.md) has the full contract.
 
 Contributor and architecture documentation lives in [`docs/`](docs/).

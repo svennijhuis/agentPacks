@@ -48,7 +48,6 @@ If that ever changes, the fallback is `strict: true` and letting Claude discover
 
 ```bash
 /plugin install delivery-loop@agentpacks
-/plugin install delivery-loop@agentpacks
 ```
 
 Update the catalog:

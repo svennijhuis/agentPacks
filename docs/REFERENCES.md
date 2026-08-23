@@ -28,6 +28,8 @@ There is no JSON Schema for skills. The normative frontmatter table in the speci
 - Creating plugins — https://docs.github.com/en/copilot/how-tos/copilot-cli/customize-copilot/plugins-creating
 - Finding and installing — https://docs.github.com/en/copilot/how-tos/copilot-cli/customize-copilot/plugins-finding-installing
 - Plugin reference — https://docs.github.com/en/copilot/reference/copilot-cli-reference/cli-plugin-reference
+- Hooks reference (event names, document shape, tool names) — https://docs.github.com/en/copilot/reference/hooks-reference
+- Using hooks with Copilot CLI — https://docs.github.com/en/copilot/how-tos/copilot-cli/customize-copilot/use-hooks
 - Custom agents — https://docs.github.com/en/copilot/how-tos/copilot-cli/customize-copilot/create-custom-agents-for-cli
 - MCP servers — https://docs.github.com/en/copilot/how-tos/copilot-cli/customize-copilot/add-mcp-servers
 
@@ -38,6 +40,8 @@ There is no JSON Schema for skills. The normative frontmatter table in the speci
 
 ## OpenAI Codex
 
+- Plugin packaging and marketplace contract — https://developers.openai.com/plugins/build/plugins
+- Hooks (event names, matcher tool names, commandWindows) — https://learn.chatgpt.com/docs/hooks
 - Plugin examples — https://github.com/openai/plugins
 - Developer docs — https://developers.openai.com/
 
@@ -53,11 +57,13 @@ There is no JSON Schema for skills. The normative frontmatter table in the speci
 
 The `loop-security-reviewer` subagent works from these, and links each category from its own checklist.
 
-- OWASP Top 10 (2021) — https://owasp.org/Top10/
+- OWASP Top 10:2025 — https://owasp.org/Top10/
 - Cheat Sheet Series, the reference for what a good control looks like — https://cheatsheetseries.owasp.org/
 - Application Security Verification Standard, the reference for what "verified" means — https://owasp.org/www-project-application-security-verification-standard/
 
-The 2021 edition is pinned deliberately: the categories are cited by number in the subagent's checklist, and renumbering them silently would leave findings pointing at the wrong category.
+The security reviewer follows the current 2025 category identifiers and links. Category changes are
+contract changes and are covered by source tests so an older numbered checklist cannot remain mixed
+with a newer edition.
 
 ## Building MCP servers in .NET
 

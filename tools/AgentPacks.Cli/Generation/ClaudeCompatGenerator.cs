@@ -79,7 +79,17 @@ internal sealed class ClaudeCompatGenerator(RepositoryContext context)
 
         if (plugin.Agents.Count > 0)
         {
-            entry["agents"] = new JsonArray { $"./{claude.Directory}/agents/" };
+            // Claude validates agent component paths as files, unlike commands where a directory
+            // is accepted. Enumerating also ensures a removed agent cannot stay reachable through
+            // a broad directory declaration.
+            var agents = new JsonArray();
+
+            foreach (var agent in plugin.Agents)
+            {
+                agents.Add($"./{claude.Directory}/agents/{agent.Name}.md");
+            }
+
+            entry["agents"] = agents;
         }
 
         if (plugin.Commands.Count > 0)

@@ -1,255 +1,78 @@
 ---
 name: delivery-loop
-description: Run a change through plan, implement, verify and review as separate phases, with a fixed handoff between them and a bounded fix round when review finds something. Use when a change is large enough that one pass will miss something, when work must be split across roles, or when asked to plan and then build something.
+description: Run a substantial change through main-agent-controlled planning, implementation, verification, parallel review, and at most two fix rounds. Use for behavior changes, multi-file work, or when asked to plan and build; bypass the phase agents for an obvious small change.
 license: UNLICENSED
 ---
 
 # Delivery loop
 
-```
-plan -> implement -> verify -> review -> (fix -> verify -> review) x 2 max -> hand off
+The main agent controls this workflow:
 
-                              review = loop-reviewer        ┐
-                                       loop-security-reviewer ├ in parallel -> loop-orchestrator merges
-                                       loop-simplifier      ┘
+```text
+plan -> implement -> verify -> parallel review -> merge -> (fix -> verify -> parallel review -> merge) x 2 max -> hand off
 ```
 
-The loop ends at a hand-off summary for the human. **No phase commits, merges or pushes.** A review verdict of `pass` is a recommendation that the work is ready to look at, never permission for it to land.
+No phase commits, merges, or pushes. A `pass` verdict means ready for human review, not permission to land.
 
-## Use the lightest process that fits
+## Route the request
 
-| Work | Process |
+| Work | Route |
 |---|---|
-| Typo, rename, one-line fix with an obvious check | Implement, verify, done. No plan file. |
-| Anything touching behaviour, or more than two files | Full loop with a plan file. |
-| Irreversible, cross-cutting, or a public interface | Full loop, plus a named human decision point before implementing. |
+| Typo, rename, or one-line change with one obvious safe check | The main agent implements and verifies directly. Do not call `loop-planner`, `loop-implementer`, `loop-verifier`, or any review agent. Do not create a plan. |
+| Behavior change, more than two files, or meaningful design choice | Run the full loop. |
+| Irreversible, cross-cutting, public-interface, migration, or trust-boundary change | Run the full loop and record the relevant human decision before implementation. |
+| Existing diff with no confirmed plan | Use the standalone diff-review route: the main agent runs applicable reviewers in parallel and gives completed reports to `loop-orchestrator` for a ranked merge. There is no verifier report, plan write, verdict, or fix round. |
 
-Planning a typo wastes the same attention that a real plan needs. Skipping the plan on a behaviour change means review has nothing to review against.
+When uncertain, use the full loop. Once the small-change route is chosen, keep it small; discovering a design choice or wider impact promotes the work to the full loop before further edits.
 
-## Planning is an interview, not a first draft
+## Prepare the full loop
 
-Everything downstream is measured against the plan, so a question the planner answered on the user's behalf becomes a criterion nobody agreed to — and the loop then faithfully builds the wrong thing, verifies it against the wrong criterion, and passes it. The failure is invisible precisely because every phase did its job.
+For a full loop, use `pack-check` status when available. Otherwise invoke `pack-check`; if it is unavailable, detect .NET from `*.slnx`, `*.sln`, or `*.csproj` and report missing language slots without inventing standards. The small-change route may report existing pack status but does not invoke `pack-check` as a prerequisite.
 
-So planning is an interview. `loop-planner` runs it as a subagent; anyone driving the loop by hand runs the same protocol. It is defined here once:
+Required language slots are `<lang>-build` and `<lang>-test-patterns`; `<lang>-review` and `<lang>-security-review` are optional. For a full loop, a missing required slot stops planning unless the user explicitly chose `--no-pack`. An approved installation stops for a client reload. The small-change route may continue after reporting the gap.
 
-1. **Map the decisions** the work requires — the points where it could reasonably go more than one way. Decisions hang off each other; that dependency is a tree.
-2. **Ask the frontier** — every decision whose prerequisites are settled — in one round. Numbered, each with a recommended answer, then stop and wait. A question that depends on another still open belongs to a later round.
-3. **Find facts yourself.** What the repository can answer is never a question for the user. "Vitest or Jest" is a fact to look up; "existing suite or its own" is a decision to ask.
-4. **Recompute and repeat** until the frontier is empty, then confirm the shared understanding before writing anything.
+Record repository evidence, standards, and workspace ownership. Repository conventions require configuration or a repeated local pattern. A conflict between repository evidence and a plugin standard is a planning decision, not something to resolve silently.
 
-Every question carries a recommendation. An interview that only asks makes the user do the planner's thinking; the recommendation is what makes a round cheap — confirm, correct, or pick differently.
+## Plan through the main agent
 
-**An open question is never a criterion.** Not as a guess written down as a decision, and not as a criterion vague enough to be true either way — that is worse, because it passes review while the change does the wrong thing. An assumption that genuinely cannot be resolved is written into the plan under its own heading, so the reviewer can challenge it, never laundered into a criterion.
+Read [the planning contract](references/planning-contract.md). The main agent invokes `loop-planner` once per turn, presents the returned numbered round to the user, and passes the answers plus settled state into the next invocation. The planner never talks to the user or waits for answers itself.
 
-The interview scales with the work. Grilling a typo is its own failure; a change to a public interface earns as many rounds as it takes.
+Only after the user confirms the shared understanding does the main agent invoke the planner in write mode. That invocation writes exactly `docs/plans/<slug>.md`; planning evidence and citations stay in that plan.
 
-## The plan artifact
+## Run plan-bound phases
 
-Lives at `docs/plans/<slug>.md` in the repository being worked on, and changes with the work. Chat is not storage: a plan that exists only in a session is gone the next morning, and the reviewer cannot check a change against something it cannot read.
+`loop-implementer` and `loop-verifier` require the confirmed plan. The implementer edits against its criteria and reports claims; the verifier independently reports evidence per criterion. The small-change route bypasses both agents.
 
-```markdown
-# <outcome, as a sentence>
+Before implementing a fix list, verifying, reviewing, or merging, read [the review contract](references/review-contract.md). It is the only definition of severity, finding identity, report shapes, and verdict gates.
 
-## Problem
-What is wrong or missing now.
+## Review in parallel, then merge
 
-## Decisions
-What was settled in the interview, and why — so a reviewer can tell a deliberate
-choice from a default.
+The main agent directly launches all applicable reviewers against the same diff:
 
-## Acceptance criteria
-1. <observable, testable statement>
-2. ...
-
-## In scope
-Files and behaviour this change touches.
-
-## Out of scope
-What is deliberately left alone, so a reviewer does not read it as an omission.
-
-## Verification
-The exact command that proves the criteria hold.
-```
-
-Each review round appends its merged list to the same file:
-
-```markdown
-## Fix list — round <n>
-
-| # | Severity | Location | Problem | Fix | Found by |
-|---|---|---|---|---|---|
-```
-
-A criterion is testable or it is not a criterion. "Handles errors well" cannot fail; "returns 400 with the field name when the payload is missing `id`" can.
-
-## The handoff contract
-
-Each phase ends in the shape the next phase consumes. Anything else is conversation.
-
-| Phase | Ends with |
-|---|---|
-| Plan | The plan file, with the decisions that were settled, numbered acceptance criteria, and a verification command. No open question left inside it. |
-| Implement | The diff, and which criteria it claims by number. Nothing about whether they pass. |
-| Verify | Per criterion: the command run, its exact output, and pass or fail. |
-| Review | One merged, deduplicated fix list ranked by severity, plus a verdict — `pass`, `fix` or `replan`. |
-
-## The review phase runs wide, not deep
-
-Three reviewers read the same diff and answer different questions:
-
-| Agent | Question |
-|---|---|
-| `loop-reviewer` | Does it do what the plan said, and is it correct? |
-| `loop-security-reviewer` | Can it be abused? |
-| `loop-simplifier` | Did it have to be this much code? |
-
-**They run in parallel.** Nothing one produces is an input to another, so running them in sequence spends three times the wall clock for the same answer. `loop-orchestrator` fans them out in one batch and merges what comes back.
-
-Merging is not concatenating. The same line found by two reviewers is one entry at the highest severity reported, naming both sources — a reader who sees it twice ranks it twice, and an implementer fixes it twice.
-
-## Severity
-
-One scale, used by every reviewer, so a merged list can be ranked at all.
-
-| Severity | What it means | Effect |
+| Agent | Runs when | Question |
 |---|---|---|
-| `high` | Wrong, exploitable, or loses data. An unmet acceptance criterion. A correctness defect on a path that runs. | Forces a fix round |
-| `medium` | Right today, wrong under pressure. A behaviour change with no test. An unhandled error path. Real duplication of code that already exists. | Forces a fix round |
-| `low` | Worth doing, costs nothing to defer. Naming that has drifted from what the code does, a nested block an early return would flatten, a comment that explains the wrong thing. | Follow-up note. Fixed only if the round already touches that code |
-| `tiny` | True, and not worth a round on its own. Wording, ordering, a stray import. | Batched as notes, never the reason for a round |
+| `loop-reviewer` | Always in the full review phase | Does the change meet the plan and remain correct? |
+| `loop-simplifier` | Always in the full review phase | Is the implementation needlessly complex? |
+| `loop-security-reviewer` | The change touches a trust boundary, or the main agent is unsure | Can the change be abused? |
 
-A correctness bug outranks a naming nit, and reporting both at the same weight buries the bug. That is the whole reason the scale exists — it stops the two failures that kill review: a naming nit ranked beside an injection, and a real defect lost under twenty preferences. If everything is `high`, nothing is.
+Trust boundaries include authentication, authorization, untrusted input, file paths, shell commands, cryptography, dependencies, deserialization, outbound requests, and credentials. Record why security ran or was skipped.
 
-A verdict falls out of the merged list: any `high` or `medium` is `fix`; only `low` and `tiny` is `pass` with notes; a finding no fix to this diff can resolve is `replan`.
+After all reviewer reports complete, the main agent sends those reports, verifier evidence, round number, plan path, and the security-gate decision to `loop-orchestrator`. The orchestrator only validates, deduplicates, ranks, assigns the verdict, and appends the merged fix list. It does not launch agents or route subsequent work.
 
-## Report formats
+If the orchestrator returns an input error, the main agent obtains the named conforming report and repeats the merge in the same round. An input-shape correction is not a fix round.
 
-Every phase returns a fixed shape. This is not ceremony: `loop-orchestrator` merges three reviewer reports into one list, and it can only deduplicate by location and rank by severity if all three report location and severity the same way. Prose that has to be interpreted is prose that gets interpreted differently each round.
+The main agent routes the result:
 
-Rules that hold for every report below.
+- `pass`: allowed only when every criterion has adequate verifier evidence and the merged report has no blocking finding; hand off to the human.
+- `fix`: send the confirmed plan and only the merged fix list—not raw reviewer or verifier reports—to `loop-implementer`, then verify and review again.
+- `replan`: return to the mediated planning flow with the reason the confirmed plan cannot succeed.
 
-| Field | Rule |
-|---|---|
-| Location | `path:line`, or `path` when the finding is the whole file. Never "in the auth code". |
-| Severity | Exactly one of `high`, `medium`, `low`, `tiny`. Lowercase. |
-| Problem | One sentence, stating the defect. No rationale, no consequence clause. |
-| Fix | Imperative and specific enough to act on without asking a question. |
-| Empty | An empty table is a valid result. Write `No findings.` and say what you examined — never pad a table to look thorough. |
+The initial implementation, verification, and review are round 1. Each fix increments the round, so
+round 2 is the first fix round and round 3 is the second; the reported fix-round count is `round - 1`.
+Allow at most two fix rounds. Before a third fix, stop and report what was tried, what remains, and why the loop is not converging.
 
-### Reviewer report
+## Worktree and hand-off
 
-All three reviewers return this, and only this:
+Record whether the workspace is the primary checkout, an existing worktree, or a loop-created worktree. Preserve the primary checkout and externally created worktrees. Remove a loop-created worktree only when `git status --porcelain` is empty at its exact path, from outside that directory, using `git worktree remove <exact-path>` without `--force`, then `git worktree prune`. Preserve dirty worktrees and report cleanup as pending.
 
-```markdown
-## <agent-name> — round <n>
-
-**Examined:** <what was in scope>
-**Not examined:** <what was skipped, and why — omit the line if nothing was>
-
-| # | Severity | Location | Problem | Fix |
-|---|---|---|---|---|
-| 1 | high | src/auth/session.ts:88 | Session token has no expiry, so a leaked token is valid forever. | Set `expiresAt` on issue and reject expired tokens in `verify`. |
-| 2 | low | src/auth/session.ts:12 | `doCheck` no longer describes what the function does after the change. | Rename to `assertSessionActive`. |
-
-**Replan:** <one line, only when no fix to this diff can resolve something — otherwise omit>
-```
-
-Rows are ordered most severe first. The `#` column is local to this report; the orchestrator renumbers on merge.
-
-### Verifier report
-
-```markdown
-## loop-verifier — round <n>
-
-| Criterion | Result | Command | Evidence |
-|---|---|---|---|
-| 1 | pass | `npm test -- session` | `12 passing` |
-| 2 | fail | `npm test -- expiry` | `expected 401, got 200` |
-| 3 | not verified | — | No command covers this; needs a manual probe. |
-
-**Suite:** <the wider run, and whether anything failed that this change did not touch>
-```
-
-`not verified` is a first-class result. A criterion with no evidence is never reported as `pass`.
-
-### Implementer report
-
-```markdown
-## loop-implementer — round <n>
-
-**Criteria claimed:** 1, 2, 4
-**Fix list entries resolved:** 1, 2, 5 — <and which `low`/`tiny` entries were left, if any>
-**Files touched:** <paths>
-**Follow-ups noticed, not done:** <one line each, or `None`>
-```
-
-No statement about whether anything passes. That is the verifier's report, and duplicating it here is how an unverified claim enters the record.
-
-### Orchestrator report
-
-The merged list, written to the plan and repeated in the hand-off:
-
-```markdown
-## Fix list — round <n>
-
-**Verdict:** fix | pass | replan
-
-| # | Severity | Location | Problem | Fix | Found by |
-|---|---|---|---|---|---|
-| 1 | high | src/auth/session.ts:88 | ... | ... | loop-reviewer, loop-security-reviewer |
-
-**Lowered:** <finding, and why — omit if none>
-**Notes carried forward:** <`low` and `tiny` entries nobody acted on>
-```
-
-## Evidence, not claims
-
-"Tests pass" is a claim. The command and its output are evidence. A phase that did not run something reports it as not run — an unverified criterion is a known unknown, and a criterion reported as passing without a command is a defect that has been laundered into a status update.
-
-The implementer does not grade its own work. Verification is a separate phase because the person who wrote the code already believes it works.
-
-## Looping back
-
-`loop-orchestrator` picks one:
-
-- **`pass`** — every criterion is met and evidenced. Hand off to the human.
-- **`fix`** — findings that must be resolved. Back to implement, with the finding list as the new scope. Nothing else may be touched.
-- **`replan`** — the plan was wrong: criteria that cannot be met, or that would not solve the problem. Back to plan, not to implement.
-
-The severity scale decides this, not an argument each round. `high` and `medium` force the round; `low` and `tiny` ride along as notes and get fixed only where the round is already editing that code. Adjacent code the change did not touch, and improvements that need their own plan, are not findings at all — they are the next plan.
-
-The fix list is the entire scope of the round. An implementer that fixes something not on the list has made the next review harder.
-
-**Two fix rounds, maximum.** A third means the plan, the criteria or the diagnosis is wrong — not that a third attempt will land it. Escalate to the human with what was tried, what still fails, and what you now think the real problem is.
-
-## The security gate
-
-Acceptance review asks whether the change does what the plan said. Security review asks whether it can be abused. The second is not implied by the first, and no amount of passing criteria makes an injection safe.
-
-Run the security gate whenever the change touches authentication, authorisation, untrusted input, file paths, shell commands, cryptography, dependencies, deserialisation, outbound requests, or anything handling credentials. When in doubt, run it: the cost is one review, and the cost of skipping it is discovered by someone else.
-
-It walks the OWASP Top 10 and returns its own `pass` / `fix` / `replan`. A security `fix` outranks an acceptance `pass` — the fix round happens.
-
-Findings are stated as attacks, not as category labels. A category name tells nobody what to change.
-
-## Depth of review
-
-Correctness, security and maintainability are not three passes over one checklist here — they are three agents, each with its own order of work, run at once. The `review-diff` command is the same three without a plan behind them.
-
-This loop reviews one change against one plan. It is not threat modelling: a design nobody has threat-modelled is a `replan`, not a finding.
-
-## Anti-patterns
-
-- Planning work smaller than the plan.
-- Implementing before criteria exist, then writing criteria that describe what was built.
-- Filling in an open question to keep the plan moving. The loop's speed is not worth a criterion nobody agreed to.
-- Asking the user something the repository already answers.
-- Asking a whole tree of questions at once, including the ones whose answers depend on the answers you are still waiting for.
-- The implementer reporting its own work as verified.
-- A reviewer that edits the code it is reviewing — the finding disappears and nobody learns of it.
-- Running the reviewers one after another. They do not read each other's output; sequencing them buys nothing.
-- Three separate finding lists handed to an implementer. Merging is the orchestrator's job precisely because nobody else can see the overlap.
-- Grading everything `high` to make sure it gets fixed. It makes the list unrankable, which means nothing gets prioritised.
-- Plan state that lives only in chat.
-- Looping until it passes. The cap exists because the fourth attempt is rarely better than the second.
-- An agent committing "so the work is not lost". The working tree is the hand-off.
+The final hand-off names the plan, files changed, verification evidence, review verdict, fix-round count, deferred notes, pack status, workspace, and cleanup status. State that the result is uncommitted.

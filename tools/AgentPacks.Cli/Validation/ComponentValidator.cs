@@ -13,13 +13,6 @@ namespace AgentPacks.Cli.Validation;
 /// </summary>
 internal sealed class ComponentValidator(RepositoryContext context)
 {
-    /// <summary>
-    /// Tools that can change the working tree. No client expresses "read-only" as a flag, so the
-    /// only place the neutral 'readonly' can be enforced is here, against the declared tool list.
-    /// </summary>
-    private static readonly IReadOnlySet<string> WritingTools =
-        new HashSet<string>(StringComparer.Ordinal) { "write", "edit" };
-
     /// <summary>Models a neutral agent may request. 'inherit' is the portable default.</summary>
     private static readonly IReadOnlySet<string> AllowedModels =
         new HashSet<string>(StringComparer.Ordinal) { "inherit", "opus", "sonnet", "haiku" };
@@ -180,6 +173,8 @@ internal sealed class ComponentValidator(RepositoryContext context)
             context.Diagnostics.SpecFatal(relative, "agent 'tools' must be a list.");
         }
 
+        ValidateToolNames(agent, relative);
+
         var readOnly = agent.Frontmatter.Scalar("readonly");
 
         if (readOnly is not null && readOnly is not ("true" or "false"))
@@ -191,6 +186,31 @@ internal sealed class ComponentValidator(RepositoryContext context)
         if (readOnly == "true")
         {
             ValidateReadOnly(agent, relative);
+        }
+    }
+
+    /// <summary>
+    /// An unknown tool name is the one authoring mistake no client reports. Claude drops a name it
+    /// does not recognise and the other three pass the list through, so a typo generates cleanly,
+    /// installs cleanly, and quietly costs the agent a capability it was given on purpose. It is
+    /// also what would let a 'readonly' agent through the check below, since a misspelt writing
+    /// tool matches nothing in <see cref="NeutralTools.Writing"/>.
+    /// </summary>
+    private void ValidateToolNames(MarkdownComponent agent, string relative)
+    {
+        var unknown = ComponentWriter.Sequence(agent, "tools")
+            .Where(tool => !NeutralTools.All.Contains(tool))
+            .Order(StringComparer.Ordinal)
+            .ToList();
+
+        if (unknown.Count > 0)
+        {
+            context.Diagnostics.SpecFatal(
+                relative,
+                $"agent requests unknown tool {string.Join(", ", unknown.Select(t => $"'{t}'"))}. " +
+                $"The neutral tool names are lowercase: {NeutralTools.Listed}. No client reports an " +
+                "unrecognised name, so it is dropped rather than refused and the agent silently " +
+                "loses the capability.");
         }
     }
 
@@ -214,7 +234,7 @@ internal sealed class ComponentValidator(RepositoryContext context)
             return;
         }
 
-        var writing = tools.Where(WritingTools.Contains).Order(StringComparer.Ordinal).ToList();
+        var writing = tools.Where(NeutralTools.Writing.Contains).Order(StringComparer.Ordinal).ToList();
 
         if (writing.Count > 0)
         {

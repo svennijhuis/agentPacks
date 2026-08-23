@@ -16,13 +16,22 @@ The obvious failure mode is duplication: one copy of every skill per client, dri
 
 **External skills are authored as plugin-local URL records and materialized by publication.** Each plugin owns `external-skills.json`, so provenance and destination are visible together. GitHub Actions fetches each pin into that plugin's `skills/` tree; contributors never copy upstream Markdown by hand.
 
-**Claude support is generated, not authored.** The .NET tooling emits `.claude-plugin/marketplace.json` and `plugins/<plugin>/.mcp.json` from that source. The catalog entry points at the real plugin directory, so skills exist once.
+**Provider compatibility is generated, not authored.** The .NET tooling emits the Claude, Codex and
+GitHub Copilot root catalogs, provider component trees, client manifests, hook dialects, MCP adapters,
+and skill-standard references. Catalog entries point at the real plugin directory, so portable
+skills exist once.
+
+**Canonical language standards are authored once.** A language pack keeps Markdown under
+`standards/` and maps document ids to consuming skills in `standards.source.json`. Generation copies
+only the selected documents into each skill's `references/standards/` directory.
 
 **A hook names a script, never a command line.** The generator owns the invocation, so no authored file contains shell syntax, and the validator can require both a `.sh` and a `.ps1` — one generated hooks file is shared by macOS and Windows, and a script with one platform half is a hook that silently does nothing for half the team.
 
 **Client-specific behavior uses the standard extension boundary.** Manifest data lives under `extensions`, keyed by a reverse-domain namespace, and client-owned files live in a matching top-level directory. The namespace owner defines those contents; unrelated clients ignore them.
 
-**Automation owns a separate generated branch.** Pull requests validate `main`, which contains no Claude marketplace or materialized external skills. A job on `main` publishes the complete installable tree to `marketplace`.
+**Automation owns a separate generated branch.** Pull requests validate `main`, which contains no
+provider catalogs, generated client trees, generated standards references, or materialized external
+skills. A job on `main` publishes the complete installable tree to `marketplace`.
 
 **The generated marketplace entry omits `version`,** so update detection falls back to the Git commit SHA.
 
