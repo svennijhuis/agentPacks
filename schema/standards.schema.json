@@ -1,0 +1,33 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/svennijhuis/agentPacks/schema/standards.schema.json",
+  "title": "Language standards source catalog",
+  "description": "Canonical Markdown documents copied into consuming skill references during marketplace generation.",
+  "type": "object",
+  "required": ["$schema", "version", "documents", "consumers"],
+  "additionalProperties": false,
+  "properties": {
+    "$schema": { "const": "../../schema/standards.schema.json" },
+    "version": { "const": 1 },
+    "documents": {
+      "type": "object",
+      "minProperties": 1,
+      "propertyNames": { "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$" },
+      "additionalProperties": {
+        "type": "string",
+        "pattern": "^[a-zA-Z0-9._-]+(?:/[a-zA-Z0-9._-]+)*\\.md$"
+      }
+    },
+    "consumers": {
+      "type": "object",
+      "minProperties": 1,
+      "propertyNames": { "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$" },
+      "additionalProperties": {
+        "type": "array",
+        "minItems": 1,
+        "uniqueItems": true,
+        "items": { "type": "string", "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$" }
+      }
+    }
+  }
+}

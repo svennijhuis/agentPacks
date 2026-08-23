@@ -28,10 +28,22 @@ tools:
 | `name` | yes | Kebab-case, and equal to the filename. Clients disagree on which one wins, so they must match. |
 | `description` | yes | What it does *and* when to delegate to it. This is the only thing the main agent uses to decide. |
 | `model` | no | `inherit`, `opus`, `sonnet` or `haiku`. Defaults to `inherit`. |
-| `tools` | no | List of lowercase tool names. Translated to each client's spelling. |
+| `tools` | no | List of lowercase tool names, from the closed vocabulary below. Translated to each client's spelling. |
 | `readonly` | no | `true` or `false`. Cursor honours it directly; elsewhere it is expressed by the tools you grant, so `readonly: true` requires a `tools` list and rejects `write` and `edit`. |
 
 Anything else is rejected: a key three of the four clients ignore looks like a working restriction and is not one.
+
+### The tool vocabulary
+
+```
+read   write   edit   grep   glob   bash   webfetch   websearch
+```
+
+The list is closed, and a name outside it fails validation. That is not tidiness: it is the one authoring mistake no client reports. Claude renames these to `Read`, `WebFetch` and so on, and **drops any name it does not recognise**; the other three pass the list through untouched. So `websearchh`, or `Write` with a capital, generates cleanly, installs cleanly, and quietly leaves the agent without a capability it was granted on purpose — with nothing printed at any stage to say so.
+
+It is also what makes `readonly` enforceable. That check works by matching declared names against `write` and `edit`, so a misspelt writing tool would pass it while the client still makes of the name whatever it makes.
+
+The vocabulary lives in `tools/AgentPacks.Cli/Generation/NeutralTools.cs`, which the generator maps with and the validator rejects against, so a name can never be known to one and unknown to the other. Adding a tool is a line there.
 
 `readonly` is validated rather than generated, for the same reason. No client but Cursor has a read-only flag, so what actually carries the restriction into the other three is the tool list: an agent with no `tools` inherits everything the client has, and one that lists `write` gets `write`. Declaring `readonly: true` therefore commits you to a tool list that backs it up. Note that `bash` is not counted as a writing tool — a verifier needs it to run a test suite — so an agent that grants `bash` is trusting the prompt, not the tool list, for that part.
 

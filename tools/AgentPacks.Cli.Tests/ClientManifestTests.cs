@@ -11,6 +11,8 @@ public sealed class ClientManifestTests
 {
     private const string Plugin = "plugins/engineering";
     private const string Marketplace = ".claude-plugin/marketplace.json";
+    private const string CodexMarketplace = ".agents/plugins/marketplace.json";
+    private const string CopilotMarketplace = ".github/plugin/marketplace.json";
 
     /// <summary>
     /// Claude auto-discovers agents/, commands/ and hooks/ at the plugin root, but the root holds
@@ -29,7 +31,9 @@ public sealed class ClientManifestTests
 
         var entry = (JsonObject)run.File(Marketplace).Content["plugins"]![0]!;
 
-        Assert.Equal("./com.anthropic.claude-code/agents/", entry["agents"]![0]!.GetValue<string>());
+        Assert.Equal(
+            "./com.anthropic.claude-code/agents/reviewer.md",
+            entry["agents"]![0]!.GetValue<string>());
         Assert.Equal("./com.anthropic.claude-code/commands/", entry["commands"]![0]!.GetValue<string>());
         Assert.Equal("./com.anthropic.claude-code/hooks/hooks.json", entry["hooks"]!.GetValue<string>());
     }
@@ -86,6 +90,26 @@ public sealed class ClientManifestTests
 
         Assert.Equal("./com.openai.codex/hooks/hooks.json", codex["hooks"]!.GetValue<string>());
         Assert.Equal("./skills/", codex["skills"]!.GetValue<string>());
+        Assert.Equal("agentPacks Maintainers", codex["author"]!["name"]!.GetValue<string>());
+        Assert.Equal("Engineering", codex["interface"]!["displayName"]!.GetValue<string>());
+        Assert.Equal(["Skills", "Hooks"], codex["interface"]!["capabilities"]!.AsArray().Select(x => x!.GetValue<string>()));
+    }
+
+    [Fact]
+    public void The_codex_marketplace_routes_every_plugin_with_explicit_install_policy()
+    {
+        using var repo = new TestRepository();
+        var run = repo.WithValidPlugin().ValidateAndGenerate();
+
+        var marketplace = run.File(CodexMarketplace).Content;
+        var entry = (JsonObject)marketplace["plugins"]![0]!;
+
+        Assert.Equal("agentPacks", marketplace["interface"]!["displayName"]!.GetValue<string>());
+        Assert.Equal("local", entry["source"]!["source"]!.GetValue<string>());
+        Assert.Equal("./plugins/engineering", entry["source"]!["path"]!.GetValue<string>());
+        Assert.Equal("AVAILABLE", entry["policy"]!["installation"]!.GetValue<string>());
+        Assert.Equal("ON_INSTALL", entry["policy"]!["authentication"]!.GetValue<string>());
+        Assert.Equal("Productivity", entry["category"]!.GetValue<string>());
     }
 
     [Fact]
@@ -95,6 +119,103 @@ public sealed class ClientManifestTests
         var run = repo.WithValidPlugin().ValidateAndGenerate();
 
         Assert.Null(run.File($"{Plugin}/.codex-plugin/plugin.json").Content["hooks"]);
+    }
+
+    [Fact]
+    public void The_codex_manifest_points_at_the_shared_generated_mcp_document()
+    {
+        using var repo = new TestRepository();
+        var run = repo.WithValidPlugin().WithMcp("""
+            {
+              "$schema": "https://agent-plugins.org/schemas/1.0.0/mcp.schema.json",
+              "mcpServers": {
+                "docs": { "type": "stdio", "command": "./docs-server" }
+              }
+            }
+            """).ValidateAndGenerate();
+
+        Assert.Equal(
+            "./.mcp.json",
+            run.File($"{Plugin}/.codex-plugin/plugin.json").Content["mcpServers"]!.GetValue<string>());
+    }
+
+    /// <summary>
+    /// Every provider is pointed at the converted document, never at the authored one. mcp.json is
+    /// the portable dialect; .mcp.json is what ClaudeValueConverter rewrites out of it, and a
+    /// provider handed the source instead would get unexpanded ${PLUGIN_ROOT} values.
+    /// </summary>
+    [Fact]
+    public void The_copilot_entry_points_at_the_shared_generated_mcp_document()
+    {
+        using var repo = new TestRepository();
+        var run = repo.WithValidPlugin().WithMcp("""
+            {
+              "$schema": "https://agent-plugins.org/schemas/1.0.0/mcp.schema.json",
+              "mcpServers": {
+                "docs": { "type": "stdio", "command": "./docs-server" }
+              }
+            }
+            """).ValidateAndGenerate();
+
+        var entry = (JsonObject)run.File(CopilotMarketplace).Content["plugins"]![0]!;
+
+        Assert.Equal("./.mcp.json", entry["mcpServers"]!.GetValue<string>());
+    }
+
+    /// <summary>
+    /// An empty mcpServers object generates no .mcp.json, so no provider may declare one: a
+    /// manifest pointing at a file that was never written fails the plugin at install time.
+    /// </summary>
+    [Fact]
+    public void An_empty_mcp_document_is_declared_by_no_provider()
+    {
+        using var repo = new TestRepository();
+        var run = repo.WithValidPlugin().WithMcp("""
+            {
+              "$schema": "https://agent-plugins.org/schemas/1.0.0/mcp.schema.json",
+              "mcpServers": {}
+            }
+            """).ValidateAndGenerate();
+
+        Assert.False(run.HasFile($"{Plugin}/.mcp.json"));
+        Assert.Null(((JsonObject)run.File(CopilotMarketplace).Content["plugins"]![0]!)["mcpServers"]);
+        Assert.Null(((JsonObject)run.File(Marketplace).Content["plugins"]![0]!)["mcpServers"]);
+        Assert.Null(run.File($"{Plugin}/.codex-plugin/plugin.json").Content["mcpServers"]);
+    }
+
+    [Fact]
+    public void The_copilot_entry_points_at_its_own_generated_namespace()
+    {
+        using var repo = new TestRepository();
+        var run = repo.WithValidPlugin()
+            .WithAgent("reviewer")
+            .WithCommand("review-diff")
+            .WithHook("sessionStart")
+            .ValidateAndGenerate();
+
+        var entry = (JsonObject)run.File(CopilotMarketplace).Content["plugins"]![0]!;
+
+        Assert.Equal("./plugins/engineering", entry["source"]!.GetValue<string>());
+        Assert.Equal("./skills/", entry["skills"]!.GetValue<string>());
+        Assert.Equal("./com.github.copilot/agents/", entry["agents"]!.GetValue<string>());
+        Assert.Equal("./com.github.copilot/commands/", entry["commands"]!.GetValue<string>());
+        Assert.Equal("./com.github.copilot/hooks/hooks.json", entry["hooks"]!.GetValue<string>());
+        Assert.DoesNotContain("anthropic", entry.ToJsonString(), StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
+    public void The_copilot_entry_omits_components_that_do_not_exist()
+    {
+        using var repo = new TestRepository();
+        var run = repo.WithValidPlugin().ValidateAndGenerate();
+
+        var entry = (JsonObject)run.File(CopilotMarketplace).Content["plugins"]![0]!;
+
+        Assert.Equal("./skills/", entry["skills"]!.GetValue<string>());
+        Assert.Null(entry["agents"]);
+        Assert.Null(entry["commands"]);
+        Assert.Null(entry["hooks"]);
+        Assert.Null(entry["mcpServers"]);
     }
 
     // -------------------------------------------------------------- staleness
@@ -187,11 +308,10 @@ public sealed class ClientManifestTests
     }
 
     /// <summary>
-    /// The seven existing packs declare none of the new components. They must generate exactly what
-    /// they generated before, or this change quietly rewrites every published plugin.
+    /// Even the smallest pack produces all three root catalogs and no unrelated component tree.
     /// </summary>
     [Fact]
-    public void A_plugin_without_the_new_components_generates_only_what_it_did_before()
+    public void A_plugin_without_optional_components_generates_only_the_three_catalogs()
     {
         using var repo = new TestRepository();
         var run = repo.WithValidPlugin().ValidateAndGenerate();
@@ -201,6 +321,6 @@ public sealed class ClientManifestTests
             .Where(p => p != $"{Plugin}/.cursor-plugin/plugin.json" && p != $"{Plugin}/.codex-plugin/plugin.json")
             .ToList();
 
-        Assert.Equal([Marketplace], paths);
+        Assert.Equal([CodexMarketplace, Marketplace, CopilotMarketplace], paths);
     }
 }

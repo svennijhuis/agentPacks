@@ -43,7 +43,7 @@ Both give a Rust shop a way to avoid installing .NET skills. Only one stays read
 
 ## What ships today
 
-The repository currently ships **one capability pack and nothing else**: `delivery-loop`.
+The repository currently ships **two capability packs and one language pack**: `delivery-loop`, `git` and `dotnet`.
 
 The earlier catalog carried five role packs and three language packs, six of which held nothing but a `plugin.json`. An empty pack is not a placeholder — it is an install that appears in the marketplace, resolves, and does nothing, which is worse than not being listed. They were removed in the same branch that added `delivery-loop`; the pinned external-skill imports and the two authored skills (`engineering/testing`, `dotnet/dotnet-review`) are in history at `007f609` and can be restored when there is a pack around them worth installing.
 
@@ -65,7 +65,8 @@ Capability packs — installed because of a workflow you want wired into the age
 
 | Plugin | Who installs it | Holds |
 | --- | --- | --- |
-| `delivery-loop` | anyone who wants a change planned before it is built and checked after | the `delivery-loop` skill, standards and role boundaries as rules, `loop-orchestrator`, `loop-planner`, `loop-implementer`, `loop-verifier`, `loop-reviewer`, `loop-security-reviewer` and `loop-simplifier` subagents, the `review-diff` command, and a hook that flags the commands that land work |
+| `delivery-loop` | anyone who wants a change planned before it is built and checked after | the main-agent-controlled `delivery-loop` skill, planning and review contracts, a Cursor-only scoped checklist, all seven Loop agents, and the `deliver` and `review-diff` commands |
+| `git` | anyone letting an agent run git | one `beforeShellExecution` hook that blocks the commands which destroy work: `reset --hard`, `clean -f`, `push --force`, `branch -D`, `checkout .`, `restore .` |
 
 A capability pack is the exception to "a role is a role pack", and it earns the exception only by shipping components a skill cannot express: rules that apply without being invoked, subagents, commands, or hooks. A pack that would hold nothing but skills is a role pack, not a capability pack.
 
@@ -73,11 +74,18 @@ There was briefly a second one. `code-review` shipped a review skill, review sta
 
 The rule that falls out of it: **a capability pack is a workflow, and a phase of an existing workflow is not a new pack.** A third has to clear both bars — components a skill cannot express, and a loop that is not already someone else's phase.
 
-Language packs — installed because of the ecosystem you live in, one per language family:
+`git` is the second one and is deliberately separate from the Loop. You want destructive-command
+protection whether or not a delivery workflow is running. The Loop states its no-commit hand-off in
+its prompts; it does not install a global advisory hook for ordinary `commit`, `merge`, or `push`.
+The `git` pack owns the only shell guard and blocks commands that can destroy local or remote work.
+
+The general rule, then: **two packs may share an event, but not a command.** Overlapping subjects is what folded `code-review` into the loop; overlapping *events* with disjoint matchers is fine, and is what keeps a data-loss guard from being welded to a workflow nobody is obliged to use.
+
+Language packs — installed because of the ecosystem you live in, one per language family. A language pack has a second job the role packs do not: it fills the delivery loop's **contracted slots**, so the loop knows how this ecosystem builds, tests and reviews. The names are the interface and [`ADD-LANGUAGE-PACK.md`](ADD-LANGUAGE-PACK.md) is the contract; a near miss is a skill the loop silently never loads, so the validator fails the build on one.
 
 | Plugin | Holds |
 | --- | --- |
-| `dotnet` | An `afterFileEdit` hook that runs `dotnet format` on the C# file an agent just wrote; C# and .NET build, review, test and .NET-specific security skills come next |
+| `dotnet` | `dotnet-build`, `dotnet-test-patterns` and `dotnet-review` — the Loop's contracted slots — plus canonical standards mapped into only the consuming skills. Formatting runs once after implementation, not as a global edit hook. `dotnet-security-review` comes when there is real content for it |
 | `typescript` | TypeScript frontend *and* backend; React and NestJS as skills |
 | `rust` | Rust build, review and test; Axum as skills *(empty for now)* |
 
@@ -111,6 +119,25 @@ plugins/typescript/skills/       plugins/rust/skills/        plugins/dotnet/skil
 
 When there is no framework, prefix with the language: `typescript-review`, `rust-error-handling`, `dotnet-review`. The layer then reads off the name — `react-component-scaffold` is frontend, `nestjs-module-design` is backend — which is all an agent or a human needs to pick one. No `engineering-frontend-typescript` plugin is required to express it.
 
+## Who can invoke a skill
+
+A skill is **model-invoked** by default: it keeps a `description`, so the agent can fire it on its own and other skills can load it by name. That description is always-loaded context, paid on every turn of every session whether or not the skill fires. A **user-invoked** skill costs nothing in context and can be reached only by a person typing its name — no agent, and no other skill, can reach it.
+
+Set it in both dialects or in neither. A pack that sets only the Claude half is user-invoked on one client and model-invoked on three.
+
+| Client | How |
+| --- | --- |
+| Claude Code | `disable-model-invocation: true` in the skill's frontmatter |
+| Codex | `policy.allow_implicit_invocation: false` in the skill's `agents/openai.yaml` |
+
+Nothing in the catalog sets it today, and that is a decision rather than an omission:
+
+- `delivery-loop` has to fire on "plan and then build this". That is the whole point of it.
+- The contracted `<lang>-*` slot skills are resolved **by exact name by the main delivery workflow and its plan-bound agents**. Making one user-only would silently remove it from that workflow.
+- `/deliver` and `/review-diff` are commands, which a person types already.
+
+Reach for it when a skill is destructive, is scaffolding that should never run unasked, or is a setup step that runs once — the cases where an agent choosing to fire it is the failure.
+
 ## Where review, testing and security live
 
 | Kind of skill | Home |
@@ -119,7 +146,7 @@ When there is no framework, prefix with the language: `typescript-review`, `rust
 | How we review a TypeScript pull request | `typescript` → `typescript-review` |
 | Two-axis review of any diff | `engineering` → `code-review` |
 | Threat-model any system | `security` |
-| OWASP-style general checklists | `security` |
+| Per-change OWASP Top 10 review | `delivery-loop` → `loop-security-reviewer` |
 | .NET crypto and auth footguns | `dotnet` → `dotnet-security-review` |
 | What deserves a test, as philosophy | `engineering` → `testing` |
 | How to write a test in this stack | the language pack → `*-test-patterns` |

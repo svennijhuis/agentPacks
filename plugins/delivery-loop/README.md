@@ -1,77 +1,76 @@
 # delivery-loop
 
-A capability pack: the phases a change goes through, as separate roles with a fixed hand-off between them.
+A capability pack for a main-agent-controlled delivery workflow:
 
-```
-plan -> implement -> verify -> review -> (fix -> verify -> review) x 2 max -> hand off
-
-                              review = loop-reviewer        ┐
-                                       loop-security-reviewer ├ in parallel -> loop-orchestrator merges
-                                       loop-simplifier      ┘
+```text
+plan -> implement -> verify -> parallel review -> merge -> (fix -> verify -> parallel review -> merge) x 2 max -> hand off
 ```
 
-Planning is an interview, not a first draft. `loop-planner` maps the decisions the work requires, asks the ones whose prerequisites are settled in one numbered round with a recommendation each, waits, then recomputes — until nothing is left assumed. Facts it looks up itself; only decisions reach the user. An open question never becomes a criterion, because a criterion vague enough to be true either way passes review while the change does the wrong thing.
+The main agent owns user interaction, invokes `loop-planner` once per question round, launches applicable reviewers in parallel, and routes the merged verdict. `loop-orchestrator` only merges completed reports and verifier evidence. No phase commits, merges, or pushes.
 
-Every phase returns a fixed shape — the reviewers all emit the same `Severity | Location | Problem | Fix` table, the verifier a criterion-by-criterion evidence table. That is what makes merging mechanical instead of interpretive; the formats are in the `delivery-loop` skill.
+Obvious typos, renames, and one-line fixes take the small-change route: the main agent implements and verifies directly, with no plan and without invoking planner, implementer, verifier, or review agents.
 
-Three reviewers read the same diff and answer different questions, so they run at once rather than in a queue. `loop-orchestrator` merges what comes back into one list — deduplicated by location at the highest severity reported — ranks it `high` / `medium` / `low` / `tiny`, and writes it into the plan. `high` or `medium` costs a fix round; `low` and `tiny` ride along as notes. The implementer picks the list up and works it in order.
+## Components
 
-The loop ends at a hand-off summary. **No phase commits, merges or pushes** — landing the work is the human's step. `pass` means "ready to look at", not "ready to land".
-
-## What is in it
-
-| Component | Name | What it does |
+| Component | Name | Responsibility |
 |---|---|---|
-| Skill | `delivery-loop` | The doctrine: proportional process, the plan artifact, the hand-off contract, the severity scale, the report formats, the fix-round cap |
-| Rule | `delivery-loop-standards` | Standards for the change, role boundaries, and the no-commit hand-off. Always on |
-| Rule | `review-checklist` | Checklist applied to source files, scoped by glob |
-| Agent | `loop-planner` | Request to numbered, testable acceptance criteria in `docs/plans/<slug>.md` |
-| Agent | `loop-implementer` | Builds against the criteria, reports the diff and what it claims |
-| Agent | `loop-verifier` | Runs the checks, reports pass or fail per criterion with real output |
-| Agent | `loop-reviewer` | Correctness and criteria: does the change do what the plan said |
-| Agent | `loop-security-reviewer` | The security gate: walks the [OWASP Top 10](https://owasp.org/Top10/), linked per category |
-| Agent | `loop-simplifier` | Reuse, simplification, efficiency, altitude — did it have to be this much code |
-| Agent | `loop-orchestrator` | Runs the three reviewers in parallel, merges their findings into one ranked list, decides the verdict, writes the fix list into the plan |
-| Command | `review-diff` | Reviews an uncommitted diff on its own, for a change that arrived without a plan |
-| Hook | `beforeShellExecution` | Flags the commands that land work: `git commit`, `git push`, `git merge`, `gh pr create/merge` |
+| Skill | `delivery-loop` | Routing, phase ownership, security gate, fix-round cap, worktree lifecycle, and hand-off |
+| Contract | `planning-contract` | Turn-based planner input, one-round output, confirmation gate, and plan shape |
+| Contract | `review-contract` | Severity, report formats, merge identity, evidence gate, and verdict rules |
+| Rule | `review-checklist` | Source-review checklist scoped by glob; Cursor-only by design |
+| Agent | `loop-planner` | Returns one numbered planning round, or writes the one confirmed plan |
+| Agent | `loop-implementer` | Implements a confirmed plan or merged fix list |
+| Agent | `loop-verifier` | Reports independent evidence per plan criterion |
+| Agent | `loop-reviewer` | Reviews correctness and plan compliance |
+| Agent | `loop-security-reviewer` | Reviews trust-boundary changes against [OWASP Top 10:2025](https://owasp.org/Top10/) |
+| Agent | `loop-simplifier` | Finds unnecessary implementation complexity |
+| Agent | `loop-orchestrator` | Deduplicates completed reports, assigns the verdict, and appends the fix list |
+| Command | `deliver` | Runs a new change through the proportional workflow |
+| Command | `review-diff` | Reviews an existing diff without a plan, verdict, or fix round |
 
-## Review lives here too
+All seven agents remain portable across supported generated clients.
 
-An earlier version of this repository split review into its own pack. It did not survive contact with this one: both shipped a security reviewer, both shipped a diff reviewer, and the only real difference was whether a finding cost a fix round or was just printed.
+## Planning
 
-So review is a phase of the loop, not a neighbouring pack. `loop-reviewer` measures the change against a plan, `loop-security-reviewer` is the gate, `loop-simplifier` asks what the change could have skipped, and `/review-diff` runs the same three without a plan when a change turns up already written.
+Planning is mediated by the main agent. Each `loop-planner` invocation receives the request, repository evidence, settled decisions, prior answers, and open frontier. It returns one numbered round and stops. The main agent presents that round and supplies the answers on the next invocation.
 
-The pack briefly carried the old pack's `code-review` skill as well. It went the same way: its three sections had become three agents, and its instruction to *stop at the first category with findings* was actively wrong once the reviewers started running in parallel.
+After every decision is settled, the planner returns a shared-understanding confirmation question. Only after the user confirms may a write-mode invocation create `docs/plans/<slug>.md`. Repository evidence, citations, decisions, and rejected alternatives stay in that plan; no separate research artifact is created.
 
-## What each client receives
+## Review and verdicts
 
-| | Skill | Rules | Agents | Command | Hook |
-|---|---|---|---|---|---|
-| **Claude** | yes | always-on only, injected at session start | yes | yes | yes |
-| **Cursor** | yes | yes, including glob scope | yes | yes | yes |
-| **Copilot** | yes | yes, as instruction files | yes | yes | yes |
-| **Codex** | yes | manual copy | manual copy | — | yes |
+For a planned change, the main agent runs correctness and simplification reviewers together, adding security when a trust boundary changed. It then sends completed reports, verifier evidence, round, plan path, and the recorded security decision to the orchestrator.
 
-Codex loads subagents only from `.codex/agents/`, and reads `AGENTS.md` from the workspace rather than from a plugin. Both are generated and ready to copy:
+`pass` requires adequate evidence for every criterion and no blocking merged finding. `high` or `medium` findings produce `fix`; a plan defect produces `replan`. At most two fix rounds are allowed.
+
+`/review-diff` uses the same conditional reviewers for an existing diff, but has no plan, verifier evidence, verdict, or fix round.
+
+## Stack and workspace
+
+[`pack-check`](../pack-check/README.md) detects the stack and required language skills. A full loop records the applicable plugin standards and concrete repository conventions in the plan. The [language-pack contract](../../docs/ADD-LANGUAGE-PACK.md) defines the required skill names.
+
+The hand-off records whether work ran in the primary checkout, an existing worktree, or a loop-created worktree. Externally owned and dirty worktrees are preserved. A clean loop-created worktree may be removed without force.
+
+## Provider support
+
+| | Skill | Glob-scoped rule | Agents | Command |
+|---|---|---|---|---|
+| Claude | yes | no | yes | yes |
+| Cursor | yes | yes | yes | yes |
+| GitHub Copilot | yes | no | yes | yes |
+| Codex | yes | no | manual copy | — |
+
+The scoped-rule limitation is intentional. Cursor is the only target that can carry the rule's glob contract through plugin packaging; generation emits the documented portability warning for the other clients instead of making the checklist always-on.
+
+Codex agent files are generated for manual copy:
 
 ```shell
 cp plugins/delivery-loop/com.openai.codex/agents/*.toml .codex/agents/
 ```
 
-```shell
-cp plugins/delivery-loop/com.openai.codex/AGENTS.md ./AGENTS.md
-```
+## Editing
 
-Claude has no rules concept, so the always-on rule arrives as a `SessionStart` hook that prints it as context. Glob-scoped rules cannot be expressed there, so `review-checklist` is not generated for Claude — generation says so rather than dropping it quietly.
+Authored: `plugin.json`, `skills/`, `rules/`, `agents/`, and `commands/`.
 
-## The hook
+Generated only in validation output or on the marketplace branch: client manifests and `com.*` provider trees.
 
-`loop-guard` is advisory. It writes one line and exits 0; it never blocks a command. Clients disagree on how a hook blocks, and a guard that blocks on one client and waves things through on three is worse than one that only ever advises. A match usually means the human is landing the work — harmless — or that a phase is about to cross the line it was told not to.
-
-## Editing this pack
-
-Authored: `plugin.json`, `skills/`, `rules/`, `agents/`, `commands/`, `hooks.source.json`, `scripts/*.sh`, `scripts/*.ps1`.
-
-Generated, never edit: `hooks/`, `scripts/*.cmd`, `.cursor-plugin/`, `.codex-plugin/`, `com.anthropic.claude-code/`, `com.openai.codex/`, `com.github.copilot/`.
-
-See [ADD-SKILL.md](../../docs/ADD-SKILL.md), [ADD-HOOK.md](../../docs/ADD-HOOK.md), [ADD-AGENT.md](../../docs/ADD-AGENT.md) and [ADD-RULE.md](../../docs/ADD-RULE.md).
+See [ADD-SKILL.md](../../docs/ADD-SKILL.md), [ADD-HOOK.md](../../docs/ADD-HOOK.md), [ADD-AGENT.md](../../docs/ADD-AGENT.md), and [ADD-RULE.md](../../docs/ADD-RULE.md).

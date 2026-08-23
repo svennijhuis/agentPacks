@@ -18,14 +18,14 @@ public sealed class HookDialectTests
     public static TheoryData<string, string, string, string, string> EventMappings() => new()
     {
         // neutral, Claude, Cursor, Codex, Copilot
-        { "sessionStart", "SessionStart", "sessionStart", "SessionStart", "sessionStart" },
-        { "sessionEnd", "SessionEnd", "sessionEnd", "SessionEnd", "sessionEnd" },
-        { "userPromptSubmit", "UserPromptSubmit", "beforeSubmitPrompt", "UserPromptSubmit", "userPromptSubmit" },
-        { "stop", "Stop", "stop", "Stop", "stop" },
-        { "preToolUse", "PreToolUse", "preToolUse", "PreToolUse", "preToolUse" },
-        { "postToolUse", "PostToolUse", "postToolUse", "PostToolUse", "postToolUse" },
-        { "beforeShellExecution", "PreToolUse", "beforeShellExecution", "PreToolUse", "preToolUse" },
-        { "afterFileEdit", "PostToolUse", "afterFileEdit", "PostToolUse", "postToolUse" }
+        { "sessionStart", "SessionStart", "sessionStart", "SessionStart", "SessionStart" },
+        { "sessionEnd", "SessionEnd", "sessionEnd", "SessionEnd", "SessionEnd" },
+        { "userPromptSubmit", "UserPromptSubmit", "beforeSubmitPrompt", "UserPromptSubmit", "UserPromptSubmit" },
+        { "stop", "Stop", "stop", "Stop", "Stop" },
+        { "preToolUse", "PreToolUse", "preToolUse", "PreToolUse", "PreToolUse" },
+        { "postToolUse", "PostToolUse", "postToolUse", "PostToolUse", "PostToolUse" },
+        { "beforeShellExecution", "PreToolUse", "beforeShellExecution", "PreToolUse", "PreToolUse" },
+        { "afterFileEdit", "PostToolUse", "afterFileEdit", "PostToolUse", "PostToolUse" }
     };
 
     [Theory]
@@ -129,7 +129,7 @@ public sealed class HookDialectTests
         var run = repo.WithValidPlugin().WithHook("preToolUse", "Read").ValidateAndGenerate();
 
         foreach (var (path, name) in ((string, string)[])
-                 [(ClaudeHooks, "PreToolUse"), (CodexHooks, "PreToolUse"), (CopilotHooks, "preToolUse")])
+                 [(ClaudeHooks, "PreToolUse"), (CodexHooks, "PreToolUse")])
         {
             var group = (JsonObject)Events(run, path)[name]![0]!;
             var command = ((JsonArray)group["hooks"]!)[0]!["command"]!.GetValue<string>();
@@ -137,6 +137,12 @@ public sealed class HookDialectTests
             Assert.Equal("Read", group["matcher"]!.GetValue<string>());
             Assert.DoesNotContain("-Matcher", command, StringComparison.Ordinal);
         }
+
+        // Copilot puts the entry and its matcher flat under the event, with no group around them.
+        var copilot = (JsonObject)Events(run, CopilotHooks)["PreToolUse"]![0]!;
+
+        Assert.Equal("Read", copilot["matcher"]!.GetValue<string>());
+        Assert.DoesNotContain("-Matcher", copilot["bash"]!.GetValue<string>(), StringComparison.Ordinal);
     }
 
     [Fact]
@@ -151,24 +157,61 @@ public sealed class HookDialectTests
     }
 
     /// <summary>
-    /// Codex is the only client with a per-OS command field. The others rely on the generated .cmd
-    /// shim, so emitting commandWindows for them would be a key they silently ignore.
+    /// Codex and Copilot each have a per-OS command field, spelled differently: Codex reads a full
+    /// shell invocation from "commandWindows", Copilot reads the PowerShell command itself from
+    /// "powershell". Claude and Cursor have neither and rely on the generated .cmd shim, so
+    /// emitting either key for them would be a key they silently ignore.
     /// </summary>
     [Fact]
-    public void Only_codex_carries_a_windows_command()
+    public void Codex_and_copilot_carry_a_windows_command_in_their_own_spelling()
     {
         using var repo = new TestRepository();
         var run = repo.WithValidPlugin().WithHook("sessionStart").ValidateAndGenerate();
 
         var codex = (JsonObject)((JsonArray)Events(run, CodexHooks)["SessionStart"]![0]!["hooks"]!)[0]!;
         var claude = (JsonObject)((JsonArray)Events(run, ClaudeHooks)["SessionStart"]![0]!["hooks"]!)[0]!;
-        var copilot = (JsonObject)((JsonArray)Events(run, CopilotHooks)["sessionStart"]![0]!["hooks"]!)[0]!;
+        var copilot = (JsonObject)Events(run, CopilotHooks)["SessionStart"]![0]!;
         var cursor = (JsonObject)Events(run, CursorHooks)["sessionStart"]![0]!;
 
-        Assert.Contains("guard.ps1", codex["commandWindows"]!.GetValue<string>(), StringComparison.Ordinal);
+        var codexWindows = codex["commandWindows"]!.GetValue<string>();
+        var copilotWindows = copilot["powershell"]!.GetValue<string>();
+
+        Assert.Contains("guard.ps1", codexWindows, StringComparison.Ordinal);
+        Assert.StartsWith("powershell -NoProfile", codexWindows, StringComparison.Ordinal);
+
+        // Already a PowerShell context, so the interpreter is not named a second time.
+        Assert.Contains("guard.ps1", copilotWindows, StringComparison.Ordinal);
+        Assert.StartsWith("& ", copilotWindows, StringComparison.Ordinal);
+
         Assert.Null(claude["commandWindows"]);
+        Assert.Null(claude["powershell"]);
         Assert.Null(copilot["commandWindows"]);
         Assert.Null(cursor["commandWindows"]);
+        Assert.Null(cursor["powershell"]);
+    }
+
+    /// <summary>
+    /// Copilot's hook document declares its format version and puts entries flat under the event.
+    /// The other three carry neither, and a version key they do not read is a key that can only
+    /// confuse a schema check.
+    /// </summary>
+    [Fact]
+    public void Only_the_copilot_hook_document_declares_a_version()
+    {
+        using var repo = new TestRepository();
+        var run = repo.WithValidPlugin().WithHook("sessionStart").ValidateAndGenerate();
+
+        Assert.Equal(1, run.File(CopilotHooks).Content["version"]!.GetValue<int>());
+        Assert.Null(run.File(ClaudeHooks).Content["version"]);
+        Assert.Null(run.File(CodexHooks).Content["version"]);
+        Assert.Null(run.File(CursorHooks).Content["version"]);
+
+        // Flat: the entry itself, not a matcher group wrapping a nested "hooks" array.
+        var entry = (JsonObject)Events(run, CopilotHooks)["SessionStart"]![0]!;
+
+        Assert.Null(entry["hooks"]);
+        Assert.Equal("command", entry["type"]!.GetValue<string>());
+        Assert.Contains("${PLUGIN_ROOT}/scripts/", entry["bash"]!.GetValue<string>(), StringComparison.Ordinal);
     }
 
     /// <summary>The command is extensionless so cmd.exe can resolve the .cmd shim through PATHEXT.</summary>
@@ -182,6 +225,18 @@ public sealed class HookDialectTests
             .GetValue<string>();
 
         Assert.Equal("\"${CLAUDE_PLUGIN_ROOT}/scripts/guard\"", claude);
+    }
+
+    [Fact]
+    public void Codex_commands_use_the_installed_plugin_root_on_both_platforms()
+    {
+        using var repo = new TestRepository();
+        var run = repo.WithValidPlugin().WithHook("sessionStart").ValidateAndGenerate();
+
+        var command = (JsonObject)((JsonArray)Events(run, CodexHooks)["SessionStart"]![0]!["hooks"]!)[0]!;
+
+        Assert.Equal("\"${PLUGIN_ROOT}/scripts/guard\"", command["command"]!.GetValue<string>());
+        Assert.Contains("\"${PLUGIN_ROOT}/scripts/guard.ps1\"", command["commandWindows"]!.GetValue<string>());
     }
 
     /// <summary>
@@ -243,6 +298,42 @@ public sealed class HookDialectTests
         Assert.StartsWith("-", HookDialect.MatcherArgument, StringComparison.Ordinal);
         Assert.DoesNotContain("--", HookDialect.MatcherArgument, StringComparison.Ordinal);
         Assert.Contains("-Matcher \"rm +-rf\"", windows, StringComparison.Ordinal);
+    }
+
+    /// <summary>
+    /// PascalCase PreToolUse events use the Claude-compatible Bash matcher. Copilot's lowercase
+    /// bash and powershell fields are commands, not matcher tool names.
+    /// </summary>
+    [Theory]
+    [InlineData(ClaudeHooks, "Bash")]
+    [InlineData(CodexHooks, "Bash")]
+    [InlineData(CopilotHooks, "Bash")]
+    public void PascalCase_shell_hooks_use_the_Bash_matcher_alias(string path, string expected)
+    {
+        using var repo = new TestRepository();
+        var run = repo.WithValidPlugin().WithHook("beforeShellExecution", "git +reset").ValidateAndGenerate();
+
+        var entry = (JsonObject)Events(run, path)["PreToolUse"]![0]!;
+
+        Assert.Equal(expected, entry["matcher"]!.GetValue<string>());
+    }
+
+    /// <summary>
+    /// Copilot's PascalCase PostToolUse event uses the Claude-compatible Write and Edit aliases;
+    /// camelCase runtime tool names must not be mixed into this matcher vocabulary.
+    /// </summary>
+    [Theory]
+    [InlineData(ClaudeHooks, "Write|Edit")]
+    [InlineData(CodexHooks, "apply_patch")]
+    [InlineData(CopilotHooks, "Write|Edit")]
+    public void File_edit_hooks_use_the_provider_event_matcher_vocabulary(string path, string expected)
+    {
+        using var repo = new TestRepository();
+        var run = repo.WithValidPlugin().WithHook("afterFileEdit").ValidateAndGenerate();
+
+        var entry = (JsonObject)Events(run, path)["PostToolUse"]![0]!;
+
+        Assert.Equal(expected, entry["matcher"]!.GetValue<string>());
     }
 
     [Fact]

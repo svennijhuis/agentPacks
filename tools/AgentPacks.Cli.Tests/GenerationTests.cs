@@ -179,7 +179,7 @@ public class GenerationTests
 
         var run = repo.ValidateAndGenerate();
 
-        Assert.Contains(run.Diagnostics, d => d.Message.Contains("not for a Claude or Copilot"));
+        Assert.Contains(run.Diagnostics, d => d.Message.Contains("not for the generated provider"));
     }
 
     [Fact]

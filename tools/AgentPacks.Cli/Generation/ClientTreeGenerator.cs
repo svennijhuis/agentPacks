@@ -6,8 +6,8 @@ namespace AgentPacks.Cli.Generation;
 
 /// <summary>
 /// Builds every client tree from the neutral source: the four hook dialects, the per-client agent
-/// and command formats, the rule translations, and the manifests that point Claude and Codex away
-/// from the plugin root that Cursor owns.
+/// and command formats, rule translations, and the manifests/catalogs that route each provider to
+/// its own dialect.
 /// </summary>
 internal sealed class ClientTreeGenerator(RepositoryContext context)
 {
@@ -38,9 +38,11 @@ internal sealed class ClientTreeGenerator(RepositoryContext context)
                 Path.Combine(root, pluginRelative.Replace('/', Path.DirectorySeparatorChar)),
                 content));
 
-        // Claude is handled inside GenerateClaude: its hooks file also carries the generated rules
-        // hook, and emitting the same path twice would write it twice and diff it against itself.
-        foreach (var profile in ClientProfile.All.Where(p => p.Client != Client.Claude))
+        // Claude and Copilot are handled inside their own methods: their hooks files also carry
+        // the generated rules hook, and emitting the same path twice would write it twice and diff
+        // it against itself.
+        foreach (var profile in ClientProfile.All
+                     .Where(p => p.Client is not (Client.Claude or Client.Copilot)))
         {
             if (HookGenerator.Build(plugin, profile) is { } hooks)
             {
@@ -51,8 +53,20 @@ internal sealed class ClientTreeGenerator(RepositoryContext context)
         GenerateClaude(plugin, Add, AddJson);
         GenerateCursor(plugin, AddJson);
         GenerateCodex(plugin, Add, AddJson);
-        GenerateCopilot(plugin, Add);
+        GenerateCopilot(plugin, Add, AddJson);
         GenerateShims(plugin, Add);
+
+        // Warned once per rule, not once per client: only Cursor has a path-scoped rule concept,
+        // so a rule carrying 'globs' reaches one of the four and silently does nothing on three.
+        foreach (var scoped in plugin.Rules.Except(AlwaysApplyRules(plugin)))
+        {
+            context.Diagnostics.Warning(
+                context.Relative(scoped.FilePath),
+                "is scoped with 'globs'. Only Cursor has a path-scoped rule concept, so this rule " +
+                "is generated for Cursor alone. Claude and Copilot receive always-on rules as a " +
+                "SessionStart hook, which cannot carry a path scope, and Codex receives them in " +
+                "AGENTS.md. Drop 'globs' to reach every client.");
+        }
     }
 
     // ---------------------------------------------------------------- Claude
@@ -101,17 +115,29 @@ internal sealed class ClientTreeGenerator(RepositoryContext context)
                 false);
         }
 
-        var always = AlwaysApplyRules(plugin);
+        GenerateRulesContext(plugin, profile, add, addJson);
+    }
 
-        // Warned before the early return: a plugin whose rules are all path-scoped generates
-        // nothing for Claude, which is exactly the case the author most needs to hear about.
-        foreach (var scoped in plugin.Rules.Except(always))
-        {
-            context.Diagnostics.Warning(
-                context.Relative(scoped.FilePath),
-                "is scoped with 'globs'. Claude has no path-scoped rule concept, so this rule is " +
-                "not generated for Claude. Cursor and Copilot still receive it.");
-        }
+    /// <summary>
+    /// Claude names its tools in PascalCase. The vocabulary is <see cref="NeutralTools"/>, shared
+    /// with the validator that rejects anything outside it, so the pass-through below is reached
+    /// only by a name validation already refused.
+    /// </summary>
+    private static IEnumerable<string> ClaudeTools(IEnumerable<string> tools) =>
+        tools.Select(tool => NeutralTools.Claude.TryGetValue(tool, out var claude) ? claude : tool);
+
+    /// <summary>
+    /// Turns always-on rules into a SessionStart hook that prints them as context, and writes the
+    /// client's hooks document. Claude and Copilot both land here: neither has a rules component a
+    /// plugin can declare, and a hook that prints the text is the only carrier both accept.
+    /// </summary>
+    private void GenerateRulesContext(
+        PluginPackage plugin,
+        ClientProfile profile,
+        Action<string, string, bool> add,
+        Action<string, JsonNode> addJson)
+    {
+        var always = AlwaysApplyRules(plugin);
 
         if (always.Count == 0)
         {
@@ -130,58 +156,23 @@ internal sealed class ClientTreeGenerator(RepositoryContext context)
         add(profile.PluginRelative("scripts/rules-context"), Dispatcher("rules-context"), true);
         add(profile.PluginRelative("scripts/rules-context.cmd"), ShimCommand("rules-context"), false);
 
-        addJson(profile.PluginRelative("hooks/hooks.json"), ClaudeHooksWithRules(plugin, profile));
+        addJson(profile.PluginRelative("hooks/hooks.json"), HooksWithRules(plugin, profile));
     }
 
-    /// <summary>
-    /// Claude names its tools in PascalCase. The neutral format is lowercase because that is what
-    /// Cursor and Codex use, so the well-known ones are mapped and anything else passes through.
-    /// </summary>
-    private static IEnumerable<string> ClaudeTools(IEnumerable<string> tools) =>
-        tools.Select(tool => tool switch
-        {
-            "read" => "Read",
-            "write" => "Write",
-            "edit" => "Edit",
-            "grep" => "Grep",
-            "glob" => "Glob",
-            "bash" => "Bash",
-            "web" => "WebFetch",
-            _ => tool
-        });
-
     /// <summary>Merges the generated rules hook into whatever the author declared.</summary>
-    private static JsonObject ClaudeHooksWithRules(PluginPackage plugin, ClientProfile profile)
+    private static JsonObject HooksWithRules(PluginPackage plugin, ClientProfile profile)
     {
-        var document = HookGenerator.Build(plugin, profile) ?? new JsonObject { ["hooks"] = new JsonObject() };
+        var document = HookGenerator.Build(plugin, profile) ?? HookGenerator.EmptyDocument(profile);
         var hooks = (JsonObject)document["hooks"]!;
+        var sessionStart = HookDialect.Event("sessionStart")!.Targets[profile.Client].Event;
 
-        var command = new JsonObject
-        {
-            ["type"] = "command",
-            ["command"] = $"\"{profile.PluginRootToken}/{profile.Directory}/scripts/rules-context\""
-        };
-
-        if (hooks["SessionStart"] is not JsonArray existing)
+        if (hooks[sessionStart] is not JsonArray existing)
         {
             existing = [];
-            hooks["SessionStart"] = existing;
+            hooks[sessionStart] = existing;
         }
 
-        // The rules hook carries no matcher, so it belongs in the matcher-less group rather than in
-        // a second one beside it: Claude groups by matcher, and two groups with the same matcher
-        // mean one of them silently wins.
-        var group = existing
-            .OfType<JsonObject>()
-            .FirstOrDefault(candidate => candidate["matcher"] is null);
-
-        if (group is null)
-        {
-            group = new JsonObject { ["hooks"] = new JsonArray() };
-            existing.Add(group);
-        }
-
-        ((JsonArray)group["hooks"]!).Add(command);
+        HookGenerator.AppendRulesCommand(existing, profile, $"{profile.Directory}/scripts/rules-context");
 
         return document;
     }
@@ -189,9 +180,9 @@ internal sealed class ClientTreeGenerator(RepositoryContext context)
     private static string RulesScriptPosix(string text) =>
         """
         #!/usr/bin/env bash
-        # Generated from the plugin's alwaysApply rules. Claude has no rules component, so the rules
-        # are printed at SessionStart as additional context. Editing this file is pointless: it is
-        # regenerated from rules/*.mdc.
+        # Generated from the plugin's alwaysApply rules. This client has no rules component, so the
+        # rules are printed at SessionStart as additional context. Editing this file is pointless:
+        # it is regenerated from rules/*.mdc.
         set -euo pipefail
 
         cat <<'AGENTPACKS_RULES'
@@ -199,9 +190,9 @@ internal sealed class ClientTreeGenerator(RepositoryContext context)
 
     private static string RulesScriptPowerShell(string text) =>
         """
-        # Generated from the plugin's alwaysApply rules. Claude has no rules component, so the rules
-        # are printed at SessionStart as additional context. Editing this file is pointless: it is
-        # regenerated from rules/*.mdc.
+        # Generated from the plugin's alwaysApply rules. This client has no rules component, so the
+        # rules are printed at SessionStart as additional context. Editing this file is pointless:
+        # it is regenerated from rules/*.mdc.
         $ErrorActionPreference = 'Stop'
 
         Write-Output @'
@@ -254,7 +245,8 @@ internal sealed class ClientTreeGenerator(RepositoryContext context)
             ["name"] = plugin.Name ?? plugin.DirectoryName
         };
 
-        foreach (var field in (string[])["version", "description"])
+        foreach (var field in (string[])
+                 ["version", "description", "author", "homepage", "repository", "license", "keywords"])
         {
             if (manifest[field] is { } value)
             {
@@ -270,10 +262,53 @@ internal sealed class ClientTreeGenerator(RepositoryContext context)
         // Keyed on what the generator actually produces, not on the source file existing: an event
         // declared with an empty entry array yields no hooks.json, and a manifest pointing at a
         // file that was never written fails the plugin at install time.
-        if (HookGenerator.Build(plugin, profile) is not null)
+        var hasHooks = HookGenerator.Build(plugin, profile) is not null;
+
+        if (hasHooks)
         {
             codex["hooks"] = $"./{profile.Directory}/hooks/hooks.json";
         }
+
+        var hasMcp = plugin.Mcp?["mcpServers"] is JsonObject servers && servers.Count > 0;
+
+        if (hasMcp)
+        {
+            codex["mcpServers"] = "./.mcp.json";
+        }
+
+        var description = manifest["description"]?.GetValue<string>() ?? plugin.DirectoryName;
+        var developer = manifest["author"]?["name"]?.GetValue<string>() ?? "agentPacks Maintainers";
+        var displayName = string.Join(' ', (plugin.Name ?? plugin.DirectoryName)
+            .Split('-', StringSplitOptions.RemoveEmptyEntries)
+            .Select(part => char.ToUpperInvariant(part[0]) + part[1..]));
+
+        var capabilities = new JsonArray();
+
+        if (plugin.HasSkillsDirectory)
+        {
+            capabilities.Add("Skills");
+        }
+
+        if (hasHooks)
+        {
+            capabilities.Add("Hooks");
+        }
+
+        if (hasMcp)
+        {
+            capabilities.Add("MCP");
+        }
+
+        codex["interface"] = new JsonObject
+        {
+            ["displayName"] = displayName,
+            ["shortDescription"] = description,
+            ["longDescription"] = description,
+            ["developerName"] = developer,
+            ["category"] = "Productivity",
+            ["capabilities"] = capabilities,
+            ["defaultPrompt"] = new JsonArray($"Use the {displayName} plugin when it is relevant to this task.")
+        };
 
         addJson(".codex-plugin/plugin.json", codex);
 
@@ -314,10 +349,15 @@ internal sealed class ClientTreeGenerator(RepositoryContext context)
     // ---------------------------------------------------------------- Copilot
 
     /// <summary>
-    /// Copilot takes its client-specific components from its reverse-domain namespace: agents carry
-    /// the .agent.md extension, and rules become instruction files scoped by applyTo.
+    /// Copilot takes its client-specific components from its reverse-domain namespace, and agents
+    /// carry the .agent.md extension. Rules go the same way they do for Claude: Copilot's plugin
+    /// schema declares agents, skills, commands, hooks, mcpServers and lspServers and nothing for
+    /// instructions, so an instructions file inside the plugin is a file nothing ever loads.
     /// </summary>
-    private static void GenerateCopilot(PluginPackage plugin, Action<string, string, bool> add)
+    private void GenerateCopilot(
+        PluginPackage plugin,
+        Action<string, string, bool> add,
+        Action<string, JsonNode> addJson)
     {
         var profile = ClientProfile.Copilot;
 
@@ -352,21 +392,7 @@ internal sealed class ClientTreeGenerator(RepositoryContext context)
                 false);
         }
 
-        foreach (var rule in plugin.Rules)
-        {
-            var globs = ComponentWriter.Sequence(rule, "globs");
-            var applyTo = globs.Count > 0 ? string.Join(",", globs) : "**";
-
-            add(
-                profile.PluginRelative($"instructions/{rule.FileName}.instructions.md"),
-                ComponentWriter.Markdown(
-                    [
-                        new("description", ComponentWriter.Yaml(rule.Description)),
-                        new("applyTo", ComponentWriter.Yaml(applyTo))
-                    ],
-                    rule.Body),
-                false);
-        }
+        GenerateRulesContext(plugin, profile, add, addJson);
     }
 
     // ---------------------------------------------------------------- Shared

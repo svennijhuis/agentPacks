@@ -14,6 +14,10 @@ internal sealed class RepositoryContext
 
     public string MarketplaceRelativePath => Path.Combine(".claude-plugin", "marketplace.json");
 
+    public string CodexMarketplaceRelativePath => Path.Combine(".agents", "plugins", "marketplace.json");
+
+    public string CopilotMarketplaceRelativePath => Path.Combine(".github", "plugin", "marketplace.json");
+
     public DiagnosticCollector Diagnostics { get; } = new();
 
     public string Relative(string path) => PathUtils.Relative(Root, path);

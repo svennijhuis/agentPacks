@@ -52,6 +52,66 @@ public sealed class ComponentGenerationTests
     }
 
     /// <summary>
+    /// The two web tools are separate capabilities in Claude and a single unmapped name is not an
+    /// error anywhere: validation passes, generation passes, and Claude drops the tool it does not
+    /// recognise. An agent that was given web access silently loses it, which is why the mapping is
+    /// asserted rather than assumed.
+    /// </summary>
+    [Fact]
+    public void Web_tools_are_translated_into_claude_tool_names()
+    {
+        using var repo = new TestRepository();
+
+        var run = repo.WithValidPlugin()
+            .WithAgent("researcher", extraFrontmatter: "tools:\n  - websearch\n  - webfetch")
+            .ValidateAndGenerate();
+
+        var claude = run.File($"{Plugin}/com.anthropic.claude-code/agents/researcher.md").Text;
+
+        Assert.Contains("tools: [\"WebSearch\", \"WebFetch\"]", claude, StringComparison.Ordinal);
+    }
+
+    /// <summary>
+    /// The mistake no client reports: Claude drops a tool name it does not recognise and the other
+    /// three pass the list through, so a typo generates cleanly and costs the agent a capability
+    /// with nothing printed. The neutral vocabulary is closed here so the typo fails the build.
+    /// </summary>
+    [Theory]
+    [InlineData("Read")]
+    [InlineData("web")]
+    [InlineData("web_search")]
+    [InlineData("websearchh")]
+    public void An_unknown_tool_name_is_rejected(string tool)
+    {
+        using var repo = new TestRepository();
+
+        var run = repo.WithValidPlugin()
+            .WithAgent("reviewer", extraFrontmatter: $"tools:\n  - {tool}")
+            .ValidateAndGenerate();
+
+        Assert.True(run.HasErrors, run.Text);
+        Assert.Contains($"unknown tool '{tool}'", run.Text, StringComparison.Ordinal);
+    }
+
+    /// <summary>
+    /// The read-only check matches declared names against the writing tools, so a misspelt writing
+    /// tool would pass it while the generated agent still gets whatever the client makes of the
+    /// name. Closing the vocabulary closes that path too.
+    /// </summary>
+    [Fact]
+    public void A_read_only_agent_cannot_slip_a_misspelt_writing_tool_past_the_check()
+    {
+        using var repo = new TestRepository();
+
+        var run = repo.WithValidPlugin()
+            .WithAgent("reviewer", extraFrontmatter: "readonly: true\ntools:\n  - read\n  - Write")
+            .ValidateAndGenerate();
+
+        Assert.True(run.HasErrors, run.Text);
+        Assert.Contains("unknown tool 'Write'", run.Text, StringComparison.Ordinal);
+    }
+
+    /// <summary>
     /// 'readonly' is Cursor's key. Copying it into a Claude or Copilot agent would put a key in the
     /// frontmatter that neither reads, which looks like a working restriction and is not one. What
     /// carries the restriction into every client is the tool list, which ComponentValidator forces
@@ -126,32 +186,45 @@ public sealed class ComponentGenerationTests
     // ------------------------------------------------------------------ rules
 
     /// <summary>
-    /// Copilot expresses scope as applyTo. An always-on rule has no globs, so it becomes the
-    /// everything glob rather than being emitted without a scope, which Copilot would not apply.
+    /// Copilot's plugin schema declares agents, skills, commands, hooks, mcpServers and lspServers
+    /// — and nothing for instructions. An instructions file inside a plugin is therefore a file no
+    /// manifest can point at and nothing ever loads, so rules take the same route they take for
+    /// Claude: a SessionStart hook that prints them.
     /// </summary>
     [Fact]
-    public void An_always_on_rule_becomes_copilot_instructions_scoped_to_everything()
+    public void An_always_on_rule_reaches_copilot_as_a_session_start_hook()
     {
         using var repo = new TestRepository();
-        var run = repo.WithValidPlugin().WithRule("standards").ValidateAndGenerate();
+        var run = repo.WithValidPlugin().WithRule("standards", body: "- Changes do one thing.")
+            .ValidateAndGenerate();
 
-        var instructions = run.File($"{Plugin}/com.github.copilot/instructions/standards.instructions.md").Text;
+        var script = run.File($"{Plugin}/com.github.copilot/scripts/rules-context.sh").Text;
+        var entry = (JsonObject)run.File($"{Plugin}/com.github.copilot/hooks/hooks.json")
+            .Content["hooks"]!["SessionStart"]![0]!;
 
-        Assert.Contains("applyTo: \"**\"", instructions, StringComparison.Ordinal);
+        Assert.Contains("- Changes do one thing.", script, StringComparison.Ordinal);
+        Assert.Contains(
+            "${PLUGIN_ROOT}/com.github.copilot/scripts/rules-context",
+            entry["bash"]!.GetValue<string>(),
+            StringComparison.Ordinal);
     }
 
+    /// <summary>
+    /// The unroutable path must stay gone: regenerating it would ship a file into the marketplace
+    /// that no Copilot manifest key can declare.
+    /// </summary>
     [Fact]
-    public void A_scoped_rule_carries_its_globs_into_copilot_instructions()
+    public void No_rule_is_written_as_a_copilot_instructions_file()
     {
         using var repo = new TestRepository();
 
         var run = repo.WithValidPlugin()
+            .WithRule("standards")
             .WithRule("checklist", scope: "globs:\n  - \"**/*.cs\"\n  - \"**/*.ts\"")
             .ValidateAndGenerate();
 
-        var instructions = run.File($"{Plugin}/com.github.copilot/instructions/checklist.instructions.md").Text;
-
-        Assert.Contains("applyTo: \"**/*.cs,**/*.ts\"", instructions, StringComparison.Ordinal);
+        Assert.False(run.HasFile($"{Plugin}/com.github.copilot/instructions/standards.instructions.md"));
+        Assert.False(run.HasFile($"{Plugin}/com.github.copilot/instructions/checklist.instructions.md"));
     }
 
     /// <summary>
@@ -201,7 +274,7 @@ public sealed class ComponentGenerationTests
             .ValidateAndGenerate();
 
         Assert.False(run.HasErrors, run.Text);
-        Assert.Contains("Claude has no path-scoped rule concept", run.Text, StringComparison.Ordinal);
+        Assert.Contains("Only Cursor has a path-scoped rule concept", run.Text, StringComparison.Ordinal);
         Assert.DoesNotContain(
             "checklist",
             run.File($"{Plugin}/com.anthropic.claude-code/scripts/rules-context.sh").Text,
@@ -320,11 +393,11 @@ public sealed class ComponentGenerationTests
 
     /// <summary>
     /// The warning is the only signal a scoped rule gives, and it is most needed when there is no
-    /// always-on rule to generate: nothing at all reaches Claude, and the generator would otherwise
-    /// return before saying so.
+    /// always-on rule to generate: three of the four clients get nothing at all, and the generator
+    /// would otherwise return before saying so.
     /// </summary>
     [Fact]
-    public void A_plugin_with_only_scoped_rules_still_warns_about_claude()
+    public void A_plugin_with_only_scoped_rules_still_warns()
     {
         using var repo = new TestRepository();
 
@@ -333,9 +406,13 @@ public sealed class ComponentGenerationTests
             .ValidateAndGenerate();
 
         Assert.False(run.HasErrors, run.Text);
-        Assert.Contains("Claude has no path-scoped rule concept", run.Text, StringComparison.Ordinal);
+        Assert.Contains("Only Cursor has a path-scoped rule concept", run.Text, StringComparison.Ordinal);
+
+        // Cursor reads the authored rules/ directly, so nothing is generated for it either. The
+        // other three get no rules file at all, which is exactly what the warning is for.
         Assert.False(run.HasFile($"{Plugin}/com.anthropic.claude-code/scripts/rules-context.sh"));
-        Assert.True(run.HasFile($"{Plugin}/com.github.copilot/instructions/checklist.instructions.md"));
+        Assert.False(run.HasFile($"{Plugin}/com.github.copilot/scripts/rules-context.sh"));
+        Assert.False(run.HasFile($"{Plugin}/com.openai.codex/AGENTS.md"));
     }
 
     /// <summary>

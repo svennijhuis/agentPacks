@@ -4,7 +4,7 @@ namespace AgentPacks.Cli.Generation;
 /// The plugin-relative locations the generators own. Everything matching one of these is derived
 /// from the authored source, so a file found there that the current run does not produce is stale
 /// and gets deleted. Authored content (plugin.json, skills/, rules/, agents/, commands/, mcp.json,
-/// hooks.source.json, scripts/*.sh, scripts/*.ps1) never matches.
+/// hooks.source.json, standards.source.json, standards/, scripts/*.sh, scripts/*.ps1) never matches.
 /// </summary>
 internal static class GeneratedPaths
 {
@@ -35,6 +35,18 @@ internal static class GeneratedPaths
         {
             return path.EndsWith(".cmd", StringComparison.Ordinal)
                 || Path.GetExtension(path).Length == 0;
+        }
+
+        // Only this nested directory is generated. A skill may keep any other authored references
+        // beside it without the staleness sweep touching them.
+        var segments = path.Split('/');
+
+        if (segments.Length >= 5 &&
+            segments[0] == "skills" &&
+            segments[2] == "references" &&
+            segments[3] == "standards")
+        {
+            return true;
         }
 
         return OwnedDirectories.Any(directory =>

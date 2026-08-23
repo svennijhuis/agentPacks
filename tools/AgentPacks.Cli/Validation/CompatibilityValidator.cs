@@ -8,8 +8,8 @@ namespace AgentPacks.Cli.Validation;
 /// <summary>
 /// Checks the generated output against what the target clients accept. This is where portable-but-
 /// incompatible input is caught: Agent Plugins permits periods in a plugin name, so "acme.tools"
-/// is a legal plugin that a Claude or Copilot marketplace would reject. Failing here beats failing
-/// on a developer's machine at install time.
+/// is a legal plugin that provider marketplaces reject. Failing here beats failing on a
+/// developer's machine at install time.
 /// </summary>
 internal sealed class CompatibilityValidator(RepositoryContext context)
 {
@@ -27,10 +27,80 @@ internal sealed class CompatibilityValidator(RepositoryContext context)
             {
                 ValidateGeneratedHooks(file);
             }
-            else if (string.Equals(relative, context.MarketplaceRelativePath.Replace('\\', '/'), StringComparison.Ordinal))
+            else if (string.Equals(relative, context.CodexMarketplaceRelativePath.Replace('\\', '/'), StringComparison.Ordinal))
+            {
+                ValidateCodexMarketplace(file);
+            }
+            else if (string.Equals(relative, context.MarketplaceRelativePath.Replace('\\', '/'), StringComparison.Ordinal)
+                     || string.Equals(relative, context.CopilotMarketplaceRelativePath.Replace('\\', '/'), StringComparison.Ordinal))
             {
                 ValidateMarketplace(file);
             }
+        }
+    }
+
+    private void ValidateCodexMarketplace(GeneratedFile file)
+    {
+        var path = file.RelativePath.Replace('\\', '/');
+
+        if (file.Content is not JsonObject marketplace ||
+            string.IsNullOrWhiteSpace(marketplace["name"]?.GetValue<string>()) ||
+            marketplace["interface"]?["displayName"] is null ||
+            marketplace["plugins"] is not JsonArray plugins)
+        {
+            context.Diagnostics.Policy(
+                path,
+                "generated Codex marketplace must define name, interface.displayName and plugins.");
+            return;
+        }
+
+        var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+        foreach (var entry in plugins.OfType<JsonObject>())
+        {
+            var name = entry["name"]?.GetValue<string>();
+
+            if (string.IsNullOrWhiteSpace(name) || !seen.Add(name))
+            {
+                context.Diagnostics.Policy(path, "every Codex plugin entry must have a unique non-empty name.");
+                continue;
+            }
+
+            if (entry["source"] is not JsonObject source ||
+                source["source"]?.GetValue<string>() != "local" ||
+                string.IsNullOrWhiteSpace(source["path"]?.GetValue<string>()))
+            {
+                context.Diagnostics.Policy(path, $"Codex plugin entry '{name}' must define a local source path.");
+            }
+            else
+            {
+                ValidateLocalPath(source["path"]!.GetValue<string>(), name, path);
+            }
+
+            if (entry["policy"]?["installation"] is null || entry["policy"]?["authentication"] is null)
+            {
+                context.Diagnostics.Policy(path, $"Codex plugin entry '{name}' must define its install and auth policy.");
+            }
+
+            if (string.IsNullOrWhiteSpace(entry["category"]?.GetValue<string>()))
+            {
+                context.Diagnostics.Policy(path, $"Codex plugin entry '{name}' must define a category.");
+            }
+        }
+    }
+
+    private void ValidateLocalPath(string source, string name, string path)
+    {
+        if (!source.StartsWith("./", StringComparison.Ordinal) || PathUtils.HasTraversalSegment(source))
+        {
+            context.Diagnostics.Policy(
+                path, $"Codex plugin entry '{name}' source '{source}' must stay inside the marketplace root.");
+            return;
+        }
+
+        if (!Directory.Exists(Path.Combine(context.Root, source[2..])))
+        {
+            context.Diagnostics.Policy(path, $"Codex plugin entry '{name}' source '{source}' does not exist.");
         }
     }
 
@@ -85,8 +155,8 @@ internal sealed class CompatibilityValidator(RepositoryContext context)
         {
             context.Diagnostics.Policy(
                 path,
-                $"plugin name '{name}' is valid for Agent Plugins but not for a Claude or Copilot " +
-                "marketplace, which require kebab-case names without periods. Rename the plugin.");
+                $"plugin name '{name}' is valid for Agent Plugins but not for the generated provider " +
+                "marketplaces, which require kebab-case names without periods. Rename the plugin.");
         }
 
         if (seen.TryGetValue(name, out var existing))
@@ -261,9 +331,10 @@ internal sealed class CompatibilityValidator(RepositoryContext context)
     }
 
     /// <summary>
-    /// Commands in an entry, flattening the nested dialects into the flat one. 'command' is
-    /// required and reported when missing; 'commandWindows' is Codex-only, so it is checked when
-    /// present and never demanded.
+    /// Commands in an entry, flattening the nested dialects into the flat one. The POSIX command
+    /// is required and reported when missing, but its key differs by client — Copilot reads
+    /// "bash" where the others read "command" — so an entry qualifies on whichever it carries.
+    /// The per-OS keys are optional and only checked when present.
     /// </summary>
     private static IEnumerable<string?> Commands(JsonObject entry)
     {
@@ -273,11 +344,14 @@ internal sealed class CompatibilityValidator(RepositoryContext context)
 
         foreach (var source in sources)
         {
-            yield return source["command"]?.GetValue<string>();
+            yield return (source["command"] ?? source["bash"])?.GetValue<string>();
 
-            if (source["commandWindows"] is { } windows)
+            foreach (var key in (string[])["commandWindows", "powershell"])
             {
-                yield return windows.GetValue<string>();
+                if (source[key] is { } windows)
+                {
+                    yield return windows.GetValue<string>();
+                }
             }
         }
     }

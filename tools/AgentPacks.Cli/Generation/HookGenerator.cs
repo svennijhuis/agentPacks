@@ -79,21 +79,28 @@ internal static class HookGenerator
             hooks[name] = entries;
         }
 
-        return new JsonObject { ["hooks"] = hooks };
+        var document = new JsonObject();
+
+        // Copilot's format carries a version; the other three reject nothing but declare none.
+        if (profile.HookDocumentVersion is { } version)
+        {
+            document["version"] = version;
+        }
+
+        document["hooks"] = hooks;
+
+        return document;
     }
 
     private static void Append(JsonArray target, ClientProfile profile, HookInvocation invocation, string? matcher)
     {
         if (!profile.NestsHooks)
         {
-            var flat = new JsonObject
-            {
-                ["type"] = "command",
-                ["command"] = Command(profile, invocation)
-            };
+            var flat = new JsonObject { ["type"] = "command" };
 
+            AddCommands(flat, profile, invocation);
             AddMatcher(flat, matcher);
-            AddTimeout(flat, invocation);
+            AddTimeout(flat, profile, invocation);
             target.Add(flat);
             return;
         }
@@ -112,18 +119,10 @@ internal static class HookGenerator
             target.Add(group);
         }
 
-        var nested = new JsonObject
-        {
-            ["type"] = "command",
-            ["command"] = Command(profile, invocation)
-        };
+        var nested = new JsonObject { ["type"] = "command" };
 
-        if (profile.SupportsWindowsCommand)
-        {
-            nested["commandWindows"] = WindowsCommand(profile, invocation);
-        }
-
-        AddTimeout(nested, invocation);
+        AddCommands(nested, profile, invocation);
+        AddTimeout(nested, profile, invocation);
         ((JsonArray)group["hooks"]!).Add(nested);
     }
 
@@ -135,11 +134,27 @@ internal static class HookGenerator
         }
     }
 
-    private static void AddTimeout(JsonObject entry, HookInvocation invocation)
+    /// <summary>
+    /// The POSIX command under whichever key this client reads, plus its Windows half where the
+    /// client has one. Claude, Cursor and Copilot have no .cmd concern for the Windows key: Codex
+    /// spells it "commandWindows" and takes a full shell invocation, while Copilot spells it
+    /// "powershell" and takes the PowerShell command itself.
+    /// </summary>
+    private static void AddCommands(JsonObject entry, ClientProfile profile, HookInvocation invocation)
+    {
+        entry[profile.CommandField] = Command(profile, invocation);
+
+        if (profile.WindowsCommandField is { } windows)
+        {
+            entry[windows] = WindowsCommand(profile, invocation);
+        }
+    }
+
+    private static void AddTimeout(JsonObject entry, ClientProfile profile, HookInvocation invocation)
     {
         if (invocation.Timeout is { } timeout)
         {
-            entry["timeout"] = timeout;
+            entry[profile.TimeoutField] = timeout;
         }
     }
 
@@ -148,28 +163,91 @@ internal static class HookGenerator
     /// scripts/&lt;name&gt; directly, and cmd.exe appends PATHEXT to find the generated
     /// scripts/&lt;name&gt;.cmd shim, so one string works on both platforms.
     /// </summary>
-    public static string Command(ClientProfile profile, HookInvocation invocation)
-    {
-        var command = $"\"{profile.PluginRootToken}/scripts/{invocation.Script}\"";
+    public static string Command(ClientProfile profile, HookInvocation invocation) =>
+        PosixCommand(profile, $"scripts/{invocation.Script}", invocation.ScriptMatcher);
 
-        return invocation.ScriptMatcher is { } matcher
-            ? $"{command} {HookDialect.MatcherArgument} \"{matcher}\""
+    /// <summary>
+    /// The Windows command, for the clients that accept a per-OS override. Codex reads a full
+    /// shell invocation, so it gets one; Copilot's "powershell" key is already a PowerShell
+    /// context, so the interpreter is not named again.
+    /// </summary>
+    public static string WindowsCommand(ClientProfile profile, HookInvocation invocation) =>
+        WindowsCommand(profile, $"scripts/{invocation.Script}", invocation.ScriptMatcher);
+
+    /// <summary>An empty document in this client's shape, for a plugin that authored no hooks.</summary>
+    public static JsonObject EmptyDocument(ClientProfile profile)
+    {
+        var document = new JsonObject();
+
+        if (profile.HookDocumentVersion is { } version)
+        {
+            document["version"] = version;
+        }
+
+        document["hooks"] = new JsonObject();
+
+        return document;
+    }
+
+    /// <summary>
+    /// Adds the generated rules hook to a SessionStart array. It carries no matcher, and its
+    /// script lives inside the client tree rather than beside the authored pairs, so it cannot go
+    /// through <see cref="HookInvocation"/> — but it must still be shaped by the same profile.
+    /// </summary>
+    public static void AppendRulesCommand(JsonArray target, ClientProfile profile, string pluginRelativeScript)
+    {
+        var entry = new JsonObject { ["type"] = "command" };
+
+        entry[profile.CommandField] = PosixCommand(profile, pluginRelativeScript, null);
+
+        if (profile.WindowsCommandField is { } windows)
+        {
+            entry[windows] = WindowsCommand(profile, pluginRelativeScript, null);
+        }
+
+        if (!profile.NestsHooks)
+        {
+            target.Add(entry);
+            return;
+        }
+
+        // The rules hook carries no matcher, so it belongs in the matcher-less group rather than in
+        // a second one beside it: nesting clients group by matcher, and two groups with the same
+        // matcher mean one of them silently wins.
+        var group = target.OfType<JsonObject>().FirstOrDefault(candidate => candidate["matcher"] is null);
+
+        if (group is null)
+        {
+            group = new JsonObject { ["hooks"] = new JsonArray() };
+            target.Add(group);
+        }
+
+        ((JsonArray)group["hooks"]!).Add(entry);
+    }
+
+    private static string PosixCommand(ClientProfile profile, string pluginRelative, string? matcher)
+    {
+        var command = $"\"{profile.PluginRootToken}/{pluginRelative}\"";
+
+        return matcher is { } value
+            ? $"{command} {HookDialect.MatcherArgument} \"{value}\""
             : command;
     }
 
-    /// <summary>The Windows command, for the one client that accepts a per-OS override.</summary>
-    public static string WindowsCommand(ClientProfile profile, HookInvocation invocation)
+    private static string WindowsCommand(ClientProfile profile, string pluginRelative, string? matcher)
     {
-        var command =
-            "powershell -NoProfile -ExecutionPolicy Bypass -File " +
-            $"\"{profile.PluginRootToken}/scripts/{invocation.Script}.ps1\"";
+        var script = $"\"{profile.PluginRootToken}/{pluginRelative}.ps1\"";
+
+        var command = profile.WindowsCommandField == "powershell"
+            ? $"& {script}"
+            : $"powershell -NoProfile -ExecutionPolicy Bypass -File {script}";
 
         // The matcher is emitted verbatim inside double quotes. HookValidator rejects the
         // characters that would escape those quotes, because sh and PowerShell disagree on how to
         // escape them and a matcher that means two different things per platform is worse than one
         // the author has to rewrite.
-        return invocation.ScriptMatcher is { } matcher
-            ? $"{command} {HookDialect.MatcherArgument} \"{matcher}\""
+        return matcher is { } value
+            ? $"{command} {HookDialect.MatcherArgument} \"{value}\""
             : command;
     }
 }

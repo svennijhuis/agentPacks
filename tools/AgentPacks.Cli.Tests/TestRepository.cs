@@ -17,7 +17,9 @@ internal sealed class TestRepository : IDisposable
         {
           "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
           "name": "engineering",
-          "description": "Test plugin."
+          "version": "0.1.0",
+          "description": "Test plugin.",
+          "author": { "name": "agentPacks Maintainers" }
         }
         """;
 
@@ -153,6 +155,9 @@ internal sealed class TestRepository : IDisposable
         File.WriteAllText(Path.Combine(PluginDirectory(plugin), PluginLoader.HooksFileName), json);
         return this;
     }
+
+    public TestRepository WithStandards(string json, string plugin = "engineering") =>
+        WithFile($"plugins/{plugin}/{PluginLoader.StandardsFileName}", json);
 
     /// <summary>
     /// Writes a hook script pair. Omitting a half is how the "runs on one platform only" cases are

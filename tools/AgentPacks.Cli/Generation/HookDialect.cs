@@ -70,28 +70,28 @@ internal static class HookDialect
             [Client.Claude] = new("SessionStart"),
             [Client.Cursor] = new("sessionStart"),
             [Client.Codex] = new("SessionStart"),
-            [Client.Copilot] = new("sessionStart")
+            [Client.Copilot] = new("SessionStart")
         }),
         ["sessionEnd"] = new("sessionEnd", MatcherSubject.None, new()
         {
             [Client.Claude] = new("SessionEnd"),
             [Client.Cursor] = new("sessionEnd"),
             [Client.Codex] = new("SessionEnd"),
-            [Client.Copilot] = new("sessionEnd")
+            [Client.Copilot] = new("SessionEnd")
         }),
         ["userPromptSubmit"] = new("userPromptSubmit", MatcherSubject.None, new()
         {
             [Client.Claude] = new("UserPromptSubmit"),
             [Client.Cursor] = new("beforeSubmitPrompt"),
             [Client.Codex] = new("UserPromptSubmit"),
-            [Client.Copilot] = new("userPromptSubmit")
+            [Client.Copilot] = new("UserPromptSubmit")
         }),
         ["stop"] = new("stop", MatcherSubject.None, new()
         {
             [Client.Claude] = new("Stop"),
             [Client.Cursor] = new("stop"),
             [Client.Codex] = new("Stop"),
-            [Client.Copilot] = new("stop")
+            [Client.Copilot] = new("Stop")
         }),
 
         // The tool-matched events: every client's matcher filters on the tool name, which is
@@ -101,32 +101,35 @@ internal static class HookDialect
             [Client.Claude] = new("PreToolUse", null, AppliesAuthorMatcher: true),
             [Client.Cursor] = new("preToolUse", null, AppliesAuthorMatcher: true),
             [Client.Codex] = new("PreToolUse", null, AppliesAuthorMatcher: true),
-            [Client.Copilot] = new("preToolUse", null, AppliesAuthorMatcher: true)
+            [Client.Copilot] = new("PreToolUse", null, AppliesAuthorMatcher: true)
         }),
         ["postToolUse"] = new("postToolUse", MatcherSubject.Tool, new()
         {
             [Client.Claude] = new("PostToolUse", null, AppliesAuthorMatcher: true),
             [Client.Cursor] = new("postToolUse", null, AppliesAuthorMatcher: true),
             [Client.Codex] = new("PostToolUse", null, AppliesAuthorMatcher: true),
-            [Client.Copilot] = new("postToolUse", null, AppliesAuthorMatcher: true)
+            [Client.Copilot] = new("PostToolUse", null, AppliesAuthorMatcher: true)
         }),
 
         // Only Cursor has a first-class shell event whose matcher reads the command text. The
-        // others spend their matcher naming the shell tool, so the command filter goes to the
-        // script and the same regex still decides the outcome on every client.
+        // others spend their matcher naming the shell tool. PascalCase events use the
+        // Claude-compatible Bash matcher in Claude, Codex, and Copilot. The command filter goes to
+        // the script, so the same authored regex still decides the outcome on every client.
         ["beforeShellExecution"] = new("beforeShellExecution", MatcherSubject.Command, new()
         {
             [Client.Claude] = new("PreToolUse", "Bash"),
             [Client.Cursor] = new("beforeShellExecution", null, AppliesAuthorMatcher: true),
-            [Client.Codex] = new("PreToolUse", "shell"),
-            [Client.Copilot] = new("preToolUse", "shell")
+            [Client.Codex] = new("PreToolUse", "Bash"),
+            [Client.Copilot] = new("PreToolUse", "Bash")
         }),
         ["afterFileEdit"] = new("afterFileEdit", MatcherSubject.FilePath, new()
         {
             [Client.Claude] = new("PostToolUse", "Write|Edit"),
             [Client.Cursor] = new("afterFileEdit"),
-            [Client.Codex] = new("PostToolUse", "apply_patch|write"),
-            [Client.Copilot] = new("postToolUse", "write|edit")
+            // apply_patch is the canonical Codex edit name. Copilot's PascalCase event uses the
+            // same Claude-compatible Write and Edit matcher aliases as Claude.
+            [Client.Codex] = new("PostToolUse", "apply_patch"),
+            [Client.Copilot] = new("PostToolUse", "Write|Edit")
         })
     };
 

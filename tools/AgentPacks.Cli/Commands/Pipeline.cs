@@ -36,6 +36,8 @@ internal sealed class Pipeline(RepositoryContext context)
         new SkillReferenceValidator(context).Validate(plugins);
         new McpValidator(context).Validate(plugins);
         new ComponentValidator(context).Validate(plugins);
+        new LanguagePackValidator(context).Validate(plugins);
+        new StandardsValidator(context).Validate(plugins);
         new HookValidator(context).Validate(plugins);
 
         return plugins;
@@ -44,7 +46,10 @@ internal sealed class Pipeline(RepositoryContext context)
     public IReadOnlyList<GeneratedFile> Generate(IReadOnlyList<PluginPackage> plugins)
     {
         var files = new ClaudeCompatGenerator(context).Generate(plugins)
+            .Concat(new CodexMarketplaceGenerator(context).Generate(plugins))
+            .Concat(new CopilotMarketplaceGenerator(context).Generate(plugins))
             .Concat(new ClientTreeGenerator(context).Generate(plugins))
+            .Concat(new StandardsGenerator().Generate(plugins))
             .OrderBy(f => f.RelativePath, StringComparer.Ordinal)
             .ToList();
 
@@ -91,8 +96,8 @@ internal sealed class Pipeline(RepositoryContext context)
 
     /// <summary>
     /// Deletes generated files the source no longer produces. A plugin that drops its last MCP
-    /// server stops generating a .mcp.json, and leaving the old one behind would keep Claude
-    /// loading a server nobody declares any more. The same applies to every client tree: a deleted
+    /// server stops generating a .mcp.json, and leaving the old one behind would keep clients
+    /// loading a server nobody declares any more. The same applies to every provider tree: a deleted
     /// agent or hook has to disappear from all four, not just stop being regenerated.
     /// </summary>
     private void RemoveStaleFiles(IReadOnlyList<GeneratedFile> files, string root, CommandOptions options)
@@ -143,6 +148,7 @@ internal sealed class Pipeline(RepositoryContext context)
             }
 
             RemoveEmptyGeneratedDirectories(pluginDirectory, options);
+            RemoveEmptyStandardsDirectories(pluginDirectory, options);
         }
     }
 
@@ -160,6 +166,28 @@ internal sealed class Pipeline(RepositoryContext context)
         foreach (var name in GeneratedPaths.OwnedDirectories)
         {
             RemoveIfEmpty(Path.Combine(pluginDirectory, name));
+        }
+    }
+
+    private static void RemoveEmptyStandardsDirectories(string pluginDirectory, CommandOptions options)
+    {
+        if (options.Check)
+        {
+            return;
+        }
+
+        var skills = Path.Combine(pluginDirectory, "skills");
+
+        if (!Directory.Exists(skills))
+        {
+            return;
+        }
+
+        foreach (var skill in Directory.GetDirectories(skills))
+        {
+            var references = Path.Combine(skill, "references");
+            RemoveIfEmpty(Path.Combine(references, "standards"));
+            RemoveIfEmpty(references);
         }
     }
 

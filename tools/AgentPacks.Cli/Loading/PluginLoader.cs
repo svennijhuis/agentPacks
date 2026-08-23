@@ -33,6 +33,7 @@ internal static class PluginLoader
         var manifestPath = Path.Combine(directory, "plugin.json");
         var mcpPath = Path.Combine(directory, "mcp.json");
         var hooksPath = Path.Combine(directory, HooksFileName);
+        var standardsPath = Path.Combine(directory, StandardsFileName);
 
         return new PluginPackage
         {
@@ -47,7 +48,12 @@ internal static class PluginLoader
             Rules = LoadMarkdownComponents(context, directory, "rules", "*.mdc", "rule"),
             HooksPath = File.Exists(hooksPath) ? hooksPath : null,
             Hooks = File.Exists(hooksPath) ? ReadObject(context, hooksPath, required: false) : null,
-            Scripts = LoadScripts(directory)
+            Scripts = LoadScripts(directory),
+            Standards = File.Exists(standardsPath)
+                ? ReadObject(context, standardsPath, required: false) is { } standards
+                    ? new StandardsDefinition(standardsPath, standards)
+                    : null
+                : null
         };
     }
 
@@ -57,6 +63,12 @@ internal static class PluginLoader
     /// hooks.json. This name is discovered by no client and generated into all four.
     /// </summary>
     public const string HooksFileName = "hooks.source.json";
+
+    /// <summary>
+    /// The repository-specific standards catalog. It is deliberately separate from plugin.json,
+    /// whose portable schema has no standards component.
+    /// </summary>
+    public const string StandardsFileName = "standards.source.json";
 
     private static JsonObject? ReadObject(RepositoryContext context, string path, bool required)
     {
@@ -208,9 +220,10 @@ internal static class PluginLoader
                     powershell[name] = file;
                     break;
 
-                // .cmd is the generated Windows shim. It sits beside the authored pair on the
-                // published branch, where validation also runs, so it is ignored rather than
-                // reported — the staleness sweep is what removes one that no longer belongs.
+                    // .cmd is the generated Windows shim. It sits beside the authored pair on the
+                    // published branch, where validation also runs, so it is ignored rather than
+                    // reported — the staleness sweep is what removes one that no longer
+                    // belongs.
             }
         }
 

@@ -1,0 +1,11 @@
+{
+  "$schema": "../../schema/hooks.schema.json",
+  "description": "Detect a registered repository stack at session start and tell the agent to check whether its required language-pack skills resolve before handling the first coding request.",
+  "hooks": {
+    "sessionStart": [
+      {
+        "script": "pack-check-session"
+      }
+    ]
+  }
+}
