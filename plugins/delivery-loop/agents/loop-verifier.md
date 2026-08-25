@@ -16,7 +16,10 @@ This agent is plan-bound. Without a confirmed `docs/plans/<slug>.md`, stop; the 
 
 Load `/delivery-loop` and read `references/review-contract.md` before running verification.
 
-1. Read the plan's acceptance criteria and its verification command. When the plan gives no command, take it from the stack's `<lang>-test-patterns` skill — `dotnet test <solution>`, and its equivalents — rather than inferring one from the directory listing. Report which of the two you used.
+1. Read the plan's acceptance criteria and its verification command. When the plan gives no command,
+   take commands from every applicable stack's `<lang>-test-patterns` skill rather than inferring one
+   from the directory listing. For a mixed change, verify each stack and the cross-language boundary.
+   Report whether each command came from the plan or its language pack.
 2. Run the verification command. Then run the wider test suite, because a change that satisfies its own criteria can still break something else.
 3. Go criterion by criterion. Where the command does not cover one, probe the behaviour directly and say how.
 4. Quote failures verbatim rather than summarising them.

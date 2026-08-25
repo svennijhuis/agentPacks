@@ -32,6 +32,20 @@ and name every source.
 | Fix | Imperative and specific enough to execute without another question |
 | Empty | Write `No findings.` and state what was examined; never add filler findings |
 
+## Input normalization
+
+A completed report is noncanonical but usable when every required semantic field is present and
+unambiguous, but its heading, table layout, column order, labels, or equivalent prose differs from
+the shapes below. The orchestrator normalizes that presentation in memory and merges it in the same
+invocation. It does not ask the producing agent to rewrite the report and does not emit or persist an
+intermediate repaired report.
+
+A report is malformed only when merge would require invention: the report is absent; a required
+semantic field is missing; severity or verifier result is outside the contract or ambiguous; an
+empty result does not state what was examined; or a finding's identity, location, problem, or fix
+cannot be recovered. Presentation differences alone are not malformed. The orchestrator may
+normalize formatting, never meaning.
+
 ## Reviewer report
 
 ```markdown
@@ -89,8 +103,8 @@ The implementer does not claim verification.
 ## Orchestrator report
 
 The main agent supplies completed reviewer reports, verifier evidence, round number, plan path, and
-the recorded security-gate decision. The orchestrator validates and merges those inputs; it does not
-launch reviewers, retry malformed reports, or route the verdict.
+the recorded security-gate decision. The orchestrator normalizes usable inputs, validates their
+semantics, and merges them; it does not launch reviewers, retry malformed reports, or route the verdict.
 
 Round 1 is the initial implementation review. Round 2 is the first fix review and round 3 the second.
 When the merged list is empty, replace its table with `No findings.`.
@@ -101,7 +115,7 @@ Malformed or missing input returns this shape and does not write the plan or ass
 ## Orchestrator input error — round <n>
 
 **Missing or malformed:** <report and violated requirement>
-**Action:** Main agent must obtain a conforming completed report and invoke merge again.
+**Action:** Surface this error unchanged and end the current loop. No plan write, verdict, retry, fix round, or agent handoff is allowed.
 ```
 
 ```markdown

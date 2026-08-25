@@ -27,9 +27,21 @@ When uncertain, use the full loop. Once the small-change route is chosen, keep i
 
 ## Prepare the full loop
 
-For a full loop, use `pack-check` status when available. Otherwise invoke `pack-check`; if it is unavailable, detect .NET from `*.slnx`, `*.sln`, or `*.csproj` and report missing language slots without inventing standards. The small-change route may report existing pack status but does not invoke `pack-check` as a prerequisite.
+For a full loop, use `pack-check` status when available. Otherwise invoke `pack-check`; if it is
+unavailable, detect .NET from `*.slnx`, `*.sln`, or `*.csproj` and Rust from `Cargo.toml`, then report
+missing language slots without inventing standards. The small-change route may report existing pack
+status but does not invoke `pack-check` as a prerequisite.
 
-Required language slots are `<lang>-build` and `<lang>-test-patterns`; `<lang>-review` and `<lang>-security-review` are optional. For a full loop, a missing required slot stops planning unless the user explicitly chose `--no-pack`. An approved installation stops for a client reload. The small-change route may continue after reporting the gap.
+Select applicable stacks from target paths, the existing diff, and acceptance criteria. A Rust-only
+scope loads Rust slots, a .NET-only scope loads .NET slots, and a cross-language scope loads both.
+When a mixed repository's scope cannot safely distinguish them, load both. Detection alone does not
+make a stack applicable: never request or load a pack for code outside the change.
+
+Required language slots are `<lang>-build` and `<lang>-test-patterns`; `<lang>-review` and
+`<lang>-security-review` are optional. Resolve them for every applicable stack and group missing packs
+into one approval round. For a full loop, a missing required slot stops planning unless the user
+explicitly chose `--no-pack`. An approved installation stops for a client reload. The small-change
+route may continue after reporting the gap.
 
 Record repository evidence, standards, and workspace ownership. Repository conventions require configuration or a repeated local pattern. A conflict between repository evidence and a plugin standard is a planning decision, not something to resolve silently.
 
@@ -59,7 +71,10 @@ Trust boundaries include authentication, authorization, untrusted input, file pa
 
 After all reviewer reports complete, the main agent sends those reports, verifier evidence, round number, plan path, and the security-gate decision to `loop-orchestrator`. The orchestrator only validates, deduplicates, ranks, assigns the verdict, and appends the merged fix list. It does not launch agents or route subsequent work.
 
-If the orchestrator returns an input error, the main agent obtains the named conforming report and repeats the merge in the same round. An input-shape correction is not a fix round.
+If the orchestrator returns an input error, surface it unchanged to the human and end the current
+loop. Do not obtain another report, invoke merge again, write or amend the plan, assign a verdict,
+start a fix round, or route work to another agent. A later continuation requires an explicit new
+user request.
 
 The main agent routes the result:
 

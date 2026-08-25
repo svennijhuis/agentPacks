@@ -118,6 +118,55 @@ public class DeliveryLoopContractTests
     }
 
     [Fact]
+    public void Applicable_stacks_come_from_change_scope_and_mixed_work_loads_both()
+    {
+        var skill = Fixture("SKILL.md");
+        var implementer = Fixture("loop-implementer.md");
+        var verifier = Fixture("loop-verifier.md");
+
+        Assert.Contains("target paths, the existing diff, and acceptance criteria", skill, StringComparison.Ordinal);
+        Assert.Contains("Rust-only", skill, StringComparison.Ordinal);
+        Assert.Contains(".NET-only", skill, StringComparison.Ordinal);
+        Assert.Contains("cross-language scope loads both", skill, StringComparison.Ordinal);
+        Assert.Contains("never request or load a pack for code outside the change", skill, StringComparison.Ordinal);
+        Assert.Contains("every applicable stack's `<lang>-build`", implementer, StringComparison.Ordinal);
+        Assert.Contains("every applicable stack's `<lang>-test-patterns`", verifier, StringComparison.Ordinal);
+        Assert.Contains("every applicable stack's `<lang>-review`", Fixture("loop-reviewer.md"), StringComparison.Ordinal);
+        Assert.Contains("every applicable stack's `<lang>-security-review`", Fixture("loop-security-reviewer.md"), StringComparison.Ordinal);
+        Assert.Contains("every applicable stack's `<lang>-build`", Fixture("loop-simplifier.md"), StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void Orchestrator_normalizes_usable_noncanonical_reports_without_another_agent_call()
+    {
+        var orchestrator = Fixture("loop-orchestrator.md");
+        var contract = Fixture("review-contract.md");
+
+        Assert.Contains("Normalize a noncanonical-but-usable report in memory", orchestrator, StringComparison.Ordinal);
+        Assert.Contains("Presentation differences alone are not malformed", contract, StringComparison.Ordinal);
+        Assert.Contains("normalizes that presentation in memory", contract, StringComparison.Ordinal);
+        Assert.Contains("does not ask the producing agent", contract, StringComparison.Ordinal);
+        Assert.Contains("never meaning", contract, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void Malformed_report_input_is_terminal_and_cannot_enter_a_retry_loop()
+    {
+        var skill = Fixture("SKILL.md");
+        var command = Fixture("deliver.md");
+        var standalone = Fixture("review-diff.md");
+        var orchestrator = Fixture("loop-orchestrator.md");
+        var contract = Fixture("review-contract.md");
+        var combined = string.Join('\n', skill, command, standalone, orchestrator, contract);
+
+        Assert.Contains("Return the review contract's input-error shape for any missing or malformed report", orchestrator, StringComparison.Ordinal);
+        Assert.Contains("surface it unchanged to the human and end the current", skill, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("No plan write, verdict, retry, fix round, or agent handoff is allowed", contract, StringComparison.Ordinal);
+        Assert.Contains("Do not obtain another report, invoke merge again", skill, StringComparison.Ordinal);
+        Assert.DoesNotContain("obtain the named conforming report", combined, StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
     public void Security_checklist_is_exclusively_OWASP_2025()
     {
         var security = Fixture("loop-security-reviewer.md");

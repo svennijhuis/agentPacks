@@ -4,7 +4,7 @@ Portable [Agent Plugins](https://agent-plugins.org) that wire a workflow into th
 
 ## Available plugins
 
-Three capability packs, installed because you want a behaviour wired into the agent loop rather than knowledge sitting on a shelf, and one language pack, installed because of the ecosystem you compile in:
+Three capability packs, installed because you want a behaviour wired into the agent loop rather than knowledge sitting on a shelf, and two language packs, installed because of the ecosystem you compile in:
 
 | Plugin | Use it for |
 | --- | --- |
@@ -12,8 +12,9 @@ Three capability packs, installed because you want a behaviour wired into the ag
 | `pack-check` | Detecting the repository stack at session start and asking before installing the language pack that supplies its required build and test skills |
 | `git` | Blocking the git commands that destroy work an agent cannot get back — `reset --hard`, `clean -fd`, `push --force`, `branch -D`, `checkout .` — before the client runs them |
 | `dotnet` | Teaching the loop how C# is built, tested and reviewed, backed by one canonical set of standards distributed only to the skills that need each document |
+| `rust` | Teaching the loop how Cargo workspaces are built, tested and reviewed, backed by canonical Rust, error/concurrency, and testing standards |
 
-That is the whole catalog today, deliberately. The remaining role packs (`engineering`, `productivity`, `security`) and language packs (`typescript`, `rust`) are planned and have their own rules for what earns one — a pack that ships nothing but an empty `plugin.json` advertises an install that does nothing, so they are added when there is real content to add. The reasoning is in [`docs/PLAN.md`](docs/PLAN.md).
+That is the whole catalog today, deliberately. The remaining role packs (`engineering`, `productivity`, `security`) and language pack (`typescript`) are planned and have their own rules for what earns one — a pack that ships nothing but an empty `plugin.json` advertises an install that does nothing, so they are added when there is real content to add. The reasoning is in [`docs/PLAN.md`](docs/PLAN.md).
 
 Adding the marketplace makes all plugins discoverable. Install only the plugins you want. The commands install globally for your user.
 
@@ -25,6 +26,7 @@ copilot plugin install delivery-loop@agentpacks
 copilot plugin install pack-check@agentpacks
 copilot plugin install git@agentpacks
 copilot plugin install dotnet@agentpacks
+copilot plugin install rust@agentpacks
 ```
 
 Update later with:
@@ -41,6 +43,7 @@ codex plugin add delivery-loop@agentpacks
 codex plugin add pack-check@agentpacks
 codex plugin add git@agentpacks
 codex plugin add dotnet@agentpacks
+codex plugin add rust@agentpacks
 ```
 
 Open `/plugins` in Codex to inspect the installed plugins. Update later with:
@@ -57,6 +60,7 @@ claude plugin install delivery-loop@agentpacks --scope user
 claude plugin install pack-check@agentpacks --scope user
 claude plugin install git@agentpacks --scope user
 claude plugin install dotnet@agentpacks --scope user
+claude plugin install rust@agentpacks --scope user
 ```
 
 Update later with:
@@ -76,6 +80,7 @@ ln -s ~/.cursor/agentPacks/plugins/delivery-loop ~/.cursor/plugins/local/deliver
 ln -s ~/.cursor/agentPacks/plugins/pack-check ~/.cursor/plugins/local/pack-check
 ln -s ~/.cursor/agentPacks/plugins/git ~/.cursor/plugins/local/git
 ln -s ~/.cursor/agentPacks/plugins/dotnet ~/.cursor/plugins/local/dotnet
+ln -s ~/.cursor/agentPacks/plugins/rust ~/.cursor/plugins/local/rust
 ```
 
 Create only the links for the plugins you want, then restart Cursor or run **Developer: Reload Window**. Update later with:
@@ -122,15 +127,20 @@ Asking naturally works too — “plan this change, then build it”, “is this
 
 `git` needs no invocation either, and has nothing to ask: its hook blocks `git reset --hard`, `git clean -fd`, `git push --force`, `git branch -D`, `git checkout .` and `git restore .` before the client runs them, with the reason on stderr. [Its README](plugins/git/README.md) covers the `AGENTPACKS_GIT_GUARD=off` switch and which clients the blocking contract is actually verified on.
 
-`pack-check` runs at session start. In a .NET repository it verifies that `dotnet-build` and
-`dotnet-test-patterns` resolve; when either is missing it asks once before installing the `dotnet`
-plugin. CLI clients run their own installer after approval, while Cursor uses **Customize**. Reload
-after installation so the new skills enter the next session. [Its README](plugins/pack-check/README.md)
+`pack-check` runs at session start. It maps .NET markers to `dotnet` and `Cargo.toml` to `rust`, then
+verifies the required build and test slots for the stacks applicable to the change. A mixed change
+loads both; an unrelated stack in the same repository does not trigger an install. CLI clients run
+their own installer after one grouped approval, while Cursor uses **Customize**. Reload after
+installation so the new skills enter the next session. [Its README](plugins/pack-check/README.md)
 has the provider-specific behavior.
 
 `dotnet` needs no invocation. Its skills are loaded when the Loop detects a `.slnx`, `.sln`, or
 `.csproj`. [Its README](plugins/dotnet/README.md) explains how its canonical standards stay inside
 the plugin while agents match the repository they are working in.
+
+`rust` needs no invocation. Its skills are loaded for an applicable Cargo workspace. In a mixed
+repository, the Loop uses Rust, .NET, or both from the target paths, diff, and acceptance criteria.
+[Its README](plugins/rust/README.md) covers Cargo commands, standards, and repository evidence.
 
 Installed skills are selected when relevant to your request.
 

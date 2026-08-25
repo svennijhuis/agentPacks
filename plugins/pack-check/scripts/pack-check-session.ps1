@@ -10,7 +10,7 @@ if (-not (Test-Path -LiteralPath $registry -PathType Leaf)) { exit 0 }
 # dependency tree between session start and the first prompt. Reparse points are skipped for the
 # same reason `find` does not follow symlinks: a link back up the tree would never terminate.
 function Find-Marker([string] $Pattern) {
-    $pruned = @('.git', 'bin', 'obj', 'node_modules')
+    $pruned = @('.git', 'bin', 'obj', 'target', 'node_modules', 'vendor')
     $pending = [System.Collections.Generic.Stack[string]]::new()
     $pending.Push((Get-Location).Path)
 
@@ -32,6 +32,8 @@ function Find-Marker([string] $Pattern) {
     return $false
 }
 
+$foundAny = $false
+
 foreach ($line in Get-Content -LiteralPath $registry) {
     $cells = $line.Split('|')
     if ($cells.Count -lt 5) { continue }
@@ -47,10 +49,14 @@ foreach ($line in Get-Content -LiteralPath $registry) {
     foreach ($marker in ($markerCell.Split(',') | ForEach-Object { $_.Trim() } | Where-Object { $_ })) {
         if (Find-Marker $marker) {
             Write-Output "pack-check detected stack $stack with pack $pack."
-            Write-Output 'Before handling the first coding request, use the pack-check skill to resolve the required slot skills and request installation approval when they are missing.'
-            exit 0
+            $foundAny = $true
+            break
         }
     }
+}
+
+if ($foundAny) {
+    Write-Output 'Before handling the first coding request, use the pack-check skill to select the stacks applicable to the change, resolve their required slot skills, and request installation approval when they are missing.'
 }
 
 exit 0

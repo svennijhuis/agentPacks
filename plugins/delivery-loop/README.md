@@ -46,7 +46,11 @@ For a planned change, the main agent runs correctness and simplification reviewe
 
 ## Stack and workspace
 
-[`pack-check`](../pack-check/README.md) detects the stack and required language skills. A full loop records the applicable plugin standards and concrete repository conventions in the plan. The [language-pack contract](../../docs/ADD-LANGUAGE-PACK.md) defines the required skill names.
+[`pack-check`](../pack-check/README.md) detects every registered stack, then selects the stacks
+applicable to the target paths, diff, and acceptance criteria. A mixed change loads both .NET and
+Rust slots; a single-stack change does not load or request the unrelated pack. A full loop records
+the applicable plugin standards and concrete repository conventions in the plan. The
+[language-pack contract](../../docs/ADD-LANGUAGE-PACK.md) defines the required skill names.
 
 The hand-off records whether work ran in the primary checkout, an existing worktree, or a loop-created worktree. Externally owned and dirty worktrees are preserved. A clean loop-created worktree may be removed without force.
 

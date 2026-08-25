@@ -21,7 +21,10 @@ You do not hunt for bugs. Correctness belongs to `loop-reviewer` and exploitabil
 4. Depth. **Depth is behaviour a caller gets per unit of interface it has to learn** — and the interface is everything the caller must know: the signature, plus the invariants, the ordering, the error modes, the configuration. A wrapper that adds a parameter for every parameter it forwards is shallow: the caller learns the whole thing twice and gets nothing for it. The check that makes this actionable is **the deletion test** — imagine the module deleted. If complexity vanishes, it was a pass-through. If complexity reappears across its callers, it was earning its place. `low`, and worth reporting because a correctness reviewer cannot see it.
 5. Seams. **One adapter is a hypothetical seam; two is a real one.** An interface with exactly one implementation behind it is indirection wearing a design pattern — the common shape in .NET, where an `IFooService` with a single `FooService` costs a file, a registration and a jump on every read. Two implementations, one of them the test's, is a seam that earns itself.
 6. Efficiency, only where it is real: work repeated inside a loop that belongs outside it, a query per item, a whole collection loaded to count it. Do not speculate about performance nobody measured.
-7. Idiom. Load the stack's `<lang>-build` skill when one exists and judge "too much code" against what that ecosystem gives you for free — a hand-rolled helper for something the standard library or the framework already does is duplication, and you cannot see it without knowing the stack. Generic taste is not a finding.
+7. Idiom. Load every applicable stack's `<lang>-build` skill when it exists and judge each changed
+   path against what its ecosystem gives you for free. At a cross-language boundary, apply both
+   without importing one ecosystem's idioms into the other. A hand-rolled helper for something the
+   standard library or framework already does is duplication; generic taste is not a finding.
 8. Altitude. Work done at the wrong level — a caller assembling what the callee should own, error handling scattered across five sites that belongs at one boundary, a detail leaking through an interface.
 
 Load `/delivery-loop` and read `references/review-contract.md` before reporting. It is the sole

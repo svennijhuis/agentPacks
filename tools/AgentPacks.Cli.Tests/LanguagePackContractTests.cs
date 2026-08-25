@@ -1,3 +1,4 @@
+using System.Text.Json.Nodes;
 using AgentPacks.Cli.Validation;
 
 namespace AgentPacks.Cli.Tests;
@@ -104,6 +105,43 @@ public class LanguagePackContractTests
         var run = repo.Validate();
 
         Assert.DoesNotContain(run.Diagnostics, d => d.Message.Contains("contracted slot"));
+    }
+
+    [Fact]
+    public void Authored_rust_pack_fills_all_three_slots_and_maps_its_standards()
+    {
+        var root = SourceRoot();
+        var plugin = Path.Combine(root, "plugins", "rust");
+        var manifest = JsonNode.Parse(File.ReadAllText(Path.Combine(plugin, "plugin.json")))!;
+        var standards = JsonNode.Parse(File.ReadAllText(Path.Combine(plugin, "standards.source.json")))!;
+
+        Assert.Equal("rust", manifest["name"]!.GetValue<string>());
+        Assert.Contains(LanguagePackContract.Keyword,
+            manifest["keywords"]!.AsArray().Select(value => value!.GetValue<string>()));
+        foreach (var skill in new[] { "rust-build", "rust-test-patterns", "rust-review" })
+        {
+            Assert.True(File.Exists(Path.Combine(plugin, "skills", skill, "SKILL.md")), skill);
+            Assert.NotNull(standards["consumers"]![skill]);
+        }
+
+        foreach (var document in new[] { "rust", "errors-concurrency", "testing" })
+            Assert.True(File.Exists(Path.Combine(plugin, "standards", document + ".md")), document);
+    }
+
+    private static string SourceRoot()
+    {
+        for (var directory = new DirectoryInfo(AppContext.BaseDirectory);
+             directory is not null;
+             directory = directory.Parent)
+        {
+            if (Directory.Exists(Path.Combine(directory.FullName, "plugins")) &&
+                Directory.Exists(Path.Combine(directory.FullName, "tools", "AgentPacks.Cli")))
+            {
+                return directory.FullName;
+            }
+        }
+
+        throw new DirectoryNotFoundException("Could not locate the agentPacks source root.");
     }
 
 }

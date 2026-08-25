@@ -43,7 +43,8 @@ Both give a Rust shop a way to avoid installing .NET skills. Only one stays read
 
 ## What ships today
 
-The repository currently ships **two capability packs and one language pack**: `delivery-loop`, `git` and `dotnet`.
+The repository currently ships **three capability packs and two language packs**: `delivery-loop`,
+`pack-check`, `git`, `dotnet`, and `rust`.
 
 The earlier catalog carried five role packs and three language packs, six of which held nothing but a `plugin.json`. An empty pack is not a placeholder — it is an install that appears in the marketplace, resolves, and does nothing, which is worse than not being listed. They were removed in the same branch that added `delivery-loop`; the pinned external-skill imports and the two authored skills (`engineering/testing`, `dotnet/dotnet-review`) are in history at `007f609` and can be restored when there is a pack around them worth installing.
 
@@ -87,7 +88,7 @@ Language packs — installed because of the ecosystem you live in, one per langu
 | --- | --- |
 | `dotnet` | `dotnet-build`, `dotnet-test-patterns` and `dotnet-review` — the Loop's contracted slots — plus canonical standards mapped into only the consuming skills. Formatting runs once after implementation, not as a global edit hook. `dotnet-security-review` comes when there is real content for it |
 | `typescript` | TypeScript frontend *and* backend; React and NestJS as skills |
-| `rust` | Rust build, review and test; Axum as skills *(empty for now)* |
+| `rust` | `rust-build`, `rust-test-patterns` and `rust-review` — the Loop's contracted slots — plus canonical ownership/API, error/concurrency, and testing standards. Formatting runs once after implementation; Axum and Rust security skills come when they have substantive content |
 
 Typical installs:
 

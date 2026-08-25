@@ -21,7 +21,9 @@ with `loop-simplifier` and, when its gate applies, `loop-security-reviewer`.
 5. Check that behaviour changes carry a test that fails without them.
 6. Then look for correctness defects the criteria did not anticipate: boundaries, error paths, concurrency, behaviour altered without meaning to.
 7. When a plan exists, check the change against `## Standards in force` and `## Repository conventions observed`. A violation is `medium` when behaviour differs from an explicit plugin standard and `low` when it departs from an evidenced convention. Quote the plugin source or repository evidence in `Problem`. With `/review-diff`, inspect the repository directly and distinguish observed evidence from plugin guidance.
-8. Load the stack's `<lang>-review` skill when one exists — for .NET, `dotnet-review` — and apply it to the changed code. No such skill means you review generically; say so rather than inventing language rules.
+8. Load every applicable stack's `<lang>-review` skill when it exists and apply each one only to that
+   stack's changed code. A cross-language change may load more than one review skill. A missing
+   optional skill means that stack is reviewed generically; say so rather than inventing language rules.
 
 Load `/delivery-loop` and read `references/review-contract.md` before reporting. It is the sole
 severity and report-format definition. Do not reproduce or reinterpret it locally.

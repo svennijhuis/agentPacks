@@ -1,0 +1,23 @@
+{
+  "$schema": "../../schema/standards.schema.json",
+  "version": 1,
+  "documents": {
+    "rust": "standards/rust.md",
+    "errors-concurrency": "standards/errors-concurrency.md",
+    "testing": "standards/testing.md"
+  },
+  "consumers": {
+    "rust-build": [
+      "rust",
+      "errors-concurrency"
+    ],
+    "rust-test-patterns": [
+      "testing"
+    ],
+    "rust-review": [
+      "rust",
+      "errors-concurrency",
+      "testing"
+    ]
+  }
+}

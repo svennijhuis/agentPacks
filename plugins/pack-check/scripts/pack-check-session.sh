@@ -14,6 +14,8 @@ trim() {
   printf '%s' "$value"
 }
 
+found_any=0
+
 while IFS='|' read -r _ marker_cell stack_cell pack_cell _; do
   marker_cell="$(trim "${marker_cell//\`/}")"
   stack="$(trim "${stack_cell//\`/}")"
@@ -31,15 +33,19 @@ while IFS='|' read -r _ marker_cell stack_cell pack_cell _; do
     [ -z "$marker" ] && continue
 
     found="$(find "$(pwd -P)" \
-      \( -type d \( -name .git -o -name bin -o -name obj -o -name node_modules \) -prune \) -o \
+      \( -type d \( -name .git -o -name bin -o -name obj -o -name target -o -name node_modules -o -name vendor \) -prune \) -o \
       \( -type f -name "$marker" -print -quit \) 2>/dev/null)"
 
     if [ -n "$found" ]; then
       printf 'pack-check detected stack %s with pack %s.\n' "$stack" "$pack"
-      printf 'Before handling the first coding request, use the pack-check skill to resolve the required slot skills and request installation approval when they are missing.\n'
-      exit 0
+      found_any=1
+      break
     fi
   done
 done < "$registry"
+
+if [ "$found_any" -eq 1 ]; then
+  printf 'Before handling the first coding request, use the pack-check skill to select the stacks applicable to the change, resolve their required slot skills, and request installation approval when they are missing.\n'
+fi
 
 exit 0

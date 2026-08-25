@@ -111,13 +111,63 @@ public sealed class PackCheckContractTests
     }
 
     [Fact]
+    public void Session_hook_requests_pack_check_context_for_a_cargo_workspace()
+    {
+        using var repo = new TestRepository();
+        File.WriteAllText(Path.Combine(repo.Root, "Cargo.toml"), "[workspace]\nresolver = \"3\"\n");
+
+        var result = RunHook(repo.Root);
+
+        Assert.Equal(0, result.ExitCode);
+        Assert.Contains("detected stack rust with pack rust", result.Output, StringComparison.Ordinal);
+        Assert.Contains("request installation approval", result.Output, StringComparison.OrdinalIgnoreCase);
+        Assert.Equal(string.Empty, result.Error);
+    }
+
+    [Fact]
+    public void Session_hook_reports_every_detected_stack_once()
+    {
+        using var repo = new TestRepository();
+        File.WriteAllText(Path.Combine(repo.Root, "App.csproj"), string.Empty);
+        File.WriteAllText(Path.Combine(repo.Root, "Cargo.toml"), "[workspace]\nresolver = \"3\"\n");
+        Directory.CreateDirectory(Path.Combine(repo.Root, "crates", "member"));
+        File.WriteAllText(Path.Combine(repo.Root, "crates", "member", "Cargo.toml"), "[package]\nname = \"member\"\n");
+
+        var result = RunHook(repo.Root);
+
+        Assert.Equal(0, result.ExitCode);
+        Assert.Equal(1, Occurrences(result.Output, "detected stack dotnet with pack dotnet"));
+        Assert.Equal(1, Occurrences(result.Output, "detected stack rust with pack rust"));
+        Assert.Equal(1, Occurrences(result.Output, "Before handling the first coding request"));
+        Assert.Equal(string.Empty, result.Error);
+    }
+
+    [Fact]
+    public void Session_hook_ignores_rust_markers_in_build_and_vendor_directories()
+    {
+        using var repo = new TestRepository();
+        foreach (var directory in new[] { "target", "vendor" })
+        {
+            var dependency = Path.Combine(repo.Root, directory, "dependency");
+            Directory.CreateDirectory(dependency);
+            File.WriteAllText(Path.Combine(dependency, "Cargo.toml"), "[package]\nname = \"dependency\"\n");
+        }
+
+        var result = RunHook(repo.Root);
+
+        Assert.Equal(0, result.ExitCode);
+        Assert.Equal(string.Empty, result.Output);
+        Assert.Equal(string.Empty, result.Error);
+    }
+
+    [Fact]
     public void Posix_and_powershell_hooks_share_the_registry_and_context_contract()
     {
         var bash = Fixture("pack-check-session.sh");
         var powerShell = Fixture("pack-check-session.ps1");
 
         foreach (var fragment in (string[])
-                 ["skills/pack-check/references/packs.md", "pack-check detected stack", "request installation approval"])
+                 ["skills/pack-check/references/packs.md", "pack-check detected stack", "request installation approval", "target", "vendor"])
         {
             Assert.Contains(fragment, bash, StringComparison.OrdinalIgnoreCase);
             Assert.Contains(fragment, powerShell, StringComparison.OrdinalIgnoreCase);
@@ -145,6 +195,9 @@ public sealed class PackCheckContractTests
             .Where(cells => cells.Length >= 5)
             .Select(cells => cells[3].Trim().Trim('`'))
             .ToList();
+
+    private static int Occurrences(string text, string value) =>
+        text.Split(value, StringSplitOptions.None).Length - 1;
 
     private static string SourceRoot()
     {

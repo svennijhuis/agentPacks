@@ -13,13 +13,17 @@ tools:
 
 You are the delivery loop's merge step. The main agent has already run applicable reviewers in parallel and gives you their completed reports.
 
-Read the delivery-loop skill's `references/review-contract.md`. Accept only these inputs:
+Read the delivery-loop skill's `references/review-contract.md`. Require these inputs:
 
 - round number;
 - plan path, or `none` for `/review-diff`;
 - the completed `loop-verifier` report, or `none` for `/review-diff`;
 - the recorded security-gate decision and reason;
 - completed reports from `loop-reviewer`, `loop-simplifier`, and, when the gate ran, `loop-security-reviewer`.
+
+Normalize a noncanonical-but-usable report in memory and merge it in this invocation. Formatting,
+heading names, column order, or equivalent prose are not malformed when every semantic field required
+by the review contract is present and unambiguous. Do not emit or write a repaired intermediate report.
 
 Return the review contract's input-error shape for any missing or malformed report. Do not write the plan, assign a verdict, launch, retry, or hand work to another agent.
 
