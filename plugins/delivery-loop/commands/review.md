@@ -7,7 +7,8 @@ description: User-invoked dual-axis review of an existing change — a PR, uncom
 
 Load the `delivery-loop` skill with the Skill tool by exact name `delivery-loop`. Never write
 `/delivery-loop` as prose to load it. Then read `references/review-contract.md`. Read
-`docs/learnings.md` first when that file exists.
+`docs/learnings.md` first when that file exists and **apply** the latest `/review` entry
+when gating reviewers.
 
 This command reviews an existing change with no plan. Dual-axis: correctness and the spec implied
 by the diff. Security only when a trust boundary changed.

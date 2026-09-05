@@ -14,7 +14,7 @@ User-invoked thin orchestrator. Two entrypoints only: `/squad` or `/build` (same
 
 ```text
 /squad or /build (user-invoked orchestrator)
-1. Read learnings.md (append-only)
+1. Read and apply learnings.md (append-only): prefer passed skips/tiers; avoid what failed
 2. Orient codebase (applicable stacks only)
 3. Small change? → main agent only, spawn nobody → verify → append learnings → hand off uncommitted
 4. Else grill/plan rounds (facts via subagent; decisions = human) → write plan
@@ -31,10 +31,12 @@ Not in v1
 second skill pack, Matt catalog dump, eager fan-out, self-improve graphs, auto skill rewrite, redoing PR #6.
 ```
 
-Step 1 is **Read and apply**. Apply the latest same-entrypoint entry (`/squad` and `/build` are the same). Prefer
+Step 1 is **Read and apply** — use the notes when gating and spinning, do not only acknowledge
+the file. Apply the latest same-entrypoint entry (`/squad` and `/build` are the same). Prefer
 its skips only when that run **passed**. A skip from a **failed** run is a must-run this time.
 Prefer its model tier after a pass. After a fail, demote one tier (`frontier` → `standard` →
-`fast` → `inherit`). Do not rewrite skills. Security also runs when learnings mark it must-run.
+`fast` → `inherit`). Do not rewrite skills. No graph. Security also runs when learnings mark
+it must-run.
 
 No phase commits, merges, or pushes. A `pass` verdict means ready for human review, not permission to land.
 

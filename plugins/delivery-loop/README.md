@@ -11,7 +11,7 @@ The numbered flow below is locked v1 and is copied verbatim into the
 
 ```text
 /squad or /build (user-invoked orchestrator)
-1. Read learnings.md (append-only)
+1. Read and apply learnings.md (append-only): prefer passed skips/tiers; avoid what failed
 2. Orient codebase (applicable stacks only)
 3. Small change? → main agent only, spawn nobody → verify → append learnings → hand off uncommitted
 4. Else grill/plan rounds (facts via subagent; decisions = human) → write plan
@@ -28,8 +28,9 @@ Not in v1
 second skill pack, Matt catalog dump, eager fan-out, self-improve graphs, auto skill rewrite, redoing PR #6.
 ```
 
-Step 1 applies the latest learnings entry; it does not only acknowledge the file. After a fail,
-demote one model tier. Do not rewrite skills.
+Step 1 applies the latest learnings entry when gating and spinning; it does not only
+acknowledge the file. Prefer passed skips and tiers. A failed skip is a must-run. After a
+fail, demote one model tier. Do not rewrite skills, and do not grow a graph from the log.
 
 The main agent owns user interaction, invokes `loop-planner` once per question round, launches applicable reviewers in parallel, and routes the merged verdict. `loop-orchestrator` only merges completed reports and verifier evidence. No phase commits, merges, or pushes.
 

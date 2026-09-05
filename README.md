@@ -114,7 +114,7 @@ the same command. The numbered flow below is the locked v1 plan; the
 
 ```text
 /squad or /build (user-invoked orchestrator)
-1. Read learnings.md (append-only)
+1. Read and apply learnings.md (append-only): prefer passed skips/tiers; avoid what failed
 2. Orient codebase (applicable stacks only)
 3. Small change? → main agent only, spawn nobody → verify → append learnings → hand off uncommitted
 4. Else grill/plan rounds (facts via subagent; decisions = human) → write plan
@@ -131,8 +131,9 @@ Not in v1
 second skill pack, Matt catalog dump, eager fan-out, self-improve graphs, auto skill rewrite, redoing PR #6.
 ```
 
-Step 1 **applies** the latest same-entrypoint entry. Keep a passed skip and tier; a failed skip
-becomes a must-run. After a fail, demote one model tier. Do not rewrite skills.
+Step 1 **applies** the latest same-entrypoint entry when gating and spinning. Keep a passed
+skip and tier; a failed skip becomes a must-run. After a fail, demote one model tier. Do not
+rewrite skills. That is the whole v1 self-improve half: apply notes, no graphs.
 
 ### `/squad` or `/build`
 

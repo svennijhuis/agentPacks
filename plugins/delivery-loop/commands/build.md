@@ -7,7 +7,8 @@ description: User-invoked Squad-style orchestrator. The main agent mediates plan
 
 Load the `delivery-loop` skill with the Skill tool by exact name `delivery-loop`. Never write
 `/delivery-loop` as prose to load it. Then read `references/planning-contract.md` and
-`references/review-contract.md`. Read `docs/learnings.md` first when that file exists.
+`references/review-contract.md`. Read `docs/learnings.md` first when that file exists and
+**apply** the latest same-entrypoint entry when gating and spinning.
 
 The main agent is the thin workflow controller. Specialists own their context.
 

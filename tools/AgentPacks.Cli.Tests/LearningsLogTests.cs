@@ -125,6 +125,10 @@ public sealed class LearningsLogTests
         var learnings = File.ReadAllText(Path.Combine(
             AppContext.BaseDirectory, "Fixtures", "delivery-loop", "learnings.md"));
 
+        Assert.Contains(
+            "Read and apply learnings.md (append-only): prefer passed skips/tiers; avoid what failed",
+            skill,
+            StringComparison.Ordinal);
         Assert.Contains("Apply the latest same-entrypoint entry", skill, StringComparison.Ordinal);
         Assert.Contains("must-run", skill, StringComparison.OrdinalIgnoreCase);
         Assert.Contains("do not rewrite skills", learnings, StringComparison.OrdinalIgnoreCase);

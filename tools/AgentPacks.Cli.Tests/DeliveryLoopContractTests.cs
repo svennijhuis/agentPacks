@@ -296,7 +296,7 @@ public class DeliveryLoopContractTests
     {
         const string flow = """
             /squad or /build (user-invoked orchestrator)
-            1. Read learnings.md (append-only)
+            1. Read and apply learnings.md (append-only): prefer passed skips/tiers; avoid what failed
             2. Orient codebase (applicable stacks only)
             3. Small change? → main agent only, spawn nobody → verify → append learnings → hand off uncommitted
             4. Else grill/plan rounds (facts via subagent; decisions = human) → write plan
