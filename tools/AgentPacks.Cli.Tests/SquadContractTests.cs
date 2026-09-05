@@ -392,6 +392,7 @@ public class SquadContractTests
         {
             Assert.Contains("dotnet run --project tools/AgentPacks.Cli -- validate", text, StringComparison.Ordinal);
             Assert.Contains("dotnet test tools/AgentPacks.Cli.Tests", text, StringComparison.Ordinal);
+            Assert.Contains("dotnet run --project plugins/dotnet/mcp/DotnetSolutionMcp.csproj -- --list-tools", text, StringComparison.Ordinal);
             Assert.Contains("claude --plugin-dir", text, StringComparison.Ordinal);
             Assert.Contains("~/.cursor/plugins/local", text, StringComparison.Ordinal);
             Assert.Contains("copilot plugin marketplace add /tmp/agentpacks-marketplace", text, StringComparison.Ordinal);
