@@ -265,6 +265,23 @@ public class SquadContractTests
     }
 
     [Fact]
+    public void Squad_commands_are_exactly_squad_and_review()
+    {
+        var directory = Path.Combine(SourceRoot(), "plugins", "squad", "commands");
+        var names = Directory.GetFiles(directory, "*.md")
+            .Select(path => Path.GetFileName(path) ?? path)
+            .OrderBy(name => name, StringComparer.Ordinal)
+            .ToArray();
+
+        Assert.Equal(["review.md", "squad.md"], names);
+        Assert.DoesNotContain("build.md", names, StringComparer.OrdinalIgnoreCase);
+        Assert.Contains("name: review", File.ReadAllText(Path.Combine(directory, "review.md")),
+            StringComparison.Ordinal);
+        Assert.Contains("name: squad", File.ReadAllText(Path.Combine(directory, "squad.md")),
+            StringComparison.Ordinal);
+    }
+
+    [Fact]
     public void Skills_are_loaded_by_exact_tool_name_never_slash_prose()
     {
         var combined = string.Join('\n',

@@ -28,7 +28,7 @@ public sealed class TonightCriteriaTests
     [InlineData("10 no public-looking slot skills", typeof(LanguagePackContractTests),
         nameof(LanguagePackContractTests.Authored_slot_skills_are_loop_audience_not_user_entrypoints))]
     [InlineData("11 two commands only", typeof(SquadContractTests),
-        nameof(SquadContractTests.Two_user_invoked_entrypoints_are_squad_and_review))]
+        nameof(SquadContractTests.Squad_commands_are_exactly_squad_and_review))]
     [InlineData("12 Matt-tiny agents", typeof(SquadContractTests),
         nameof(SquadContractTests.Loop_agent_bodies_stay_tiny))]
     [InlineData("13 Squad rename", typeof(SquadContractTests),
