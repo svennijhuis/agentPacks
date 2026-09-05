@@ -94,7 +94,7 @@ Do not repeat the same rule across three skills. Put canonical Markdown document
 
 Generation places the selected documents under each skill's `references/standards/` directory on the
 `marketplace` branch or in temporary output. Source `main` stays authored-only. Every consuming skill
-must tell the agent to read those references before acting.
+must name them under `Standards in force:` and tell the agent to cite the document filename during review and build.
 
 The validator rejects unknown keys, paths outside the plugin, missing Markdown files, unknown skills,
 duplicate references, and unused documents.

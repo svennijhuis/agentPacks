@@ -143,6 +143,26 @@ public class LanguagePackContractTests
     }
 
     [Fact]
+    public void Language_slot_skills_name_their_canonical_standards()
+    {
+        var root = SourceRoot();
+        foreach (var pack in new[] { "dotnet", "rust" })
+        {
+            var plugin = Path.Combine(root, "plugins", pack);
+            var standards = JsonNode.Parse(File.ReadAllText(Path.Combine(plugin, "standards.source.json")))!;
+            foreach (var consumer in standards["consumers"]!.AsObject())
+            {
+                var skill = File.ReadAllText(Path.Combine(plugin, "skills", consumer.Key, "SKILL.md"));
+                Assert.Contains($"exact Skill tool name `{consumer.Key}`", skill, StringComparison.Ordinal);
+                Assert.Contains("Standards in force:", skill, StringComparison.Ordinal);
+                Assert.Contains("references/standards/", skill, StringComparison.Ordinal);
+                foreach (var document in consumer.Value!.AsArray())
+                    Assert.Contains(document!.GetValue<string>() + ".md", skill, StringComparison.Ordinal);
+            }
+        }
+    }
+
+    [Fact]
     public void Authored_rust_pack_fills_all_three_slots_and_maps_its_standards()
     {
         var root = SourceRoot();

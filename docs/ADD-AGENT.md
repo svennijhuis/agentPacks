@@ -29,8 +29,10 @@ One job. Load skills with the Skill tool by exact name. Never write slash-prose.
 
 That is the production shape: short frontmatter, portable tier, `readonly`, closed tool list, one
 job, exact Skill-tool names. Squad agents are `loop-*`. The implementer is `standard`; other loop
-agents are `fast`. Bodies stay Matt-tiny (16 non-empty lines; security reviewer 28). Copy from
-[`plugins/squad/agents/`](../plugins/squad/agents/); do not invent a public command per specialist.
+agents are `fast`. Bodies stay operational-but-short (28 non-empty lines after frontmatter;
+security reviewer 40). Numbered steps, required outputs, one Good/Bad pair — not essay soup.
+Copy from [`plugins/squad/agents/`](../plugins/squad/agents/); do not invent a public command
+per specialist.
 
 | Field | Required | Rule |
 |---|---|---|
@@ -58,7 +60,9 @@ The vocabulary lives in `tools/AgentPacks.Cli/Generation/NeutralTools.cs`, which
 
 ## Writing the prompt
 
-The body is the system prompt. Say what the agent does, in what order, and what it must not do. A reviewer that can edit files will eventually edit files, so state the boundary and grant only the tools it needs.
+The body is the system prompt. One job. Numbered steps. A Good/Bad pair. Required output fields.
+A reviewer that can edit files will eventually edit files, so state the boundary and grant only the
+tools it needs. Load skills with the Skill tool by exact name.
 
 ## What gets generated
 

@@ -11,8 +11,10 @@ metadata:
 The facts an agent needs before it touches a `.csproj`. Read the repository's own files first — the layout below is the common one, not a guarantee.
 When opening a solution or package graph, load `dotnet-solution` by exact Skill tool name. Use local `dotnet sln list` / `dotnet list package` or the local stdio MCP. Never a remote service.
 
-Before writing C#, read every file in `references/standards/`. In the authored source tree, before
-marketplace generation, the same canonical documents are under `../../standards/`.
+When loaded by exact Skill tool name `dotnet-build` during implement or review:
+1. Read every file in `references/standards/` (authored tree: `../../standards/` before generation).
+2. Standards in force: `csharp.md`, `async-errors.md`.
+3. Cite the document filename on each edit (`csharp.md`, not "the C# standard").
 
 ## Find the shape before building
 

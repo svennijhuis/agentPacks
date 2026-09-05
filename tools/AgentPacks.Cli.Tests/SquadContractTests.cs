@@ -353,6 +353,39 @@ public class SquadContractTests
         Assert.DoesNotContain("do not write `decisions.md`", contract, StringComparison.Ordinal);
     }
 
+    [Fact]
+    public void Loop_agents_restore_operational_steps_not_empty_tiny()
+    {
+        var implementer = Fixture("loop-implementer.md");
+        var planner = Fixture("loop-planner.md");
+        var verifier = Fixture("loop-verifier.md");
+        var reviewer = Fixture("loop-reviewer.md");
+        var simplifier = Fixture("loop-simplifier.md");
+        var security = Fixture("loop-security-reviewer.md");
+        var orchestrator = Fixture("loop-orchestrator.md");
+
+        Assert.Contains("references/standards/", implementer, StringComparison.Ordinal);
+        Assert.Contains("Standards in force", implementer, StringComparison.Ordinal);
+        Assert.Contains("Standards followed", implementer, StringComparison.Ordinal);
+        Assert.Contains("You are not the author of the rejected code", implementer, StringComparison.Ordinal);
+        Assert.Contains("Good:", implementer, StringComparison.Ordinal);
+        Assert.Contains("docs/decisions.md", planner, StringComparison.Ordinal);
+        Assert.Contains("find facts yourself", planner, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("Visit applicable branches", planner, StringComparison.Ordinal);
+        Assert.Contains("not covered", verifier, StringComparison.Ordinal);
+        Assert.Contains("this-change", verifier, StringComparison.Ordinal);
+        Assert.Contains("Do not edit a test to make it pass", verifier, StringComparison.Ordinal);
+        Assert.Contains("Dual-axis", reviewer, StringComparison.Ordinal);
+        Assert.Contains("cite the document", reviewer, StringComparison.Ordinal);
+        Assert.Contains("references/standards/", reviewer, StringComparison.Ordinal);
+        Assert.Contains("references/standards/", simplifier, StringComparison.Ordinal);
+        Assert.Contains("Deletion test", simplifier, StringComparison.Ordinal);
+        Assert.Contains("cite", security, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("input-error", orchestrator, StringComparison.Ordinal);
+        Assert.Contains("not verified", orchestrator, StringComparison.Ordinal);
+        Assert.Contains("blocks `pass`", orchestrator, StringComparison.Ordinal);
+    }
+
     /// <summary>
     /// The locked v1 plan is visible in-repo, not implied by code. README, plugin README, and
     /// the orchestrator skill must carry the same numbered block so a reader sees it immediately.
@@ -477,11 +510,25 @@ public class SquadContractTests
         foreach (var agent in AgentNames)
         {
             var text = Fixture($"{agent}.md");
-            var body = text[(text.LastIndexOf("---", StringComparison.Ordinal) + 3)..];
+            var body = BodyAfterFrontmatter(text);
             var lines = body.Split('\n').Count(line => !string.IsNullOrWhiteSpace(line));
-            var cap = agent == "loop-security-reviewer" ? 28 : 16;
+            var cap = agent == "loop-security-reviewer" ? 40 : 28;
             Assert.True(lines <= cap, $"{agent} body is {lines} lines; cap is {cap}.");
         }
+    }
+
+    /// <summary>
+    /// Closing frontmatter fence only. LastIndexOf("---") is wrong: the OWASP table uses
+    /// <c>|---|---|</c> and would drop the operational steps above it.
+    /// </summary>
+    private static string BodyAfterFrontmatter(string text)
+    {
+        const string fence = "---";
+        var start = text.IndexOf(fence, StringComparison.Ordinal);
+        Assert.True(start >= 0, "missing opening frontmatter fence");
+        var end = text.IndexOf(fence, start + fence.Length, StringComparison.Ordinal);
+        Assert.True(end > start, "missing closing frontmatter fence");
+        return text[(end + fence.Length)..];
     }
 
     /// <summary>Po 17 fail bar: no user-facing delivery*, no essay-length agent bodies.</summary>

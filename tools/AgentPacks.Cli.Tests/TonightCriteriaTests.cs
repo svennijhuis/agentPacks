@@ -47,6 +47,10 @@ public sealed class TonightCriteriaTests
         nameof(SquadContractTests.Optional_decisions_drop_box_is_read_not_eager_memory))]
     [InlineData("18 coworker local-dev docs", typeof(SquadContractTests),
         nameof(SquadContractTests.Coworker_local_dev_docs_name_validate_test_and_three_client_installs))]
+    [InlineData("restored operational steps", typeof(SquadContractTests),
+        nameof(SquadContractTests.Loop_agents_restore_operational_steps_not_empty_tiny))]
+    [InlineData("language skills name standards", typeof(LanguagePackContractTests),
+        nameof(LanguagePackContractTests.Language_slot_skills_name_their_canonical_standards))]
     public void Each_ticket_criterion_has_a_proving_test(string criterion, Type fixture, string method)
     {
         Assert.True(

@@ -11,8 +11,10 @@ metadata:
 The facts an agent needs before it touches a `Cargo.toml`. Read the repository's own files first —
 the layout below is the common one, not a guarantee.
 
-Before writing Rust, read every file in `references/standards/`. In the authored source tree, before
-marketplace generation, the same canonical documents are under `../../standards/`.
+When loaded by exact Skill tool name `rust-build` during implement or review:
+1. Read every file in `references/standards/` (authored tree: `../../standards/` before generation).
+2. Standards in force: `rust.md`, `errors-concurrency.md`.
+3. Cite the document filename on each edit (`rust.md`, not "the Rust standard").
 
 ## Find the shape before building
 

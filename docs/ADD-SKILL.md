@@ -54,6 +54,7 @@ Poor: `Helps with PDFs.`
 - Keep `SKILL.md` under roughly 500 lines. Move detail into `references/` and link to it — agents load those files only when needed.
 - Put runnable code in `scripts/`, static resources in `assets/`.
 - Reference other files with paths relative to the skill root, one level deep.
+- A language-pack slot names its canonical docs under `Standards in force:` and tells the agent to cite the filename during review and build. Load the slot with the Skill tool by exact name.
 
 ## YAML support
 

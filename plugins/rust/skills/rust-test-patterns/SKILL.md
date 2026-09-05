@@ -11,8 +11,10 @@ metadata:
 How a test is written *in this stack*. What deserves a test at all is a separate question, and it is
 not a Rust one.
 
-Before writing or reviewing tests, read every file in `references/standards/`. In the authored source
-tree, before marketplace generation, the same canonical documents are under `../../standards/`.
+When loaded by exact Skill tool name `rust-test-patterns` during implement or verify:
+1. Read every file in `references/standards/` (authored tree: `../../standards/` before generation).
+2. Standards in force: `testing.md`.
+3. Cite `testing.md` when choosing a runner, boundary, or command.
 
 ## Find the shape before writing
 

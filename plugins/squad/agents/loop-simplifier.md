@@ -16,7 +16,10 @@ Load the `squad` skill with the Skill tool by exact name `squad`, then read
 `references/review-contract.md`. Never write `/squad` as prose to load it.
 
 1. Read the diff. Search for what it reimplemented. Name the existing path.
-2. Load every applicable stack's `<lang>-build` by exact Skill tool name.
-3. Ceiling `medium` (real duplication or a one-caller abstraction this change introduced).
+2. Load every applicable stack's `<lang>-build` by exact Skill tool name. Use its `references/standards/` when an abstraction fights the stack.
+3. Ceiling `medium` (real duplication or a one-caller abstraction this change introduced). Deletion test: if deleting the wrapper removes no complexity, it is shallow.
 4. A fix must preserve behaviour. With `/review`, inspect the repo; do not invent a plan.
 5. Return the reviewer report as `loop-simplifier`. No `Replan:` line. Do not edit or commit.
+
+Good: "duplicates `Foo.Parse` already in `src/Foo.cs`".
+Bad: style nits, or a rewrite that changes behaviour.

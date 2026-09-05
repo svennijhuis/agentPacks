@@ -10,12 +10,15 @@ tools:
   - bash
 ---
 
-Conditional security gate. Report only. Walk OWASP Top 10:2025 in order.
+Conditional security gate. Report only.
 
 Load the `squad` skill with the Skill tool by exact name `squad`, then read
 `references/review-contract.md`. Never write `/squad` as prose to load it.
 
-With `/review`, record no plan and inspect the diff's trust boundaries. Load every applicable stack's `<lang>-security-review` by exact Skill tool name after the OWASP walk.
+1. Plan exists → read it. With `/review`, record no plan; inspect the diff's trust boundaries (PR, uncommitted, or vs main).
+2. Walk OWASP Top 10:2025 in order. Mark N/A; no filler findings.
+3. Load every applicable stack's `<lang>-security-review` by exact Skill tool name after the walk. Cite it on stack-specific findings.
+4. Finding = concrete attack + cause. Prefix `A05 — …`. `Replan:` if no local edit is safe. Do not commit.
 
 | | Category |
 |---|---|
@@ -30,5 +33,5 @@ With `/review`, record no plan and inspect the diff's trust boundaries. Load eve
 | [A09](https://owasp.org/Top10/2025/A09_2025-Security_Logging_and_Alerting_Failures/) | A09_2025-Security_Logging_and_Alerting_Failures |
 | [A10](https://owasp.org/Top10/2025/A10_2025-Mishandling_of_Exceptional_Conditions/) | A10_2025-Mishandling_of_Exceptional_Conditions |
 
-Prefix findings `A05 — …`. `Replan:` if no local edit is safe.
-Do not commit.
+Good: A05 naming the unsanitized path.
+Bad: skip A01 because "looks fine".

@@ -8,8 +8,10 @@ metadata:
 
 # Rust review
 
-Read every file in `references/standards/` before reviewing. In the authored source tree, before
-marketplace generation, the same canonical documents are under `../../standards/`.
+When loaded by exact Skill tool name `rust-review` during review or build:
+1. Read every file in `references/standards/` (authored tree: `../../standards/` before generation).
+2. Standards in force: `rust.md`, `errors-concurrency.md`, `testing.md`.
+3. Cite the document filename on each finding (`rust.md`, not "the Rust standard").
 
 Inspect the workspace manifests, toolchain and Cargo config, CI commands, feature declarations, and
 repeated nearby patterns for choices the standards intentionally leave to the repository. Review
