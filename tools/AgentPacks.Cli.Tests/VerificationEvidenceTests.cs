@@ -45,6 +45,16 @@ public sealed class VerificationEvidenceTests
     [Fact]
     public void Criterion_command_that_never_covers_is_not_verified_and_not_a_pass()
     {
+        var emptyCommand = VerificationEvidence.Parse("""
+            | Criterion | Result | Command | Evidence |
+            |---|---|---|---|
+            | 1 | pass |  | assumed from reading the code |
+
+            **Suite:** pass
+            **Stacks:** dotnet
+            **Coverage:** empty input
+            """);
+
         var claimedPass = VerificationEvidence.Parse("""
             | Criterion | Result | Command | Evidence |
             |---|---|---|---|
@@ -67,8 +77,11 @@ public sealed class VerificationEvidenceTests
             **Coverage:** empty input
             """);
 
+        Assert.False(VerificationEvidence.IsCoveringCommand(emptyCommand.Criteria[0].Command));
         Assert.False(VerificationEvidence.IsCoveringCommand(claimedPass.Criteria[0].Command));
         Assert.Equal(VerificationEvidence.NotVerified, honest.Criteria[0].Result);
+        Assert.Equal(VerificationOutcome.NotPass,
+            VerificationEvidence.Evaluate(new VerificationContext(true, ["dotnet"], emptyCommand)));
         Assert.Equal(VerificationOutcome.NotPass,
             VerificationEvidence.Evaluate(new VerificationContext(true, ["dotnet"], claimedPass)));
         Assert.Equal(VerificationOutcome.NotPass,
