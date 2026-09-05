@@ -4,6 +4,7 @@ An append-only, human-readable run log for the next `/squad` or `/review`. It li
 `docs/learnings.md` in the repository being changed.
 
 It is not a second brain. It is not eager memory. It does not rewrite skills.
+`docs/decisions.md` is an optional human drop-box, not this log.
 
 ## When to read
 
@@ -43,7 +44,7 @@ a skill from the log.
 | Skipped | Agent or phase plus the reason, or `None` |
 | Ran | Phases that actually executed |
 | Result | `pass`, `fail`, `stopped`, or `uncommitted hand-off` |
-| Next tweak | One concrete adjustment for the next run, or `None` |
+| Next tweak | One concrete adjustment that cites Result — not a vibe — or `None` |
 
 A **pass** keeps the recorded tier. A **fail** or **stopped** demotes one tier
 (`frontier` → `standard` → `fast` → `inherit`) on the next same-entrypoint run.

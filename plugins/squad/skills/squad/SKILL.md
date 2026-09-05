@@ -79,8 +79,8 @@ Required slots: `<lang>-build`, `<lang>-test-patterns`.
 ## Plan
 
 Read [the planning contract](references/planning-contract.md). Invoke `loop-planner` once per
-turn. Grill stays here: facts via the planner; decisions = human. After confirmation, write
-exactly `docs/plans/<slug>.md`.
+turn. Grill stays here: facts via the planner; decisions = human. Read `docs/decisions.md` when
+it exists; do not write it. After confirmation, write exactly `docs/plans/<slug>.md`.
 
 ## Implement, verify, review
 

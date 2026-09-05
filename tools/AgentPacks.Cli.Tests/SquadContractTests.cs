@@ -316,6 +316,26 @@ public class SquadContractTests
         Assert.Contains("Happy-path-only", implementer, StringComparison.Ordinal);
     }
 
+    [Fact]
+    public void Optional_decisions_drop_box_is_read_not_eager_memory()
+    {
+        var skill = Fixture("SKILL.md");
+        var contract = Fixture("planning-contract.md");
+        var learnings = Fixture("learnings.md");
+
+        Assert.Contains("docs/decisions.md", skill, StringComparison.Ordinal);
+        Assert.Contains("do not write it", skill, StringComparison.Ordinal);
+        Assert.Contains("docs/decisions.md", contract, StringComparison.Ordinal);
+        Assert.Contains("human-readable drop-box", contract, StringComparison.Ordinal);
+        Assert.Contains("not eager memory", contract, StringComparison.Ordinal);
+        Assert.Contains("Never create, edit, or append that file", contract, StringComparison.Ordinal);
+        Assert.Contains("Decisions table", contract, StringComparison.Ordinal);
+        Assert.Contains("Human drop-box:", contract, StringComparison.Ordinal);
+        Assert.Contains("optional human drop-box", learnings, StringComparison.Ordinal);
+        Assert.Contains("not a vibe", learnings, StringComparison.Ordinal);
+        Assert.DoesNotContain("do not write `decisions.md`", contract, StringComparison.Ordinal);
+    }
+
     /// <summary>
     /// The locked v1 plan is visible in-repo, not implied by code. README, plugin README, and
     /// the orchestrator skill must carry the same numbered block so a reader sees it immediately.

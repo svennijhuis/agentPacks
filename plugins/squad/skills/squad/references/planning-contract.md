@@ -10,8 +10,11 @@ The planner handles one invocation and returns. It never addresses the user dire
 
 Grill-style planning is this contract: frontier rounds with a recommended answer on every question.
 Facts are discovered by the planner (a subagent). Decisions stay with the human. Do not load a
-separate grilling skill or an external skills catalog. The plan's Decisions table is the drop-box;
-do not write `decisions.md`.
+separate grilling skill or an external skills catalog.
+
+Optional `docs/decisions.md` is a human-readable drop-box, not eager memory. Read it when present
+and treat its entries as settled human decisions. Never create, edit, or append that file. The
+plan's Decisions table still records this run.
 
 ## Planner input
 
@@ -22,6 +25,7 @@ Mode: next-round | write-plan
 Request: <user request>
 Repository evidence: <paths, configuration, standards, workspace facts, and cited primary sources>
 Settled decisions: <numbered decisions and rejected alternatives>
+Human drop-box: <docs/decisions.md contents when that file exists, or None>
 Previous user answers: <latest answers, or None>
 Open frontier: <known open decisions and dependencies>
 Plan path: docs/plans/<slug>.md

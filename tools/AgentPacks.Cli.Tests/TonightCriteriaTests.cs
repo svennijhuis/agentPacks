@@ -37,6 +37,8 @@ public sealed class TonightCriteriaTests
         nameof(SquadContractTests.Readme_mirrors_the_orchestrator_numbered_flow))]
     [InlineData("17 structure audit", typeof(PluginMcpContractTests),
         nameof(PluginMcpContractTests.Authored_skills_agents_and_commands_share_one_frontmatter_shape))]
+    [InlineData("research decisions drop-box", typeof(SquadContractTests),
+        nameof(SquadContractTests.Optional_decisions_drop_box_is_read_not_eager_memory))]
     public void Each_ticket_criterion_has_a_proving_test(string criterion, Type fixture, string method)
     {
         Assert.True(
