@@ -105,4 +105,10 @@ Authored: `plugin.json`, `skills/`, `rules/`, `agents/`, and `commands/`.
 
 Generated only in validation output or on the marketplace branch: client manifests and `com.*` provider trees.
 
+Portable model tiers are authored on each agent and mapped in [`models.source.json`](../../models.source.json).
+Default `inherit`. The implementer is `standard`; other loop agents are `fast`.
+
+Test changes on a feature branch without merging to `main`:
+[ADD-SKILL.md — Test a skill locally](../../docs/ADD-SKILL.md#test-a-skill-locally).
+
 See [ADD-SKILL.md](../../docs/ADD-SKILL.md), [ADD-HOOK.md](../../docs/ADD-HOOK.md), [ADD-AGENT.md](../../docs/ADD-AGENT.md), and [ADD-RULE.md](../../docs/ADD-RULE.md).

@@ -66,7 +66,7 @@ Capability packs — installed because of a workflow you want wired into the age
 
 | Plugin | Who installs it | Holds |
 | --- | --- | --- |
-| `delivery-loop` | anyone who wants a change planned before it is built and checked after | the user-invoked `delivery-loop` orchestrator, planning, review and learnings contracts, a Cursor-only scoped checklist, all seven Loop agents, and the `/build` and `/review` commands |
+| `delivery-loop` | anyone who wants a change planned before it is built and checked after | the user-invoked orchestrator (`/squad` or `/build`, and `/review`), planning, review and learnings contracts, seven Loop agents, and per-role model tiers |
 | `git` | anyone letting an agent run git | one `beforeShellExecution` hook that blocks the commands which destroy work: `reset --hard`, `clean -f`, `push --force`, `branch -D`, `checkout .`, `restore .` |
 
 A capability pack is the exception to "a role is a role pack", and it earns the exception only by shipping components a skill cannot express: rules that apply without being invoked, subagents, commands, or hooks. A pack that would hold nothing but skills is a role pack, not a capability pack.
@@ -135,12 +135,13 @@ The two user-facing loop entrypoints are user-invoked. Everything they load by e
 name stays model-invoked so the orchestrator can reach it.
 
 - `delivery-loop` sets `disable-model-invocation: true` (and the generated Codex
-  `agents/openai.yaml`). People type `/build` or `/review`; the model does not pick the orchestrator.
+  `agents/openai.yaml`). People type `/squad` or `/build`, and `/review`; the model does not pick
+  the orchestrator.
 - The contracted `<lang>-*` slot skills stay model-invoked and are resolved **by exact Skill tool
   name**. They carry `metadata.audience: loop` so they do not look like a second public entrypoint.
   Making one user-only would silently remove it from the workflow.
-- `/build` and `/review` are the only commands. There is no second skill pack and no public skill
-  surface for planner/reviewer internals.
+- `/squad` or `/build`, and `/review`, are the only commands. There is no second skill pack and no
+  public skill surface for planner/reviewer internals.
 
 Reach for user-invoked on a skill that is destructive, is scaffolding that should never run unasked,
 or is a setup step that runs once — and on the orchestrator itself, so planning does not start

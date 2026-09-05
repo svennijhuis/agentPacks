@@ -54,7 +54,11 @@ That is deliberate. Frameworks churn faster than languages; if the loop's contra
 ```bash
 dotnet test tools/AgentPacks.slnx
 dotnet run --project tools/AgentPacks.Cli -- validate
+dotnet run --project tools/AgentPacks.Cli -- validate-all --out /tmp/agentpacks-marketplace
 ```
+
+Those commands work on a feature branch. Do not merge to `main` or publish to the marketplace
+branch to test a pack.
 
 Frontmatter and body rules are the ordinary skill rules: [ADD-SKILL.md](ADD-SKILL.md).
 

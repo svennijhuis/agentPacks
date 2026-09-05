@@ -8,13 +8,13 @@ Three capability packs, installed because you want a behaviour wired into the ag
 
 | Plugin | Use it for |
 | --- | --- |
-| `delivery-loop` | User-invoked `/build` and `/review`: the main agent mediates grill-style planning, runs plan-bound implementation and verification, fans dual-axis reviewers, and merges at most two fix rounds before an uncommitted hand-off |
+| `delivery-loop` | User-invoked `/squad` or `/build`, and `/review`: grill-style planning, gated implement/verify/review, ≤2 fix rounds, uncommitted hand-off, append-only learnings |
 | `pack-check` | Detecting the repository stack at session start and asking before installing the language pack that supplies its required build and test skills |
 | `git` | Blocking the git commands that destroy work an agent cannot get back — `reset --hard`, `clean -fd`, `push --force`, `branch -D`, `checkout .` — before the client runs them |
 | `dotnet` | Teaching the loop how C# is built, tested and reviewed, backed by one canonical set of standards distributed only to the skills that need each document |
 | `rust` | Teaching the loop how Cargo workspaces are built, tested and reviewed, backed by canonical Rust, error/concurrency, and testing standards |
 
-That is the whole catalog today, deliberately. The remaining role packs (`engineering`, `productivity`, `security`) and language pack (`typescript`) are planned and have their own rules for what earns one — a pack that ships nothing but an empty `plugin.json` advertises an install that does nothing, so they are added when there is real content to add. The reasoning is in [`docs/PLAN.md`](docs/PLAN.md).
+That is the whole catalog. [`docs/PLAN.md`](docs/PLAN.md) is the rule for what earns a later pack, not a list of packs that exist.
 
 Adding the marketplace makes all plugins discoverable. Install only the plugins you want. The commands install globally for your user.
 
@@ -134,6 +134,10 @@ second skill pack, Matt catalog dump, eager fan-out, self-improve graphs, auto s
 Step 1 **applies** the latest same-entrypoint entry when gating and spinning. Keep a passed
 skip and tier; a failed skip becomes a must-run. After a fail, demote one model tier. Do not
 rewrite skills. That is the whole v1 self-improve half: apply notes, no graphs.
+
+Portable model tiers live in [`models.source.json`](models.source.json) (default `inherit`;
+implementer `standard`; other loop agents `fast`). Test a skill on a feature branch without
+merging to `main`: [docs/ADD-SKILL.md](docs/ADD-SKILL.md#test-a-skill-locally).
 
 ### `/squad` or `/build`
 
