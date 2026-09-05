@@ -1,0 +1,31 @@
+{
+  "name": "pack-check",
+  "version": "0.1.0",
+  "description": "Detects the repository stack at session start and offers to install the language pack that supplies its required build and test skills.",
+  "author": {
+    "name": "agentPacks Maintainers"
+  },
+  "license": "UNLICENSED",
+  "keywords": [
+    "stack",
+    "detection",
+    "language-packs",
+    "onboarding"
+  ],
+  "skills": "./skills/",
+  "hooks": "./com.openai.codex/hooks/hooks.json",
+  "interface": {
+    "displayName": "Pack Check",
+    "shortDescription": "Detects the repository stack at session start and offers to install the language pack that supplies its required build and test skills.",
+    "longDescription": "Detects the repository stack at session start and offers to install the language pack that supplies its required build and test skills.",
+    "developerName": "agentPacks Maintainers",
+    "category": "Productivity",
+    "capabilities": [
+      "Skills",
+      "Hooks"
+    ],
+    "defaultPrompt": [
+      "Use the Pack Check plugin when it is relevant to this task."
+    ]
+  }
+}

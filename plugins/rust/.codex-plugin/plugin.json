@@ -1,0 +1,33 @@
+{
+  "name": "rust",
+  "version": "0.1.0",
+  "description": "The Rust pack: canonical Cargo build, implementation, test and review standards consumed by the delivery loop.",
+  "author": {
+    "name": "agentPacks Maintainers"
+  },
+  "license": "UNLICENSED",
+  "keywords": [
+    "rust",
+    "cargo",
+    "language-pack",
+    "build",
+    "testing",
+    "review",
+    "rustfmt",
+    "clippy"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Rust",
+    "shortDescription": "The Rust pack: canonical Cargo build, implementation, test and review standards consumed by the delivery loop.",
+    "longDescription": "The Rust pack: canonical Cargo build, implementation, test and review standards consumed by the delivery loop.",
+    "developerName": "agentPacks Maintainers",
+    "category": "Productivity",
+    "capabilities": [
+      "Skills"
+    ],
+    "defaultPrompt": [
+      "Use the Rust plugin when it is relevant to this task."
+    ]
+  }
+}

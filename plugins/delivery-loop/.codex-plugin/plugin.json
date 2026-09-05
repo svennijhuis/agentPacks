@@ -1,0 +1,33 @@
+{
+  "name": "delivery-loop",
+  "version": "0.1.0",
+  "description": "Uses the main agent to mediate planning, run plan-bound implementation and verification, fan reviewers out, and merge at most two fix rounds before an uncommitted hand-off.",
+  "author": {
+    "name": "agentPacks Maintainers"
+  },
+  "license": "UNLICENSED",
+  "keywords": [
+    "workflow",
+    "planning",
+    "implementation",
+    "testing",
+    "review",
+    "security",
+    "owasp",
+    "agents"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Delivery Loop",
+    "shortDescription": "Uses the main agent to mediate planning, run plan-bound implementation and verification, fan reviewers out, and merge at most two fix rounds before an uncommitted hand-off.",
+    "longDescription": "Uses the main agent to mediate planning, run plan-bound implementation and verification, fan reviewers out, and merge at most two fix rounds before an uncommitted hand-off.",
+    "developerName": "agentPacks Maintainers",
+    "category": "Productivity",
+    "capabilities": [
+      "Skills"
+    ],
+    "defaultPrompt": [
+      "Use the Delivery Loop plugin when it is relevant to this task."
+    ]
+  }
+}

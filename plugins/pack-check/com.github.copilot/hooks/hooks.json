@@ -1,0 +1,12 @@
+{
+  "version": 1,
+  "hooks": {
+    "SessionStart": [
+      {
+        "type": "command",
+        "bash": "\"${PLUGIN_ROOT}/scripts/pack-check-session\"",
+        "powershell": "& \"${PLUGIN_ROOT}/scripts/pack-check-session.ps1\""
+      }
+    ]
+  }
+}

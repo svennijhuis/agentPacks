@@ -1,0 +1,124 @@
+{
+  "name": "agentpacks",
+  "owner": {
+    "name": "agentPacks Maintainers"
+  },
+  "metadata": {
+    "description": "Private agentPacks plugins. Generated from the portable Agent Plugins source."
+  },
+  "plugins": [
+    {
+      "name": "delivery-loop",
+      "source": "./plugins/delivery-loop",
+      "description": "Uses the main agent to mediate planning, run plan-bound implementation and verification, fan reviewers out, and merge at most two fix rounds before an uncommitted hand-off.",
+      "author": {
+        "name": "agentPacks Maintainers"
+      },
+      "license": "UNLICENSED",
+      "keywords": [
+        "workflow",
+        "planning",
+        "implementation",
+        "testing",
+        "review",
+        "security",
+        "owasp",
+        "agents"
+      ],
+      "skills": "./skills/",
+      "agents": [
+        "./com.anthropic.claude-code/agents/loop-implementer.md",
+        "./com.anthropic.claude-code/agents/loop-orchestrator.md",
+        "./com.anthropic.claude-code/agents/loop-planner.md",
+        "./com.anthropic.claude-code/agents/loop-reviewer.md",
+        "./com.anthropic.claude-code/agents/loop-security-reviewer.md",
+        "./com.anthropic.claude-code/agents/loop-simplifier.md",
+        "./com.anthropic.claude-code/agents/loop-verifier.md"
+      ],
+      "commands": [
+        "./com.anthropic.claude-code/commands/"
+      ],
+      "strict": false
+    },
+    {
+      "name": "dotnet",
+      "source": "./plugins/dotnet",
+      "description": "The C# and .NET pack: canonical build, implementation, test and review standards consumed by the delivery loop.",
+      "author": {
+        "name": "agentPacks Maintainers"
+      },
+      "license": "UNLICENSED",
+      "keywords": [
+        "dotnet",
+        "csharp",
+        "language-pack",
+        "build",
+        "testing",
+        "review",
+        "editorconfig"
+      ],
+      "skills": "./skills/",
+      "strict": false
+    },
+    {
+      "name": "git",
+      "source": "./plugins/git",
+      "description": "Blocks the git commands that destroy work an agent cannot get back: reset --hard, clean -fd, push --force, branch -D, and checkout or restore over the working tree.",
+      "author": {
+        "name": "agentPacks Maintainers"
+      },
+      "license": "UNLICENSED",
+      "keywords": [
+        "git",
+        "guardrails",
+        "safety",
+        "data-loss",
+        "hooks"
+      ],
+      "hooks": "./com.anthropic.claude-code/hooks/hooks.json",
+      "strict": false
+    },
+    {
+      "name": "pack-check",
+      "source": "./plugins/pack-check",
+      "description": "Detects the repository stack at session start and offers to install the language pack that supplies its required build and test skills.",
+      "author": {
+        "name": "agentPacks Maintainers"
+      },
+      "license": "UNLICENSED",
+      "keywords": [
+        "stack",
+        "detection",
+        "language-packs",
+        "onboarding"
+      ],
+      "skills": "./skills/",
+      "commands": [
+        "./com.anthropic.claude-code/commands/"
+      ],
+      "hooks": "./com.anthropic.claude-code/hooks/hooks.json",
+      "strict": false
+    },
+    {
+      "name": "rust",
+      "source": "./plugins/rust",
+      "description": "The Rust pack: canonical Cargo build, implementation, test and review standards consumed by the delivery loop.",
+      "author": {
+        "name": "agentPacks Maintainers"
+      },
+      "license": "UNLICENSED",
+      "keywords": [
+        "rust",
+        "cargo",
+        "language-pack",
+        "build",
+        "testing",
+        "review",
+        "rustfmt",
+        "clippy"
+      ],
+      "skills": "./skills/",
+      "strict": false
+    }
+  ]
+}

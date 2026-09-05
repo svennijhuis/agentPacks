@@ -1,0 +1,32 @@
+{
+  "name": "dotnet",
+  "version": "0.1.0",
+  "description": "The C# and .NET pack: canonical build, implementation, test and review standards consumed by the delivery loop.",
+  "author": {
+    "name": "agentPacks Maintainers"
+  },
+  "license": "UNLICENSED",
+  "keywords": [
+    "dotnet",
+    "csharp",
+    "language-pack",
+    "build",
+    "testing",
+    "review",
+    "editorconfig"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Dotnet",
+    "shortDescription": "The C# and .NET pack: canonical build, implementation, test and review standards consumed by the delivery loop.",
+    "longDescription": "The C# and .NET pack: canonical build, implementation, test and review standards consumed by the delivery loop.",
+    "developerName": "agentPacks Maintainers",
+    "category": "Productivity",
+    "capabilities": [
+      "Skills"
+    ],
+    "defaultPrompt": [
+      "Use the Dotnet plugin when it is relevant to this task."
+    ]
+  }
+}

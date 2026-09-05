@@ -1,0 +1,19 @@
+{
+  "name": "rust",
+  "version": "0.1.0",
+  "description": "The Rust pack: canonical Cargo build, implementation, test and review standards consumed by the delivery loop.",
+  "author": {
+    "name": "agentPacks Maintainers"
+  },
+  "license": "UNLICENSED",
+  "keywords": [
+    "rust",
+    "cargo",
+    "language-pack",
+    "build",
+    "testing",
+    "review",
+    "rustfmt",
+    "clippy"
+  ]
+}

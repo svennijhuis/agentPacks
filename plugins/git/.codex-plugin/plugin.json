@@ -1,0 +1,30 @@
+{
+  "name": "git",
+  "version": "0.1.0",
+  "description": "Blocks the git commands that destroy work an agent cannot get back: reset --hard, clean -fd, push --force, branch -D, and checkout or restore over the working tree.",
+  "author": {
+    "name": "agentPacks Maintainers"
+  },
+  "license": "UNLICENSED",
+  "keywords": [
+    "git",
+    "guardrails",
+    "safety",
+    "data-loss",
+    "hooks"
+  ],
+  "hooks": "./com.openai.codex/hooks/hooks.json",
+  "interface": {
+    "displayName": "Git",
+    "shortDescription": "Blocks the git commands that destroy work an agent cannot get back: reset --hard, clean -fd, push --force, branch -D, and checkout or restore over the working tree.",
+    "longDescription": "Blocks the git commands that destroy work an agent cannot get back: reset --hard, clean -fd, push --force, branch -D, and checkout or restore over the working tree.",
+    "developerName": "agentPacks Maintainers",
+    "category": "Productivity",
+    "capabilities": [
+      "Hooks"
+    ],
+    "defaultPrompt": [
+      "Use the Git plugin when it is relevant to this task."
+    ]
+  }
+}

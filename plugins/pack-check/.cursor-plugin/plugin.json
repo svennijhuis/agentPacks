@@ -1,0 +1,15 @@
+{
+  "name": "pack-check",
+  "version": "0.1.0",
+  "description": "Detects the repository stack at session start and offers to install the language pack that supplies its required build and test skills.",
+  "author": {
+    "name": "agentPacks Maintainers"
+  },
+  "license": "UNLICENSED",
+  "keywords": [
+    "stack",
+    "detection",
+    "language-packs",
+    "onboarding"
+  ]
+}

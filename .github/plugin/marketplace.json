@@ -1,0 +1,112 @@
+{
+  "name": "agentpacks",
+  "owner": {
+    "name": "agentPacks Maintainers"
+  },
+  "metadata": {
+    "description": "agentPacks plugins generated for GitHub Copilot CLI."
+  },
+  "plugins": [
+    {
+      "name": "delivery-loop",
+      "source": "./plugins/delivery-loop",
+      "description": "Uses the main agent to mediate planning, run plan-bound implementation and verification, fan reviewers out, and merge at most two fix rounds before an uncommitted hand-off.",
+      "strict": false,
+      "author": {
+        "name": "agentPacks Maintainers"
+      },
+      "license": "UNLICENSED",
+      "keywords": [
+        "workflow",
+        "planning",
+        "implementation",
+        "testing",
+        "review",
+        "security",
+        "owasp",
+        "agents"
+      ],
+      "skills": "./skills/",
+      "agents": "./com.github.copilot/agents/",
+      "commands": "./com.github.copilot/commands/"
+    },
+    {
+      "name": "dotnet",
+      "source": "./plugins/dotnet",
+      "description": "The C# and .NET pack: canonical build, implementation, test and review standards consumed by the delivery loop.",
+      "strict": false,
+      "author": {
+        "name": "agentPacks Maintainers"
+      },
+      "license": "UNLICENSED",
+      "keywords": [
+        "dotnet",
+        "csharp",
+        "language-pack",
+        "build",
+        "testing",
+        "review",
+        "editorconfig"
+      ],
+      "skills": "./skills/"
+    },
+    {
+      "name": "git",
+      "source": "./plugins/git",
+      "description": "Blocks the git commands that destroy work an agent cannot get back: reset --hard, clean -fd, push --force, branch -D, and checkout or restore over the working tree.",
+      "strict": false,
+      "author": {
+        "name": "agentPacks Maintainers"
+      },
+      "license": "UNLICENSED",
+      "keywords": [
+        "git",
+        "guardrails",
+        "safety",
+        "data-loss",
+        "hooks"
+      ],
+      "hooks": "./com.github.copilot/hooks/hooks.json"
+    },
+    {
+      "name": "pack-check",
+      "source": "./plugins/pack-check",
+      "description": "Detects the repository stack at session start and offers to install the language pack that supplies its required build and test skills.",
+      "strict": false,
+      "author": {
+        "name": "agentPacks Maintainers"
+      },
+      "license": "UNLICENSED",
+      "keywords": [
+        "stack",
+        "detection",
+        "language-packs",
+        "onboarding"
+      ],
+      "skills": "./skills/",
+      "commands": "./com.github.copilot/commands/",
+      "hooks": "./com.github.copilot/hooks/hooks.json"
+    },
+    {
+      "name": "rust",
+      "source": "./plugins/rust",
+      "description": "The Rust pack: canonical Cargo build, implementation, test and review standards consumed by the delivery loop.",
+      "strict": false,
+      "author": {
+        "name": "agentPacks Maintainers"
+      },
+      "license": "UNLICENSED",
+      "keywords": [
+        "rust",
+        "cargo",
+        "language-pack",
+        "build",
+        "testing",
+        "review",
+        "rustfmt",
+        "clippy"
+      ],
+      "skills": "./skills/"
+    }
+  ]
+}
