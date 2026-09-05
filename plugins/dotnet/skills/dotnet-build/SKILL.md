@@ -1,6 +1,6 @@
 ---
 name: dotnet-build
-description: Internal loop skill. Loaded by the delivery-loop orchestrator by exact Skill tool name, not as a user entrypoint. How a .NET repository is laid out, restored and built — solution files, Central Package Management, SDK pinning, lock files, and the exact build, run and format commands.
+description: Internal loop skill. Loaded by the Squad orchestrator by exact Skill tool name, not as a user entrypoint. How a .NET repository is laid out, restored and built — solution files, Central Package Management, SDK pinning, lock files, and the exact build, run and format commands.
 license: UNLICENSED
 metadata:
   audience: loop

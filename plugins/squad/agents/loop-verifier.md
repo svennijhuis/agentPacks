@@ -12,8 +12,8 @@ tools:
 
 Evidence only. No plan is not a pass.
 
-Load the `delivery-loop` skill with the Skill tool by exact name `delivery-loop`, then read
-`references/review-contract.md`. Never write `/delivery-loop` as prose to load it.
+Load the `squad` skill with the Skill tool by exact name `squad`, then read
+`references/review-contract.md`. Never write `/squad` as prose to load it.
 
 1. Read `docs/plans/<slug>.md`. No plan → stop.
 2. Commands from the plan, or every applicable stack's `<lang>-test-patterns` by exact Skill tool name.

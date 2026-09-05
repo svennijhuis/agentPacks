@@ -4,7 +4,7 @@ using AgentPacks.Cli.Loading;
 namespace AgentPacks.Cli.Validation;
 
 /// <summary>
-/// Enforces the contract a language pack fills for the delivery loop.
+/// Enforces the contract a language pack fills for Squad.
 /// <para>
 /// The loop's agents load a language pack's skills by name — <c>dotnet-build</c>,
 /// <c>dotnet-test-patterns</c> and the rest — so the names are the entire interface. A skill called
@@ -63,7 +63,7 @@ internal sealed class LanguagePackValidator(RepositoryContext context)
             context.Diagnostics.Policy(
                 manifest,
                 $"declares the '{LanguagePackContract.Keyword}' keyword but is missing required slot " +
-                $"skills: {string.Join(", ", missing.Select(skill => $"'{skill}'"))}. The delivery loop " +
+                $"skills: {string.Join(", ", missing.Select(skill => $"'{skill}'"))}. Squad " +
                 "requires both build and test support. See docs/ADD-LANGUAGE-PACK.md.");
         }
 
@@ -123,7 +123,7 @@ internal sealed class LanguagePackValidator(RepositoryContext context)
             context.Diagnostics.Policy(
                 relative,
                 $"contracted slot '{skill.DirectoryName}' must set metadata.audience to 'loop'. " +
-                "The delivery-loop orchestrator loads it by exact Skill tool name; it is not a " +
+                "The Squad orchestrator loads it by exact Skill tool name; it is not a " +
                 "user entrypoint.");
         }
     }

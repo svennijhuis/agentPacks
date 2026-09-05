@@ -2,7 +2,7 @@
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "dotnet",
   "version": "0.1.0",
-  "description": "The C# and .NET pack: canonical build, implementation, test and review standards consumed by the delivery loop.",
+  "description": "The C# and .NET pack: canonical build, implementation, test and review standards consumed by Squad.",
   "author": {
     "name": "agentPacks Maintainers"
   },

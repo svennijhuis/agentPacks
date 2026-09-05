@@ -1,6 +1,6 @@
 # Learnings log
 
-An append-only, human-readable run log for the next `/build` or `/review`. It lives at
+An append-only, human-readable run log for the next `/squad` or `/review`. It lives at
 `docs/learnings.md` in the repository being changed.
 
 It is not a second brain. It is not eager memory. It does not rewrite skills.
@@ -8,7 +8,7 @@ It is not a second brain. It is not eager memory. It does not rewrite skills.
 ## When to read
 
 The orchestrator reads this file first, when it exists, before routing, and **applies** the latest
-same-entrypoint entry (`/squad` and `/build` are the same). Prefer that entry's model tier after a
+same-entrypoint entry. Old `/build` headings still apply to `/squad`. Prefer that entry's model tier after a
 `pass`. After a `fail` or `stopped`, demote one tier. Prefer its skips only when the result was
 `pass`. A skip from a `fail` or `stopped` run is a must-run on the next gate. Do not paste the
 whole file into later phases, and do not rewrite skills.
@@ -21,9 +21,9 @@ a skill from the log.
 ## Entry shape
 
 ```markdown
-## 2026-09-05 — /build
+## 2026-09-05 — /squad
 
-- Entrypoint: build
+- Entrypoint: squad
 - Provider: cursor
 - Model tier: inherit
 - Agents spun: loop-planner, loop-implementer, loop-verifier, loop-reviewer, loop-simplifier, loop-orchestrator
@@ -35,8 +35,8 @@ a skill from the log.
 
 | Field | Rule |
 |---|---|
-| Heading | Date (`YYYY-MM-DD`) and the entrypoint (`/build` or `/review`) |
-| Entrypoint | `build` or `review` |
+| Heading | Date (`YYYY-MM-DD`) and the entrypoint (`/squad` or `/review`) |
+| Entrypoint | `squad` or `review` |
 | Provider | The client that ran: `claude`, `cursor`, `copilot`, or `codex` |
 | Model tier | The portable tier that ran: `inherit`, `fast`, `standard`, or `frontier` |
 | Agents spun | Exact agent names that were invoked |

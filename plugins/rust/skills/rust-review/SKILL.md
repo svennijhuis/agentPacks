@@ -1,6 +1,6 @@
 ---
 name: rust-review
-description: Internal loop skill. Loaded by the delivery-loop orchestrator by exact Skill tool name, not as a user entrypoint. Supply Rust-specific findings from the pack's canonical ownership, API, error, concurrency, unsafe-code, and testing standards.
+description: Internal loop skill. Loaded by the Squad orchestrator by exact Skill tool name, not as a user entrypoint. Supply Rust-specific findings from the pack's canonical ownership, API, error, concurrency, unsafe-code, and testing standards.
 license: UNLICENSED
 metadata:
   audience: loop
@@ -28,7 +28,7 @@ For each finding, supply a precise location, impact-based severity recommendatio
 actionable fix, and the canonical standard or repository evidence that supports it. A compiler or
 Clippy warning informs the finding; it does not determine severity without reachability and impact.
 
-Return findings to the caller. Do not require or invent the delivery-loop table: a Loop caller maps
+Return findings to the caller. Do not require or invent the Squad table: a Loop caller maps
 findings into its shared review contract, while a standalone review may use its own format. Do not
 restate unchanged code, enforce `--all-features` without repository evidence, edit the code, or
 commit, merge, or push.

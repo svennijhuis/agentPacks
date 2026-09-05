@@ -1,16 +1,15 @@
-# delivery-loop
+# Squad
 
-A capability pack for a user-invoked, main-agent-controlled delivery workflow. Two entrypoints:
-`/squad` or `/build` (same command), and `/review`. The `delivery-loop` skill is the thin
-orchestrator and is not model-invoked.
+A capability pack for a user-invoked, main-agent-controlled Squad workflow. Two entrypoints:
+`/squad` and `/review`. The `squad` skill is the thin orchestrator and is not model-invoked.
 
 The numbered flow below is locked v1 and is copied verbatim into the
-[skill](skills/delivery-loop/SKILL.md) and the repository [README](../../README.md).
+[skill](skills/squad/SKILL.md) and the repository [README](../../README.md).
 
 ## Locked v1 flow
 
 ```text
-/squad or /build (user-invoked orchestrator)
+/squad (user-invoked orchestrator)
 1. Read and apply learnings.md (append-only): prefer passed skips/tiers; avoid what failed
 2. Orient codebase (applicable stacks only)
 3. Small change? → main agent only, spawn nobody → verify → append learnings → hand off uncommitted
@@ -40,10 +39,10 @@ Obvious typos, renames, and one-line fixes take the small-change route: the main
 
 | Component | Name | Responsibility |
 |---|---|---|
-| Skill | `delivery-loop` | User-invoked routing, exact Skill-name loading, security gate, fix-round cap, learnings, worktree lifecycle, and hand-off |
+| Skill | `squad` | User-invoked routing, exact Skill-name loading, security gate, fix-round cap, learnings, worktree lifecycle, and hand-off |
 | Contract | `planning-contract` | Turn-based grill inside the orchestrator: frontier rounds, recommended answers, confirmation, plan shape |
 | Contract | `review-contract` | Dual-axis review, severity, report formats, verify-path evaluator gates, and verdict rules |
-| Contract | `learnings` | Append-only run log read on the next `/build` or `/review` |
+| Contract | `learnings` | Append-only run log read on the next `/squad` or `/review` |
 | Rule | `review-checklist` | Source-review checklist scoped by glob; Cursor-only by design |
 | Agent | `loop-planner` | Returns one numbered planning round, or writes the one confirmed plan |
 | Agent | `loop-implementer` | Implements a confirmed plan or merged fix list |
@@ -52,8 +51,7 @@ Obvious typos, renames, and one-line fixes take the small-change route: the main
 | Agent | `loop-security-reviewer` | Reviews trust-boundary changes against [OWASP Top 10:2025](https://owasp.org/Top10/) |
 | Agent | `loop-simplifier` | Finds unnecessary implementation complexity |
 | Agent | `loop-orchestrator` | Deduplicates completed reports, assigns the verdict, and appends the fix list |
-| Command | `build` | Runs a new change through the proportional workflow |
-| Command | `squad` | Alias of `build` |
+| Command | `squad` | Runs a new change through the proportional workflow |
 | Command | `review` | Reviews a PR, uncommitted work, or a diff versus main, without a plan, verdict, or fix round |
 
 All seven agents remain portable across supported generated clients.
@@ -96,7 +94,7 @@ The scoped-rule limitation is intentional. Cursor is the only target that can ca
 Codex agent files are generated for manual copy:
 
 ```shell
-cp plugins/delivery-loop/com.openai.codex/agents/*.toml .codex/agents/
+cp plugins/squad/com.openai.codex/agents/*.toml .codex/agents/
 ```
 
 ## Editing

@@ -4,7 +4,7 @@ using AgentPacks.Cli.Validation;
 namespace AgentPacks.Cli.Tests;
 
 /// <summary>
-/// The delivery loop loads a language pack's skills by exact name, so the names are the contract.
+/// Squad loads a language pack's skills by exact name, so the names are the contract.
 /// Every failure here is one nothing else in the build would report: the pack loads, validates and
 /// installs, and the loop just never asks for the skill.
 /// </summary>
@@ -118,6 +118,27 @@ public class LanguagePackContractTests
         var run = repo.Validate();
 
         Assert.DoesNotContain(run.Diagnostics, d => d.Message.Contains("contracted slot"));
+    }
+
+    [Fact]
+    public void Authored_slot_skills_are_loop_audience_not_user_entrypoints()
+    {
+        var root = SourceRoot();
+        foreach (var relative in new[]
+        {
+            Path.Combine("plugins", "dotnet", "skills", "dotnet-build", "SKILL.md"),
+            Path.Combine("plugins", "dotnet", "skills", "dotnet-test-patterns", "SKILL.md"),
+            Path.Combine("plugins", "dotnet", "skills", "dotnet-review", "SKILL.md"),
+            Path.Combine("plugins", "rust", "skills", "rust-build", "SKILL.md"),
+            Path.Combine("plugins", "rust", "skills", "rust-test-patterns", "SKILL.md"),
+            Path.Combine("plugins", "rust", "skills", "rust-review", "SKILL.md")
+        })
+        {
+            var skill = File.ReadAllText(Path.Combine(root, relative));
+            Assert.Contains("audience: loop", skill, StringComparison.Ordinal);
+            Assert.Contains("not as a user entrypoint", skill, StringComparison.Ordinal);
+            Assert.DoesNotContain("disable-model-invocation: true", skill, StringComparison.Ordinal);
+        }
     }
 
     [Fact]

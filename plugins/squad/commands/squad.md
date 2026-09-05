@@ -1,14 +1,14 @@
 ---
-name: build
-description: User-invoked Squad-style orchestrator. The main agent mediates planning, implements, verifies, reviews on two axes, and hands off uncommitted. Use --no-pack to continue a full loop after declining a missing language pack.
+name: squad
+description: User-invoked Squad orchestrator. The main agent mediates planning, implements, verifies, reviews on two axes, and hands off uncommitted. Use --no-pack to continue a full loop after declining a missing language pack.
 ---
 
-# Build a change
+# Squad
 
-Load the `delivery-loop` skill with the Skill tool by exact name `delivery-loop`. Never write
-`/delivery-loop` as prose to load it. Then read `references/planning-contract.md` and
-`references/review-contract.md`. Read `docs/learnings.md` first when that file exists and
-**apply** the latest same-entrypoint entry when gating and spinning.
+Load the `squad` skill with the Skill tool by exact name `squad`. Never write `/squad` as prose
+to load it. Then read `references/planning-contract.md` and `references/review-contract.md`. Read
+`docs/learnings.md` first when that file exists and **apply** the latest same-entrypoint entry
+when gating and spinning.
 
 The main agent is the thin workflow controller. Specialists own their context.
 

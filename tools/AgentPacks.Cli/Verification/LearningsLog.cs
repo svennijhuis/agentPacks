@@ -135,7 +135,7 @@ public static partial class LearningsLog
     public static string CanonicalEntrypoint(string value) =>
         value.Trim().Trim('/').ToLowerInvariant() switch
         {
-            "squad" => "build",
+            "build" => "squad",
             var other => other
         };
 

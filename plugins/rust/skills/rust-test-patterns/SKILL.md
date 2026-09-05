@@ -1,6 +1,6 @@
 ---
 name: rust-test-patterns
-description: Internal loop skill. Loaded by the delivery-loop orchestrator by exact Skill tool name, not as a user entrypoint. How tests are written and run in a Rust repository — unit, integration and doc tests, async runtimes, feature matrices, Cargo and nextest commands.
+description: Internal loop skill. Loaded by the Squad orchestrator by exact Skill tool name, not as a user entrypoint. How tests are written and run in a Rust repository — unit, integration and doc tests, async runtimes, feature matrices, Cargo and nextest commands.
 license: UNLICENSED
 metadata:
   audience: loop

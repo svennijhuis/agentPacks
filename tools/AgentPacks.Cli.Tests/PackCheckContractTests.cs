@@ -175,17 +175,17 @@ public sealed class PackCheckContractTests
     }
 
     [Fact]
-    public void Delivery_loop_honors_install_refusal_bypass_and_small_change_gate()
+    public void Squad_honors_install_refusal_bypass_and_small_change_gate()
     {
         var skill = Fixture("SKILL.md");
-        var delivery = File.ReadAllText(
-            Path.Combine(AppContext.BaseDirectory, "Fixtures", "delivery-loop", "build.md"));
+        var squad = File.ReadAllText(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "squad", "squad.md"));
 
         Assert.Contains("do not ask again in that session", skill, StringComparison.OrdinalIgnoreCase);
         Assert.Contains("continue an ordinary", skill, StringComparison.OrdinalIgnoreCase);
-        Assert.Contains("--no-pack", delivery, StringComparison.Ordinal);
-        Assert.Contains("Small work may continue", delivery, StringComparison.Ordinal);
-        Assert.Contains("stop for a reload before creating `docs/plans/`", delivery, StringComparison.Ordinal);
+        Assert.Contains("--no-pack", squad, StringComparison.Ordinal);
+        Assert.Contains("Small work may continue", squad, StringComparison.Ordinal);
+        Assert.Contains("stop for a reload before creating `docs/plans/`", squad, StringComparison.Ordinal);
     }
 
     private static IReadOnlyList<string> RegistryPacks(string registry) =>

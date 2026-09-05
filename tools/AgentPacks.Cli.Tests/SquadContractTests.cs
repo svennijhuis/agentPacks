@@ -1,13 +1,13 @@
 namespace AgentPacks.Cli.Tests;
 
-/// <summary>Guards the authored and generated delivery-loop behavioral contracts.</summary>
-public class DeliveryLoopContractTests
+/// <summary>Guards the authored and generated Squad behavioral contracts.</summary>
+public class SquadContractTests
 {
     private const string Manifest = """
         {
           "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
-          "name": "delivery-loop",
-          "description": "Test delivery loop."
+          "name": "squad",
+          "description": "Test Squad."
         }
         """;
 
@@ -23,14 +23,14 @@ public class DeliveryLoopContractTests
     ];
 
     private static string Fixture(string name) =>
-        File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "Fixtures", "delivery-loop", name));
+        File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "Fixtures", "squad", name));
 
     [Fact]
     public void All_seven_agents_are_preserved_in_every_generated_agent_client()
     {
-        using var repo = new TestRepository().WithPlugin("delivery-loop", Manifest);
+        using var repo = new TestRepository().WithPlugin("squad", Manifest);
         foreach (var agent in AgentNames)
-            repo.WithFile($"plugins/delivery-loop/agents/{agent}.md", Fixture($"{agent}.md"));
+            repo.WithFile($"plugins/squad/agents/{agent}.md", Fixture($"{agent}.md"));
 
         var run = repo.ValidateAndGenerate();
 
@@ -39,9 +39,9 @@ public class DeliveryLoopContractTests
         foreach (var agent in AgentNames)
         {
             Assert.Contains($"name: {agent}", Fixture($"{agent}.md"), StringComparison.Ordinal);
-            Assert.False(string.IsNullOrWhiteSpace(run.File($"plugins/delivery-loop/com.anthropic.claude-code/agents/{agent}.md").Text));
-            Assert.False(string.IsNullOrWhiteSpace(run.File($"plugins/delivery-loop/com.openai.codex/agents/{agent}.toml").Text));
-            Assert.False(string.IsNullOrWhiteSpace(run.File($"plugins/delivery-loop/com.github.copilot/agents/{agent}.agent.md").Text));
+            Assert.False(string.IsNullOrWhiteSpace(run.File($"plugins/squad/com.anthropic.claude-code/agents/{agent}.md").Text));
+            Assert.False(string.IsNullOrWhiteSpace(run.File($"plugins/squad/com.openai.codex/agents/{agent}.toml").Text));
+            Assert.False(string.IsNullOrWhiteSpace(run.File($"plugins/squad/com.github.copilot/agents/{agent}.agent.md").Text));
         }
     }
 
@@ -73,7 +73,7 @@ public class DeliveryLoopContractTests
     public void Small_changes_bypass_every_plan_dependent_and_review_phase_agent()
     {
         var skill = Fixture("SKILL.md");
-        var command = Fixture("build.md");
+        var command = Fixture("squad.md");
 
         foreach (var agent in AgentNames)
             Assert.Contains(agent, command, StringComparison.Ordinal);
@@ -88,7 +88,7 @@ public class DeliveryLoopContractTests
     [Fact]
     public void Main_agent_fans_reviewers_out_and_orchestrator_only_merges_completed_reports()
     {
-        var command = Fixture("build.md");
+        var command = Fixture("squad.md");
         var orchestrator = Fixture("loop-orchestrator.md");
 
         Assert.Contains("Directly launch", command, StringComparison.Ordinal);
@@ -153,7 +153,7 @@ public class DeliveryLoopContractTests
     public void Malformed_report_input_is_terminal_and_cannot_enter_a_retry_loop()
     {
         var skill = Fixture("SKILL.md");
-        var command = Fixture("build.md");
+        var command = Fixture("squad.md");
         var standalone = Fixture("review.md");
         var orchestrator = Fixture("loop-orchestrator.md");
         var contract = Fixture("review-contract.md");
@@ -216,23 +216,22 @@ public class DeliveryLoopContractTests
     }
 
     [Fact]
-    public void Two_user_invoked_entrypoints_are_build_and_review()
+    public void Two_user_invoked_entrypoints_are_squad_and_review()
     {
         var skill = Fixture("SKILL.md");
-        var build = Fixture("build.md");
+        var squad = Fixture("squad.md");
         var review = Fixture("review.md");
 
         Assert.Contains("disable-model-invocation: true", skill, StringComparison.Ordinal);
         Assert.Contains("Two entrypoints only", skill, StringComparison.Ordinal);
-        Assert.Contains("`/squad` or `/build`", skill, StringComparison.Ordinal);
+        Assert.Contains("`/squad`", skill, StringComparison.Ordinal);
         Assert.Contains("`/review`", skill, StringComparison.Ordinal);
-        Assert.Contains("name: build", build, StringComparison.Ordinal);
+        Assert.DoesNotContain("`/squad` or `/build`", skill, StringComparison.Ordinal);
+        Assert.Contains("name: squad", squad, StringComparison.Ordinal);
         Assert.Contains("name: review", review, StringComparison.Ordinal);
-        Assert.Contains("name: squad", File.ReadAllText(
-            Path.Combine(AppContext.BaseDirectory, "Fixtures", "delivery-loop", "squad.md")),
-            StringComparison.Ordinal);
-        Assert.DoesNotContain("name: deliver", build + review, StringComparison.Ordinal);
-        Assert.DoesNotContain("name: review-diff", build + review, StringComparison.Ordinal);
+        Assert.DoesNotContain("name: build", squad + review, StringComparison.Ordinal);
+        Assert.DoesNotContain("name: deliver", squad + review, StringComparison.Ordinal);
+        Assert.DoesNotContain("name: review-diff", squad + review, StringComparison.Ordinal);
     }
 
     [Fact]
@@ -240,7 +239,7 @@ public class DeliveryLoopContractTests
     {
         var combined = string.Join('\n',
             Fixture("SKILL.md"),
-            Fixture("build.md"),
+            Fixture("squad.md"),
             Fixture("review.md"),
             Fixture("loop-planner.md"),
             Fixture("loop-implementer.md"),
@@ -249,8 +248,8 @@ public class DeliveryLoopContractTests
             Fixture("loop-simplifier.md"));
 
         Assert.Contains("Skill tool by exact name", combined, StringComparison.Ordinal);
-        Assert.Contains("Never write `/delivery-loop`", combined, StringComparison.Ordinal);
-        Assert.DoesNotContain("Load `/delivery-loop`", combined, StringComparison.Ordinal);
+        Assert.Contains("Never write `/squad`", combined, StringComparison.Ordinal);
+        Assert.DoesNotContain("Load `/squad`", combined, StringComparison.Ordinal);
         Assert.DoesNotContain("Load `/dotnet-build`", combined, StringComparison.Ordinal);
         Assert.DoesNotContain("mattpocock", combined, StringComparison.OrdinalIgnoreCase);
         Assert.DoesNotContain("grill-me", combined, StringComparison.Ordinal);
@@ -295,7 +294,7 @@ public class DeliveryLoopContractTests
     public void Readme_mirrors_the_orchestrator_numbered_flow()
     {
         const string flow = """
-            /squad or /build (user-invoked orchestrator)
+            /squad (user-invoked orchestrator)
             1. Read and apply learnings.md (append-only): prefer passed skips/tiers; avoid what failed
             2. Orient codebase (applicable stacks only)
             3. Small change? → main agent only, spawn nobody → verify → append learnings → hand off uncommitted
@@ -315,7 +314,7 @@ public class DeliveryLoopContractTests
 
         var root = SourceRoot();
         var readme = File.ReadAllText(Path.Combine(root, "README.md"));
-        var pluginReadme = File.ReadAllText(Path.Combine(root, "plugins", "delivery-loop", "README.md"));
+        var pluginReadme = File.ReadAllText(Path.Combine(root, "plugins", "squad", "README.md"));
         var skill = Fixture("SKILL.md");
 
         Assert.Contains(flow, readme, StringComparison.Ordinal);
@@ -331,6 +330,31 @@ public class DeliveryLoopContractTests
         Assert.Contains("without merging to `main`", coworkerDocs, StringComparison.Ordinal);
         Assert.Contains("dotnet test tools/AgentPacks.slnx", coworkerDocs, StringComparison.Ordinal);
         Assert.Contains("validate-all --out", coworkerDocs, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void User_facing_surfaces_do_not_say_delivery_loop()
+    {
+        var root = SourceRoot();
+        var surfaces = new[]
+        {
+            Path.Combine(root, "README.md"),
+            Path.Combine(root, "plugins", "squad", "README.md"),
+            Path.Combine(root, "plugins", "squad", "plugin.json"),
+            Path.Combine(root, "plugins", "squad", "skills", "squad", "SKILL.md"),
+            Path.Combine(root, "plugins", "squad", "commands", "squad.md"),
+            Path.Combine(root, "plugins", "squad", "commands", "review.md")
+        };
+
+        foreach (var path in surfaces)
+        {
+            var text = File.ReadAllText(path);
+            Assert.DoesNotContain("delivery-loop", text, StringComparison.OrdinalIgnoreCase);
+            Assert.DoesNotContain("delivery loop", text, StringComparison.OrdinalIgnoreCase);
+        }
+
+        Assert.False(File.Exists(Path.Combine(root, "plugins", "squad", "commands", "build.md")));
+        Assert.False(Directory.Exists(Path.Combine(root, "plugins", "delivery-loop")));
     }
 
     [Fact]

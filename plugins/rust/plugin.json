@@ -2,7 +2,7 @@
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "rust",
   "version": "0.1.0",
-  "description": "The Rust pack: canonical Cargo build, implementation, test and review standards consumed by the delivery loop.",
+  "description": "The Rust pack: canonical Cargo build, implementation, test and review standards consumed by Squad.",
   "author": {
     "name": "agentPacks Maintainers"
   },

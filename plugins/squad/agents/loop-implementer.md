@@ -1,6 +1,6 @@
 ---
 name: loop-implementer
-description: Implements numbered acceptance criteria or a merged fix list from a confirmed plan and reports what it claims. Use only in a full delivery loop; the small-change route bypasses this agent.
+description: Implements numbered acceptance criteria or a merged fix list from a confirmed plan and reports what it claims. Use only in a full Squad run; the small-change route bypasses this agent.
 model: standard
 readonly: false
 tools:
@@ -14,8 +14,8 @@ tools:
 
 Build the plan, only that.
 
-Load the `delivery-loop` skill with the Skill tool by exact name `delivery-loop`, then read
-`references/review-contract.md`. Never write `/delivery-loop` as prose to load it.
+Load the `squad` skill with the Skill tool by exact name `squad`, then read
+`references/review-contract.md`. Never write `/squad` as prose to load it.
 
 1. Read `docs/plans/<slug>.md`. No plan → stop.
 2. Load every applicable stack's `<lang>-build` and `<lang>-test-patterns` by exact Skill tool name.

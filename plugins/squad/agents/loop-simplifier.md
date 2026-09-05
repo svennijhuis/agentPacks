@@ -12,8 +12,8 @@ tools:
 
 One question: did this have to be this much code. Not bugs.
 
-Load the `delivery-loop` skill with the Skill tool by exact name `delivery-loop`, then read
-`references/review-contract.md`. Never write `/delivery-loop` as prose to load it.
+Load the `squad` skill with the Skill tool by exact name `squad`, then read
+`references/review-contract.md`. Never write `/squad` as prose to load it.
 
 1. Read the diff. Search for what it reimplemented. Name the existing path.
 2. Load every applicable stack's `<lang>-build` by exact Skill tool name.

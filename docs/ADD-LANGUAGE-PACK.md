@@ -1,6 +1,6 @@
 # Add a language pack
 
-A language pack is how the [delivery loop](../plugins/delivery-loop/README.md) learns what it is looking at. The loop's agents are language-agnostic on purpose; the code they edit never is. This document is the contract between the two.
+A language pack is how [Squad](../plugins/squad/README.md) learns what it is looking at. The loop's agents are language-agnostic on purpose; the code they edit never is. This document is the contract between the two.
 
 Read [the catalog plan](PLAN.md) first — it decides *whether* something earns a plugin. This decides what a language pack must contain once it has.
 
@@ -38,12 +38,12 @@ them from the loop.
 
 Framework knowledge keeps the `[<framework>-]<action>-<object>` shape from [PLAN.md](PLAN.md) — `aspnet-api-design`, `react-component-scaffold`, `axum-routing` — and is reached *through* the slot skills, never discovered by the loop directly.
 
-That is deliberate. Frameworks churn faster than languages; if the loop's contract named them, every Next.js major would be a change to the delivery loop.
+That is deliberate. Frameworks churn faster than languages; if the loop's contract named them, every Next.js major would be a change to Squad.
 
 ## Steps
 
 1. Confirm the pack earns a plugin at all: [PLAN.md](PLAN.md). A framework never does.
-2. Create both `plugins/<lang>/skills/<lang>-build/SKILL.md` and `plugins/<lang>/skills/<lang>-test-patterns/SKILL.md`. A delivery loop must be able to build and verify the stack.
+2. Create both `plugins/<lang>/skills/<lang>-build/SKILL.md` and `plugins/<lang>/skills/<lang>-test-patterns/SKILL.md`. Squad must be able to build and verify the stack.
 3. Add `"language-pack"` to `keywords` in `plugins/<lang>/plugin.json`. That is what turns the validator's checks on.
 4. Add the marker, stack and pack row to `plugins/pack-check/skills/pack-check/references/packs.md`. That row is what makes the new pack discoverable at session start.
 5. Fill the optional review slots as you have real content for them. A thin `<lang>-security-review` is worse than none — OWASP is already the floor.

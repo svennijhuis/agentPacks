@@ -1,18 +1,18 @@
 ---
-name: delivery-loop
-description: User-invoked orchestrator for /squad or /build, and /review. Mediates grill-style planning, runs plan-bound implementation and verification, fans reviewers on two axes, and caps two fix rounds. Do not model-invoke; type the entrypoint.
+name: squad
+description: User-invoked orchestrator for /squad and /review. Mediates grill-style planning, runs plan-bound implementation and verification, fans reviewers on two axes, and caps two fix rounds. Do not model-invoke; type the entrypoint.
 license: UNLICENSED
 disable-model-invocation: true
 ---
 
-# Delivery loop
+# Squad
 
-Two entrypoints only: `/squad` or `/build` (same command), and `/review`. Type the command.
+Two entrypoints only: `/squad` and `/review`. Type the command.
 
 ## Locked v1 flow
 
 ```text
-/squad or /build (user-invoked orchestrator)
+/squad (user-invoked orchestrator)
 1. Read and apply learnings.md (append-only): prefer passed skips/tiers; avoid what failed
 2. Orient codebase (applicable stacks only)
 3. Small change? → main agent only, spawn nobody → verify → append learnings → hand off uncommitted
@@ -49,7 +49,7 @@ Cost-first: default `inherit`. `loop-implementer` is `standard`. Other loop agen
 
 ## Skills
 
-Load only with the Skill tool by exact name: `delivery-loop`, `<lang>-build`,
+Load only with the Skill tool by exact name: `squad`, `<lang>-build`,
 `<lang>-test-patterns`, `<lang>-review`, `<lang>-security-review`. Never write slash-prose.
 Language-pack slots are internals (`metadata.audience: loop`).
 

@@ -1,6 +1,6 @@
 ---
 name: rust-build
-description: Internal loop skill. Loaded by the delivery-loop orchestrator by exact Skill tool name, not as a user entrypoint. How a Rust repository is laid out, checked and built — Cargo workspaces, toolchain pinning, features, lock files, and the exact check, build, run, format and Clippy commands.
+description: Internal loop skill. Loaded by the Squad orchestrator by exact Skill tool name, not as a user entrypoint. How a Rust repository is laid out, checked and built — Cargo workspaces, toolchain pinning, features, lock files, and the exact check, build, run, format and Clippy commands.
 license: UNLICENSED
 metadata:
   audience: loop

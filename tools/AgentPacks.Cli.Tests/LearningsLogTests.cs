@@ -67,7 +67,8 @@ public sealed class LearningsLogTests
             """, "build");
 
         Assert.Equal("standard", fromSquadHeading.PreferredTier);
-        Assert.Equal("build", LearningsLog.CanonicalEntrypoint("squad"));
+        Assert.Equal("squad", LearningsLog.CanonicalEntrypoint("build"));
+        Assert.Equal("squad", LearningsLog.CanonicalEntrypoint("squad"));
         Assert.Equal("claude", LearningsLog.Parse("""
             ## 2026-09-05 — /squad
 
@@ -121,9 +122,9 @@ public sealed class LearningsLogTests
     public void Authored_contract_requires_apply_not_acknowledge()
     {
         var skill = File.ReadAllText(Path.Combine(
-            AppContext.BaseDirectory, "Fixtures", "delivery-loop", "SKILL.md"));
+            AppContext.BaseDirectory, "Fixtures", "squad", "SKILL.md"));
         var learnings = File.ReadAllText(Path.Combine(
-            AppContext.BaseDirectory, "Fixtures", "delivery-loop", "learnings.md"));
+            AppContext.BaseDirectory, "Fixtures", "squad", "learnings.md"));
 
         Assert.Contains(
             "Read and apply learnings.md (append-only): prefer passed skips/tiers; avoid what failed",

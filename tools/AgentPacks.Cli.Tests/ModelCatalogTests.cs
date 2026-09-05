@@ -79,12 +79,12 @@ public sealed class ModelCatalogTests
     {
         using var repo = new TestRepository()
             .WithPlugin()
-            .WithSkill("delivery-loop", extraFrontmatter: "disable-model-invocation: true");
+            .WithSkill("squad", extraFrontmatter: "disable-model-invocation: true");
 
         var run = repo.ValidateAndGenerate();
 
         Assert.False(run.HasErrors, run.Text);
-        var yaml = run.File("plugins/engineering/skills/delivery-loop/agents/openai.yaml").Text;
+        var yaml = run.File("plugins/engineering/skills/squad/agents/openai.yaml").Text;
         Assert.Contains("allow_implicit_invocation: false", yaml, StringComparison.Ordinal);
     }
 
@@ -104,10 +104,10 @@ public sealed class ModelCatalogTests
     }
 
     [Fact]
-    public void Authored_delivery_loop_skill_is_user_invoked()
+    public void Authored_squad_skill_is_user_invoked()
     {
         var skill = File.ReadAllText(Path.Combine(
-            SourceRoot(), "plugins", "delivery-loop", "skills", "delivery-loop", "SKILL.md"));
+            SourceRoot(), "plugins", "squad", "skills", "squad", "SKILL.md"));
 
         Assert.Contains("disable-model-invocation: true", skill, StringComparison.Ordinal);
     }

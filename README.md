@@ -8,7 +8,7 @@ Three capability packs, installed because you want a behaviour wired into the ag
 
 | Plugin | Use it for |
 | --- | --- |
-| `delivery-loop` | User-invoked `/squad` or `/build`, and `/review`: grill-style planning, gated implement/verify/review, ≤2 fix rounds, uncommitted hand-off, append-only learnings |
+| `squad` | User-invoked `/squad` and `/review`: grill-style planning, gated implement/verify/review, ≤2 fix rounds, uncommitted hand-off, append-only learnings |
 | `pack-check` | Detecting the repository stack at session start and asking before installing the language pack that supplies its required build and test skills |
 | `git` | Blocking the git commands that destroy work an agent cannot get back — `reset --hard`, `clean -fd`, `push --force`, `branch -D`, `checkout .` — before the client runs them |
 | `dotnet` | Teaching the loop how C# is built, tested and reviewed, backed by one canonical set of standards distributed only to the skills that need each document |
@@ -22,7 +22,7 @@ Adding the marketplace makes all plugins discoverable. Install only the plugins 
 
 ```shell
 copilot plugin marketplace add https://github.com/svennijhuis/agentPacks.git#marketplace
-copilot plugin install delivery-loop@agentpacks
+copilot plugin install squad@agentpacks
 copilot plugin install pack-check@agentpacks
 copilot plugin install git@agentpacks
 copilot plugin install dotnet@agentpacks
@@ -39,7 +39,7 @@ copilot plugin marketplace update agentpacks
 
 ```shell
 codex plugin marketplace add svennijhuis/agentPacks --ref marketplace
-codex plugin add delivery-loop@agentpacks
+codex plugin add squad@agentpacks
 codex plugin add pack-check@agentpacks
 codex plugin add git@agentpacks
 codex plugin add dotnet@agentpacks
@@ -56,7 +56,7 @@ codex plugin marketplace upgrade agentpacks
 
 ```shell
 claude plugin marketplace add https://github.com/svennijhuis/agentPacks.git#marketplace --scope user
-claude plugin install delivery-loop@agentpacks --scope user
+claude plugin install squad@agentpacks --scope user
 claude plugin install pack-check@agentpacks --scope user
 claude plugin install git@agentpacks --scope user
 claude plugin install dotnet@agentpacks --scope user
@@ -76,7 +76,7 @@ Cursor supports the Agent Plugins standard. Until this repository is listed in a
 ```shell
 git clone --branch marketplace --single-branch https://github.com/svennijhuis/agentPacks.git ~/.cursor/agentPacks
 mkdir -p ~/.cursor/plugins/local
-ln -s ~/.cursor/agentPacks/plugins/delivery-loop ~/.cursor/plugins/local/delivery-loop
+ln -s ~/.cursor/agentPacks/plugins/squad ~/.cursor/plugins/local/squad
 ln -s ~/.cursor/agentPacks/plugins/pack-check ~/.cursor/plugins/local/pack-check
 ln -s ~/.cursor/agentPacks/plugins/git ~/.cursor/plugins/local/git
 ln -s ~/.cursor/agentPacks/plugins/dotnet ~/.cursor/plugins/local/dotnet
@@ -102,18 +102,17 @@ Skills and MCP servers are portable: every client loads them from the same files
 | GitHub Copilot | yes | yes | always-on only, at session start | yes | yes | yes |
 | Codex | yes | yes | always-on, manual copy | manual copy | — | yes |
 
-Codex loads subagents only from `.codex/agents/` and reads `AGENTS.md` from the workspace rather than from a plugin, so those arrive as generated files you copy once. Glob-scoped rules remain Cursor-only; other clients receive only always-on rules, and validation reports the expected portability warning. The [`delivery-loop`](plugins/delivery-loop/README.md) README has the details.
+Codex loads subagents only from `.codex/agents/` and reads `AGENTS.md` from the workspace rather than from a plugin, so those arrive as generated files you copy once. Glob-scoped rules remain Cursor-only; other clients receive only always-on rules, and validation reports the expected portability warning. The [`squad`](plugins/squad/README.md) README has the details.
 
 ## Using the plugins
 
-Two user-invoked entrypoints. The model does not pick the orchestrator. `/squad` and `/build` are
-the same command. The numbered flow below is the locked v1 plan; the
-[`delivery-loop` skill](plugins/delivery-loop/skills/delivery-loop/SKILL.md) carries the same block.
+Two user-invoked entrypoints. The model does not pick the orchestrator. The numbered flow below is
+the locked v1 plan; the [`squad` skill](plugins/squad/skills/squad/SKILL.md) carries the same block.
 
 ## Locked v1 flow
 
 ```text
-/squad or /build (user-invoked orchestrator)
+/squad (user-invoked orchestrator)
 1. Read and apply learnings.md (append-only): prefer passed skips/tiers; avoid what failed
 2. Orient codebase (applicable stacks only)
 3. Small change? → main agent only, spawn nobody → verify → append learnings → hand off uncommitted
@@ -139,11 +138,10 @@ Portable model tiers live in [`models.source.json`](models.source.json) (default
 implementer `standard`; other loop agents `fast`). Test a skill on a feature branch without
 merging to `main`: [docs/ADD-SKILL.md](docs/ADD-SKILL.md#test-a-skill-locally).
 
-### `/squad` or `/build`
+### `/squad`
 
 ```
 /squad add an integration test for the orders endpoint
-/build add an integration test for the orders endpoint
 ```
 
 ### `/review`

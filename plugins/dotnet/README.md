@@ -1,6 +1,6 @@
 # dotnet
 
-The C# and .NET language pack for the [delivery loop](../delivery-loop/README.md). It supplies the
+The C# and .NET language pack for [Squad](../squad/README.md). It supplies the
 build, test, and review skills that the Loop discovers by exact name.
 
 ## What is in it

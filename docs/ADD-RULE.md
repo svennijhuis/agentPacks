@@ -61,5 +61,5 @@ Copilot takes the same route, for a different reason. Its plugin schema declares
 Codex reads `AGENTS.md` from the workspace, not from a plugin. The generated file is ready to copy into the repository that needs it:
 
 ```shell
-cp plugins/delivery-loop/com.openai.codex/AGENTS.md ./AGENTS.md
+cp plugins/squad/com.openai.codex/AGENTS.md ./AGENTS.md
 ```

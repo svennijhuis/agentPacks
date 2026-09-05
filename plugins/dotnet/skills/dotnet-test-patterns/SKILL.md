@@ -1,6 +1,6 @@
 ---
 name: dotnet-test-patterns
-description: Internal loop skill. Loaded by the delivery-loop orchestrator by exact Skill tool name, not as a user entrypoint. How tests are written and run in a .NET repository — unit vs integration, xUnit fixtures, WebApplicationFactory, Testcontainers, and the exact test command.
+description: Internal loop skill. Loaded by the Squad orchestrator by exact Skill tool name, not as a user entrypoint. How tests are written and run in a .NET repository — unit vs integration, xUnit fixtures, WebApplicationFactory, Testcontainers, and the exact test command.
 license: UNLICENSED
 metadata:
   audience: loop
