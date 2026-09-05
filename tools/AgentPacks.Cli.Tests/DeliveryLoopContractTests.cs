@@ -298,7 +298,7 @@ public class DeliveryLoopContractTests
         Assert.Contains("Model tier:", learnings, StringComparison.Ordinal);
         Assert.Contains("Agents spun:", learnings, StringComparison.Ordinal);
         Assert.Contains("Next tweak:", learnings, StringComparison.Ordinal);
-        Assert.DoesNotContain("rewrite skills", learnings, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("does not rewrite skills", learnings, StringComparison.OrdinalIgnoreCase);
     }
 
     [Fact]

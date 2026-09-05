@@ -99,7 +99,8 @@ public static partial class VerificationEvidence
             WiderSuitePassed: !widerFailed && suite.Length > 0,
             WiderSuiteFailureOrigin: origin,
             StacksVerified: stacks,
-            BoundaryVerified: ContainsAny(boundary, "yes", "covered", "verified", "checked"),
+            BoundaryVerified: IsAffirmative(boundary) &&
+                               !ContainsAny(boundary, "not covered", "uncovered", "skipped"),
             IncludesEdgeCases: coverage.Length > 0 &&
                                !ContainsAny(coverage, "happy-path only", "happy path only"));
     }
@@ -182,6 +183,11 @@ public static partial class VerificationEvidence
             return [];
         }
 
+        if (ContainsAny(value, "both"))
+        {
+            return ["dotnet", "rust"];
+        }
+
         return value
             .Split([',', ';', '/', '+', '|', ' '], StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
             .Select(part => part.Trim().Trim('`').ToLowerInvariant())
@@ -189,6 +195,9 @@ public static partial class VerificationEvidence
             .Distinct(StringComparer.Ordinal)
             .ToList();
     }
+
+    private static bool IsAffirmative(string value) =>
+        ContainsAny(value, "yes", "covered", "verified", "checked");
 
     private static string Unwrap(string value)
     {

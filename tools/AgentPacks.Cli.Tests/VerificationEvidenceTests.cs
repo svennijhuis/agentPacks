@@ -146,6 +146,10 @@ public sealed class VerificationEvidenceTests
 
         var stacks = new[] { "dotnet", "rust" };
 
+        Assert.Equal(["rust"], rustOnly.StacksVerified);
+        Assert.False(rustOnly.BoundaryVerified);
+        Assert.False(bothNoBoundary.BoundaryVerified);
+        Assert.True(bothWithBoundary.BoundaryVerified);
         Assert.Equal(VerificationOutcome.NotPass,
             VerificationEvidence.Evaluate(new VerificationContext(true, stacks, rustOnly)));
         Assert.Equal(VerificationOutcome.NotPass,
