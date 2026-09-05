@@ -63,19 +63,33 @@ Frontmatter is parsed with a real YAML parser, so quoted values containing colon
 
 Do not publish to the marketplace branch or merge to `main` to test a skill. These commands
 work on a feature branch without merging to `main`. Coworker verification is real `dotnet test`
-/ `validate` / `validate-all --out` on a fixture, then a local symlink of that generated tree.
+/ `validate` / `validate-all --out` on a fixture, then a local install of that generated tree.
 
 A GitHub marketplace install is generated. Symlinking the authored `plugins/<name>` directory and
 trying it in a client is not enough: that tree is missing generated Codex policy, client agent
 files, and skill-local standards references.
 
-From a clone of this repository, against the same commands CI runs:
+1. Clone and check out the branch (`gh pr checkout 7` on this PR).
+2. Edit under `plugins/squad/` or a language pack.
+3. Validate and test, including the fixture plugin suite:
 
 ```bash
-dotnet test tools/AgentPacks.slnx
 dotnet run --project tools/AgentPacks.Cli -- validate
+dotnet test tools/AgentPacks.Cli.Tests
+dotnet test tools/AgentPacks.slnx
 dotnet run --project tools/AgentPacks.Cli -- validate-all --out /tmp/agentpacks-marketplace
 ```
+
+4. Install the generated copy locally — three client paths, no merge to `main`:
+
+```bash
+claude --plugin-dir /tmp/agentpacks-marketplace/plugins/squad
+ln -sfn /tmp/agentpacks-marketplace/plugins/squad ~/.cursor/plugins/local/squad
+copilot plugin marketplace add /tmp/agentpacks-marketplace
+copilot plugin install squad@agentpacks
+```
+
+5. Reload, then smoke `/squad` or `/review` once.
 
 `validate-all --out` writes the marketplace-shaped tree: client namespaces, remapped agent `model`
 fields, and `skills/<name>/agents/openai.yaml` for user-invoked skills. Inspect the fixture plugin

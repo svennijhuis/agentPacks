@@ -45,6 +45,8 @@ public sealed class TonightCriteriaTests
         nameof(ModelCatalogTests.Claude_receives_the_mapped_tier_and_copilot_and_codex_emit_model))]
     [InlineData("research decisions drop-box", typeof(SquadContractTests),
         nameof(SquadContractTests.Optional_decisions_drop_box_is_read_not_eager_memory))]
+    [InlineData("coworker local-dev docs", typeof(SquadContractTests),
+        nameof(SquadContractTests.Coworker_local_dev_docs_name_validate_test_and_three_client_installs))]
     public void Each_ticket_criterion_has_a_proving_test(string criterion, Type fixture, string method)
     {
         Assert.True(

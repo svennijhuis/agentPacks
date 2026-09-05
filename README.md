@@ -91,6 +91,35 @@ git -C ~/.cursor/agentPacks pull --ff-only
 
 Teams and Enterprise administrators can instead import this repository's `marketplace` branch as a team marketplace; users can then install plugins from **Customize**.
 
+## Local development
+
+Work on a feature branch. Do not merge to `main` or publish to `marketplace` to try a change.
+
+```bash
+git clone https://github.com/svennijhuis/agentPacks.git
+cd agentPacks
+gh pr checkout 7
+```
+
+Edit under `plugins/squad/` or a language pack (`plugins/dotnet/`, `plugins/rust/`).
+
+```bash
+dotnet run --project tools/AgentPacks.Cli -- validate
+dotnet test tools/AgentPacks.Cli.Tests
+dotnet run --project tools/AgentPacks.Cli -- validate-all --out /tmp/agentpacks-marketplace
+```
+
+Install the **generated** tree — not the authored `plugins/` folder — without merging. All three clients:
+
+```bash
+claude --plugin-dir /tmp/agentpacks-marketplace/plugins/squad
+ln -sfn /tmp/agentpacks-marketplace/plugins/squad ~/.cursor/plugins/local/squad
+copilot plugin marketplace add /tmp/agentpacks-marketplace
+copilot plugin install squad@agentpacks
+```
+
+Reload the client, then smoke `/squad` or `/review` once. The generated tree is what coworkers install; the authored tree is the source. The same loop is in [ADD-SKILL.md — Test a skill locally](docs/ADD-SKILL.md#test-a-skill-locally).
+
 ## What each client gets
 
 Skills and MCP servers are portable: every client loads them from the same files. Rules, subagents, commands and hooks are not — the Agent Plugins standard leaves all four out as too client-specific — so this repository authors them once and generates a tree per client.

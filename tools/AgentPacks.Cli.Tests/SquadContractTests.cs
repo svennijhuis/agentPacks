@@ -383,6 +383,24 @@ public class SquadContractTests
     }
 
     [Fact]
+    public void Coworker_local_dev_docs_name_validate_test_and_three_client_installs()
+    {
+        var root = SourceRoot();
+        var readme = File.ReadAllText(Path.Combine(root, "README.md"));
+        var docs = File.ReadAllText(Path.Combine(root, "docs", "ADD-SKILL.md"));
+        foreach (var text in new[] { readme, docs })
+        {
+            Assert.Contains("dotnet run --project tools/AgentPacks.Cli -- validate", text, StringComparison.Ordinal);
+            Assert.Contains("dotnet test tools/AgentPacks.Cli.Tests", text, StringComparison.Ordinal);
+            Assert.Contains("claude --plugin-dir", text, StringComparison.Ordinal);
+            Assert.Contains("~/.cursor/plugins/local", text, StringComparison.Ordinal);
+            Assert.Contains("copilot plugin marketplace add /tmp/agentpacks-marketplace", text, StringComparison.Ordinal);
+            Assert.Contains("/squad", text, StringComparison.Ordinal);
+            Assert.Contains("/review", text, StringComparison.Ordinal);
+        }
+    }
+
+    [Fact]
     public void User_facing_surfaces_do_not_say_delivery_loop()
     {
         var root = SourceRoot();
