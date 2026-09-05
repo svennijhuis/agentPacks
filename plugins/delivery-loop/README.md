@@ -1,7 +1,17 @@
 # delivery-loop
 
 A capability pack for a user-invoked, main-agent-controlled delivery workflow. Two entrypoints:
-`/build` and `/review`. The `delivery-loop` skill is the thin orchestrator and is not model-invoked.
+`/squad` or `/build` (same command), and `/review`. The `delivery-loop` skill is the thin
+orchestrator and is not model-invoked.
+
+```text
+learnings → orient → (small: spawn nobody) | (grill → plan → implement → verify → dual-axis review)
+         → ≤2 fix rounds → uncommitted hand-off → append learnings
+```
+
+The numbered flow lives in the [skill](skills/delivery-loop/SKILL.md) and is mirrored in the
+repository [README](../../README.md). Step 1 applies the latest learnings entry; it does not only
+acknowledge the file.
 
 ```text
 plan -> implement -> verify -> parallel review -> merge -> (fix -> verify -> parallel review -> merge) x 2 max -> hand off
@@ -28,6 +38,7 @@ Obvious typos, renames, and one-line fixes take the small-change route: the main
 | Agent | `loop-simplifier` | Finds unnecessary implementation complexity |
 | Agent | `loop-orchestrator` | Deduplicates completed reports, assigns the verdict, and appends the fix list |
 | Command | `build` | Runs a new change through the proportional workflow |
+| Command | `squad` | Alias of `build` |
 | Command | `review` | Reviews a PR, uncommitted work, or a diff versus main, without a plan, verdict, or fix round |
 
 All seven agents remain portable across supported generated clients.

@@ -7,9 +7,10 @@ It is not a second brain. It is not eager memory. It does not rewrite skills.
 
 ## When to read
 
-The orchestrator reads this file first, when it exists, before routing. Use the latest entries to
-see which agents last paid off, which were skipped and why, and the recorded next tweak. Do not
-paste the whole file into later phases.
+The orchestrator reads this file first, when it exists, before routing, and **applies** the latest
+same-entrypoint entry (`/squad` and `/build` are the same). Prefer that entry's model tier. Prefer
+its skips only when the result was `pass`. A skip from a `fail` or `stopped` run is a must-run on
+the next gate. Do not paste the whole file into later phases, and do not rewrite skills.
 
 ## When to write
 

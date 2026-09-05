@@ -106,17 +106,26 @@ Codex loads subagents only from `.codex/agents/` and reads `AGENTS.md` from the 
 
 ## Using the plugins
 
-Two slash commands, split by whether the code exists yet. Both are user-invoked; the model does not
-pick the orchestrator.
+Two user-invoked entrypoints. The model does not pick the orchestrator. `/squad` and `/build` are
+the same command.
+
+### `/squad` or `/build`
 
 ```
+/squad add an integration test for the orders endpoint
 /build add an integration test for the orders endpoint
 ```
 
-The main agent is a thin Squad-style lead. It prints the detected stack and standards, relays one
-planner question round at a time (grill stays inside those rounds), launches dual-axis reviewers in
-parallel, and ends at a hand-off with nothing committed. Obvious small changes are implemented and
-verified directly without phase agents.
+1. Read `docs/learnings.md` and **apply** the latest `/build`/`/squad` entry: keep a passed skip and
+   tier; a failed skip becomes a must-run. Do not rewrite skills.
+2. Orient the codebase (applicable stacks only).
+3. Small change? Main agent only — spawn nobody — verify — append learnings — hand off uncommitted.
+4. Else grill/plan rounds (facts via the planner; decisions = human) → write the confirmed plan.
+5. Gate spins: implementer → verifier → dual-axis reviewers in parallel (correctness + plan/spec;
+   security ONLY if a trust boundary, or learnings mark it must-run).
+6. Merge; at most two fix rounds on a fresh implementer; hand off uncommitted; append learnings.
+
+### `/review`
 
 ```
 /review
@@ -125,9 +134,13 @@ verified directly without phase agents.
 /review --base main
 ```
 
-The review phase on its own, for a change that arrived already written: a PR, uncommitted work, or a
-diff versus main. Correctness and simplification in parallel, with security added when a trust
-boundary changed. No plan means no verdict and no fix round.
+1. Apply the latest `/review` learnings entry.
+2. Pin the diff: PR, uncommitted, or versus main.
+3. Same gated dual-axis reviewers. No plan, no verdict, no fix loop.
+4. Append learnings.
+
+Language-pack slots (`dotnet-build`, `rust-review`, …) are loop internals, loaded by exact Skill
+tool name. They are not a second public skill surface.
 
 `git` needs no invocation either, and has nothing to ask: its hook blocks `git reset --hard`, `git clean -fd`, `git push --force`, `git branch -D`, `git checkout .` and `git restore .` before the client runs them, with the reason on stderr. [Its README](plugins/git/README.md) covers the `AGENTPACKS_GIT_GUARD=off` switch and which clients the blocking contract is actually verified on.
 

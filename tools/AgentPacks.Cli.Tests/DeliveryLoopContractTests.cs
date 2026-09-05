@@ -224,10 +224,13 @@ public class DeliveryLoopContractTests
 
         Assert.Contains("disable-model-invocation: true", skill, StringComparison.Ordinal);
         Assert.Contains("Two entrypoints only", skill, StringComparison.Ordinal);
-        Assert.Contains("`/build`", skill, StringComparison.Ordinal);
+        Assert.Contains("`/squad` or `/build`", skill, StringComparison.Ordinal);
         Assert.Contains("`/review`", skill, StringComparison.Ordinal);
         Assert.Contains("name: build", build, StringComparison.Ordinal);
         Assert.Contains("name: review", review, StringComparison.Ordinal);
+        Assert.Contains("name: squad", File.ReadAllText(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "delivery-loop", "squad.md")),
+            StringComparison.Ordinal);
         Assert.DoesNotContain("name: deliver", build + review, StringComparison.Ordinal);
         Assert.DoesNotContain("name: review-diff", build + review, StringComparison.Ordinal);
     }
@@ -285,14 +288,34 @@ public class DeliveryLoopContractTests
     }
 
     [Fact]
+    public void Readme_mirrors_the_orchestrator_numbered_flow()
+    {
+        var readme = File.ReadAllText(Path.Combine(SourceRoot(), "README.md"));
+        var skill = Fixture("SKILL.md");
+
+        Assert.Contains("### `/squad` or `/build`", readme, StringComparison.Ordinal);
+        Assert.Contains("**apply**", readme, StringComparison.Ordinal);
+        Assert.Contains("spawn nobody", readme, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("security ONLY if a trust boundary", readme, StringComparison.Ordinal);
+        Assert.Contains("No plan, no verdict, no fix loop", readme, StringComparison.Ordinal);
+        Assert.Contains("`/squad` or `/build`", skill, StringComparison.Ordinal);
+        Assert.Contains("Read and apply", skill, StringComparison.Ordinal);
+        Assert.Contains("Spawn nobody", skill, StringComparison.Ordinal);
+        Assert.Contains("security ONLY if a trust boundary", skill, StringComparison.Ordinal);
+    }
+
+    [Fact]
     public void Learnings_log_is_append_only_and_read_first()
     {
         var skill = Fixture("SKILL.md");
         var learnings = Fixture("learnings.md");
 
         Assert.Contains("docs/learnings.md", skill, StringComparison.Ordinal);
-        Assert.Contains("Read `docs/learnings.md` first", skill, StringComparison.Ordinal);
+        Assert.Contains("Read and apply", skill, StringComparison.Ordinal);
+        Assert.Contains("docs/learnings.md", skill, StringComparison.Ordinal);
         Assert.Contains("append-only", skill, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("failed", skill, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("must-run", skill, StringComparison.OrdinalIgnoreCase);
         Assert.Contains("not a second brain", learnings, StringComparison.OrdinalIgnoreCase);
         Assert.Contains("Never edit or delete an earlier entry", learnings, StringComparison.Ordinal);
         Assert.Contains("Model tier:", learnings, StringComparison.Ordinal);
@@ -316,5 +339,21 @@ public class DeliveryLoopContractTests
         Assert.Contains("Mixed .NET and Rust", contract, StringComparison.Ordinal);
         Assert.Contains("No plan is not a pass", verifier, StringComparison.Ordinal);
         Assert.Contains("not a verified pass", verifier, StringComparison.Ordinal);
+    }
+
+    private static string SourceRoot()
+    {
+        for (var directory = new DirectoryInfo(AppContext.BaseDirectory);
+             directory is not null;
+             directory = directory.Parent)
+        {
+            if (Directory.Exists(Path.Combine(directory.FullName, "plugins")) &&
+                Directory.Exists(Path.Combine(directory.FullName, "tools", "AgentPacks.Cli")))
+            {
+                return directory.FullName;
+            }
+        }
+
+        throw new DirectoryNotFoundException("Could not locate the agentPacks source root.");
     }
 }

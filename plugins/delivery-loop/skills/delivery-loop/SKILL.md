@@ -1,24 +1,49 @@
 ---
 name: delivery-loop
-description: User-invoked orchestrator for /build and /review. Mediates grill-style planning, runs plan-bound implementation and verification, fans reviewers on two axes, and caps two fix rounds. Do not model-invoke; type the entrypoint.
+description: User-invoked orchestrator for /squad or /build, and /review. Mediates grill-style planning, runs plan-bound implementation and verification, fans reviewers on two axes, and caps two fix rounds. Do not model-invoke; type the entrypoint.
 license: UNLICENSED
 disable-model-invocation: true
 ---
 
 # Delivery loop
 
-User-invoked thin orchestrator. Two entrypoints only: `/build` (plan then deliver) and `/review`
-(an existing diff). Type the command or this skill name. Do not wait for the model to pick it.
+User-invoked thin orchestrator. Two entrypoints only: `/squad` or `/build` (same command), and
+`/review`. Type the command. Do not wait for the model to pick it.
 
 ```text
-plan -> implement -> verify -> parallel review -> merge -> (fix -> verify -> parallel review -> merge) x 2 max -> hand off
+learnings → orient → (small: spawn nobody) | (grill → plan → implement → verify → dual-axis review)
+         → ≤2 fix rounds → uncommitted hand-off → append learnings
 ```
 
 No phase commits, merges, or pushes. A `pass` verdict means ready for human review, not permission to land.
 
-Read `docs/learnings.md` first when that file exists. It is an append-only run log, not a second
-brain: use it to see what the last run spun, skipped, and would tweak. Do not dump it into every
-prompt, rewrite skills from it, or treat it as memory.
+## Flow
+
+### `/squad` or `/build`
+
+1. **Read and apply** `docs/learnings.md` when it exists. Apply the latest same-entrypoint entry
+   (`/squad` and `/build` are the same). Prefer its model tier. Prefer its skips only when that
+   run **passed**. A skip from a **failed** run is a must-run this time. Do not rewrite skills.
+2. Orient the codebase for applicable stacks only.
+3. Small change? The main agent implements and verifies directly. Spawn nobody. Verify. Append
+   learnings. Hand off uncommitted.
+4. Else grill/plan rounds (facts via the planner subagent; decisions = human). Grill stays
+   inside these rounds. Write the plan only after confirmation.
+5. Gate spins: implementer (TDD, no full suite) → verifier (full suite once) → reviewers in
+   parallel (correctness + plan/spec; security ONLY if a trust boundary, unless learnings mark
+   security as must-run).
+6. Orchestrator merges. At most two fix rounds on a fresh implementer (author ≠ fixer). Hand off
+   uncommitted. Append one learnings entry.
+
+### `/review`
+
+1. Read and apply `docs/learnings.md` (latest `/review` entry).
+2. Pin the diff: PR, uncommitted, or versus main.
+3. Same gated dual-axis reviewers. No plan, no verdict, no fix loop.
+4. Append one learnings entry.
+
+**Always:** portable model tiers default to `inherit`. Load only contracted `<lang>-*` skills by
+exact Skill tool name.
 
 ## Route the request
 
@@ -129,5 +154,5 @@ Record whether the workspace is the primary checkout, an existing worktree, or a
 
 The final hand-off names the plan, files changed, verification evidence, review verdict, fix-round count, deferred notes, pack status, workspace, and cleanup status. State that the result is uncommitted.
 
-Then append one entry to `docs/learnings.md` using [the learnings contract](references/learnings.md).
+Then append one entry to the append-only `docs/learnings.md` using [the learnings contract](references/learnings.md).
 Do not rewrite earlier entries. Do not invent a skill or graph from the log.

@@ -37,6 +37,9 @@
     <None Include="../../plugins/delivery-loop/commands/build.md"
           Link="Fixtures/delivery-loop/build.md"
           CopyToOutputDirectory="PreserveNewest" />
+    <None Include="../../plugins/delivery-loop/commands/squad.md"
+          Link="Fixtures/delivery-loop/squad.md"
+          CopyToOutputDirectory="PreserveNewest" />
     <None Include="../../plugins/delivery-loop/commands/review.md"
           Link="Fixtures/delivery-loop/review.md"
           CopyToOutputDirectory="PreserveNewest" />
