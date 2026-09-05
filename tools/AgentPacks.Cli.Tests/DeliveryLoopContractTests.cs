@@ -292,16 +292,31 @@ public class DeliveryLoopContractTests
     {
         var readme = File.ReadAllText(Path.Combine(SourceRoot(), "README.md"));
         var skill = Fixture("SKILL.md");
+        var combined = readme + "\n" + skill;
 
-        Assert.Contains("### `/squad` or `/build`", readme, StringComparison.Ordinal);
-        Assert.Contains("**apply**", readme, StringComparison.Ordinal);
-        Assert.Contains("spawn nobody", readme, StringComparison.OrdinalIgnoreCase);
-        Assert.Contains("security ONLY if a trust boundary", readme, StringComparison.Ordinal);
-        Assert.Contains("No plan, no verdict, no fix loop", readme, StringComparison.Ordinal);
-        Assert.Contains("`/squad` or `/build`", skill, StringComparison.Ordinal);
-        Assert.Contains("Read and apply", skill, StringComparison.Ordinal);
-        Assert.Contains("Spawn nobody", skill, StringComparison.Ordinal);
-        Assert.Contains("security ONLY if a trust boundary", skill, StringComparison.Ordinal);
+        foreach (var fragment in new[]
+                 {
+                     "/squad",
+                     "/build",
+                     "/review",
+                     "learnings.md",
+                     "apply",
+                     "spawn nobody",
+                     "grill",
+                     "implementer",
+                     "verifier",
+                     "security ONLY if a trust boundary",
+                     "uncommitted"
+                 })
+        {
+            Assert.Contains(fragment, readme, StringComparison.OrdinalIgnoreCase);
+            Assert.Contains(fragment, skill, StringComparison.OrdinalIgnoreCase);
+        }
+
+        Assert.Contains("No plan, no verdict, no fix loop", combined, StringComparison.Ordinal);
+        Assert.Contains("PR", Fixture("review.md"), StringComparison.Ordinal);
+        Assert.Contains("uncommitted", Fixture("review.md"), StringComparison.Ordinal);
+        Assert.Contains("main", Fixture("review.md"), StringComparison.Ordinal);
     }
 
     [Fact]
