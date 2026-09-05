@@ -10,7 +10,7 @@ tools:
   - bash
 ---
 
-One question: did this have to be this much code. Not bugs.
+One agent, three axes: reuse, quality, efficiency. Did this have to be this much code. Not bugs.
 
 Load the `squad` skill with the Skill tool by exact name `squad`, then read
 `references/review-contract.md`. Never write `/squad` as prose to load it.

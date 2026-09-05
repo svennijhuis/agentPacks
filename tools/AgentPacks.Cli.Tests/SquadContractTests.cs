@@ -336,24 +336,49 @@ public class SquadContractTests
     public void User_facing_surfaces_do_not_say_delivery_loop()
     {
         var root = SourceRoot();
-        var surfaces = new[]
-        {
-            Path.Combine(root, "README.md"),
-            Path.Combine(root, "plugins", "squad", "README.md"),
-            Path.Combine(root, "plugins", "squad", "plugin.json"),
-            Path.Combine(root, "plugins", "squad", "skills", "squad", "SKILL.md"),
-            Path.Combine(root, "plugins", "squad", "commands", "squad.md"),
-            Path.Combine(root, "plugins", "squad", "commands", "review.md")
-        };
+        var leftovers = new List<string>();
 
-        foreach (var path in surfaces)
+        foreach (var directory in Directory.GetDirectories(Path.Combine(root, "plugins")))
         {
-            var text = File.ReadAllText(path);
-            Assert.DoesNotContain("delivery-loop", text, StringComparison.OrdinalIgnoreCase);
-            Assert.DoesNotContain("delivery loop", text, StringComparison.OrdinalIgnoreCase);
+            var name = Path.GetFileName(directory) ?? directory;
+            if (name.Contains("delivery", StringComparison.OrdinalIgnoreCase))
+                leftovers.Add($"plugin directory '{name}'");
         }
 
-        Assert.False(File.Exists(Path.Combine(root, "plugins", "squad", "commands", "build.md")));
+        var commands = Directory.GetFiles(
+            Path.Combine(root, "plugins", "squad", "commands"), "*.md");
+        leftovers.AddRange(commands
+            .Select(path => Path.GetFileName(path) ?? path)
+            .Where(name => name.Contains("delivery", StringComparison.OrdinalIgnoreCase)
+                || name.Equals("build.md", StringComparison.OrdinalIgnoreCase))
+            .Select(name => $"command '{name}'"));
+
+        var surfaces = new List<string> { Path.Combine(root, "README.md") };
+        surfaces.AddRange(Directory.GetFiles(Path.Combine(root, "plugins"), "README.md",
+            SearchOption.AllDirectories));
+        surfaces.AddRange(Directory.GetFiles(Path.Combine(root, "plugins"), "plugin.json",
+            SearchOption.AllDirectories));
+        surfaces.AddRange(Directory.GetFiles(
+            Path.Combine(root, "plugins", "squad", "commands"), "*.md"));
+        surfaces.Add(Path.Combine(root, "plugins", "squad", "skills", "squad", "SKILL.md"));
+
+        foreach (var path in surfaces.Distinct(StringComparer.Ordinal))
+        {
+            if (System.Text.RegularExpressions.Regex.IsMatch(
+                    File.ReadAllText(path),
+                    @"\bdelivery\b",
+                    System.Text.RegularExpressions.RegexOptions.IgnoreCase))
+            {
+                leftovers.Add(Path.GetRelativePath(root, path));
+            }
+        }
+
+        Assert.False(
+            leftovers.Count > 0,
+            "leftover delivery* on user-facing surfaces: " + string.Join(", ", leftovers));
+        Assert.Equal(["review.md", "squad.md"],
+            commands.Select(path => Path.GetFileName(path) ?? path)
+                .OrderBy(name => name, StringComparer.Ordinal));
         Assert.False(Directory.Exists(Path.Combine(root, "plugins", "delivery-loop")));
     }
 
