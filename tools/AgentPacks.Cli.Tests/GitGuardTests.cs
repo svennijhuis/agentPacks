@@ -157,7 +157,8 @@ public sealed class GitGuardTests
     {
         if (PowerShell is null)
         {
-            Assert.Skip("pwsh is not available");
+            // xUnit v2 has no Assert.Skip; this is the runner's dynamic-skip contract.
+            throw Xunit.Sdk.SkipException.ForSkip("pwsh is not available");
         }
 
         var payload = JsonSerializer.Serialize(new { tool_input = new { command } });
