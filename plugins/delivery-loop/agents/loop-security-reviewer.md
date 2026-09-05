@@ -1,7 +1,7 @@
 ---
 name: loop-security-reviewer
 description: Reviews a trust-boundary change against OWASP Top 10:2025 and returns actionable findings mapped to the current category. Use for authentication, authorization, untrusted input, files, commands, cryptography, dependencies, credentials, outbound requests, or exceptional-condition handling.
-model: inherit
+model: fast
 readonly: true
 tools:
   - read

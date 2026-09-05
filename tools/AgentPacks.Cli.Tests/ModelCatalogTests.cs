@@ -39,6 +39,10 @@ public sealed class ModelCatalogTests
         Assert.Contains("model: \"sonnet\"", claude, StringComparison.Ordinal);
         Assert.Contains("model: \"gpt-5\"", copilot, StringComparison.Ordinal);
         Assert.Contains("model = \"inherit\"", codex, StringComparison.Ordinal);
+
+        var cursor = run.File("plugins/engineering/.cursor-plugin/agents/reviewer.md").Text;
+        Assert.Contains("model: \"grok-4.5\"", cursor, StringComparison.Ordinal);
+        Assert.DoesNotContain("model: \"sonnet\"", cursor, StringComparison.Ordinal);
     }
 
     [Fact]
@@ -82,6 +86,21 @@ public sealed class ModelCatalogTests
         Assert.False(run.HasErrors, run.Text);
         var yaml = run.File("plugins/engineering/skills/delivery-loop/agents/openai.yaml").Text;
         Assert.Contains("allow_implicit_invocation: false", yaml, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void Copilot_and_codex_never_drop_the_model_field()
+    {
+        using var repo = new TestRepository()
+            .WithValidPlugin()
+            .WithAgent("reviewer", extraFrontmatter: "model: inherit\nreadonly: true\ntools:\n  - read");
+
+        var run = repo.ValidateAndGenerate();
+        var copilot = run.File("plugins/engineering/com.github.copilot/agents/reviewer.agent.md").Text;
+        var codex = run.File("plugins/engineering/com.openai.codex/agents/reviewer.toml").Text;
+
+        Assert.Contains("model:", copilot, StringComparison.Ordinal);
+        Assert.Contains("model =", codex, StringComparison.Ordinal);
     }
 
     [Fact]

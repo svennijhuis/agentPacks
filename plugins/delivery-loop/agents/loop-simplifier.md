@@ -1,7 +1,7 @@
 ---
 name: loop-simplifier
 description: Reviews a change for duplication of what the repository already has, abstraction it did not need, shallow interfaces, single-implementation seams and work done at the wrong altitude. Returns findings by severity, capped at medium. Use in the review phase, in parallel with the other reviewers.
-model: inherit
+model: fast
 readonly: true
 tools:
   - read

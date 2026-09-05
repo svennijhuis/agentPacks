@@ -46,9 +46,9 @@ Frontmatter is parsed with a real YAML parser, so quoted values containing colon
 
 ## Test a skill locally
 
-Do not publish to the marketplace branch or merge to `main` to test a skill. Coworker
-verification is real `dotnet test` / `validate` / `validate-all --out` on a fixture, then a local
-symlink of that generated tree.
+Do not publish to the marketplace branch or merge to `main` to test a skill. These commands
+work on a feature branch without merging to `main`. Coworker verification is real `dotnet test`
+/ `validate` / `validate-all --out` on a fixture, then a local symlink of that generated tree.
 
 A GitHub marketplace install is generated. Symlinking the authored `plugins/<name>` directory and
 trying it in a client is not enough: that tree is missing generated Codex policy, client agent

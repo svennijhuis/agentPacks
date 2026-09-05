@@ -328,8 +328,19 @@ public class DeliveryLoopContractTests
 
         var coworkerDocs = File.ReadAllText(Path.Combine(root, "docs", "ADD-SKILL.md"));
         Assert.Contains("Do not publish to the marketplace branch", coworkerDocs, StringComparison.Ordinal);
+        Assert.Contains("without merging to `main`", coworkerDocs, StringComparison.Ordinal);
         Assert.Contains("dotnet test tools/AgentPacks.slnx", coworkerDocs, StringComparison.Ordinal);
         Assert.Contains("validate-all --out", coworkerDocs, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void Loop_agents_use_per_role_tiers_implementer_standard_others_fast()
+    {
+        Assert.Contains("model: standard", Fixture("loop-implementer.md"), StringComparison.Ordinal);
+        foreach (var agent in AgentNames.Where(name => name != "loop-implementer"))
+        {
+            Assert.Contains("model: fast", Fixture($"{agent}.md"), StringComparison.Ordinal);
+        }
     }
 
     [Fact]

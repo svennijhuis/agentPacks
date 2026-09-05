@@ -1,7 +1,7 @@
 ---
 name: loop-orchestrator
 description: Merges completed reviewer reports and verifier evidence into a planned fix list and verdict, or a no-plan standalone review list. It never launches agents or routes later work.
-model: inherit
+model: fast
 readonly: false
 tools:
   - read

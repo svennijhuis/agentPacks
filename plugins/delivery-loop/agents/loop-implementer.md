@@ -1,7 +1,7 @@
 ---
 name: loop-implementer
 description: Implements numbered acceptance criteria or a merged fix list from a confirmed plan and reports what it claims. Use only in a full delivery loop; the small-change route bypasses this agent.
-model: inherit
+model: standard
 readonly: false
 tools:
   - read

@@ -55,10 +55,11 @@ The body is the system prompt. Say what the agent does, in what order, and what 
 
 | Path | For |
 |---|---|
-| `agents/<name>.md` | Cursor — reads the authored file directly |
-| `com.anthropic.claude-code/agents/<name>.md` | Claude — tool names in PascalCase |
-| `com.github.copilot/agents/<name>.agent.md` | Copilot — note the extension |
-| `com.openai.codex/agents/<name>.toml` | Codex — body becomes `developer_instructions`, `model` is emitted |
+| `agents/<name>.md` | Authored portable tier (source). Cursor's plugin loader still reads this root file |
+| `.cursor-plugin/agents/<name>.md` | Cursor — remapped id (`inherit`, `composer-2`, `grok-4.5`, `claude-opus-5`) |
+| `com.anthropic.claude-code/agents/<name>.md` | Claude — remapped id, tool names in PascalCase |
+| `com.github.copilot/agents/<name>.agent.md` | Copilot — remapped id; `model` is never dropped |
+| `com.openai.codex/agents/<name>.toml` | Codex — `model` is emitted and inherit-first |
 
 ## The Codex gap
 
@@ -74,6 +75,6 @@ Codex column stays `inherit` even when the authored tier is `frontier`.
 
 If Codex gains plugin-shipped agents, only the generated manifest needs a field.
 
-Cost-first: leave agents on `inherit` unless the agent is the one writing code, which may use
-`standard`. Cursor reads the authored file directly, so shipping `inherit` is also a real Cursor id.
-Non-inherit tiers are remapped for Claude, Copilot and Codex; do not author `sonnet` to mean Cursor.
+Cost-first: catalog default is `inherit`. The implementer (the agent that writes code) uses
+`standard`. Other loop subagents use `fast`. Generation remaps those portable tiers for every
+client, including Cursor under `.cursor-plugin/agents/`. Do not author `sonnet` to mean Cursor.

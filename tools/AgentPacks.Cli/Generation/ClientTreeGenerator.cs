@@ -51,7 +51,7 @@ internal sealed class ClientTreeGenerator(RepositoryContext context, ModelCatalo
         }
 
         GenerateClaude(plugin, Add, AddJson);
-        GenerateCursor(plugin, AddJson);
+        GenerateCursor(plugin, Add, AddJson);
         GenerateCodex(plugin, Add, AddJson);
         GenerateCopilot(plugin, Add, AddJson);
         GenerateShims(plugin, Add);
@@ -201,11 +201,15 @@ internal sealed class ClientTreeGenerator(RepositoryContext context, ModelCatalo
     // ---------------------------------------------------------------- Cursor
 
     /// <summary>
-    /// Cursor is the one client that consumes the authored root directly: rules/*.mdc, agents/*.md
-    /// and commands/*.md are already its dialect. It only needs the manifest that turns the
-    /// directory from an Agent Plugin into a Cursor plugin, plus its own hooks dialect.
+    /// Cursor reads rules/*.mdc and commands/*.md from the plugin root. Authored agents stay the
+    /// portable source. Generation writes remapped Cursor ids into <c>.cursor-plugin/agents/</c>
+    /// so Cursor never receives a Claude alias, and Copilot/Codex are not the only clients that
+    /// emit <c>model</c>.
     /// </summary>
-    private static void GenerateCursor(PluginPackage plugin, Action<string, JsonNode> addJson)
+    private void GenerateCursor(
+        PluginPackage plugin,
+        Action<string, string, bool> add,
+        Action<string, JsonNode> addJson)
     {
         var manifest = plugin.Manifest!;
 
@@ -223,6 +227,33 @@ internal sealed class ClientTreeGenerator(RepositoryContext context, ModelCatalo
         }
 
         addJson(".cursor-plugin/plugin.json", cursor);
+
+        foreach (var agent in plugin.Agents)
+        {
+            var frontmatter = new List<KeyValuePair<string, string>>
+            {
+                new("name", ComponentWriter.Yaml(agent.Name)),
+                new("description", ComponentWriter.Yaml(agent.Description)),
+                new("model", ComponentWriter.Yaml(ResolveModel(agent, Client.Cursor)))
+            };
+
+            if (ComponentWriter.Flag(agent, "readonly"))
+            {
+                frontmatter.Add(new("readonly", "true"));
+            }
+
+            var tools = ComponentWriter.Sequence(agent, "tools");
+
+            if (tools.Count > 0)
+            {
+                frontmatter.Add(new("tools", ComponentWriter.YamlList(tools)));
+            }
+
+            add(
+                $".cursor-plugin/agents/{agent.Name}.md",
+                ComponentWriter.Markdown(frontmatter, agent.Body),
+                false);
+        }
     }
 
     // ---------------------------------------------------------------- Codex

@@ -24,8 +24,8 @@ public sealed class ComponentGenerationTests
     }
 
     /// <summary>
-    /// Cursor reads agents/*.md from the plugin root, which is where the neutral source is already
-    /// authored. Generating a copy would put two definitions of one agent in the package.
+    /// Authored agents/*.md stay the portable source. Cursor remapped ids are generated beside
+    /// the Cursor manifest so they do not overwrite that source.
     /// </summary>
     [Fact]
     public void Cursor_reads_the_authored_agent_directly()
@@ -34,6 +34,11 @@ public sealed class ComponentGenerationTests
         var run = repo.WithValidPlugin().WithAgent("security-reviewer").ValidateAndGenerate();
 
         Assert.False(run.HasFile($"{Plugin}/agents/security-reviewer.md"));
+        Assert.True(run.HasFile($"{Plugin}/.cursor-plugin/agents/security-reviewer.md"));
+        Assert.Contains(
+            "model: \"inherit\"",
+            run.File($"{Plugin}/.cursor-plugin/agents/security-reviewer.md").Text,
+            StringComparison.Ordinal);
     }
 
     /// <summary>Claude names its tools in PascalCase; the neutral format uses Cursor's lowercase.</summary>

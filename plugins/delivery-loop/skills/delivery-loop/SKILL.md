@@ -51,8 +51,8 @@ No phase commits, merges, or pushes. A `pass` verdict means ready for human revi
 
 When uncertain, use the full loop. Once the small-change route is chosen, keep it small; discovering a design choice or wider impact promotes the work to the full loop before further edits.
 
-Cost-first: keep every agent on `inherit` unless it is the implementer writing code, which may use
-`standard`. Do not fan out specialists the route does not need.
+Cost-first: catalog default is `inherit`. `loop-implementer` is `standard`. Other loop agents are
+`fast`. Do not fan out specialists the route does not need.
 
 ## Load skills by exact name
 

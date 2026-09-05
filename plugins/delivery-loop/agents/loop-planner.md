@@ -1,7 +1,7 @@
 ---
 name: loop-planner
 description: Produces one turn-based planning-question round for the main agent, or writes one confirmed plan to docs/plans/<slug>.md. Use only for the full delivery loop; obvious small changes bypass this agent.
-model: inherit
+model: fast
 readonly: false
 tools:
   - read
