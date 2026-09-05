@@ -139,7 +139,7 @@ public sealed class GitGuardTests
     /// spelling the flag comparison misses, or a parse error. Skipped where pwsh is unavailable
     /// — the point is that CI, which has it, runs this.
     /// </summary>
-    [Theory]
+    [PowerShellTheory]
     [InlineData("cd /tmp && git -C /repo reset --hard", 2)]
     [InlineData("git clean -fd", 2)]
     [InlineData("git push -uf origin main", 2)]
@@ -155,16 +155,24 @@ public sealed class GitGuardTests
     [InlineData("git restore --staged src/Changed.cs", 0)]
     public void The_powershell_guard_reaches_the_same_verdict(string command, int expected)
     {
-        if (PowerShell is null)
-        {
-            // xUnit v2 has no Assert.Skip; this is the runner's dynamic-skip contract.
-            throw Xunit.Sdk.SkipException.ForSkip("pwsh is not available");
-        }
-
         var payload = JsonSerializer.Serialize(new { tool_input = new { command } });
-        var result = RunPayload(payload, PowerShell, PowerShellArguments());
+        var result = RunPayload(payload, PowerShell!, PowerShellArguments());
 
         Assert.Equal(expected, result.ExitCode);
+    }
+
+    /// <summary>
+    /// xUnit v2 has no Assert.Skip. Setting Theory.Skip at discovery is the skip, not a pass.
+    /// </summary>
+    private sealed class PowerShellTheoryAttribute : TheoryAttribute
+    {
+        public PowerShellTheoryAttribute()
+        {
+            if (PowerShell is null)
+            {
+                Skip = "pwsh is not available";
+            }
+        }
     }
 
     private static readonly string PowerShellScript =
