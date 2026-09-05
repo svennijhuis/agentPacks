@@ -474,6 +474,44 @@ public class SquadContractTests
         Assert.Contains("not a verified pass", verifier, StringComparison.Ordinal);
     }
 
+    [Fact]
+    public void Pull_request_ci_stays_one_job_no_matrix()
+    {
+        var root = SourceRoot();
+        var workflows = Directory.GetFiles(Path.Combine(root, ".github", "workflows"), "*.yml");
+        Assert.Equal(
+            ["drift.yml", "publish-marketplace.yml", "validate.yml"],
+            workflows.Select(path => Path.GetFileName(path) ?? path)
+                .OrderBy(name => name, StringComparer.Ordinal));
+
+        foreach (var path in workflows)
+        {
+            var name = Path.GetFileName(path) ?? path;
+            var text = File.ReadAllText(path);
+            Assert.DoesNotContain("strategy:", text, StringComparison.Ordinal);
+            Assert.DoesNotContain("matrix:", text, StringComparison.Ordinal);
+            Assert.False(
+                name.Contains("mcp", StringComparison.OrdinalIgnoreCase),
+                $"workflow '{name}' is backlog MCP CI");
+            if (!name.Equals("validate.yml", StringComparison.Ordinal))
+                Assert.DoesNotContain("pull_request:", text, StringComparison.Ordinal);
+        }
+
+        var validate = File.ReadAllText(Path.Combine(root, ".github", "workflows", "validate.yml"));
+        Assert.Contains("pull_request:", validate, StringComparison.Ordinal);
+        Assert.Equal(1, CountToken(validate, "runs-on:"));
+        Assert.Contains("dotnet test", validate, StringComparison.Ordinal);
+        Assert.Contains("validate-all --out", validate, StringComparison.Ordinal);
+    }
+
+    private static int CountToken(string text, string token)
+    {
+        var count = 0;
+        for (var index = 0; (index = text.IndexOf(token, index, StringComparison.Ordinal)) >= 0; index += token.Length)
+            count++;
+        return count;
+    }
+
     private static string SourceRoot()
     {
         for (var directory = new DirectoryInfo(AppContext.BaseDirectory);
