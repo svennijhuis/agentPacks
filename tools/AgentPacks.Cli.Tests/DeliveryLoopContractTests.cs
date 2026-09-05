@@ -334,6 +334,19 @@ public class DeliveryLoopContractTests
     }
 
     [Fact]
+    public void Loop_agent_bodies_stay_tiny()
+    {
+        foreach (var agent in AgentNames)
+        {
+            var text = Fixture($"{agent}.md");
+            var body = text[(text.LastIndexOf("---", StringComparison.Ordinal) + 3)..];
+            var lines = body.Split('\n').Count(line => !string.IsNullOrWhiteSpace(line));
+            var cap = agent == "loop-security-reviewer" ? 28 : 16;
+            Assert.True(lines <= cap, $"{agent} body is {lines} lines; cap is {cap}.");
+        }
+    }
+
+    [Fact]
     public void Loop_agents_use_per_role_tiers_implementer_standard_others_fast()
     {
         Assert.Contains("model: standard", Fixture("loop-implementer.md"), StringComparison.Ordinal);
