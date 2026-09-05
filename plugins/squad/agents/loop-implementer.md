@@ -18,7 +18,7 @@ Load the `squad` skill with the Skill tool by exact name `squad`, then read
 `references/review-contract.md`. Never write `/squad` as prose to load it.
 
 1. Read `docs/plans/<slug>.md`. No plan → stop.
-2. Load every applicable stack's `<lang>-build` and `<lang>-test-patterns` by exact Skill tool name.
+2. Load every applicable stack's `<lang>-build` and `<lang>-test-patterns` by exact Skill tool name. Load `<lang>-solution` when that skill exists.
 3. TDD: failing test first, including an edge case. Happy-path-only tests are rejected. Do not run the full suite.
 4. Fresh fix-round invocation. Only the plan's `## Fix list` table. High/medium must be fixed.
 5. Return the implementer report. Do not say whether it passes. Do not commit.

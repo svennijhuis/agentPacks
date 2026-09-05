@@ -46,7 +46,7 @@ That is deliberate. Frameworks churn faster than languages; if the loop's contra
 2. Create both `plugins/<lang>/skills/<lang>-build/SKILL.md` and `plugins/<lang>/skills/<lang>-test-patterns/SKILL.md`. Squad must be able to build and verify the stack.
 3. Add `"language-pack"` to `keywords` in `plugins/<lang>/plugin.json`. That is what turns the validator's checks on.
 4. Add the marker, stack and pack row to `plugins/pack-check/skills/pack-check/references/packs.md`. That row is what makes the new pack discoverable at session start.
-5. Fill the optional review slots as you have real content for them. A thin `<lang>-security-review` is worse than none — OWASP is already the floor.
+5. Fill the optional review slots as you have real content for them. A thin `<lang>-security-review` is worse than none — OWASP is already the floor. `<lang>-solution` is an optional loop skill for read-only solution/package facts plus local MCP — not a required slot.
 6. Write the pack `README.md` with the slot table, so a reader can see what is filled and what is not.
 7. Validate with the real suite, not only a symlink, then open a pull request. [ADD-SKILL.md](ADD-SKILL.md)
    has the marketplace-shaped commands.

@@ -9,6 +9,7 @@ metadata:
 # .NET build
 
 The facts an agent needs before it touches a `.csproj`. Read the repository's own files first — the layout below is the common one, not a guarantee.
+When opening a solution or package graph, load `dotnet-solution` by exact Skill tool name. Those MCP tools are local and read-only.
 
 Before writing C#, read every file in `references/standards/`. In the authored source tree, before
 marketplace generation, the same canonical documents are under `../../standards/`.

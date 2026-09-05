@@ -67,6 +67,33 @@ Prefer `streamable-http` here: v2.0 servers are stateless by default, with no `i
 
 For the first phase, prefer lookups over writes: architecture search, coding standard search, service lookup, owner lookup. Add deployment or resource tooling later, and do not start with production write access.
 
+This repository's first server is local-only. `plugins/dotnet/mcp.json` declares `dotnet-solution`
+as `streamable-http` on `http://127.0.0.1:8765/mcp`. No headers. No credentials. Three tools:
+`list_projects`, `list_packages`, `describe_project`. The skill `dotnet-solution` names them.
+The same lookups run in-process from solution and project files — no hosted service.
+
+## swagger→MCP (recipe, not a generator)
+
+Do not emit one tool per endpoint. Filter first:
+
+1. Keep `GET` only.
+2. Keep an allowlisted tag (for example `pets`).
+3. Cap the set (eight tools). Name tools from `operationId`.
+
+`SwaggerToolFilter` in this repo is the working example. A 5-operation pets spec becomes
+`listPets` + `getPet`. `createPet`, `deletePet`, and admin routes stay out. That is the whole
+recipe. Do not add a swagger generator command.
+
+## Test locally (no marketplace deploy)
+
+```bash
+dotnet test tools/AgentPacks.slnx
+dotnet run --project tools/AgentPacks.Cli -- validate
+```
+
+`PluginMcpContractTests` and `DotnetSolutionTools` prove the authored `mcp.json`, the three
+read-only lookups on a fixture `.sln` / `.csproj`, and the filtered swagger example.
+
 ## Generated Claude file
 
 Publishing a server generates `plugins/<plugin>/.mcp.json` on the `marketplace` branch, which is what Claude loads. It never appears on `main` and is never edited manually.

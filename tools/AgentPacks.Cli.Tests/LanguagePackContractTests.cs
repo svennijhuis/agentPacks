@@ -129,6 +129,7 @@ public class LanguagePackContractTests
             Path.Combine("plugins", "dotnet", "skills", "dotnet-build", "SKILL.md"),
             Path.Combine("plugins", "dotnet", "skills", "dotnet-test-patterns", "SKILL.md"),
             Path.Combine("plugins", "dotnet", "skills", "dotnet-review", "SKILL.md"),
+            Path.Combine("plugins", "dotnet", "skills", "dotnet-solution", "SKILL.md"),
             Path.Combine("plugins", "rust", "skills", "rust-build", "SKILL.md"),
             Path.Combine("plugins", "rust", "skills", "rust-test-patterns", "SKILL.md"),
             Path.Combine("plugins", "rust", "skills", "rust-review", "SKILL.md")
