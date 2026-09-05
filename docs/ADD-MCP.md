@@ -35,7 +35,7 @@ The `$schema` must match the specification version declared in `plugin.json`.
 | Type | Required | Notes |
 |---|---|---|
 | `stdio` | `type`, `command` | Optional `args`, `env`, `cwd`. |
-| `streamable-http` | `type`, `url` | The current remote transport. Prefer this. |
+| `streamable-http` | `type`, `url` | Remote lookup transport. Local C# tools use `stdio`. |
 | `sse` | `type`, `url` | Deprecated HTTP+SSE. Client support is optional, so the validator warns. |
 
 ## Rules the validator enforces
@@ -61,7 +61,11 @@ Configured headers and environment values are literal, visible package data. Age
 
 Company MCP servers are .NET services, so use the official [MCP C# SDK](https://devblogs.microsoft.com/dotnet/announcing-v20-of-the-official-mcp-csharp-sdk/). Reference `ModelContextProtocol.AspNetCore` for an HTTP server or `ModelContextProtocol` for stdio with attribute-based tool discovery.
 
-Prefer `streamable-http` here: v2.0 servers are stateless by default, with no `initialize` handshake or session header, so they scale horizontally behind ordinary HTTP infrastructure. A tool that needs input mid-execution returns `InputRequiredResult` rather than holding a session open.
+Local C# tools in this repo use `stdio` on the developer machine — never a hosted URL or Roslyn
+service. A later remote lookup server would use `streamable-http`: v2.0 servers are stateless by
+default, with no `initialize` handshake or session header, so they scale horizontally behind ordinary
+HTTP infrastructure. A tool that needs input mid-execution returns `InputRequiredResult` rather than
+holding a session open.
 
 ## Start read-only
 

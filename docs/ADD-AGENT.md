@@ -13,15 +13,24 @@ A subagent is a focused reviewer or worker the main agent delegates to, with its
 
 ```markdown
 ---
-name: security-reviewer
-description: Reviews a change for security defects only. Use when a change touches authentication, user input, file paths or credentials.
-model: inherit
+name: loop-reviewer
+description: Reviews a change against its plan and verifier evidence when present, then reports correctness findings. Use in every review phase, in parallel with simplification and with security when its gate applies.
+model: fast
 readonly: true
 tools:
   - read
   - grep
+  - glob
+  - bash
 ---
+
+One job. Load skills with the Skill tool by exact name. Never write slash-prose.
 ```
+
+That is the production shape: short frontmatter, portable tier, `readonly`, closed tool list, one
+job, exact Skill-tool names. Squad agents are `loop-*`. The implementer is `standard`; other loop
+agents are `fast`. Bodies stay Matt-tiny (16 non-empty lines; security reviewer 28). Copy from
+[`plugins/squad/agents/`](../plugins/squad/agents/); do not invent a public command per specialist.
 
 | Field | Required | Rule |
 |---|---|---|

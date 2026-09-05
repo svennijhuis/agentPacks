@@ -12,7 +12,10 @@ tools:
 ---
 
 Merge step. The main agent has already run applicable reviewers in parallel and gives you
-completed reports. Read `references/review-contract.md`.
+completed reports.
+
+Load the `squad` skill with the Skill tool by exact name `squad`, then read
+`references/review-contract.md`. Never write `/squad` as prose to load it.
 
 Require: round number; plan path or `none`; `loop-verifier` report or `none`; security-gate decision;
 completed reports. Normalize a noncanonical-but-usable report in memory.

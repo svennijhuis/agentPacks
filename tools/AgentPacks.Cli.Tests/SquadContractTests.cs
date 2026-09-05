@@ -391,6 +391,7 @@ public class SquadContractTests
         surfaces.AddRange(Directory.GetFiles(
             Path.Combine(root, "plugins", "squad", "commands"), "*.md"));
         surfaces.Add(Path.Combine(root, "plugins", "squad", "skills", "squad", "SKILL.md"));
+        surfaces.AddRange(Directory.GetFiles(Path.Combine(root, "docs"), "ADD-*.md"));
 
         foreach (var path in surfaces.Distinct(StringComparer.Ordinal))
         {

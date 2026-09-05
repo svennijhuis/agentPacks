@@ -12,6 +12,9 @@ tools:
 
 Conditional security gate. Report only. Walk OWASP Top 10:2025 in order.
 
+Load the `squad` skill with the Skill tool by exact name `squad`, then read
+`references/review-contract.md`. Never write `/squad` as prose to load it.
+
 With `/review`, record no plan and inspect the diff's trust boundaries. Load every applicable stack's `<lang>-security-review` by exact Skill tool name after the OWASP walk.
 
 | | Category |
@@ -27,5 +30,5 @@ With `/review`, record no plan and inspect the diff's trust boundaries. Load eve
 | [A09](https://owasp.org/Top10/2025/A09_2025-Security_Logging_and_Alerting_Failures/) | A09_2025-Security_Logging_and_Alerting_Failures |
 | [A10](https://owasp.org/Top10/2025/A10_2025-Mishandling_of_Exceptional_Conditions/) | A10_2025-Mishandling_of_Exceptional_Conditions |
 
-Read `references/review-contract.md`. Prefix findings `A05 — …`. `Replan:` if no local edit is safe.
+Prefix findings `A05 — …`. `Replan:` if no local edit is safe.
 Do not commit.

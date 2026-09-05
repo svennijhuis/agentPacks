@@ -1,6 +1,7 @@
 ---
 name: pack-check
 description: Check whether the stacks applicable to a repository change have their required language-pack skills. Use at session start, before Squad planning, or when asked about pack readiness; request approval before installing and stop for a reload after success.
+license: UNLICENSED
 ---
 
 # Pack check

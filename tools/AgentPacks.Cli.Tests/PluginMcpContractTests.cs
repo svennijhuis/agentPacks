@@ -127,6 +127,7 @@ public sealed class PluginMcpContractTests
             var directoryName = Directory.GetParent(skill)!.Name;
             Assert.Contains($"name: {directoryName}", text, StringComparison.Ordinal);
             Assert.Contains("description:", text, StringComparison.Ordinal);
+            Assert.Contains("license:", text, StringComparison.Ordinal);
             Assert.DoesNotContain("delivery", text, StringComparison.OrdinalIgnoreCase);
             if (text.Contains("Internal loop skill", StringComparison.Ordinal))
             {
@@ -143,6 +144,9 @@ public sealed class PluginMcpContractTests
             var name = Path.GetFileNameWithoutExtension(agent);
             Assert.Contains($"name: {name}", text, StringComparison.Ordinal);
             Assert.Contains("model:", text, StringComparison.Ordinal);
+            Assert.Contains("readonly:", text, StringComparison.Ordinal);
+            Assert.Contains("tools:", text, StringComparison.Ordinal);
+            Assert.Contains("Skill tool by exact name", text, StringComparison.Ordinal);
             Assert.DoesNotContain("delivery", text, StringComparison.OrdinalIgnoreCase);
             Assert.DoesNotContain("loop-tester", text, StringComparison.Ordinal);
         }
@@ -155,6 +159,23 @@ public sealed class PluginMcpContractTests
             Assert.Contains("Skill tool by exact name", text, StringComparison.Ordinal);
             Assert.DoesNotContain("delivery", text, StringComparison.OrdinalIgnoreCase);
         }
+
+        var addAgent = File.ReadAllText(Path.Combine(root, "docs", "ADD-AGENT.md"));
+        Assert.Contains("name: loop-reviewer", addAgent, StringComparison.Ordinal);
+        Assert.Contains("model: fast", addAgent, StringComparison.Ordinal);
+        Assert.Contains("Skill tool by exact name", addAgent, StringComparison.Ordinal);
+        Assert.DoesNotContain("name: security-reviewer", addAgent, StringComparison.Ordinal);
+        Assert.DoesNotContain("delivery", addAgent, StringComparison.OrdinalIgnoreCase);
+
+        var addSkill = File.ReadAllText(Path.Combine(root, "docs", "ADD-SKILL.md"));
+        Assert.Contains("audience: loop", addSkill, StringComparison.Ordinal);
+        Assert.Contains("not as a user entrypoint", addSkill, StringComparison.Ordinal);
+        Assert.Contains("license: UNLICENSED", addSkill, StringComparison.Ordinal);
+        Assert.Contains("Skill tool by exact name", addSkill, StringComparison.Ordinal);
+        Assert.DoesNotContain("delivery", addSkill, StringComparison.OrdinalIgnoreCase);
+
+        Assert.False(Directory.Exists(Path.Combine(root, "examples")),
+            "Do not add a second examples tree; docs/ADD-*.md plus plugins/ are the examples.");
     }
 
     [Fact]
@@ -168,6 +189,7 @@ public sealed class PluginMcpContractTests
         Assert.Contains("local stdio process", docs, StringComparison.OrdinalIgnoreCase);
         Assert.Contains("dotnet sln list", docs, StringComparison.Ordinal);
         Assert.Contains("read-only", docs, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("never a hosted URL", docs, StringComparison.Ordinal);
         Assert.DoesNotContain("127.0.0.1:8765", docs, StringComparison.Ordinal);
     }
 

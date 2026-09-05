@@ -26,6 +26,21 @@ Agent Skills publishes no JSON Schema, so the validator implements the specifica
 
 Plugin names may contain periods (`acme.tools` is valid); skill names may not. This trips people up.
 
+Authored skills in this repo use that short frontmatter. A loop slot (not a user entrypoint):
+
+```markdown
+---
+name: dotnet-build
+description: Internal loop skill. Loaded by the Squad orchestrator by exact Skill tool name, not as a user entrypoint. How a .NET repository is laid out, restored and built.
+license: UNLICENSED
+metadata:
+  audience: loop
+---
+```
+
+A user-invoked entrypoint (`squad`, `pack-check`) adds `disable-model-invocation: true` and omits
+`audience: loop`. Load either kind with the Skill tool by exact name, never slash-prose.
+
 ## Writing the description
 
 The description is loaded for every skill at startup, and it is the only thing an agent uses to decide whether to open the skill. Write it for that decision.

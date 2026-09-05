@@ -35,6 +35,8 @@ public sealed class TonightCriteriaTests
         nameof(SquadContractTests.User_facing_surfaces_do_not_say_delivery_loop))]
     [InlineData("14 docs pass", typeof(SquadContractTests),
         nameof(SquadContractTests.Readme_mirrors_the_orchestrator_numbered_flow))]
+    [InlineData("17 structure audit", typeof(PluginMcpContractTests),
+        nameof(PluginMcpContractTests.Authored_skills_agents_and_commands_share_one_frontmatter_shape))]
     public void Each_ticket_criterion_has_a_proving_test(string criterion, Type fixture, string method)
     {
         Assert.True(
