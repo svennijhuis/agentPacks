@@ -39,8 +39,8 @@ public sealed class TonightCriteriaTests
         nameof(PluginMcpContractTests.Squad_mcp_is_empty_scaffold_and_docs_example_is_read_only_http_without_secrets))]
     [InlineData("16 local Roslyn symbols/refs/diagnostics", typeof(PluginMcpContractTests),
         nameof(PluginMcpContractTests.Local_roslyn_is_on_machine_read_only_symbols_refs_diagnostics))]
-    [InlineData("17 structure audit", typeof(PluginMcpContractTests),
-        nameof(PluginMcpContractTests.Authored_skills_agents_and_commands_share_one_frontmatter_shape))]
+    [InlineData("17 no delivery* and no essay agents", typeof(SquadContractTests),
+        nameof(SquadContractTests.No_user_facing_delivery_star_and_no_essay_agents))]
     [InlineData("cursor ids not Claude aliases", typeof(ModelCatalogTests),
         nameof(ModelCatalogTests.Claude_receives_the_mapped_tier_and_copilot_and_codex_emit_model))]
     [InlineData("research decisions drop-box", typeof(SquadContractTests),

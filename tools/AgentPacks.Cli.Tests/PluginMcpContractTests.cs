@@ -242,6 +242,8 @@ public sealed class PluginMcpContractTests
 
         Assert.Contains("\"type\": \"stdio\"", mcp, StringComparison.Ordinal);
         Assert.DoesNotContain("\"url\"", mcp, StringComparison.Ordinal);
+        Assert.DoesNotContain("streamable-http", mcp, StringComparison.Ordinal);
+        Assert.DoesNotContain("sse", mcp, StringComparison.Ordinal);
         Assert.Contains("Microsoft.CodeAnalysis", lookup, StringComparison.Ordinal);
         Assert.Contains("list_symbols", lookup, StringComparison.Ordinal);
         Assert.Contains("find_references", lookup, StringComparison.Ordinal);
@@ -251,6 +253,7 @@ public sealed class PluginMcpContractTests
         Assert.DoesNotContain("CodeAction", combined, StringComparison.Ordinal);
         Assert.DoesNotContain("127.0.0.1", combined, StringComparison.Ordinal);
         Assert.False(DotnetRoslynTools.IsAllowedTool("apply_fix"));
+        Assert.False(DotnetRoslynTools.IsAllowedTool("refactor"));
         Assert.True(DotnetRoslynTools.IsWriteTool("refactor"));
         Assert.True(DotnetRoslynTools.IsAllowedTool("list_symbols"));
 

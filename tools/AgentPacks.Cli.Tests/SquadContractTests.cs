@@ -448,6 +448,15 @@ public class SquadContractTests
         }
     }
 
+    /// <summary>Po 17 fail bar: no user-facing delivery*, no essay-length agent bodies.</summary>
+    [Fact]
+    public void No_user_facing_delivery_star_and_no_essay_agents()
+    {
+        User_facing_surfaces_do_not_say_delivery_loop();
+        Loop_agent_bodies_stay_tiny();
+        Assert.DoesNotContain("loop-tester", string.Join('\n', AgentNames), StringComparison.Ordinal);
+    }
+
     [Fact]
     public void Loop_agents_use_per_role_tiers_implementer_standard_others_fast()
     {
