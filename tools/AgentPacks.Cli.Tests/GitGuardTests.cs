@@ -108,6 +108,18 @@ public sealed class GitGuardTests
         Assert.Equal(string.Empty, result.Error);
     }
 
+    /// <summary>
+    /// The documented escape hatch. Without this test, AGENTPACKS_GIT_GUARD=off is only prose.
+    /// </summary>
+    [Fact]
+    public void Guard_off_allows_a_command_that_would_otherwise_be_blocked()
+    {
+        var result = Run("git reset --hard", "nested", guard: "off");
+
+        Assert.Equal(0, result.ExitCode);
+        Assert.DoesNotContain("GIT00", result.Error, StringComparison.Ordinal);
+    }
+
     [Fact]
     public void Posix_and_powershell_guards_declare_the_same_rules()
     {
@@ -145,7 +157,7 @@ public sealed class GitGuardTests
     {
         if (PowerShell is null)
         {
-            return;
+            Assert.Skip("pwsh is not available");
         }
 
         var payload = JsonSerializer.Serialize(new { tool_input = new { command } });
@@ -192,21 +204,22 @@ public sealed class GitGuardTests
     private static string[] PowerShellArguments() =>
         ["-NoProfile", "-ExecutionPolicy", "Bypass", "-File", PowerShellScript, "-Matcher", "git"];
 
-    private static (int ExitCode, string Error) Run(string command, string shape)
+    private static (int ExitCode, string Error) Run(string command, string shape, string guard = "on")
     {
         var payload = shape == "flat"
             ? JsonSerializer.Serialize(new { command })
             : JsonSerializer.Serialize(new { tool_input = new { command } });
-        return RunPayload(payload);
+        return RunPayload(payload, guard);
     }
 
-    private static (int ExitCode, string Error) RunPayload(string payload) =>
-        RunPayload(payload, "bash", [Script, "-Matcher", "git"]);
+    private static (int ExitCode, string Error) RunPayload(string payload, string guard = "on") =>
+        RunPayload(payload, "bash", [Script, "-Matcher", "git"], guard);
 
     private static (int ExitCode, string Error) RunPayload(
         string payload,
         string executable,
-        IReadOnlyList<string> arguments)
+        IReadOnlyList<string> arguments,
+        string guard = "on")
     {
         var start = new ProcessStartInfo(executable)
         {
@@ -221,7 +234,7 @@ public sealed class GitGuardTests
             start.ArgumentList.Add(argument);
         }
 
-        start.Environment["AGENTPACKS_GIT_GUARD"] = "on";
+        start.Environment["AGENTPACKS_GIT_GUARD"] = guard;
 
         using var process = Process.Start(start)!;
         process.StandardInput.Write(payload);
