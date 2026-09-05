@@ -31,7 +31,7 @@ Not in v1
 second skill pack, Matt catalog dump, eager fan-out, self-improve graphs, auto skill rewrite, redoing PR #6.
 ```
 
-Step 1 **applies** — Apply the latest same-entrypoint entry (`/squad` and `/build` are the same). Prefer
+Step 1 is **Read and apply**. Apply the latest same-entrypoint entry (`/squad` and `/build` are the same). Prefer
 its skips only when that run **passed**. A skip from a **failed** run is a must-run this time.
 Prefer its model tier after a pass. After a fail, demote one tier (`frontier` → `standard` →
 `fast` → `inherit`). Do not rewrite skills. Security also runs when learnings mark it must-run.
