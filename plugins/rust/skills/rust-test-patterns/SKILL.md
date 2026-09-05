@@ -1,7 +1,9 @@
 ---
 name: rust-test-patterns
-description: How tests are written and run in a Rust repository — unit, integration and documentation tests, async runtimes, parallel isolation, feature matrices, Cargo and nextest commands. Use when adding or changing a Rust test, choosing its boundary, or verifying a Cargo workspace.
+description: Internal loop skill. Loaded by the delivery-loop orchestrator by exact Skill tool name, not as a user entrypoint. How tests are written and run in a Rust repository — unit, integration and doc tests, async runtimes, feature matrices, Cargo and nextest commands.
 license: UNLICENSED
+metadata:
+  audience: loop
 ---
 
 # Rust test patterns

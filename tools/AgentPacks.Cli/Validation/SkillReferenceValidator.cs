@@ -41,6 +41,7 @@ internal sealed partial class SkillReferenceValidator(RepositoryContext context)
         {
             var available = plugin.Skills
                 .Select(s => s.DirectoryName)
+                .Concat(plugin.Commands.Select(c => c.Name))
                 .Concat(external
                     .Where(s => string.Equals(s.PluginDirectory, plugin.Directory, StringComparison.Ordinal))
                     .Select(s => s.Name))
@@ -96,7 +97,7 @@ internal sealed partial class SkillReferenceValidator(RepositoryContext context)
 
             context.Diagnostics.Policy(
                 relative,
-                $"invokes `/{name}`, but no skill named '{name}' ships in this plugin and none is " +
+                $"invokes `/{name}`, but no skill or command named '{name}' ships in this plugin and none is " +
                 "referenced in this plugin's external-skills.json. Add it, or the instruction dead-ends.");
         }
     }

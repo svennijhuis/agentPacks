@@ -73,7 +73,7 @@ public class DeliveryLoopContractTests
     public void Small_changes_bypass_every_plan_dependent_and_review_phase_agent()
     {
         var skill = Fixture("SKILL.md");
-        var command = Fixture("deliver.md");
+        var command = Fixture("build.md");
 
         foreach (var agent in AgentNames)
             Assert.Contains(agent, command, StringComparison.Ordinal);
@@ -88,7 +88,7 @@ public class DeliveryLoopContractTests
     [Fact]
     public void Main_agent_fans_reviewers_out_and_orchestrator_only_merges_completed_reports()
     {
-        var command = Fixture("deliver.md");
+        var command = Fixture("build.md");
         var orchestrator = Fixture("loop-orchestrator.md");
 
         Assert.Contains("Directly launch", command, StringComparison.Ordinal);
@@ -153,8 +153,8 @@ public class DeliveryLoopContractTests
     public void Malformed_report_input_is_terminal_and_cannot_enter_a_retry_loop()
     {
         var skill = Fixture("SKILL.md");
-        var command = Fixture("deliver.md");
-        var standalone = Fixture("review-diff.md");
+        var command = Fixture("build.md");
+        var standalone = Fixture("review.md");
         var orchestrator = Fixture("loop-orchestrator.md");
         var contract = Fixture("review-contract.md");
         var combined = string.Join('\n', skill, command, standalone, orchestrator, contract);
@@ -184,12 +184,12 @@ public class DeliveryLoopContractTests
     [Fact]
     public void Review_without_a_plan_is_explicit_in_every_applicable_reviewer()
     {
-        Assert.Contains("For `/review-diff`", Fixture("loop-reviewer.md"), StringComparison.Ordinal);
-        Assert.Contains("With `/review-diff`", Fixture("loop-security-reviewer.md"), StringComparison.Ordinal);
-        Assert.Contains("With `/review-diff`", Fixture("loop-simplifier.md"), StringComparison.Ordinal);
+        Assert.Contains("For `/review`", Fixture("loop-reviewer.md"), StringComparison.Ordinal);
+        Assert.Contains("With `/review`", Fixture("loop-security-reviewer.md"), StringComparison.Ordinal);
+        Assert.Contains("With `/review`", Fixture("loop-simplifier.md"), StringComparison.Ordinal);
         Assert.Contains("## Standalone merge report", Fixture("review-contract.md"), StringComparison.Ordinal);
         Assert.Contains("There is no `Verdict`", Fixture("review-contract.md"), StringComparison.Ordinal);
-        Assert.Contains("`round number: 1`", Fixture("review-diff.md"), StringComparison.Ordinal);
+        Assert.Contains("`round number: 1`", Fixture("review.md"), StringComparison.Ordinal);
     }
 
     [Fact]
@@ -213,5 +213,108 @@ public class DeliveryLoopContractTests
 
         foreach (var agent in new[] { "loop-orchestrator.md", "loop-reviewer.md", "loop-security-reviewer.md", "loop-simplifier.md" })
             Assert.Contains("references/review-contract.md", Fixture(agent), StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void Two_user_invoked_entrypoints_are_build_and_review()
+    {
+        var skill = Fixture("SKILL.md");
+        var build = Fixture("build.md");
+        var review = Fixture("review.md");
+
+        Assert.Contains("disable-model-invocation: true", skill, StringComparison.Ordinal);
+        Assert.Contains("Two entrypoints only", skill, StringComparison.Ordinal);
+        Assert.Contains("`/build`", skill, StringComparison.Ordinal);
+        Assert.Contains("`/review`", skill, StringComparison.Ordinal);
+        Assert.Contains("name: build", build, StringComparison.Ordinal);
+        Assert.Contains("name: review", review, StringComparison.Ordinal);
+        Assert.DoesNotContain("name: deliver", build + review, StringComparison.Ordinal);
+        Assert.DoesNotContain("name: review-diff", build + review, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void Skills_are_loaded_by_exact_tool_name_never_slash_prose()
+    {
+        var combined = string.Join('\n',
+            Fixture("SKILL.md"),
+            Fixture("build.md"),
+            Fixture("review.md"),
+            Fixture("loop-planner.md"),
+            Fixture("loop-implementer.md"),
+            Fixture("loop-verifier.md"),
+            Fixture("loop-reviewer.md"),
+            Fixture("loop-simplifier.md"));
+
+        Assert.Contains("Skill tool by exact name", combined, StringComparison.Ordinal);
+        Assert.Contains("Never write `/delivery-loop`", combined, StringComparison.Ordinal);
+        Assert.DoesNotContain("Load `/delivery-loop`", combined, StringComparison.Ordinal);
+        Assert.DoesNotContain("Load `/dotnet-build`", combined, StringComparison.Ordinal);
+        Assert.DoesNotContain("mattpocock", combined, StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain("grill-me", combined, StringComparison.Ordinal);
+        Assert.Contains("Grill stays", Fixture("SKILL.md"), StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void Review_is_dual_axis_and_startable_for_pr_uncommitted_and_main()
+    {
+        var skill = Fixture("SKILL.md");
+        var review = Fixture("review.md");
+        var reviewer = Fixture("loop-reviewer.md");
+
+        Assert.Contains("Dual-axis", skill, StringComparison.Ordinal);
+        Assert.Contains("correctness and plan/spec", skill, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("--pr", review, StringComparison.Ordinal);
+        Assert.Contains("--uncommitted", review, StringComparison.Ordinal);
+        Assert.Contains("vs main", review, StringComparison.Ordinal);
+        Assert.Contains("PR, uncommitted work, or a diff versus main", reviewer, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void Author_is_not_the_fixer_and_implement_stays_tdd_then_one_suite()
+    {
+        var skill = Fixture("SKILL.md");
+        var implementer = Fixture("loop-implementer.md");
+        var verifier = Fixture("loop-verifier.md");
+
+        Assert.Contains("author of the rejected code is not the fixer", skill, StringComparison.Ordinal);
+        Assert.Contains("fresh", implementer, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("TDD", implementer, StringComparison.Ordinal);
+        Assert.Contains("Do not run the full suite", implementer, StringComparison.Ordinal);
+        Assert.Contains("wider test suite once", verifier, StringComparison.Ordinal);
+        Assert.Contains("Happy-path-only", implementer, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void Learnings_log_is_append_only_and_read_first()
+    {
+        var skill = Fixture("SKILL.md");
+        var learnings = Fixture("learnings.md");
+
+        Assert.Contains("docs/learnings.md", skill, StringComparison.Ordinal);
+        Assert.Contains("Read `docs/learnings.md` first", skill, StringComparison.Ordinal);
+        Assert.Contains("append-only", skill, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("not a second brain", learnings, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("Never edit or delete an earlier entry", learnings, StringComparison.Ordinal);
+        Assert.Contains("Model tier:", learnings, StringComparison.Ordinal);
+        Assert.Contains("Agents spun:", learnings, StringComparison.Ordinal);
+        Assert.Contains("Next tweak:", learnings, StringComparison.Ordinal);
+        Assert.DoesNotContain("rewrite skills", learnings, StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
+    public void Verify_gates_are_written_in_the_review_contract()
+    {
+        var contract = Fixture("review-contract.md");
+        var verifier = Fixture("loop-verifier.md");
+
+        Assert.Contains("No confirmed plan", contract, StringComparison.Ordinal);
+        Assert.Contains("never covers the criterion", contract, StringComparison.Ordinal);
+        Assert.Contains("wider suite fails", contract, StringComparison.Ordinal);
+        Assert.Contains("this-change", contract, StringComparison.Ordinal);
+        Assert.Contains("pre-existing", contract, StringComparison.Ordinal);
+        Assert.Contains("happy-path only", contract, StringComparison.Ordinal);
+        Assert.Contains("Mixed .NET and Rust", contract, StringComparison.Ordinal);
+        Assert.Contains("No plan is not a pass", verifier, StringComparison.Ordinal);
+        Assert.Contains("not a verified pass", verifier, StringComparison.Ordinal);
     }
 }

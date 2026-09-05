@@ -29,6 +29,11 @@ Skills are the one component every client loads identically, which makes them th
 
 The names *are* the interface. A skill called `dotnet-testing` instead of `dotnet-test-patterns` is a skill the loop silently never loads — which is why `LanguagePackValidator` fails the build on a near-miss rather than letting it ship.
 
+The orchestrator loads these with the Skill tool by exact name, never slash-prose. Slot skills are
+internals: set `metadata.audience: loop` and say so in the description so they do not look like a
+second user-facing entrypoint. They must stay model-invoked; `disable-model-invocation` would hide
+them from the loop.
+
 ## Framework skills are not slots
 
 Framework knowledge keeps the `[<framework>-]<action>-<object>` shape from [PLAN.md](PLAN.md) — `aspnet-api-design`, `react-component-scaffold`, `axum-routing` — and is reached *through* the slot skills, never discovered by the loop directly.
@@ -43,9 +48,11 @@ That is deliberate. Frameworks churn faster than languages; if the loop's contra
 4. Add the marker, stack and pack row to `plugins/pack-check/skills/pack-check/references/packs.md`. That row is what makes the new pack discoverable at session start.
 5. Fill the optional review slots as you have real content for them. A thin `<lang>-security-review` is worse than none — OWASP is already the floor.
 6. Write the pack `README.md` with the slot table, so a reader can see what is filled and what is not.
-7. Validate and open a pull request:
+7. Validate with the real suite, not only a symlink, then open a pull request. [ADD-SKILL.md](ADD-SKILL.md)
+   has the marketplace-shaped commands.
 
 ```bash
+dotnet test tools/AgentPacks.slnx
 dotnet run --project tools/AgentPacks.Cli -- validate
 ```
 

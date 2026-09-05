@@ -7,7 +7,7 @@ Skills are the portable, reusable part of agentPacks. Every compatible client lo
 1. Pick the owning plugin with the rule in [the catalog plan](PLAN.md): a language pack for anything that needs a compiler, a role pack for anything that does not, and never a new plugin for a framework.
 2. Create `plugins/<plugin>/skills/<name>/SKILL.md` there.
 3. Write the frontmatter and the instructions.
-4. Run `dotnet run --project tools/AgentPacks.Cli -- validate`.
+4. Prove it locally with the commands in [Test a skill locally](#test-a-skill-locally).
 5. Open a pull request.
 
 ## Frontmatter
@@ -20,8 +20,9 @@ Agent Skills publishes no JSON Schema, so the validator implements the specifica
 | `description` | yes | Non-empty, at most 1024 characters. Say what it does *and* when to use it. |
 | `license` | no | License name or a reference to a bundled license file. |
 | `compatibility` | no | At most 500 characters. Only when the skill has real environment requirements. |
-| `metadata` | no | A mapping of string keys to string values. |
+| `metadata` | no | A mapping of string keys to string values. Contracted `<lang>-*` slots must set `audience: loop`. |
 | `allowed-tools` | no | Space-separated string. Experimental; support varies between clients. |
+| `disable-model-invocation` | no | `true` for a user-invoked entrypoint. Generation writes the Codex `agents/openai.yaml` half so both dialects stay in sync. |
 
 Plugin names may contain periods (`acme.tools` is valid); skill names may not. This trips people up.
 
@@ -42,6 +43,43 @@ Poor: `Helps with PDFs.`
 ## YAML support
 
 Frontmatter is parsed with a real YAML parser, so quoted values containing colons, folded and multiline scalars, comments and nested `metadata` maps all work as expected.
+
+## Test a skill locally
+
+A GitHub marketplace install is generated. Symlinking the authored `plugins/<name>` directory and
+trying it in a client is not enough: that tree is missing generated Codex policy, client agent
+files, and skill-local standards references.
+
+From a clone of this repository, against the same commands CI runs:
+
+```bash
+dotnet test tools/AgentPacks.slnx
+dotnet run --project tools/AgentPacks.Cli -- validate
+dotnet run --project tools/AgentPacks.Cli -- validate-all --out /tmp/agentpacks-marketplace
+```
+
+`validate-all --out` writes the marketplace-shaped tree: client namespaces, remapped agent `model`
+fields, and `skills/<name>/agents/openai.yaml` for user-invoked skills. Inspect the fixture plugin
+you added there:
+
+```bash
+ls /tmp/agentpacks-marketplace/plugins/<plugin>/skills/<name>
+dotnet run --project tools/AgentPacks.Cli -- validate
+```
+
+To smoke-test the generated plugin in a client that already has the marketplace install, point the
+client at the **generated** copy, then reload:
+
+```bash
+ln -sfn /tmp/agentpacks-marketplace/plugins/<plugin> ~/.cursor/plugins/local/<plugin>
+```
+
+Do not symlink `plugins/<plugin>` from `main` over a marketplace install and call that verification.
+The authored tree is the source; the generated tree is what coworkers install.
+
+A contracted language-pack slot is an internal loop skill. After adding one, the suite must still
+resolve it by exact name: `dotnet-build`, not `dotnet-builds`. `LanguagePackContractTests` and
+`dotnet test` catch a near-miss before anyone installs it.
 
 ## A note on strictness
 

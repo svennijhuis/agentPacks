@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/svennijhuis/agentPacks/schema/models.schema.json",
+  "title": "Portable agent model tiers",
+  "description": "Authored model tiers mapped to Claude, Cursor, Copilot and Codex identifiers.",
+  "type": "object",
+  "required": ["$schema", "version", "default", "tiers"],
+  "additionalProperties": false,
+  "properties": {
+    "$schema": { "const": "schema/models.schema.json" },
+    "version": { "const": 1 },
+    "default": { "const": "inherit" },
+    "tiers": {
+      "type": "object",
+      "minProperties": 1,
+      "propertyNames": { "pattern": "^[a-z][a-z0-9-]*$" },
+      "additionalProperties": {
+        "type": "object",
+        "required": ["claude", "cursor", "copilot", "codex"],
+        "additionalProperties": false,
+        "properties": {
+          "claude": { "type": "string", "minLength": 1 },
+          "cursor": { "type": "string", "minLength": 1 },
+          "copilot": { "type": "string", "minLength": 1 },
+          "codex": { "type": "string", "minLength": 1 }
+        }
+      }
+    }
+  }
+}

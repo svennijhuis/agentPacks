@@ -27,7 +27,7 @@ tools:
 |---|---|---|
 | `name` | yes | Kebab-case, and equal to the filename. Clients disagree on which one wins, so they must match. |
 | `description` | yes | What it does *and* when to delegate to it. This is the only thing the main agent uses to decide. |
-| `model` | no | `inherit`, `opus`, `sonnet` or `haiku`. Defaults to `inherit`. |
+| `model` | no | A portable tier: `inherit` (default), `fast`, `standard`, or `frontier`. Never a Claude alias (`opus`, `sonnet`, `haiku`) and never a Cursor id. [`models.source.json`](../models.source.json) maps the tier to each client. |
 | `tools` | no | List of lowercase tool names, from the closed vocabulary below. Translated to each client's spelling. |
 | `readonly` | no | `true` or `false`. Cursor honours it directly; elsewhere it is expressed by the tools you grant, so `readonly: true` requires a `tools` list and rejects `write` and `edit`. |
 
@@ -58,7 +58,7 @@ The body is the system prompt. Say what the agent does, in what order, and what 
 | `agents/<name>.md` | Cursor — reads the authored file directly |
 | `com.anthropic.claude-code/agents/<name>.md` | Claude — tool names in PascalCase |
 | `com.github.copilot/agents/<name>.agent.md` | Copilot — note the extension |
-| `com.openai.codex/agents/<name>.toml` | Codex — body becomes `developer_instructions` |
+| `com.openai.codex/agents/<name>.toml` | Codex — body becomes `developer_instructions`, `model` is emitted |
 
 ## The Codex gap
 
@@ -68,4 +68,12 @@ Codex loads subagents from `~/.codex/agents/` or `<repo>/.codex/agents/` only. I
 cp plugins/delivery-loop/com.openai.codex/agents/*.toml .codex/agents/
 ```
 
+Codex generation always emits `model = "inherit"`. A non-inherit TOML pin is inherit-first on
+purpose: pinning a specific Codex model in the generated TOML is flaky on spawn, so the catalog's
+Codex column stays `inherit` even when the authored tier is `frontier`.
+
 If Codex gains plugin-shipped agents, only the generated manifest needs a field.
+
+Cost-first: leave agents on `inherit` unless the agent is the one writing code, which may use
+`standard`. Cursor reads the authored file directly, so shipping `inherit` is also a real Cursor id.
+Non-inherit tiers are remapped for Claude, Copilot and Codex; do not author `sonnet` to mean Cursor.

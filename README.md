@@ -8,7 +8,7 @@ Three capability packs, installed because you want a behaviour wired into the ag
 
 | Plugin | Use it for |
 | --- | --- |
-| `delivery-loop` | Having the main agent mediate turn-based planning, run plan-bound implementation and verification, fan reviewers out in parallel, and merge at most two fix rounds before an uncommitted hand-off |
+| `delivery-loop` | User-invoked `/build` and `/review`: the main agent mediates grill-style planning, runs plan-bound implementation and verification, fans dual-axis reviewers, and merges at most two fix rounds before an uncommitted hand-off |
 | `pack-check` | Detecting the repository stack at session start and asking before installing the language pack that supplies its required build and test skills |
 | `git` | Blocking the git commands that destroy work an agent cannot get back — `reset --hard`, `clean -fd`, `push --force`, `branch -D`, `checkout .` — before the client runs them |
 | `dotnet` | Teaching the loop how C# is built, tested and reviewed, backed by one canonical set of standards distributed only to the skills that need each document |
@@ -106,24 +106,28 @@ Codex loads subagents only from `.codex/agents/` and reads `AGENTS.md` from the 
 
 ## Using the plugins
 
-Two slash commands, split by whether the code exists yet:
+Two slash commands, split by whether the code exists yet. Both are user-invoked; the model does not
+pick the orchestrator.
 
 ```
-/deliver add an integration test for the orders endpoint
+/build add an integration test for the orders endpoint
 ```
 
-The main agent controls the whole loop. It prints the detected stack and standards, relays one
-planner question round at a time, launches applicable reviewers in parallel, and ends at a hand-off
-with nothing committed. Obvious small changes are implemented and verified directly without phase agents.
+The main agent is a thin Squad-style lead. It prints the detected stack and standards, relays one
+planner question round at a time (grill stays inside those rounds), launches dual-axis reviewers in
+parallel, and ends at a hand-off with nothing committed. Obvious small changes are implemented and
+verified directly without phase agents.
 
 ```
-/review-diff
+/review
+/review --uncommitted
+/review --pr
+/review --base main
 ```
 
-The review phase on its own, for a change that arrived already written: correctness and simplification
-in parallel, with security added when needed. No plan means no verdict and no fix round.
-
-Asking naturally works too — “plan this change, then build it”, “is this safe to ship?”, “what can this change drop?” — and selects the same agents.
+The review phase on its own, for a change that arrived already written: a PR, uncommitted work, or a
+diff versus main. Correctness and simplification in parallel, with security added when a trust
+boundary changed. No plan means no verdict and no fix round.
 
 `git` needs no invocation either, and has nothing to ask: its hook blocks `git reset --hard`, `git clean -fd`, `git push --force`, `git branch -D`, `git checkout .` and `git restore .` before the client runs them, with the reason on stderr. [Its README](plugins/git/README.md) covers the `AGENTPACKS_GIT_GUARD=off` switch and which clients the blocking contract is actually verified on.
 

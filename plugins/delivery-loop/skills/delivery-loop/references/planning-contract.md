@@ -8,6 +8,11 @@ The main agent owns user interaction and planning state. It supplies the planner
 
 The planner handles one invocation and returns. It never addresses the user directly, waits for an answer, or carries state that was not returned to the main agent.
 
+Grill-style planning is this contract: frontier rounds with a recommended answer on every question.
+Facts are discovered by the planner (a subagent). Decisions stay with the human. Do not load a
+separate grilling skill or an external skills catalog. The plan's Decisions table is the drop-box;
+do not write `decisions.md`.
+
 ## Planner input
 
 Every invocation supplies:

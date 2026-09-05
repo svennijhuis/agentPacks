@@ -1,7 +1,9 @@
 ---
 name: dotnet-build
-description: How a .NET repository is laid out, restored and built — solution files, Central Package Management, SDK pinning, lock files, and the exact build, run and format commands. Use before editing C# in an unfamiliar .NET repository, when adding a project or a package reference, or when a restore or build fails.
+description: Internal loop skill. Loaded by the delivery-loop orchestrator by exact Skill tool name, not as a user entrypoint. How a .NET repository is laid out, restored and built — solution files, Central Package Management, SDK pinning, lock files, and the exact build, run and format commands.
 license: UNLICENSED
+metadata:
+  audience: loop
 ---
 
 # .NET build

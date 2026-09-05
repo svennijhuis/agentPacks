@@ -89,6 +89,7 @@ internal sealed class LanguagePackValidator(RepositoryContext context)
 
         if (LanguagePackContract.Slots.Contains(suffix, StringComparer.Ordinal))
         {
+            ValidateLoopAudience(skill, relative);
             return;
         }
 
@@ -102,6 +103,28 @@ internal sealed class LanguagePackValidator(RepositoryContext context)
                 $"'{language}-{nearMiss}'. The loop loads slot skills by exact name, so a near miss " +
                 "is a skill it never finds and nothing else reports. Rename it, or pick a name that " +
                 "is not a slot.");
+        }
+    }
+
+    /// <summary>
+    /// Contracted slot skills are loaded by the orchestrator by exact Skill tool name. They must
+    /// not look like a second user-facing entrypoint: mark them <c>audience: loop</c> so a
+    /// coworker browsing installed skills can tell they are internals.
+    /// </summary>
+    private void ValidateLoopAudience(SkillDefinition skill, string relative)
+    {
+        var metadata = skill.Frontmatter?.StringMap("metadata");
+        var audience = metadata is not null && metadata.TryGetValue("audience", out var value)
+            ? value
+            : null;
+
+        if (!string.Equals(audience, "loop", StringComparison.Ordinal))
+        {
+            context.Diagnostics.Policy(
+                relative,
+                $"contracted slot '{skill.DirectoryName}' must set metadata.audience to 'loop'. " +
+                "The delivery-loop orchestrator loads it by exact Skill tool name; it is not a " +
+                "user entrypoint.");
         }
     }
 

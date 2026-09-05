@@ -74,10 +74,25 @@ When there are no findings, omit the table and write `No findings.` after the sc
 | 2 | fail | `dotnet test App.slnx --no-restore` | `expected 401, got 200` |
 | 3 | not verified | — | No automated or safe manual check covers this criterion. |
 
-**Suite:** <wider run and unrelated failures>
+**Suite:** <wider run; `pass` or `fail` plus `this-change` or `pre-existing` when it failed>
+**Stacks:** <dotnet | rust | both>
+**Boundary:** <covered | not covered; required when both stacks apply>
+**Coverage:** <edge cases named, or `happy-path only`>
 ```
 
-No evidence means `not verified`, never `pass`.
+No evidence means `not verified`, never `pass`. The suite, stacks, boundary, and coverage lines
+after the table are part of the pass gate, not narration.
+
+A verified `pass` is the outcome of the evaluator, not a hopeful reading of the table:
+
+| Gate | Outcome |
+|---|---|
+| No confirmed plan | Stop. Do not verify. Not a pass. |
+| A criterion command is `—`, empty, or never covers the criterion | That row is `not verified`. Not a pass, even if the row says `pass`. |
+| Plan command passes and the wider suite fails | Not a verified pass. |
+| A failure is not classified `this-change` or `pre-existing` | Not a pass. Classification is required whenever a command fails. |
+| Mixed .NET and Rust, but only one suite ran, or the boundary was not checked | Not a pass. |
+| Agent-written tests are happy-path only | Not a pass. Edge cases are required. |
 
 A `fail` or `not verified` row blocks `pass`. During merge, the orchestrator turns any such row that
 is not already represented by a reviewer finding with the same cause into a finding attributed to

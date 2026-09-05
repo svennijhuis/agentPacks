@@ -1,7 +1,9 @@
 ---
 name: rust-review
-description: Supply Rust-specific findings for a file, diff, or pull request by applying the pack's canonical ownership, API, error, concurrency, unsafe-code, and testing standards. The caller chooses the final report format.
+description: Internal loop skill. Loaded by the delivery-loop orchestrator by exact Skill tool name, not as a user entrypoint. Supply Rust-specific findings from the pack's canonical ownership, API, error, concurrency, unsafe-code, and testing standards.
 license: UNLICENSED
+metadata:
+  audience: loop
 ---
 
 # Rust review

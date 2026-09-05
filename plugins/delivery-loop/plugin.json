@@ -2,7 +2,7 @@
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "delivery-loop",
   "version": "0.1.0",
-  "description": "Uses the main agent to mediate planning, run plan-bound implementation and verification, fan reviewers out, and merge at most two fix rounds before an uncommitted hand-off.",
+  "description": "User-invoked /build and /review: the main agent mediates planning, runs plan-bound implementation and verification, fans dual-axis reviewers, and merges at most two fix rounds before an uncommitted hand-off.",
   "author": {
     "name": "agentPacks Maintainers"
   },

@@ -1,12 +1,14 @@
 ---
 name: delivery-loop
-description: Run a substantial change through main-agent-controlled planning, implementation, verification, parallel review, and at most two fix rounds. Use for behavior changes, multi-file work, or when asked to plan and build; bypass the phase agents for an obvious small change.
+description: User-invoked orchestrator for /build and /review. Mediates grill-style planning, runs plan-bound implementation and verification, fans reviewers on two axes, and caps two fix rounds. Do not model-invoke; type the entrypoint.
 license: UNLICENSED
+disable-model-invocation: true
 ---
 
 # Delivery loop
 
-The main agent controls this workflow:
+User-invoked thin orchestrator. Two entrypoints only: `/build` (plan then deliver) and `/review`
+(an existing diff). Type the command or this skill name. Do not wait for the model to pick it.
 
 ```text
 plan -> implement -> verify -> parallel review -> merge -> (fix -> verify -> parallel review -> merge) x 2 max -> hand off
@@ -14,16 +16,44 @@ plan -> implement -> verify -> parallel review -> merge -> (fix -> verify -> par
 
 No phase commits, merges, or pushes. A `pass` verdict means ready for human review, not permission to land.
 
+Read `docs/learnings.md` first when that file exists. It is an append-only run log, not a second
+brain: use it to see what the last run spun, skipped, and would tweak. Do not dump it into every
+prompt, rewrite skills from it, or treat it as memory.
+
 ## Route the request
 
 | Work | Route |
 |---|---|
-| Typo, rename, or one-line change with one obvious safe check | The main agent implements and verifies directly. Do not call `loop-planner`, `loop-implementer`, `loop-verifier`, or any review agent. Do not create a plan. |
+| Typo, rename, or one-line change with one obvious safe check | The main agent implements and verifies directly. Do not call `loop-planner`, `loop-implementer`, `loop-verifier`, or any review agent. Do not create a plan. Small changes spawn nobody. |
 | Behavior change, more than two files, or meaningful design choice | Run the full loop. |
 | Irreversible, cross-cutting, public-interface, migration, or trust-boundary change | Run the full loop and record the relevant human decision before implementation. |
-| Existing diff with no confirmed plan | Use the standalone diff-review route: the main agent runs applicable reviewers in parallel and gives completed reports to `loop-orchestrator` for a ranked merge. There is no verifier report, plan write, verdict, or fix round. |
+| Existing diff with no confirmed plan | `/review`: PR, uncommitted, or vs main. Applicable reviewers in parallel; `loop-orchestrator` merges. No verifier report, plan write, verdict, or fix round. |
 
 When uncertain, use the full loop. Once the small-change route is chosen, keep it small; discovering a design choice or wider impact promotes the work to the full loop before further edits.
+
+Cost-first: keep every agent on `inherit` unless it is the implementer writing code, which may use
+`standard`. Do not fan out specialists the route does not need.
+
+## Load skills by exact name
+
+This skill gates planners and reviewers. Load a skill only with the Skill tool and the exact name:
+
+| Name | When |
+|---|---|
+| `delivery-loop` | This orchestrator (already loaded when the user invoked `/build` or `/review`) |
+| `<lang>-build` | Implementer and simplifier, for each applicable stack |
+| `<lang>-test-patterns` | Implementer and verifier, for each applicable stack |
+| `<lang>-review` | Correctness reviewer, when the optional slot exists |
+| `<lang>-security-review` | Security reviewer, when the gate ran and the optional slot exists |
+
+Never write slash-prose (a slash plus the skill name) to load a skill. That looks like a slash
+command and is not how the Skill tool resolves. A near-miss name is a silent miss.
+
+Do not load an external grilling catalog or any skill that is not in the table above. Grill-style
+planning is the frontier rounds inside this skill's planning phase.
+
+Language-pack slot skills are internals (`metadata.audience: loop`). Do not present them as
+user-facing entrypoints.
 
 ## Prepare the full loop
 
@@ -49,21 +79,28 @@ Record repository evidence, standards, and workspace ownership. Repository conve
 
 Read [the planning contract](references/planning-contract.md). The main agent invokes `loop-planner` once per turn, presents the returned numbered round to the user, and passes the answers plus settled state into the next invocation. The planner never talks to the user or waits for answers itself.
 
-Only after the user confirms the shared understanding does the main agent invoke the planner in write mode. That invocation writes exactly `docs/plans/<slug>.md`; planning evidence and citations stay in that plan.
+Grill stays here: one frontier round at a time, each question with a recommended answer. Facts are
+the planner's job (a subagent inspects the repository). Decisions are the human's. Do not open a
+separate grilling skill.
+
+Only after the user confirms the shared understanding does the main agent invoke the planner in write mode. That invocation writes exactly `docs/plans/<slug>.md`; planning evidence and citations stay in that plan. The plan's Decisions table is the drop-box; do not create `decisions.md`.
 
 ## Run plan-bound phases
 
-`loop-implementer` and `loop-verifier` require the confirmed plan. The implementer edits against its criteria and reports claims; the verifier independently reports evidence per criterion. The small-change route bypasses both agents.
+`loop-implementer` and `loop-verifier` require the confirmed plan. The implementer stays tiny: failing
+test first, then the change, then stop. It does not run the full suite. The verifier independently
+reports evidence per criterion and runs the wider suite once. The small-change route bypasses both agents.
 
-Before implementing a fix list, verifying, reviewing, or merging, read [the review contract](references/review-contract.md). It is the only definition of severity, finding identity, report shapes, and verdict gates.
+Before implementing a fix list, verifying, reviewing, or merging, read [the review contract](references/review-contract.md). It is the only definition of severity, finding identity, report shapes, and verdict gates. Verification pass/fail is the evaluator in that contract, not a hopeful reading of the report.
 
 ## Review in parallel, then merge
 
-The main agent directly launches all applicable reviewers against the same diff:
+The main agent directly launches all applicable reviewers against the same diff. Dual-axis like a
+Matt-style code review: correctness and plan/spec. Security only when gated.
 
 | Agent | Runs when | Question |
 |---|---|---|
-| `loop-reviewer` | Always in the full review phase | Does the change meet the plan and remain correct? |
+| `loop-reviewer` | Always in the full review phase | Is it correct, and does it match the plan or spec? |
 | `loop-simplifier` | Always in the full review phase | Is the implementation needlessly complex? |
 | `loop-security-reviewer` | The change touches a trust boundary, or the main agent is unsure | Can the change be abused? |
 
@@ -79,7 +116,7 @@ user request.
 The main agent routes the result:
 
 - `pass`: allowed only when every criterion has adequate verifier evidence and the merged report has no blocking finding; hand off to the human.
-- `fix`: send the confirmed plan and only the merged fix list—not raw reviewer or verifier reports—to `loop-implementer`, then verify and review again.
+- `fix`: send the confirmed plan and only the merged fix list—not raw reviewer or verifier reports—to a **fresh** `loop-implementer` invocation. The author of the rejected code is not the fixer; the reviewer never edits. Then verify and review again.
 - `replan`: return to the mediated planning flow with the reason the confirmed plan cannot succeed.
 
 The initial implementation, verification, and review are round 1. Each fix increments the round, so
@@ -91,3 +128,6 @@ Allow at most two fix rounds. Before a third fix, stop and report what was tried
 Record whether the workspace is the primary checkout, an existing worktree, or a loop-created worktree. Preserve the primary checkout and externally created worktrees. Remove a loop-created worktree only when `git status --porcelain` is empty at its exact path, from outside that directory, using `git worktree remove <exact-path>` without `--force`, then `git worktree prune`. Preserve dirty worktrees and report cleanup as pending.
 
 The final hand-off names the plan, files changed, verification evidence, review verdict, fix-round count, deferred notes, pack status, workspace, and cleanup status. State that the result is uncommitted.
+
+Then append one entry to `docs/learnings.md` using [the learnings contract](references/learnings.md).
+Do not rewrite earlier entries. Do not invent a skill or graph from the log.

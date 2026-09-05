@@ -37,14 +37,24 @@ internal static class GeneratedPaths
                 || Path.GetExtension(path).Length == 0;
         }
 
-        // Only this nested directory is generated. A skill may keep any other authored references
-        // beside it without the staleness sweep touching them.
+        // Only these nested skill paths are generated. A skill may keep any other authored
+        // references beside them without the staleness sweep touching them.
         var segments = path.Split('/');
 
         if (segments.Length >= 5 &&
             segments[0] == "skills" &&
             segments[2] == "references" &&
             segments[3] == "standards")
+        {
+            return true;
+        }
+
+        // Codex's user-invoked flag lives beside the portable SKILL.md and is regenerated from
+        // disable-model-invocation so the two dialects cannot drift.
+        if (segments.Length == 4 &&
+            segments[0] == "skills" &&
+            segments[2] == "agents" &&
+            segments[3] == "openai.yaml")
         {
             return true;
         }

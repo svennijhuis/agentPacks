@@ -1,7 +1,9 @@
 ---
 name: rust-build
-description: How a Rust repository is laid out, checked and built — Cargo workspaces, toolchain pinning, features, dependencies, lock files, and the exact check, build, run, format and Clippy commands. Use before editing Rust in an unfamiliar repository, when adding a crate or dependency, or when Cargo fails.
+description: Internal loop skill. Loaded by the delivery-loop orchestrator by exact Skill tool name, not as a user entrypoint. How a Rust repository is laid out, checked and built — Cargo workspaces, toolchain pinning, features, lock files, and the exact check, build, run, format and Clippy commands.
 license: UNLICENSED
+metadata:
+  audience: loop
 ---
 
 # Rust build

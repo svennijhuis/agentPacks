@@ -149,6 +149,7 @@ public sealed class ComponentGenerationTests
         var toml = run.File($"{Plugin}/com.openai.codex/agents/reviewer.toml").Text;
 
         Assert.Contains("name = \"reviewer\"", toml, StringComparison.Ordinal);
+        Assert.Contains("model = \"inherit\"", toml, StringComparison.Ordinal);
         Assert.Contains("developer_instructions = \"\"\"", toml, StringComparison.Ordinal);
         Assert.Contains("You review changes for defects.", toml, StringComparison.Ordinal);
     }

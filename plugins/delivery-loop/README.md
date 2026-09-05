@@ -1,6 +1,7 @@
 # delivery-loop
 
-A capability pack for a main-agent-controlled delivery workflow:
+A capability pack for a user-invoked, main-agent-controlled delivery workflow. Two entrypoints:
+`/build` and `/review`. The `delivery-loop` skill is the thin orchestrator and is not model-invoked.
 
 ```text
 plan -> implement -> verify -> parallel review -> merge -> (fix -> verify -> parallel review -> merge) x 2 max -> hand off
@@ -14,9 +15,10 @@ Obvious typos, renames, and one-line fixes take the small-change route: the main
 
 | Component | Name | Responsibility |
 |---|---|---|
-| Skill | `delivery-loop` | Routing, phase ownership, security gate, fix-round cap, worktree lifecycle, and hand-off |
-| Contract | `planning-contract` | Turn-based planner input, one-round output, confirmation gate, and plan shape |
-| Contract | `review-contract` | Severity, report formats, merge identity, evidence gate, and verdict rules |
+| Skill | `delivery-loop` | User-invoked routing, exact Skill-name loading, security gate, fix-round cap, learnings, worktree lifecycle, and hand-off |
+| Contract | `planning-contract` | Turn-based grill inside the orchestrator: frontier rounds, recommended answers, confirmation, plan shape |
+| Contract | `review-contract` | Dual-axis review, severity, report formats, verify-path evaluator gates, and verdict rules |
+| Contract | `learnings` | Append-only run log read on the next `/build` or `/review` |
 | Rule | `review-checklist` | Source-review checklist scoped by glob; Cursor-only by design |
 | Agent | `loop-planner` | Returns one numbered planning round, or writes the one confirmed plan |
 | Agent | `loop-implementer` | Implements a confirmed plan or merged fix list |
@@ -25,8 +27,8 @@ Obvious typos, renames, and one-line fixes take the small-change route: the main
 | Agent | `loop-security-reviewer` | Reviews trust-boundary changes against [OWASP Top 10:2025](https://owasp.org/Top10/) |
 | Agent | `loop-simplifier` | Finds unnecessary implementation complexity |
 | Agent | `loop-orchestrator` | Deduplicates completed reports, assigns the verdict, and appends the fix list |
-| Command | `deliver` | Runs a new change through the proportional workflow |
-| Command | `review-diff` | Reviews an existing diff without a plan, verdict, or fix round |
+| Command | `build` | Runs a new change through the proportional workflow |
+| Command | `review` | Reviews a PR, uncommitted work, or a diff versus main, without a plan, verdict, or fix round |
 
 All seven agents remain portable across supported generated clients.
 
@@ -42,7 +44,7 @@ For a planned change, the main agent runs correctness and simplification reviewe
 
 `pass` requires adequate evidence for every criterion and no blocking merged finding. `high` or `medium` findings produce `fix`; a plan defect produces `replan`. At most two fix rounds are allowed.
 
-`/review-diff` uses the same conditional reviewers for an existing diff, but has no plan, verifier evidence, verdict, or fix round.
+`/review` uses the same conditional reviewers for a PR, uncommitted work, or a diff versus main, but has no plan, verifier evidence, verdict, or fix round.
 
 ## Stack and workspace
 

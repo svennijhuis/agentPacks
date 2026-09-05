@@ -179,7 +179,7 @@ public sealed class PackCheckContractTests
     {
         var skill = Fixture("SKILL.md");
         var delivery = File.ReadAllText(
-            Path.Combine(AppContext.BaseDirectory, "Fixtures", "delivery-loop", "deliver.md"));
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "delivery-loop", "build.md"));
 
         Assert.Contains("do not ask again in that session", skill, StringComparison.OrdinalIgnoreCase);
         Assert.Contains("continue an ordinary", skill, StringComparison.OrdinalIgnoreCase);

@@ -32,8 +32,8 @@ public class LanguagePackContractTests
     public void A_pack_filling_both_required_slots_passes()
     {
         using var repo = LanguagePack()
-            .WithSkill("dotnet-build", plugin: "dotnet")
-            .WithSkill("dotnet-test-patterns", plugin: "dotnet");
+            .WithLoopSkill("dotnet-build")
+            .WithLoopSkill("dotnet-test-patterns");
 
         var run = repo.Validate();
 
@@ -45,12 +45,25 @@ public class LanguagePackContractTests
     [InlineData("dotnet-test-patterns", "dotnet-build")]
     public void A_pack_missing_either_required_slot_is_rejected(string present, string missing)
     {
-        using var repo = LanguagePack().WithSkill(present, plugin: "dotnet");
+        using var repo = LanguagePack().WithLoopSkill(present);
 
         var run = repo.Validate();
 
         Assert.Contains(run.Diagnostics, d =>
             d.Message.Contains("missing required slot") && d.Message.Contains(missing));
+    }
+
+    [Fact]
+    public void A_slot_skill_without_loop_audience_is_rejected()
+    {
+        using var repo = LanguagePack()
+            .WithSkill("dotnet-build", plugin: "dotnet")
+            .WithLoopSkill("dotnet-test-patterns");
+
+        var run = repo.Validate();
+
+        Assert.Contains(run.Diagnostics, d =>
+            d.Message.Contains("metadata.audience") && d.Message.Contains("dotnet-build"));
     }
 
     [Fact]
@@ -70,8 +83,8 @@ public class LanguagePackContractTests
     public void A_near_miss_of_a_slot_name_is_rejected(string directoryName)
     {
         using var repo = LanguagePack()
-            .WithSkill("dotnet-build", plugin: "dotnet")
-            .WithSkill("dotnet-test-patterns", plugin: "dotnet")
+            .WithLoopSkill("dotnet-build")
+            .WithLoopSkill("dotnet-test-patterns")
             .WithSkill(directoryName, plugin: "dotnet");
 
         var run = repo.Validate();
@@ -85,8 +98,8 @@ public class LanguagePackContractTests
         // 'rust-error-handling' style names are the documented shape for language knowledge that
         // is not one of the loop's slots. Only a near miss is a mistake.
         using var repo = LanguagePack()
-            .WithSkill("dotnet-build", plugin: "dotnet")
-            .WithSkill("dotnet-test-patterns", plugin: "dotnet")
+            .WithLoopSkill("dotnet-build")
+            .WithLoopSkill("dotnet-test-patterns")
             .WithSkill("dotnet-error-handling", plugin: "dotnet");
 
         var run = repo.Validate();
@@ -98,8 +111,8 @@ public class LanguagePackContractTests
     public void A_framework_skill_is_not_measured_against_the_slots()
     {
         using var repo = LanguagePack()
-            .WithSkill("dotnet-build", plugin: "dotnet")
-            .WithSkill("dotnet-test-patterns", plugin: "dotnet")
+            .WithLoopSkill("dotnet-build")
+            .WithLoopSkill("dotnet-test-patterns")
             .WithSkill("aspnet-api-design", plugin: "dotnet");
 
         var run = repo.Validate();

@@ -1,7 +1,9 @@
 ---
 name: dotnet-test-patterns
-description: How tests are written and run in a .NET repository — the unit and integration boundary, xUnit fixtures and collections, WebApplicationFactory, Testcontainers, and the exact test command. Use when adding or changing a C# test, when deciding whether a change needs one, or when a test needs a real database or HTTP host.
+description: Internal loop skill. Loaded by the delivery-loop orchestrator by exact Skill tool name, not as a user entrypoint. How tests are written and run in a .NET repository — unit vs integration, xUnit fixtures, WebApplicationFactory, Testcontainers, and the exact test command.
 license: UNLICENSED
+metadata:
+  audience: loop
 ---
 
 # .NET test patterns

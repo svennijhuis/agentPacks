@@ -1,7 +1,9 @@
 ---
 name: dotnet-review
-description: Supply .NET-specific findings for a C# file, diff, or pull request by applying the pack's canonical design, async/error, and testing standards. The caller chooses the final report format.
+description: Internal loop skill. Loaded by the delivery-loop orchestrator by exact Skill tool name, not as a user entrypoint. Supply .NET-specific findings for a C# file, diff, or pull request from the pack's canonical design, async/error, and testing standards.
 license: UNLICENSED
+metadata:
+  audience: loop
 ---
 
 # .NET review

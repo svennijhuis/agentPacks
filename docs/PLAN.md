@@ -66,7 +66,7 @@ Capability packs — installed because of a workflow you want wired into the age
 
 | Plugin | Who installs it | Holds |
 | --- | --- | --- |
-| `delivery-loop` | anyone who wants a change planned before it is built and checked after | the main-agent-controlled `delivery-loop` skill, planning and review contracts, a Cursor-only scoped checklist, all seven Loop agents, and the `deliver` and `review-diff` commands |
+| `delivery-loop` | anyone who wants a change planned before it is built and checked after | the user-invoked `delivery-loop` orchestrator, planning, review and learnings contracts, a Cursor-only scoped checklist, all seven Loop agents, and the `/build` and `/review` commands |
 | `git` | anyone letting an agent run git | one `beforeShellExecution` hook that blocks the commands which destroy work: `reset --hard`, `clean -f`, `push --force`, `branch -D`, `checkout .`, `restore .` |
 
 A capability pack is the exception to "a role is a role pack", and it earns the exception only by shipping components a skill cannot express: rules that apply without being invoked, subagents, commands, or hooks. A pack that would hold nothing but skills is a role pack, not a capability pack.
@@ -131,13 +131,20 @@ Set it in both dialects or in neither. A pack that sets only the Claude half is 
 | Claude Code | `disable-model-invocation: true` in the skill's frontmatter |
 | Codex | `policy.allow_implicit_invocation: false` in the skill's `agents/openai.yaml` |
 
-Nothing in the catalog sets it today, and that is a decision rather than an omission:
+The two user-facing loop entrypoints are user-invoked. Everything they load by exact Skill tool
+name stays model-invoked so the orchestrator can reach it.
 
-- `delivery-loop` has to fire on "plan and then build this". That is the whole point of it.
-- The contracted `<lang>-*` slot skills are resolved **by exact name by the main delivery workflow and its plan-bound agents**. Making one user-only would silently remove it from that workflow.
-- `/deliver` and `/review-diff` are commands, which a person types already.
+- `delivery-loop` sets `disable-model-invocation: true` (and the generated Codex
+  `agents/openai.yaml`). People type `/build` or `/review`; the model does not pick the orchestrator.
+- The contracted `<lang>-*` slot skills stay model-invoked and are resolved **by exact Skill tool
+  name**. They carry `metadata.audience: loop` so they do not look like a second public entrypoint.
+  Making one user-only would silently remove it from the workflow.
+- `/build` and `/review` are the only commands. There is no second skill pack and no public skill
+  surface for planner/reviewer internals.
 
-Reach for it when a skill is destructive, is scaffolding that should never run unasked, or is a setup step that runs once — the cases where an agent choosing to fire it is the failure.
+Reach for user-invoked on a skill that is destructive, is scaffolding that should never run unasked,
+or is a setup step that runs once — and on the orchestrator itself, so planning does not start
+unasked.
 
 ## Where review, testing and security live
 

@@ -34,6 +34,7 @@ internal sealed class SkillValidator(RepositoryContext context)
             ValidateCompatibility(frontmatter, relative);
             ValidateMetadata(frontmatter, relative);
             ValidateAllowedTools(frontmatter, relative);
+            ValidateInvocationPolicy(frontmatter, relative);
             ValidateBody(frontmatter, relative);
 
             if (name is null)
@@ -147,6 +148,28 @@ internal sealed class SkillValidator(RepositoryContext context)
             context.Diagnostics.SpecFatal(
                 relative,
                 "frontmatter 'allowed-tools' must be a space-separated string.");
+        }
+    }
+
+    /// <summary>
+    /// Claude reads <c>disable-model-invocation</c> from SKILL.md; Codex reads the generated
+    /// <c>agents/openai.yaml</c>. The flag must be a boolean when present. Setting it on one
+    /// dialect only is prevented by generating the Codex half from this field.
+    /// </summary>
+    private void ValidateInvocationPolicy(Frontmatter frontmatter, string relative)
+    {
+        if (!frontmatter.Has("disable-model-invocation"))
+        {
+            return;
+        }
+
+        var value = frontmatter.Scalar("disable-model-invocation");
+
+        if (value is not ("true" or "false"))
+        {
+            context.Diagnostics.SpecFatal(
+                relative,
+                "frontmatter 'disable-model-invocation' must be true or false.");
         }
     }
 

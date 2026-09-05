@@ -7,9 +7,9 @@ build, test, and review skills that the Loop discovers by exact name.
 
 | Skill | Used by | Purpose |
 |---|---|---|
-| `dotnet-build` | implementer, simplifier | Inspect the solution, restore, build, implement, and format once at the end |
-| `dotnet-test-patterns` | implementer, verifier | Choose the right test boundary, fixtures, packages, and commands |
-| `dotnet-review` | correctness reviewer | Review C# correctness, API shape, async/error handling, resources, and testability |
+| `dotnet-build` | implementer, simplifier | Internal loop skill. Inspect the solution, restore, build, implement, and format once at the end |
+| `dotnet-test-patterns` | implementer, verifier | Internal loop skill. Choose the right test boundary, fixtures, packages, and commands |
+| `dotnet-review` | correctness reviewer | Internal loop skill. Review C# correctness, API shape, async/error handling, resources, and testability |
 
 Canonical standards live once under `standards/`:
 

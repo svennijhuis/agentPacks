@@ -9,7 +9,7 @@ namespace AgentPacks.Cli.Generation;
 /// and command formats, rule translations, and the manifests/catalogs that route each provider to
 /// its own dialect.
 /// </summary>
-internal sealed class ClientTreeGenerator(RepositoryContext context)
+internal sealed class ClientTreeGenerator(RepositoryContext context, ModelCatalog models)
 {
     public IReadOnlyList<GeneratedFile> Generate(IReadOnlyList<PluginPackage> plugins)
     {
@@ -89,7 +89,7 @@ internal sealed class ClientTreeGenerator(RepositoryContext context)
             {
                 new("name", ComponentWriter.Yaml(agent.Name)),
                 new("description", ComponentWriter.Yaml(agent.Description)),
-                new("model", ComponentWriter.Yaml(agent.Frontmatter?.Scalar("model") ?? "inherit"))
+                new("model", ComponentWriter.Yaml(ResolveModel(agent, Client.Claude)))
             };
 
             var tools = ComponentWriter.Sequence(agent, "tools");
@@ -232,7 +232,7 @@ internal sealed class ClientTreeGenerator(RepositoryContext context)
     /// outside the root that Cursor owns. It cannot load subagents from a plugin at all, so the
     /// TOML agents are generated for a documented manual copy rather than pretending otherwise.
     /// </summary>
-    private static void GenerateCodex(
+    private void GenerateCodex(
         PluginPackage plugin,
         Action<string, string, bool> add,
         Action<string, JsonNode> addJson)
@@ -319,7 +319,8 @@ internal sealed class ClientTreeGenerator(RepositoryContext context)
                 ComponentWriter.Toml(
                     [
                         new("name", agent.Name),
-                        new("description", agent.Description)
+                        new("description", agent.Description),
+                        new("model", ResolveModel(agent, Client.Codex))
                     ],
                     "developer_instructions",
                     agent.Body),
@@ -366,7 +367,8 @@ internal sealed class ClientTreeGenerator(RepositoryContext context)
             var frontmatter = new List<KeyValuePair<string, string>>
             {
                 new("name", ComponentWriter.Yaml(agent.Name)),
-                new("description", ComponentWriter.Yaml(agent.Description))
+                new("description", ComponentWriter.Yaml(agent.Description)),
+                new("model", ComponentWriter.Yaml(ResolveModel(agent, Client.Copilot)))
             };
 
             var tools = ComponentWriter.Sequence(agent, "tools");
@@ -429,4 +431,20 @@ internal sealed class ClientTreeGenerator(RepositoryContext context)
 
     private static List<MarkdownComponent> AlwaysApplyRules(PluginPackage plugin) =>
         plugin.Rules.Where(rule => ComponentWriter.Flag(rule, "alwaysApply")).ToList();
+
+    /// <summary>
+    /// Maps the authored portable tier to the identifier this client accepts. Codex stays
+    /// inherit-first even when the catalog lists another id: a TOML model pin is flaky on spawn.
+    /// </summary>
+    private string ResolveModel(MarkdownComponent agent, Client client)
+    {
+        var authored = agent.Frontmatter?.Scalar("model") ?? ModelCatalog.DefaultTier;
+
+        if (client == Client.Codex)
+        {
+            return ModelCatalog.DefaultTier;
+        }
+
+        return models.Resolve(authored, client);
+    }
 }
