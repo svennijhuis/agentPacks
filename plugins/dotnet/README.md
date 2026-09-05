@@ -45,8 +45,9 @@ checks the whole solution with `--verify-no-changes`. See the
 
 Authored: `plugin.json`, `mcp.json`, `standards.source.json`, `standards/`, and `skills/`.
 
-`mcp.json` declares the local `dotnet-solution` server (`streamable-http` on `127.0.0.1`, no
-headers). Tools are read-only. There is no hosted Roslyn service.
+`mcp.json` starts a **local stdio** process (`dotnet run --project mcp/DotnetSolutionMcp.csproj`).
+Read-only. No URL. No hosted Roslyn. Agents can also use `dotnet sln list` and
+`dotnet list <csproj> package` on the machine.
 
 Generated on the `marketplace` branch or in temporary validation output, never on `main`:
 `.cursor-plugin/`, `.codex-plugin/`, `com.anthropic.claude-code/`, `com.openai.codex/`,

@@ -9,19 +9,19 @@ namespace AgentPacks.Cli.Tests;
 public sealed class PluginMcpContractTests
 {
     [Fact]
-    public void Dotnet_mcp_is_streamable_http_loopback_with_no_credentials()
+    public void Dotnet_mcp_is_local_stdio_dotnet_process_with_no_credentials()
     {
         var mcp = JsonNode.Parse(File.ReadAllText(Path.Combine(SourceRoot(), "plugins", "dotnet", "mcp.json")))!;
         var server = mcp["mcpServers"]!["dotnet-solution"]!;
+        var json = mcp.ToJsonString();
 
-        Assert.Equal("streamable-http", server["type"]!.GetValue<string>());
-        var url = server["url"]!.GetValue<string>();
-        Assert.StartsWith("http://127.0.0.1", url, StringComparison.Ordinal);
+        Assert.Equal("stdio", server["type"]!.GetValue<string>());
+        Assert.Equal("dotnet", server["command"]!.GetValue<string>());
+        Assert.Contains("${PLUGIN_ROOT}/mcp/DotnetSolutionMcp.csproj", json, StringComparison.Ordinal);
+        Assert.Null(server["url"]);
         Assert.Null(server["headers"]);
-        Assert.DoesNotContain("authorization", mcp.ToJsonString(), StringComparison.OrdinalIgnoreCase);
-        Assert.DoesNotContain("token", mcp.ToJsonString(), StringComparison.OrdinalIgnoreCase);
-        Assert.DoesNotContain("secret", mcp.ToJsonString(), StringComparison.OrdinalIgnoreCase);
-        Assert.DoesNotContain("https://", url, StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain("authorization", json, StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain("\"url\"", json, StringComparison.Ordinal);
     }
 
     [Fact]
@@ -37,11 +37,10 @@ public sealed class PluginMcpContractTests
         var run = repo.ValidateAndGenerate();
 
         Assert.False(run.HasErrors, run.Text);
-        var generated = run.File("plugins/dotnet/.mcp.json").Content;
-        Assert.Equal("http", generated["mcpServers"]!["dotnet-solution"]!["type"]!.GetValue<string>());
-        Assert.Equal(
-            "http://127.0.0.1:8765/mcp",
-            generated["mcpServers"]!["dotnet-solution"]!["url"]!.GetValue<string>());
+        var generated = run.File("plugins/dotnet/.mcp.json").Content["mcpServers"]!["dotnet-solution"]!;
+        Assert.Equal("stdio", generated["type"]!.GetValue<string>());
+        Assert.Contains("${CLAUDE_PLUGIN_ROOT}/mcp/DotnetSolutionMcp.csproj", generated.ToJsonString(), StringComparison.Ordinal);
+        Assert.Null(generated["url"]);
     }
 
     [Fact]
@@ -98,9 +97,13 @@ public sealed class PluginMcpContractTests
         Assert.Contains("list_packages", skill, StringComparison.Ordinal);
         Assert.Contains("describe_project", skill, StringComparison.Ordinal);
         Assert.Contains("No write tools", skill, StringComparison.Ordinal);
-        Assert.Contains("No Roslyn codegen", skill, StringComparison.Ordinal);
+        Assert.Contains("No codegen", skill, StringComparison.Ordinal);
         Assert.DoesNotContain("disable-model-invocation: true", skill, StringComparison.Ordinal);
+        Assert.Contains("dotnet sln", skill, StringComparison.Ordinal);
+        Assert.Contains("dotnet list", skill, StringComparison.Ordinal);
+        Assert.Contains("Local machine only", skill, StringComparison.Ordinal);
         Assert.DoesNotContain("https://", skill, StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain("127.0.0.1", skill, StringComparison.Ordinal);
         Assert.DoesNotContain("Load `/dotnet-solution`", skill, StringComparison.Ordinal);
     }
 
@@ -162,8 +165,31 @@ public sealed class PluginMcpContractTests
         Assert.Contains("one tool per endpoint", docs, StringComparison.OrdinalIgnoreCase);
         Assert.Contains("dotnet test tools/AgentPacks.slnx", docs, StringComparison.Ordinal);
         Assert.DoesNotContain("one tool per path", docs, StringComparison.OrdinalIgnoreCase);
-        Assert.Contains("127.0.0.1", docs, StringComparison.Ordinal);
+        Assert.Contains("local stdio process", docs, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("dotnet sln list", docs, StringComparison.Ordinal);
         Assert.Contains("read-only", docs, StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain("127.0.0.1:8765", docs, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void Local_solution_cli_lists_tools_without_a_network()
+    {
+        var project = Path.Combine(SourceRoot(), "plugins", "dotnet", "mcp", "DotnetSolutionMcp.csproj");
+        var start = new System.Diagnostics.ProcessStartInfo("dotnet")
+        {
+            RedirectStandardOutput = true,
+            RedirectStandardError = true,
+            UseShellExecute = false,
+            ArgumentList = { "run", "--project", project, "--", "--list-tools" }
+        };
+        using var process = System.Diagnostics.Process.Start(start);
+        Assert.NotNull(process);
+        var output = process.StandardOutput.ReadToEnd();
+        process.WaitForExit(60_000);
+        Assert.Equal(0, process.ExitCode);
+        Assert.Contains("list_projects", output, StringComparison.Ordinal);
+        Assert.Contains("list_packages", output, StringComparison.Ordinal);
+        Assert.Contains("describe_project", output, StringComparison.Ordinal);
     }
 
     private static string SourceRoot()

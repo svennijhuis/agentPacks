@@ -67,10 +67,10 @@ Prefer `streamable-http` here: v2.0 servers are stateless by default, with no `i
 
 For the first phase, prefer lookups over writes: architecture search, coding standard search, service lookup, owner lookup. Add deployment or resource tooling later, and do not start with production write access.
 
-This repository's first server is local-only. `plugins/dotnet/mcp.json` declares `dotnet-solution`
-as `streamable-http` on `http://127.0.0.1:8765/mcp`. No headers. No credentials. Three tools:
-`list_projects`, `list_packages`, `describe_project`. The skill `dotnet-solution` names them.
-The same lookups run in-process from solution and project files — no hosted service.
+This repository's first server is a **local stdio process**, not a URL. `plugins/dotnet/mcp.json`
+runs `dotnet --project ${PLUGIN_ROOT}/mcp/DotnetSolutionMcp.csproj`. No headers. No credentials.
+No hosted Roslyn. Three tools: `list_projects`, `list_packages`, `describe_project`.
+Agents can also use `dotnet sln list` and `dotnet list <csproj> package` on the developer machine.
 
 ## swagger→MCP (recipe, not a generator)
 
