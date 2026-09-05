@@ -246,8 +246,16 @@ public sealed class GitGuardTests
         start.Environment["AGENTPACKS_GIT_GUARD"] = guard;
 
         using var process = Process.Start(start)!;
-        process.StandardInput.Write(payload);
-        process.StandardInput.Close();
+        try
+        {
+            process.StandardInput.Write(payload);
+            process.StandardInput.Close();
+        }
+        catch (IOException)
+        {
+            // The disable switch exits before reading stdin.
+        }
+
         var error = process.StandardError.ReadToEnd();
         process.WaitForExit();
         return (process.ExitCode, error);
