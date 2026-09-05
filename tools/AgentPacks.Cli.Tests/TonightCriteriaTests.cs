@@ -51,6 +51,8 @@ public sealed class TonightCriteriaTests
         nameof(SquadContractTests.Loop_agents_restore_operational_steps_not_empty_tiny))]
     [InlineData("language skills name standards", typeof(LanguagePackContractTests),
         nameof(LanguagePackContractTests.Language_slot_skills_name_their_canonical_standards))]
+    [InlineData("19 usable gates not essays two commands mcp in dotnet", typeof(SquadContractTests),
+        nameof(SquadContractTests.Usable_gates_not_essays_exactly_two_commands_and_mcp_only_in_dotnet))]
     public void Each_ticket_criterion_has_a_proving_test(string criterion, Type fixture, string method)
     {
         Assert.True(

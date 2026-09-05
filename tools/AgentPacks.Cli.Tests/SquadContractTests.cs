@@ -1,3 +1,5 @@
+using System.Text.Json.Nodes;
+
 namespace AgentPacks.Cli.Tests;
 
 /// <summary>Guards the authored and generated Squad behavioral contracts.</summary>
@@ -539,6 +541,50 @@ public class SquadContractTests
         Loop_agent_bodies_stay_tiny();
         Assert.DoesNotContain("loop-tester", string.Join('\n', AgentNames), StringComparison.Ordinal);
     }
+
+    /// <summary>
+    /// Po 19 fail bar: usable gates/ops (not too thin to run), not essay-length,
+    /// exactly /squad + /review, MCP only at plugins/dotnet/mcp.json (squad scaffold OK).
+    /// </summary>
+    [Fact]
+    public void Usable_gates_not_essays_exactly_two_commands_and_mcp_only_in_dotnet()
+    {
+        Loop_agents_restore_operational_steps_not_empty_tiny();
+        Loop_agent_bodies_stay_tiny();
+        Squad_commands_are_exactly_squad_and_review();
+
+        foreach (var agent in AgentNames)
+        {
+            var lines = BodyAfterFrontmatter(Fixture($"{agent}.md"))
+                .Split('\n').Count(line => !string.IsNullOrWhiteSpace(line));
+            var floor = agent == "loop-security-reviewer" ? 16 : 8;
+            Assert.True(lines >= floor, $"{agent} body is {lines} lines; too thin (floor {floor}).");
+        }
+
+        var root = SourceRoot();
+        var authored = Directory.GetFiles(root, "mcp.json", SearchOption.AllDirectories)
+            .Where(path => !IsGeneratedPath(path))
+            .Select(path => Path.GetRelativePath(root, path).Replace('\\', '/'))
+            .OrderBy(path => path, StringComparer.Ordinal)
+            .ToArray();
+        Assert.Equal(["plugins/dotnet/mcp.json", "plugins/squad/mcp.json"], authored);
+        Assert.Empty(Directory.GetFiles(Path.Combine(root, "plugins"), ".mcp.json",
+            SearchOption.AllDirectories));
+
+        var squad = JsonNode.Parse(File.ReadAllText(Path.Combine(root, "plugins", "squad", "mcp.json")))!;
+        Assert.Empty(squad["mcpServers"]!.AsObject());
+
+        var dotnet = JsonNode.Parse(File.ReadAllText(Path.Combine(root, "plugins", "dotnet", "mcp.json")))!;
+        Assert.Single(dotnet["mcpServers"]!.AsObject());
+        Assert.Equal("stdio", dotnet["mcpServers"]!["dotnet-solution"]!["type"]!.GetValue<string>());
+        Assert.Contains("${PLUGIN_ROOT}/mcp/DotnetSolutionMcp.csproj", dotnet.ToJsonString(),
+            StringComparison.Ordinal);
+    }
+
+    private static bool IsGeneratedPath(string path) =>
+        path.Contains($"{Path.DirectorySeparatorChar}bin{Path.DirectorySeparatorChar}", StringComparison.Ordinal)
+        || path.Contains($"{Path.DirectorySeparatorChar}obj{Path.DirectorySeparatorChar}", StringComparison.Ordinal)
+        || path.Contains($"{Path.DirectorySeparatorChar}.git{Path.DirectorySeparatorChar}", StringComparison.Ordinal);
 
     [Fact]
     public void Loop_agents_use_per_role_tiers_implementer_standard_others_fast()
