@@ -99,7 +99,7 @@ cp plugins/squad/com.openai.codex/agents/*.toml .codex/agents/
 
 ## Editing
 
-Authored: `plugin.json`, `skills/`, `rules/`, `agents/`, and `commands/`.
+Authored: `plugin.json`, `mcp.json` (empty scaffold), `skills/`, `rules/`, `agents/`, and `commands/`.
 
 Generated only in validation output or on the marketplace branch: client manifests and `com.*` provider trees.
 

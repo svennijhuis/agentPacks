@@ -73,7 +73,9 @@ For the first phase, prefer lookups over writes: architecture search, coding sta
 
 This repository's first server is a **local stdio process**, not a URL. `plugins/dotnet/mcp.json`
 runs `dotnet --project ${PLUGIN_ROOT}/mcp/DotnetSolutionMcp.csproj`. No headers. No credentials.
-No hosted Roslyn. Three tools: `list_projects`, `list_packages`, `describe_project`.
+No hosted Roslyn. File lookups: `list_projects`, `list_packages`, `describe_project`. On-machine
+Roslyn: `list_symbols`, `find_references`, `list_diagnostics`. No write or refactor tools.
+`plugins/squad/mcp.json` is an empty scaffold — Squad has no server worth installing.
 Agents can also use `dotnet sln list` and `dotnet list <csproj> package` on the developer machine.
 
 ## swagger→MCP (recipe, not a generator)

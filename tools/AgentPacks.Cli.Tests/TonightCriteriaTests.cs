@@ -35,8 +35,14 @@ public sealed class TonightCriteriaTests
         nameof(SquadContractTests.User_facing_surfaces_do_not_say_delivery_loop))]
     [InlineData("14 docs pass", typeof(SquadContractTests),
         nameof(SquadContractTests.Readme_mirrors_the_orchestrator_numbered_flow))]
+    [InlineData("15 empty squad mcp + read-only docs", typeof(PluginMcpContractTests),
+        nameof(PluginMcpContractTests.Squad_mcp_is_empty_scaffold_and_docs_example_is_read_only_http_without_secrets))]
+    [InlineData("16 local Roslyn symbols/refs/diagnostics", typeof(PluginMcpContractTests),
+        nameof(PluginMcpContractTests.Local_roslyn_is_on_machine_read_only_symbols_refs_diagnostics))]
     [InlineData("17 structure audit", typeof(PluginMcpContractTests),
         nameof(PluginMcpContractTests.Authored_skills_agents_and_commands_share_one_frontmatter_shape))]
+    [InlineData("cursor ids not Claude aliases", typeof(ModelCatalogTests),
+        nameof(ModelCatalogTests.Claude_receives_the_mapped_tier_and_copilot_and_codex_emit_model))]
     [InlineData("research decisions drop-box", typeof(SquadContractTests),
         nameof(SquadContractTests.Optional_decisions_drop_box_is_read_not_eager_memory))]
     public void Each_ticket_criterion_has_a_proving_test(string criterion, Type fixture, string method)

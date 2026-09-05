@@ -1,12 +1,14 @@
 using System.Text.RegularExpressions;
 using System.Xml.Linq;
 
-// Local read-only CLI. No network. No credentials. No Roslyn compiler API.
+// Local read-only CLI. No network. No credentials. No hosted Roslyn.
 if (args is ["--list-tools"])
 {
     Console.WriteLine("list_projects");
     Console.WriteLine("list_packages");
     Console.WriteLine("describe_project");
+    foreach (var tool in RoslynLookup.ReadOnlyTools)
+        Console.WriteLine(tool);
     return 0;
 }
 
@@ -25,7 +27,28 @@ if (args is ["--list-packages", var projectPath, ..] && File.Exists(projectPath)
     return 0;
 }
 
-Console.Error.WriteLine("Local read-only solution CLI. Use --list-tools, --list-projects <sln>, or --list-packages <csproj> [Directory.Packages.props].");
+if (args is ["--list-symbols", var source] && File.Exists(source))
+{
+    foreach (var symbol in RoslynLookup.ListSymbols(File.ReadAllText(source)))
+        Console.WriteLine(symbol);
+    return 0;
+}
+
+if (args is ["--find-references", var refSource, var name] && File.Exists(refSource))
+{
+    foreach (var line in RoslynLookup.FindReferences(File.ReadAllText(refSource), name))
+        Console.WriteLine(line);
+    return 0;
+}
+
+if (args is ["--list-diagnostics", var diagSource] && File.Exists(diagSource))
+{
+    foreach (var diagnostic in RoslynLookup.ListDiagnostics(File.ReadAllText(diagSource)))
+        Console.WriteLine(diagnostic);
+    return 0;
+}
+
+Console.Error.WriteLine("Local read-only solution CLI. Use --list-tools, --list-projects <sln>, --list-packages <csproj> [Directory.Packages.props], --list-symbols <cs>, --find-references <cs> <name>, or --list-diagnostics <cs>.");
 Console.Error.WriteLine("Or run: dotnet sln <solution> list   and   dotnet list <csproj> package");
 return 1;
 

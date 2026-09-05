@@ -96,6 +96,9 @@ public sealed class PluginMcpContractTests
         Assert.Contains("list_projects", skill, StringComparison.Ordinal);
         Assert.Contains("list_packages", skill, StringComparison.Ordinal);
         Assert.Contains("describe_project", skill, StringComparison.Ordinal);
+        Assert.Contains("list_symbols", skill, StringComparison.Ordinal);
+        Assert.Contains("find_references", skill, StringComparison.Ordinal);
+        Assert.Contains("list_diagnostics", skill, StringComparison.Ordinal);
         Assert.Contains("No write tools", skill, StringComparison.Ordinal);
         Assert.Contains("No codegen", skill, StringComparison.Ordinal);
         Assert.DoesNotContain("disable-model-invocation: true", skill, StringComparison.Ordinal);
@@ -190,7 +193,83 @@ public sealed class PluginMcpContractTests
         Assert.Contains("dotnet sln list", docs, StringComparison.Ordinal);
         Assert.Contains("read-only", docs, StringComparison.OrdinalIgnoreCase);
         Assert.Contains("never a hosted URL", docs, StringComparison.Ordinal);
+        Assert.Contains("streamable-http", docs, StringComparison.Ordinal);
+        Assert.Contains("empty scaffold", docs, StringComparison.OrdinalIgnoreCase);
         Assert.DoesNotContain("127.0.0.1:8765", docs, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void Squad_mcp_is_empty_scaffold_and_docs_example_is_read_only_http_without_secrets()
+    {
+        var root = SourceRoot();
+        var mcp = JsonNode.Parse(File.ReadAllText(Path.Combine(root, "plugins", "squad", "mcp.json")))!;
+        Assert.NotNull(mcp["mcpServers"]);
+        Assert.Empty(mcp["mcpServers"]!.AsObject());
+        Assert.Null(mcp["mcpServers"]!["url"]);
+
+        using var repo = new TestRepository()
+            .WithPlugin("squad", File.ReadAllText(Path.Combine(root, "plugins", "squad", "plugin.json")))
+            .WithSkill("squad", extraFrontmatter: "disable-model-invocation: true", plugin: "squad")
+            .WithMcp(File.ReadAllText(Path.Combine(root, "plugins", "squad", "mcp.json")), plugin: "squad");
+        var run = repo.ValidateAndGenerate();
+        Assert.False(run.HasErrors, run.Text);
+        Assert.False(run.HasFile("plugins/squad/.mcp.json"));
+
+        var docs = File.ReadAllText(Path.Combine(root, "docs", "ADD-MCP.md"));
+        Assert.Contains("\"type\": \"streamable-http\"", docs, StringComparison.Ordinal);
+        Assert.Contains("https://mcp.example.com/architecture", docs, StringComparison.Ordinal);
+        Assert.DoesNotContain("\"Authorization\"", docs, StringComparison.Ordinal);
+        Assert.DoesNotContain("Bearer ", docs, StringComparison.Ordinal);
+
+        foreach (var path in Directory.GetFiles(Path.Combine(root, "plugins"), "mcp.json",
+                     SearchOption.AllDirectories))
+        {
+            var json = File.ReadAllText(path);
+            Assert.DoesNotContain("authorization", json, StringComparison.OrdinalIgnoreCase);
+            Assert.DoesNotContain("api-key", json, StringComparison.OrdinalIgnoreCase);
+            Assert.DoesNotContain("\"token\"", json, StringComparison.OrdinalIgnoreCase);
+        }
+    }
+
+    [Fact]
+    public void Local_roslyn_is_on_machine_read_only_symbols_refs_diagnostics()
+    {
+        var root = SourceRoot();
+        var mcp = File.ReadAllText(Path.Combine(root, "plugins", "dotnet", "mcp.json"));
+        var program = File.ReadAllText(Path.Combine(root, "plugins", "dotnet", "mcp", "Program.cs"));
+        var lookup = File.ReadAllText(Path.Combine(root, "plugins", "dotnet", "mcp", "RoslynLookup.cs"));
+        var combined = mcp + program + lookup;
+
+        Assert.Contains("\"type\": \"stdio\"", mcp, StringComparison.Ordinal);
+        Assert.DoesNotContain("\"url\"", mcp, StringComparison.Ordinal);
+        Assert.Contains("Microsoft.CodeAnalysis", lookup, StringComparison.Ordinal);
+        Assert.Contains("list_symbols", lookup, StringComparison.Ordinal);
+        Assert.Contains("find_references", lookup, StringComparison.Ordinal);
+        Assert.Contains("list_diagnostics", lookup, StringComparison.Ordinal);
+        Assert.DoesNotContain("apply_fix", combined, StringComparison.Ordinal);
+        Assert.DoesNotContain("rename_symbol", combined, StringComparison.Ordinal);
+        Assert.DoesNotContain("CodeAction", combined, StringComparison.Ordinal);
+        Assert.DoesNotContain("127.0.0.1", combined, StringComparison.Ordinal);
+        Assert.False(DotnetRoslynTools.IsAllowedTool("apply_fix"));
+        Assert.True(DotnetRoslynTools.IsWriteTool("refactor"));
+        Assert.True(DotnetRoslynTools.IsAllowedTool("list_symbols"));
+
+        var project = Path.Combine(root, "plugins", "dotnet", "mcp", "DotnetSolutionMcp.csproj");
+        var fixtures = Path.Combine(AppContext.BaseDirectory, "Fixtures", "dotnet-solution");
+        var tools = RunMcp(project, "--list-tools");
+        Assert.Contains("list_symbols", tools, StringComparison.Ordinal);
+        Assert.Contains("find_references", tools, StringComparison.Ordinal);
+        Assert.Contains("list_diagnostics", tools, StringComparison.Ordinal);
+
+        var symbols = RunMcp(project, "--list-symbols", Path.Combine(fixtures, "Symbols.cs"));
+        Assert.Contains("Greeter", symbols, StringComparison.Ordinal);
+        Assert.Contains("Hello", symbols, StringComparison.Ordinal);
+
+        var refs = RunMcp(project, "--find-references", Path.Combine(fixtures, "Symbols.cs"), "Hello");
+        Assert.False(string.IsNullOrWhiteSpace(refs));
+
+        var diagnostics = RunMcp(project, "--list-diagnostics", Path.Combine(fixtures, "Broken.cs"));
+        Assert.Contains("CS", diagnostics, StringComparison.Ordinal);
     }
 
     [Fact]
@@ -212,6 +291,27 @@ public sealed class PluginMcpContractTests
         Assert.Contains("list_projects", output, StringComparison.Ordinal);
         Assert.Contains("list_packages", output, StringComparison.Ordinal);
         Assert.Contains("describe_project", output, StringComparison.Ordinal);
+    }
+
+    private static string RunMcp(string project, params string[] args)
+    {
+        var start = new System.Diagnostics.ProcessStartInfo("dotnet")
+        {
+            RedirectStandardOutput = true,
+            RedirectStandardError = true,
+            UseShellExecute = false,
+            ArgumentList = { "run", "--project", project, "--" }
+        };
+        foreach (var arg in args)
+            start.ArgumentList.Add(arg);
+
+        using var process = System.Diagnostics.Process.Start(start);
+        Assert.NotNull(process);
+        var output = process.StandardOutput.ReadToEnd();
+        var errors = process.StandardError.ReadToEnd();
+        process.WaitForExit(90_000);
+        Assert.True(process.ExitCode == 0, errors + output);
+        return output;
     }
 
     private static string SourceRoot()

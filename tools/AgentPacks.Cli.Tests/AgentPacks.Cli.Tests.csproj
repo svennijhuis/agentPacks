@@ -21,6 +21,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Remove="Fixtures/**/*.cs" />
     <None Include="Fixtures/**" CopyToOutputDirectory="PreserveNewest" />
     <None Include="../../plugins/squad/agents/loop-planner.md"
           Link="Fixtures/squad/loop-planner.md"

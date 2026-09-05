@@ -431,6 +431,8 @@ public class SquadContractTests
             commands.Select(path => Path.GetFileName(path) ?? path)
                 .OrderBy(name => name, StringComparer.Ordinal));
         Assert.False(Directory.Exists(Path.Combine(root, "plugins", "delivery-loop")));
+        Assert.DoesNotContain("delivery-loop@", File.ReadAllText(Path.Combine(root, "README.md")),
+            StringComparison.Ordinal);
     }
 
     [Fact]
