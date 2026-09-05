@@ -47,6 +47,20 @@ No commits, merges, or pushes. `pass` is ready for human review, not permission 
 
 Cost-first: default `inherit`. `loop-implementer` is `standard`. Other loop agents are `fast`.
 
+## Gated agents
+
+| Agent | When | Job |
+|---|---|---|
+| `loop-planner` | full change only | grill/plan |
+| `loop-implementer` | full change only | build |
+| `loop-verifier` | after implement/fix | evidence; `not verified` is not a pass |
+| `loop-reviewer` | every review phase | correctness + plan/spec |
+| `loop-simplifier` | every review phase | reuse, quality, efficiency in one spawn |
+| `loop-security-reviewer` | trust boundary only | OWASP gate |
+| `loop-orchestrator` | merge only | verdict / ≤2 fixes |
+
+Small change: spawn none of these. Do not add a tester agent. Do not split simplifier.
+
 ## Skills
 
 Load only with the Skill tool by exact name: `squad`, `<lang>-build`,

@@ -86,6 +86,36 @@ public class SquadContractTests
     }
 
     [Fact]
+    public void Gated_agents_spawn_only_when_their_gate_says()
+    {
+        var skill = Fixture("SKILL.md");
+        var simplifier = Fixture("loop-simplifier.md");
+        var security = Fixture("loop-security-reviewer.md");
+        var orchestrator = Fixture("loop-orchestrator.md");
+        var verifier = Fixture("loop-verifier.md");
+
+        Assert.Contains("`loop-planner` | full change only | grill/plan", skill, StringComparison.Ordinal);
+        Assert.Contains("`loop-implementer` | full change only | build", skill, StringComparison.Ordinal);
+        Assert.Contains("`loop-verifier` | after implement/fix", skill, StringComparison.Ordinal);
+        Assert.Contains("`not verified` is not a pass", skill, StringComparison.Ordinal);
+        Assert.Contains("`loop-reviewer` | every review phase | correctness + plan/spec", skill, StringComparison.Ordinal);
+        Assert.Contains("`loop-simplifier` | every review phase | reuse, quality, efficiency in one spawn", skill, StringComparison.Ordinal);
+        Assert.Contains("`loop-security-reviewer` | trust boundary only | OWASP gate", skill, StringComparison.Ordinal);
+        Assert.Contains("`loop-orchestrator` | merge only | verdict / ≤2 fixes", skill, StringComparison.Ordinal);
+        Assert.Contains("spawn none of these", skill, StringComparison.Ordinal);
+        Assert.DoesNotContain("loop-tester", skill, StringComparison.Ordinal);
+        Assert.DoesNotContain("On-Call", skill, StringComparison.Ordinal);
+
+        Assert.Contains("reuse, quality, efficiency", simplifier, StringComparison.Ordinal);
+        Assert.Contains("Conditional security gate", security, StringComparison.Ordinal);
+        Assert.Contains("Merge step", orchestrator, StringComparison.Ordinal);
+        Assert.Contains("No plan is not a pass", verifier, StringComparison.Ordinal);
+        Assert.Equal(7, AgentNames.Length);
+        Assert.DoesNotContain("loop-tester", AgentNames);
+        Assert.DoesNotContain(AgentNames, name => name.Contains("on-call", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [Fact]
     public void Main_agent_fans_reviewers_out_and_orchestrator_only_merges_completed_reports()
     {
         var command = Fixture("squad.md");
