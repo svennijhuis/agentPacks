@@ -6,6 +6,7 @@ namespace AgentPacks.Cli.Verification;
 public sealed record LearningsEntry(
     string Date,
     string Entrypoint,
+    string Provider,
     string ModelTier,
     IReadOnlyList<string> AgentsSpun,
     IReadOnlyList<string> SkippedAgents,
@@ -34,6 +35,9 @@ public static partial class LearningsLog
 
     [GeneratedRegex(@"^-\s+Entrypoint:\s+(\S+)", RegexOptions.IgnoreCase | RegexOptions.Multiline)]
     private static partial Regex EntrypointLine { get; }
+
+    [GeneratedRegex(@"^-\s+Provider:\s+(\S+)", RegexOptions.IgnoreCase | RegexOptions.Multiline)]
+    private static partial Regex ProviderLine { get; }
 
     [GeneratedRegex(@"^-\s+Model tier:\s+(\S+)", RegexOptions.IgnoreCase | RegexOptions.Multiline)]
     private static partial Regex TierLine { get; }
@@ -67,6 +71,7 @@ public static partial class LearningsLog
             entries.Add(new LearningsEntry(
                 matches[i].Groups[1].Value,
                 entrypoint,
+                (First(ProviderLine, block) ?? string.Empty).Trim().ToLowerInvariant(),
                 First(TierLine, block) ?? "inherit",
                 Names(First(SpunLine, block)),
                 Names(First(SkippedLine, block)),
@@ -109,11 +114,23 @@ public static partial class LearningsLog
         }
 
         return new LearningsAdvice(
-            latest.ModelTier,
+            failed ? DemoteTier(latest.ModelTier) : latest.ModelTier,
             preferSkip,
             mustRun,
             $"{latest.Date} /{latest.Entrypoint} {latest.Result}");
     }
+
+    /// <summary>
+    /// One step down the portable ladder. <c>inherit</c> is already the floor.
+    /// </summary>
+    public static string DemoteTier(string tier) =>
+        tier.Trim().ToLowerInvariant() switch
+        {
+            "frontier" => "standard",
+            "standard" => "fast",
+            "fast" => "inherit",
+            _ => "inherit"
+        };
 
     public static string CanonicalEntrypoint(string value) =>
         value.Trim().Trim('/').ToLowerInvariant() switch

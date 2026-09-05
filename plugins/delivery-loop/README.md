@@ -4,18 +4,32 @@ A capability pack for a user-invoked, main-agent-controlled delivery workflow. T
 `/squad` or `/build` (same command), and `/review`. The `delivery-loop` skill is the thin
 orchestrator and is not model-invoked.
 
-```text
-learnings → orient → (small: spawn nobody) | (grill → plan → implement → verify → dual-axis review)
-         → ≤2 fix rounds → uncommitted hand-off → append learnings
-```
+The numbered flow below is locked v1 and is copied verbatim into the
+[skill](skills/delivery-loop/SKILL.md) and the repository [README](../../README.md).
 
-The numbered flow lives in the [skill](skills/delivery-loop/SKILL.md) and is mirrored in the
-repository [README](../../README.md). Step 1 applies the latest learnings entry; it does not only
-acknowledge the file.
+## Locked v1 flow
 
 ```text
-plan -> implement -> verify -> parallel review -> merge -> (fix -> verify -> parallel review -> merge) x 2 max -> hand off
+/squad or /build (user-invoked orchestrator)
+1. Read learnings.md (append-only)
+2. Orient codebase (applicable stacks only)
+3. Small change? → main agent only, spawn nobody → verify → append learnings → hand off uncommitted
+4. Else grill/plan rounds (facts via subagent; decisions = human) → write plan
+5. Gate spins: implementer → verifier → reviewers in parallel (correctness + plan/spec; security ONLY if trust boundary)
+6. Orchestrator merges ≤2 fix rounds → hand off uncommitted → append learnings
+
+/review
+Pin vs PR / uncommitted / main → same gated dual-axis reviewers (no plan/fix loop) → append learnings
+
+Always
+models.source.json tiers (default inherit); load only contracted <lang>-* by Skill name; coworker docs = real dotnet test/validate on a fixture.
+
+Not in v1
+second skill pack, Matt catalog dump, eager fan-out, self-improve graphs, auto skill rewrite, redoing PR #6.
 ```
+
+Step 1 applies the latest learnings entry; it does not only acknowledge the file. After a fail,
+demote one model tier. Do not rewrite skills.
 
 The main agent owns user interaction, invokes `loop-planner` once per question round, launches applicable reviewers in parallel, and routes the merged verdict. `loop-orchestrator` only merges completed reports and verifier evidence. No phase commits, merges, or pushes.
 

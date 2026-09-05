@@ -287,36 +287,49 @@ public class DeliveryLoopContractTests
         Assert.Contains("Happy-path-only", implementer, StringComparison.Ordinal);
     }
 
+    /// <summary>
+    /// The locked v1 plan is visible in-repo, not implied by code. README, plugin README, and
+    /// the orchestrator skill must carry the same numbered block so a reader sees it immediately.
+    /// </summary>
     [Fact]
     public void Readme_mirrors_the_orchestrator_numbered_flow()
     {
-        var readme = File.ReadAllText(Path.Combine(SourceRoot(), "README.md"));
+        const string flow = """
+            /squad or /build (user-invoked orchestrator)
+            1. Read learnings.md (append-only)
+            2. Orient codebase (applicable stacks only)
+            3. Small change? → main agent only, spawn nobody → verify → append learnings → hand off uncommitted
+            4. Else grill/plan rounds (facts via subagent; decisions = human) → write plan
+            5. Gate spins: implementer → verifier → reviewers in parallel (correctness + plan/spec; security ONLY if trust boundary)
+            6. Orchestrator merges ≤2 fix rounds → hand off uncommitted → append learnings
+
+            /review
+            Pin vs PR / uncommitted / main → same gated dual-axis reviewers (no plan/fix loop) → append learnings
+
+            Always
+            models.source.json tiers (default inherit); load only contracted <lang>-* by Skill name; coworker docs = real dotnet test/validate on a fixture.
+
+            Not in v1
+            second skill pack, Matt catalog dump, eager fan-out, self-improve graphs, auto skill rewrite, redoing PR #6.
+            """;
+
+        var root = SourceRoot();
+        var readme = File.ReadAllText(Path.Combine(root, "README.md"));
+        var pluginReadme = File.ReadAllText(Path.Combine(root, "plugins", "delivery-loop", "README.md"));
         var skill = Fixture("SKILL.md");
-        var combined = readme + "\n" + skill;
 
-        foreach (var fragment in new[]
-                 {
-                     "/squad",
-                     "/build",
-                     "/review",
-                     "learnings.md",
-                     "apply",
-                     "spawn nobody",
-                     "grill",
-                     "implementer",
-                     "verifier",
-                     "security ONLY if a trust boundary",
-                     "uncommitted"
-                 })
-        {
-            Assert.Contains(fragment, readme, StringComparison.OrdinalIgnoreCase);
-            Assert.Contains(fragment, skill, StringComparison.OrdinalIgnoreCase);
-        }
-
-        Assert.Contains("No plan, no verdict, no fix loop", combined, StringComparison.Ordinal);
+        Assert.Contains(flow, readme, StringComparison.Ordinal);
+        Assert.Contains(flow, pluginReadme, StringComparison.Ordinal);
+        Assert.Contains(flow, skill, StringComparison.Ordinal);
+        Assert.Contains("Apply the latest same-entrypoint entry", skill, StringComparison.Ordinal);
         Assert.Contains("PR", Fixture("review.md"), StringComparison.Ordinal);
         Assert.Contains("uncommitted", Fixture("review.md"), StringComparison.Ordinal);
         Assert.Contains("main", Fixture("review.md"), StringComparison.Ordinal);
+
+        var coworkerDocs = File.ReadAllText(Path.Combine(root, "docs", "ADD-SKILL.md"));
+        Assert.Contains("Do not publish to the marketplace branch", coworkerDocs, StringComparison.Ordinal);
+        Assert.Contains("dotnet test tools/AgentPacks.slnx", coworkerDocs, StringComparison.Ordinal);
+        Assert.Contains("validate-all --out", coworkerDocs, StringComparison.Ordinal);
     }
 
     [Fact]
@@ -333,7 +346,9 @@ public class DeliveryLoopContractTests
         Assert.Contains("must-run", skill, StringComparison.OrdinalIgnoreCase);
         Assert.Contains("not a second brain", learnings, StringComparison.OrdinalIgnoreCase);
         Assert.Contains("Never edit or delete an earlier entry", learnings, StringComparison.Ordinal);
+        Assert.Contains("Provider:", learnings, StringComparison.Ordinal);
         Assert.Contains("Model tier:", learnings, StringComparison.Ordinal);
+        Assert.Contains("demotes one tier", learnings, StringComparison.Ordinal);
         Assert.Contains("Agents spun:", learnings, StringComparison.Ordinal);
         Assert.Contains("Next tweak:", learnings, StringComparison.Ordinal);
         Assert.Contains("does not rewrite skills", learnings, StringComparison.OrdinalIgnoreCase);

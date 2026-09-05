@@ -10,40 +10,33 @@ disable-model-invocation: true
 User-invoked thin orchestrator. Two entrypoints only: `/squad` or `/build` (same command), and
 `/review`. Type the command. Do not wait for the model to pick it.
 
+## Locked v1 flow
+
 ```text
-learnings → orient → (small: spawn nobody) | (grill → plan → implement → verify → dual-axis review)
-         → ≤2 fix rounds → uncommitted hand-off → append learnings
+/squad or /build (user-invoked orchestrator)
+1. Read learnings.md (append-only)
+2. Orient codebase (applicable stacks only)
+3. Small change? → main agent only, spawn nobody → verify → append learnings → hand off uncommitted
+4. Else grill/plan rounds (facts via subagent; decisions = human) → write plan
+5. Gate spins: implementer → verifier → reviewers in parallel (correctness + plan/spec; security ONLY if trust boundary)
+6. Orchestrator merges ≤2 fix rounds → hand off uncommitted → append learnings
+
+/review
+Pin vs PR / uncommitted / main → same gated dual-axis reviewers (no plan/fix loop) → append learnings
+
+Always
+models.source.json tiers (default inherit); load only contracted <lang>-* by Skill name; coworker docs = real dotnet test/validate on a fixture.
+
+Not in v1
+second skill pack, Matt catalog dump, eager fan-out, self-improve graphs, auto skill rewrite, redoing PR #6.
 ```
 
+Step 1 **applies** — Apply the latest same-entrypoint entry (`/squad` and `/build` are the same). Prefer
+its skips only when that run **passed**. A skip from a **failed** run is a must-run this time.
+Prefer its model tier after a pass. After a fail, demote one tier (`frontier` → `standard` →
+`fast` → `inherit`). Do not rewrite skills. Security also runs when learnings mark it must-run.
+
 No phase commits, merges, or pushes. A `pass` verdict means ready for human review, not permission to land.
-
-## Flow
-
-### `/squad` or `/build`
-
-1. **Read and apply** `docs/learnings.md` when it exists. Apply the latest same-entrypoint entry
-   (`/squad` and `/build` are the same). Prefer its model tier. Prefer its skips only when that
-   run **passed**. A skip from a **failed** run is a must-run this time. Do not rewrite skills.
-2. Orient the codebase for applicable stacks only.
-3. Small change? The main agent implements and verifies directly. Spawn nobody. Verify. Append
-   learnings. Hand off uncommitted.
-4. Else grill/plan rounds (facts via the planner subagent; decisions = human). Grill stays
-   inside these rounds. Write the plan only after confirmation.
-5. Gate spins: implementer (TDD, no full suite) → verifier (full suite once) → reviewers in
-   parallel (correctness + plan/spec; security ONLY if a trust boundary, unless learnings mark
-   security as must-run).
-6. Orchestrator merges. At most two fix rounds on a fresh implementer (author ≠ fixer). Hand off
-   uncommitted. Append one learnings entry.
-
-### `/review`
-
-1. Read and apply `docs/learnings.md` (latest `/review` entry).
-2. Pin the diff: PR, uncommitted, or versus main.
-3. Same gated dual-axis reviewers. No plan, no verdict, no fix loop.
-4. Append one learnings entry.
-
-**Always:** portable model tiers default to `inherit`. Load only contracted `<lang>-*` skills by
-exact Skill tool name.
 
 ## Route the request
 

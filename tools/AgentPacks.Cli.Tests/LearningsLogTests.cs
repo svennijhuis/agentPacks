@@ -13,6 +13,7 @@ public sealed class LearningsLogTests
         ## 2026-09-04 — /build
 
         - Entrypoint: build
+        - Provider: cursor
         - Model tier: inherit
         - Agents spun: loop-implementer, loop-verifier
         - Skipped: loop-security-reviewer — no trust boundary
@@ -27,6 +28,7 @@ public sealed class LearningsLogTests
         ## 2026-09-04 — /build
 
         - Entrypoint: build
+        - Provider: cursor
         - Model tier: inherit
         - Agents spun: loop-implementer, loop-verifier
         - Skipped: loop-security-reviewer — no trust boundary
@@ -56,6 +58,7 @@ public sealed class LearningsLogTests
             ## 2026-09-05 — /squad
 
             - Entrypoint: squad
+            - Provider: claude
             - Model tier: standard
             - Agents spun: loop-planner
             - Skipped: None
@@ -65,6 +68,53 @@ public sealed class LearningsLogTests
 
         Assert.Equal("standard", fromSquadHeading.PreferredTier);
         Assert.Equal("build", LearningsLog.CanonicalEntrypoint("squad"));
+        Assert.Equal("claude", LearningsLog.Parse("""
+            ## 2026-09-05 — /squad
+
+            - Entrypoint: squad
+            - Provider: claude
+            - Model tier: standard
+            - Result: pass
+            """)[0].Provider);
+    }
+
+    [Fact]
+    public void A_prior_fail_demotes_one_model_tier()
+    {
+        var afterFrontierFail = LearningsLog.Advise("""
+            ## 2026-09-05 — /build
+
+            - Entrypoint: build
+            - Provider: copilot
+            - Model tier: frontier
+            - Skipped: None
+            - Result: fail
+            """, "build");
+        var afterInheritFail = LearningsLog.Advise("""
+            ## 2026-09-05 — /review
+
+            - Entrypoint: review
+            - Provider: cursor
+            - Model tier: inherit
+            - Skipped: None
+            - Result: stopped
+            """, "review");
+        var afterStandardPass = LearningsLog.Advise("""
+            ## 2026-09-05 — /build
+
+            - Entrypoint: build
+            - Provider: cursor
+            - Model tier: standard
+            - Skipped: None
+            - Result: pass
+            """, "build");
+
+        Assert.Equal("standard", afterFrontierFail.PreferredTier);
+        Assert.Equal("inherit", afterInheritFail.PreferredTier);
+        Assert.Equal("standard", afterStandardPass.PreferredTier);
+        Assert.Equal("fast", LearningsLog.DemoteTier("standard"));
+        Assert.Equal("inherit", LearningsLog.DemoteTier("fast"));
+        Assert.Equal("inherit", LearningsLog.DemoteTier("inherit"));
     }
 
     [Fact]

@@ -107,7 +107,32 @@ Codex loads subagents only from `.codex/agents/` and reads `AGENTS.md` from the 
 ## Using the plugins
 
 Two user-invoked entrypoints. The model does not pick the orchestrator. `/squad` and `/build` are
-the same command.
+the same command. The numbered flow below is the locked v1 plan; the
+[`delivery-loop` skill](plugins/delivery-loop/skills/delivery-loop/SKILL.md) carries the same block.
+
+## Locked v1 flow
+
+```text
+/squad or /build (user-invoked orchestrator)
+1. Read learnings.md (append-only)
+2. Orient codebase (applicable stacks only)
+3. Small change? → main agent only, spawn nobody → verify → append learnings → hand off uncommitted
+4. Else grill/plan rounds (facts via subagent; decisions = human) → write plan
+5. Gate spins: implementer → verifier → reviewers in parallel (correctness + plan/spec; security ONLY if trust boundary)
+6. Orchestrator merges ≤2 fix rounds → hand off uncommitted → append learnings
+
+/review
+Pin vs PR / uncommitted / main → same gated dual-axis reviewers (no plan/fix loop) → append learnings
+
+Always
+models.source.json tiers (default inherit); load only contracted <lang>-* by Skill name; coworker docs = real dotnet test/validate on a fixture.
+
+Not in v1
+second skill pack, Matt catalog dump, eager fan-out, self-improve graphs, auto skill rewrite, redoing PR #6.
+```
+
+Step 1 **applies** the latest same-entrypoint entry. Keep a passed skip and tier; a failed skip
+becomes a must-run. After a fail, demote one model tier. Do not rewrite skills.
 
 ### `/squad` or `/build`
 
@@ -115,15 +140,6 @@ the same command.
 /squad add an integration test for the orders endpoint
 /build add an integration test for the orders endpoint
 ```
-
-1. Read `docs/learnings.md` and **apply** the latest `/build`/`/squad` entry: keep a passed skip and
-   tier; a failed skip becomes a must-run. Do not rewrite skills.
-2. Orient the codebase (applicable stacks only).
-3. Small change? Main agent only — spawn nobody — verify — append learnings — hand off uncommitted.
-4. Else grill/plan rounds (facts via the planner; decisions = human) → write the confirmed plan.
-5. Gate spins: implementer → verifier → dual-axis reviewers in parallel (correctness + plan/spec;
-   security ONLY if a trust boundary, or learnings mark it must-run).
-6. Merge; at most two fix rounds on a fresh implementer; hand off uncommitted; append learnings.
 
 ### `/review`
 
@@ -133,11 +149,6 @@ the same command.
 /review --pr
 /review --base main
 ```
-
-1. Apply the latest `/review` learnings entry.
-2. Pin the diff: PR, uncommitted, or versus main.
-3. Same gated dual-axis reviewers. No plan, no verdict, no fix loop.
-4. Append learnings.
 
 Language-pack slots (`dotnet-build`, `rust-review`, …) are loop internals, loaded by exact Skill
 tool name. They are not a second public skill surface.
