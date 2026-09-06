@@ -7,7 +7,8 @@ namespace AgentPacks.Cli.Generation;
 /// Claude reads <c>disable-model-invocation</c> from SKILL.md; Codex reads
 /// <c>policy.allow_implicit_invocation</c> from <c>agents/openai.yaml</c>. Copilot reads
 /// <c>user-invocable</c> — loop-audience skills are not user entrypoints, so the generated
-/// Copilot copy always sets <c>user-invocable: false</c>.
+/// Copilot copy always sets <c>user-invocable: false</c>. Materialized URL pins use the
+/// same flag so they stay Skill-tool dependencies rather than extra slash commands.
 /// </summary>
 internal static class SkillPolicyGenerator
 {

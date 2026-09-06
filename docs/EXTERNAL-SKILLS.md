@@ -26,7 +26,7 @@ After a merge to `main`, GitHub Actions performs both generated steps:
 
 The workflow publishes these outputs to the generated `marketplace` branch. A generated skill contains `.external-source.json`; `main` retains only the URL record beside its owning plugin. Removing a source entry removes its generated directory from the next marketplace publication.
 
-This staging step is necessary because Agent Plugins v1 discovers real immediate child directories beneath `skills/` and has no manifest field for URL imports. Once materialized, the external skill is part of the same portable package for Codex, Cursor, Copilot, Kiro, VS Code, and Claude.
+This staging step is necessary because Agent Plugins v1 discovers real immediate child directories beneath `skills/` and has no manifest field for URL imports. Once materialized, the external skill is part of the same portable package for Codex, Cursor, Copilot, Kiro, VS Code, and Claude. Publication writes `user-invocable: false` so a pin stays a Skill-tool dependency and does not appear as a slash command.
 
 ## Review checklist
 

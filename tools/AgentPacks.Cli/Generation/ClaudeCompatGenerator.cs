@@ -72,8 +72,8 @@ internal sealed class ClaudeCompatGenerator(RepositoryContext context)
             entry["skills"] = "./skills/";
         }
 
-        // Claude auto-discovers agents/, commands/ and hooks/hooks.json at the plugin root, but the
-        // root holds Cursor's dialect of all three — Cursor is the only client that cannot be
+        // Claude auto-discovers agents/, commands/ and hooks/hooks.json at the plugin root unless
+        // strict is on. The root holds Cursor's dialect — Cursor is the only client that cannot be
         // pointed elsewhere. These explicit paths send Claude to its own namespace instead.
         var claude = ClientProfile.Claude;
 
@@ -122,9 +122,9 @@ internal sealed class ClaudeCompatGenerator(RepositoryContext context)
             entry["mcpServers"] = "./.mcp.json";
         }
 
-        // strict:false makes this entry the authority for components. The portable manifest
-        // declares no components of its own, so there is nothing for Claude to find in conflict.
-        entry["strict"] = false;
+        // strict:true keeps Claude on the declared paths only. strict:false also auto-discovers
+        // root commands/ (Cursor dialect), so /squad and the review-side command appear twice.
+        entry["strict"] = true;
 
         return entry;
     }

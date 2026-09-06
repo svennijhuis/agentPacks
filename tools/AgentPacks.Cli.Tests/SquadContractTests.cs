@@ -1,4 +1,6 @@
 using System.Text.Json.Nodes;
+using AgentPacks.Cli.Importing;
+using AgentPacks.Cli.Loading;
 
 namespace AgentPacks.Cli.Tests;
 
@@ -913,6 +915,124 @@ public class SquadContractTests
     }
 
     /// <summary>
+    /// Po 38 fail bar: Claude discovers one squad slash and one review-side slash. Root
+    /// <c>commands/</c> stays for Cursor; <c>strict: true</c> keeps it from pairing with
+    /// <c>com.anthropic.claude-code/commands/</c>. The review-side filename is not locked.
+    /// Fails if both trees are still discoverable twins.
+    /// </summary>
+    [Fact]
+    public void Claude_package_ships_one_squad_and_one_review_command()
+    {
+        var sourceCommands = Path.Combine(SourceRoot(), "plugins", "squad", "commands");
+        using var repo = new TestRepository().WithPlugin(
+            "squad",
+            File.ReadAllText(Path.Combine(SourceRoot(), "plugins", "squad", "plugin.json")));
+
+        foreach (var path in Directory.GetFiles(sourceCommands, "*.md"))
+        {
+            repo.WithFile(
+                $"plugins/squad/commands/{Path.GetFileName(path)}",
+                File.ReadAllText(path));
+        }
+
+        repo.WithSkill(
+            "squad",
+            extraFrontmatter: "disable-model-invocation: true\nuser-invocable: false",
+            plugin: "squad");
+
+        var run = repo.ValidateAndGenerate();
+        Assert.False(run.HasErrors, run.Text);
+
+        var entry = run.File(".claude-plugin/marketplace.json").Content["plugins"]!.AsArray()
+            .OfType<JsonObject>()
+            .Single(plugin => plugin["name"]!.GetValue<string>() == "squad");
+
+        Assert.True(entry["strict"]!.GetValue<bool>());
+        Assert.Null(entry["version"]);
+        Assert.Equal("./com.anthropic.claude-code/commands/", entry["commands"]![0]!.GetValue<string>());
+
+        var pluginDirectory = repo.PluginDirectory("squad");
+        var names = DiscoverableClaudeCommandNames(pluginDirectory, entry);
+        Assert.Equal(2, names.Count);
+        Assert.Equal(1, names.Count(name => name == "squad"));
+        Assert.Equal(1, names.Count(name => name != "squad"));
+
+        var rootNames = CommandNames(Path.Combine(pluginDirectory, "commands"));
+        var claudeNames = CommandNames(
+            Path.Combine(pluginDirectory, "com.anthropic.claude-code", "commands"));
+        Assert.Equal(rootNames, claudeNames);
+        Assert.Equal(claudeNames.Count, names.Count);
+
+        var twins = (JsonObject)entry.DeepClone();
+        twins["strict"] = false;
+        var loose = DiscoverableClaudeCommandNames(pluginDirectory, twins);
+        Assert.True(
+            loose.Count > names.Count,
+            "root commands/ and com.anthropic.claude-code/commands/ must still both exist; strict is what hides the Cursor twin.");
+        Assert.Equal(2, loose.Count(name => name == "squad"));
+    }
+
+    /// <summary>
+    /// Po 38 fail bar: caveman and caveman-compress pins are Skill-tool only. Publication
+    /// writes <c>user-invocable: false</c>. Authored tree stays URL records; no vendored
+    /// caveman catalog.
+    /// </summary>
+    [Fact]
+    public void Caveman_pins_are_not_user_invocable()
+    {
+        var root = SourceRoot();
+        var catalog = File.ReadAllText(Path.Combine(root, "plugins", "squad", "external-skills.json"));
+        var names = JsonNode.Parse(catalog)!["sources"]!.AsArray()
+            .OfType<JsonObject>()
+            .Select(entry => entry["name"]!.GetValue<string>())
+            .OrderBy(name => name, StringComparer.Ordinal)
+            .ToArray();
+
+        Assert.Equal(["caveman", "caveman-compress"], names);
+        Assert.False(Directory.Exists(Path.Combine(root, "plugins", "squad", "skills", "caveman")));
+        Assert.False(Directory.Exists(Path.Combine(root, "plugins", "squad", "skills", "caveman-compress")));
+        Assert.DoesNotContain("grill-me", catalog, StringComparison.Ordinal);
+        Assert.DoesNotContain("caveman-help", catalog, StringComparison.Ordinal);
+
+        foreach (var name in names)
+        {
+            var fetched = Path.Combine(Path.GetTempPath(), "agentpacks-caveman-fetched", Guid.NewGuid().ToString("N"));
+            var target = Path.Combine(Path.GetTempPath(), "agentpacks-caveman-target", Guid.NewGuid().ToString("N"));
+            try
+            {
+                Directory.CreateDirectory(fetched);
+                var extra = name == "caveman-compress" ? "user-invocable: true\n" : string.Empty;
+                File.WriteAllText(
+                    Path.Combine(fetched, "SKILL.md"),
+                    $"---\nname: {name}\ndescription: Compressed communication.\n{extra}---\n\nStand-in pin.\n");
+
+                ExternalSourceMaterializer.InstallFetchedSkill(
+                    fetched,
+                    target,
+                    new ExternalSourceEntry
+                    {
+                        Name = name,
+                        Repository = "https://github.com/JuliusBrussee/caveman",
+                        Path = $"skills/{name}",
+                        Commit = "5184b3d11ac6a1acb7d44b9bfaa31698157cff97",
+                        License = "MIT",
+                        PluginDirectory = Path.Combine(root, "plugins", "squad")
+                    });
+
+                var skill = File.ReadAllText(Path.Combine(target, "SKILL.md"));
+                Assert.Contains("user-invocable: false", skill, StringComparison.Ordinal);
+                Assert.DoesNotContain("user-invocable: true", skill, StringComparison.Ordinal);
+                Assert.DoesNotContain("grill-me", skill, StringComparison.Ordinal);
+            }
+            finally
+            {
+                if (Directory.Exists(fetched)) Directory.Delete(fetched, recursive: true);
+                if (Directory.Exists(target)) Directory.Delete(target, recursive: true);
+            }
+        }
+    }
+
+    /// <summary>
     /// Po 37 fail bar: squad skill is not a slash twin. Copilot <c>user-invocable: false</c>
     /// plus Claude <c>disable-model-invocation: true</c>. Slash entry is
     /// <c>commands/squad.md</c> only. Skill tool still loads by exact name <c>squad</c>.
@@ -1200,6 +1320,46 @@ public class SquadContractTests
         Assert.Contains("dotnet test", validate, StringComparison.Ordinal);
         Assert.Contains("validate-all --out", validate, StringComparison.Ordinal);
     }
+
+    /// <summary>
+    /// Claude loads declared command directories always, and root <c>commands/</c> only when
+    /// the marketplace entry is not strict. That is the dual-tree bug this proof exists to catch.
+    /// </summary>
+    private static List<string> DiscoverableClaudeCommandNames(string pluginDirectory, JsonObject entry)
+    {
+        var directories = new List<string>();
+
+        switch (entry["commands"])
+        {
+            case JsonArray declared:
+                directories.AddRange(declared
+                    .Select(node => node?.GetValue<string>())
+                    .Where(path => !string.IsNullOrWhiteSpace(path))
+                    .Select(path => Path.Combine(pluginDirectory, path!.TrimStart('.', '/', '\\'))));
+                break;
+            case JsonValue single:
+                directories.Add(Path.Combine(pluginDirectory, single.GetValue<string>().TrimStart('.', '/', '\\')));
+                break;
+        }
+
+        if (entry["strict"]?.GetValue<bool>() is not true)
+        {
+            directories.Add(Path.Combine(pluginDirectory, "commands"));
+        }
+
+        return directories
+            .Where(Directory.Exists)
+            .SelectMany(directory => Directory.GetFiles(directory, "*.md"))
+            .Select(path => Path.GetFileNameWithoutExtension(path)!)
+            .ToList();
+    }
+
+    private static HashSet<string> CommandNames(string directory) =>
+        Directory.Exists(directory)
+            ? Directory.GetFiles(directory, "*.md")
+                .Select(path => Path.GetFileNameWithoutExtension(path)!)
+                .ToHashSet(StringComparer.Ordinal)
+            : [];
 
     private static int CountToken(string text, string token)
     {

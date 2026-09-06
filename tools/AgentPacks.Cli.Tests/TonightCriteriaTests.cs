@@ -95,6 +95,10 @@ public sealed class TonightCriteriaTests
         nameof(SquadContractTests.Review_asks_save_markdown_yes_writes_file_no_stays_ide_only))]
     [InlineData("37 squad skill not user-invocable command is slash", typeof(SquadContractTests),
         nameof(SquadContractTests.Squad_skill_is_not_user_invocable_command_is_the_only_slash))]
+    [InlineData("38 Claude package one squad and one review command", typeof(SquadContractTests),
+        nameof(SquadContractTests.Claude_package_ships_one_squad_and_one_review_command))]
+    [InlineData("38 caveman pins are not user-invocable", typeof(SquadContractTests),
+        nameof(SquadContractTests.Caveman_pins_are_not_user_invocable))]
     public void Each_ticket_criterion_has_a_proving_test(string criterion, Type fixture, string method)
     {
         Assert.True(

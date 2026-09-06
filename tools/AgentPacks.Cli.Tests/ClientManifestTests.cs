@@ -15,8 +15,9 @@ public sealed class ClientManifestTests
     private const string CopilotMarketplace = ".github/plugin/marketplace.json";
 
     /// <summary>
-    /// Claude auto-discovers agents/, commands/ and hooks/ at the plugin root, but the root holds
-    /// Cursor's dialect. Without these explicit paths Claude would load Cursor's files.
+    /// Claude auto-discovers agents/, commands/ and hooks/ at the plugin root unless the
+    /// marketplace entry is strict. The root holds Cursor's dialect. Explicit paths plus
+    /// <c>strict: true</c> keep Claude on its own tree.
     /// </summary>
     [Fact]
     public void The_claude_entry_points_at_its_own_namespace()
@@ -31,6 +32,7 @@ public sealed class ClientManifestTests
 
         var entry = (JsonObject)run.File(Marketplace).Content["plugins"]![0]!;
 
+        Assert.True(entry["strict"]!.GetValue<bool>());
         Assert.Equal(
             "./com.anthropic.claude-code/agents/reviewer.md",
             entry["agents"]![0]!.GetValue<string>());
