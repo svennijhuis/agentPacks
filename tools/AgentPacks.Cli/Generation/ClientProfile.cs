@@ -16,8 +16,9 @@ internal sealed record ClientProfile(
     int? HookDocumentVersion)
 {
     /// <summary>
-    /// Claude reads the root agents/, commands/ and hooks/ by default, so its marketplace entry
-    /// points at this namespace instead. Without the redirect it would load Cursor's dialect.
+    /// Claude reads the root agents/, commands/ and hooks/ by default unless the marketplace
+    /// entry is strict. The entry points at this namespace and sets strict so Cursor's root
+    /// dialect is not a second discoverable copy.
     /// </summary>
     public static readonly ClientProfile Claude = new(
         Client.Claude,

@@ -46,7 +46,7 @@ public class GenerationTests
 
         Assert.Null(entry["version"]);
         Assert.Equal("./plugins/engineering", entry["source"]!.GetValue<string>());
-        Assert.False(entry["strict"]!.GetValue<bool>());
+        Assert.True(entry["strict"]!.GetValue<bool>());
     }
 
     [Fact]

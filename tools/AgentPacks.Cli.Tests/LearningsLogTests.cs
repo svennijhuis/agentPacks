@@ -69,6 +69,8 @@ public sealed class LearningsLogTests
         Assert.Equal("standard", fromSquadHeading.PreferredTier);
         Assert.Equal("squad", LearningsLog.CanonicalEntrypoint("build"));
         Assert.Equal("squad", LearningsLog.CanonicalEntrypoint("squad"));
+        Assert.Equal("squad-review", LearningsLog.CanonicalEntrypoint("review"));
+        Assert.Equal("squad-review", LearningsLog.CanonicalEntrypoint("squad-review"));
         Assert.Equal("claude", LearningsLog.Parse("""
             ## 2026-09-05 — /squad
 
@@ -77,6 +79,14 @@ public sealed class LearningsLogTests
             - Model tier: standard
             - Result: pass
             """)[0].Provider);
+        Assert.Equal("squad-review", LearningsLog.Parse("""
+            ## 2026-09-05 — /squad-review
+
+            - Entrypoint: squad-review
+            - Provider: cursor
+            - Model tier: inherit
+            - Result: pass
+            """)[0].Entrypoint);
     }
 
     [Fact]
@@ -99,7 +109,7 @@ public sealed class LearningsLogTests
             - Model tier: inherit
             - Skipped: None
             - Result: stopped
-            """, "review");
+            """, "squad-review");
         var afterStandardPass = LearningsLog.Advise("""
             ## 2026-09-05 — /build
 

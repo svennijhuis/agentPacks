@@ -29,7 +29,7 @@ public sealed record LearningsAdvice(
 /// </summary>
 public static partial class LearningsLog
 {
-    [GeneratedRegex(@"^##\s+(\d{4}-\d{2}-\d{2})\s+—\s+/?(build|review|squad)\s*$",
+    [GeneratedRegex(@"^##\s+(\d{4}-\d{2}-\d{2})\s+—\s+/?(build|squad-review|review|squad)\s*$",
         RegexOptions.IgnoreCase | RegexOptions.Multiline)]
     private static partial Regex Heading { get; }
 
@@ -84,7 +84,8 @@ public static partial class LearningsLog
 
     /// <summary>
     /// Latest entry for this entrypoint drives the next gate. <c>squad</c> and <c>build</c>
-    /// are the same entrypoint. A failed skip becomes a must-run; a passed skip is preferred.
+    /// are the same entrypoint. <c>squad-review</c> and retired <c>review</c> are the same
+    /// entrypoint. A failed skip becomes a must-run; a passed skip is preferred.
     /// </summary>
     public static LearningsAdvice Advise(string markdown, string entrypoint)
     {
@@ -136,6 +137,7 @@ public static partial class LearningsLog
         value.Trim().Trim('/').ToLowerInvariant() switch
         {
             "build" => "squad",
+            "review" => "squad-review",
             var other => other
         };
 

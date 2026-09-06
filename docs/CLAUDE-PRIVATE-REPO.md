@@ -20,7 +20,7 @@ The catalog entry points at the completed plugin directory on that same branch:
   "name": "squad",
   "source": "./plugins/squad",
   "skills": "./skills/",
-  "strict": false
+  "strict": true
 }
 ```
 
@@ -34,11 +34,11 @@ Claude reads MCP configuration from `.mcp.json` in the plugin root. Agent Plugin
 
 Claude resolves plugin updates from an explicit `version` first, and only falls back to the Git commit SHA. A version copied from `plugin.json` and never bumped would leave everyone on cached content after a skill changed. Omitting it makes every merge to `main` visible.
 
-## Why `strict: false`
+## Why `strict: true`
 
-With `strict: false` the marketplace entry is the authority for component definitions. Claude reports a conflict if the plugin's own manifest *also* declares components — our root `plugin.json` is an Agent Plugins manifest with no component fields, so there is nothing to conflict with.
+Claude auto-discovers root `commands/` (Cursor's dialect) unless the marketplace entry is strict. The catalog already points at `com.anthropic.claude-code/commands/`, so `strict: false` loads both trees and `/squad` plus `/squad-review` appear twice.
 
-If that ever changes, the fallback is `strict: true` and letting Claude discover `skills/` and `.mcp.json` by their default locations.
+`strict: true` keeps Claude on the declared paths. Cursor still reads root `commands/`. Skills and `.mcp.json` stay explicitly declared; a plugin.json version bump is not how Claude picks up this change (the catalog omits `version` and updates from the commit SHA).
 
 ## Install
 

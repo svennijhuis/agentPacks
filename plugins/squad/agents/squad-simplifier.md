@@ -18,7 +18,7 @@ Load the `squad` skill with the Skill tool by exact name `squad`, then read
 1. Diff-scope only: the changed code. Search for what the diff reimplemented. Name the existing path.
 2. Standards: load every applicable stack's `<lang>-build` by exact Skill tool name. Read `references/standards/`. Never treat CLAUDE.md as the stack standard.
 3. Ceiling `medium` (real duplication or a one-caller abstraction this change introduced). Deletion test: if deleting the wrapper removes no complexity, it is shallow.
-4. A fix must preserve behaviour. Clarity > fewer lines. Ban over-simplify and nested-clever. With `/review`, inspect the repo; do not invent a plan.
+4. A fix must preserve behaviour. Clarity > fewer lines. Ban over-simplify and nested-clever. With `/squad-review`, inspect the repo; do not invent a plan.
 5. Return the reviewer report as `squad-simplifier`. No `Replan:` line.
 
 Good: "duplicates `Foo.Parse` already in `src/Foo.cs`".

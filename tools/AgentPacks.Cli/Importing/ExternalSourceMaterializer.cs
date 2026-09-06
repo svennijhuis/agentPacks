@@ -1,3 +1,4 @@
+using AgentPacks.Cli.Generation;
 using AgentPacks.Cli.Io;
 using AgentPacks.Cli.Loading;
 
@@ -53,8 +54,7 @@ internal sealed class ExternalSourceMaterializer(RepositoryContext context)
                     continue;
                 }
 
-                Replace(fetched.Directory!, target);
-                WriteMarker(source, target);
+                InstallFetchedSkill(fetched.Directory!, target, source);
                 Console.WriteLine($"Materialized {source.Name} at {source.Commit[..7]}.");
             }
             finally
@@ -97,7 +97,10 @@ internal sealed class ExternalSourceMaterializer(RepositoryContext context)
             if (marker.ContentHash != ExternalSourceMarker.HashDirectory(target))
             {
                 context.Diagnostics.Policy(context.Relative(target), "was edited after it was generated.");
+                continue;
             }
+
+            ReportUserInvocablePin(context, target);
         }
 
         ReportStaleGeneratedDirectories(sources, remove: false);
@@ -152,6 +155,54 @@ internal sealed class ExternalSourceMaterializer(RepositoryContext context)
                 }
             }
         }
+    }
+
+    /// <summary>
+    /// Copies a fetched skill into the plugin, hides it from the slash menu, then writes the
+    /// generation marker. Publication calls this after git fetch; tests call it with a stand-in
+    /// so caveman pins stay URL records in the authored tree.
+    /// </summary>
+    internal static void InstallFetchedSkill(string fetchedDirectory, string target, ExternalSourceEntry source)
+    {
+        Replace(fetchedDirectory, target);
+        HideFromUserInvocation(target);
+        WriteMarker(source, target);
+    }
+
+    internal static void HideFromUserInvocation(string target)
+    {
+        var skill = Path.Combine(target, "SKILL.md");
+        if (!File.Exists(skill))
+        {
+            return;
+        }
+
+        var current = File.ReadAllText(skill);
+        var hidden = SkillPolicyGenerator.WithUserInvocableFalse(current);
+        if (!string.Equals(current, hidden, StringComparison.Ordinal))
+        {
+            File.WriteAllText(skill, hidden);
+        }
+    }
+
+    private static void ReportUserInvocablePin(RepositoryContext context, string target)
+    {
+        var skill = Path.Combine(target, "SKILL.md");
+        if (!File.Exists(skill))
+        {
+            return;
+        }
+
+        var text = File.ReadAllText(skill);
+        if (text.Contains("user-invocable: false", StringComparison.Ordinal) &&
+            !text.Contains("user-invocable: true", StringComparison.Ordinal))
+        {
+            return;
+        }
+
+        context.Diagnostics.Policy(
+            context.Relative(target),
+            "imported skill must set user-invocable: false so it is not a slash command.");
     }
 
     private static void Replace(string source, string target)

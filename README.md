@@ -8,7 +8,7 @@ Three capability packs, installed because you want a behaviour wired into the ag
 
 | Plugin | Use it for |
 | --- | --- |
-| `squad` | User-invoked `/squad` and `/review`: grill-style planning, gated implement/verify/review, ≤2 fix rounds, uncommitted hand-off, append-only learnings |
+| `squad` | User-invoked `/squad` and `/squad-review`: grill-style planning, gated implement/verify/review, ≤2 fix rounds, uncommitted hand-off, append-only learnings |
 | `pack-check` | Detecting the repository stack at session start and asking before installing the language pack that supplies its required build and test skills |
 | `git` | Blocking the git commands that destroy work an agent cannot get back — `reset --hard`, `clean -fd`, `push --force`, `branch -D`, `checkout .` — before the client runs them |
 | `dotnet` | Teaching the loop how C# is built, tested and reviewed, backed by one canonical set of standards distributed only to the skills that need each document |
@@ -123,7 +123,7 @@ copilot plugin marketplace add /tmp/agentpacks-marketplace
 copilot plugin install squad@agentpacks
 ```
 
-Reload the client, then smoke `/squad` or `/review` once. The generated tree is what coworkers install; the authored tree is the source. The same loop is in [ADD-SKILL.md — Test a skill locally](docs/ADD-SKILL.md#test-a-skill-locally).
+Reload the client, then smoke `/squad` or `/squad-review` once. The generated tree is what coworkers install; the authored tree is the source. The same loop is in [ADD-SKILL.md — Test a skill locally](docs/ADD-SKILL.md#test-a-skill-locally).
 
 ## What each client gets
 
@@ -160,7 +160,7 @@ the locked v1 plan; the [`squad` skill](plugins/squad/skills/squad/SKILL.md) car
 5. Gate spins: implementer → verifier → reviewers in parallel (correctness + plan/spec; security ONLY if trust boundary)
 6. Orchestrator merges ≤2 fix rounds → hand off uncommitted → append learnings
 
-/review
+/squad-review
 Pin vs PR / uncommitted / main → same gated dual-axis reviewers (no plan/fix loop) → append learnings → one save-markdown ask
 
 Always
@@ -184,16 +184,16 @@ merging to `main`: [docs/ADD-SKILL.md](docs/ADD-SKILL.md#test-a-skill-locally).
 /squad add an integration test for the orders endpoint
 ```
 
-### `/review`
+### `/squad-review`
 
 ```
-/review
-/review --uncommitted
-/review --pr
-/review --base main
+/squad-review
+/squad-review --uncommitted
+/squad-review --pr
+/squad-review --base main
 ```
 
-After the merged list, `/review` asks once: Save report as markdown? Yes writes
+After the merged list, `/squad-review` asks once: Save report as markdown? Yes writes
 `docs/reviews/<slug>.md` and still shows the findings in the IDE/CLI. No stays IDE/CLI only.
 No verdict, grill, or fix round. Never `docs/decisions.md`.
 

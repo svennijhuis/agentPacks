@@ -67,7 +67,7 @@ public class ExternalSourceTests
     public void Generated_external_content_is_verified_offline()
     {
         using var repo = new TestRepository().WithValidPlugin().WithExternalSources(OneSource)
-            .WithSkill("code-review");
+            .WithSkill("code-review", extraFrontmatter: "user-invocable: false");
         var target = Path.Combine(repo.PluginDirectory(), "skills", "code-review");
         var marker = new ExternalSourceMarker(
             "code-review",
@@ -78,6 +78,25 @@ public class ExternalSourceTests
         JsonFile.Write(Path.Combine(target, ExternalSourceMarker.FileName), marker.ToJson());
 
         Assert.Empty(repo.CheckExternalSources().Diagnostics);
+    }
+
+    [Fact]
+    public void A_materialized_pin_without_user_invocable_false_is_reported()
+    {
+        using var repo = new TestRepository().WithValidPlugin().WithExternalSources(OneSource)
+            .WithSkill("code-review");
+        var target = Path.Combine(repo.PluginDirectory(), "skills", "code-review");
+        var marker = new ExternalSourceMarker(
+            "code-review",
+            "https://github.com/mattpocock/skills",
+            "skills/engineering/code-review",
+            Sha,
+            ExternalSourceMarker.HashDirectory(target));
+        JsonFile.Write(Path.Combine(target, ExternalSourceMarker.FileName), marker.ToJson());
+
+        var run = repo.CheckExternalSources();
+
+        Assert.Contains(run.Diagnostics, d => d.Message.Contains("user-invocable: false"));
     }
 
     [Fact]

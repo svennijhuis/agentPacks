@@ -38,8 +38,8 @@
     <None Include="../../plugins/squad/commands/squad.md"
           Link="Fixtures/squad/squad.md"
           CopyToOutputDirectory="PreserveNewest" />
-    <None Include="../../plugins/squad/commands/review.md"
-          Link="Fixtures/squad/review.md"
+    <None Include="../../plugins/squad/commands/squad-review.md"
+          Link="Fixtures/squad/squad-review.md"
           CopyToOutputDirectory="PreserveNewest" />
     <None Include="../../plugins/squad/skills/squad/references/learnings.md"
           Link="Fixtures/squad/learnings.md"
