@@ -1017,6 +1017,83 @@ public class SquadContractTests
     }
 
     /// <summary>
+    /// Po 41 fail bar: Copilot hides <c>/plugin:command</c> when the names match.
+    /// Squad's Copilot factory rematerializes as <c>run</c> so the picker is
+    /// <c>/squad:run</c>. Authored, Claude, and Cursor keep <c>squad</c>.
+    /// Both command files still emit. No third slash. pack-check stays
+    /// <c>pack-check</c>.
+    /// </summary>
+    [Fact]
+    public void Copilot_factory_command_name_differs_from_plugin_name()
+    {
+        var root = SourceRoot();
+        using var repo = new TestRepository().WithPlugin(
+            "squad",
+            File.ReadAllText(Path.Combine(root, "plugins", "squad", "plugin.json")));
+
+        foreach (var path in Directory.GetFiles(Path.Combine(root, "plugins", "squad", "commands"), "*.md"))
+        {
+            repo.WithFile(
+                $"plugins/squad/commands/{Path.GetFileName(path)}",
+                File.ReadAllText(path));
+        }
+
+        repo.WithSkill(
+            "squad",
+            extraFrontmatter: "disable-model-invocation: true\nuser-invocable: false",
+            plugin: "squad");
+
+        repo.WithPlugin(
+            "pack-check",
+            File.ReadAllText(Path.Combine(root, "plugins", "pack-check", "plugin.json")));
+        repo.WithFile(
+            "plugins/pack-check/commands/pack-check.md",
+            File.ReadAllText(Path.Combine(root, "plugins", "pack-check", "commands", "pack-check.md")));
+        repo.WithSkill("pack-check", plugin: "pack-check");
+
+        var run = repo.ValidateAndGenerate();
+        Assert.False(run.HasErrors, run.Text);
+
+        var pluginName = JsonNode.Parse(
+            File.ReadAllText(Path.Combine(root, "plugins", "squad", "plugin.json")))!
+            ["name"]!.GetValue<string>();
+        Assert.Equal("squad", pluginName);
+
+        Assert.True(run.HasFile("plugins/squad/com.github.copilot/commands/run.md"));
+        Assert.True(run.HasFile("plugins/squad/com.github.copilot/commands/squad-review.md"));
+        Assert.False(run.HasFile("plugins/squad/com.github.copilot/commands/squad.md"));
+
+        var factory = run.File("plugins/squad/com.github.copilot/commands/run.md").Text;
+        Assert.Contains("name: \"run\"", factory, StringComparison.Ordinal);
+        Assert.DoesNotContain("name: \"squad\"", factory, StringComparison.Ordinal);
+        Assert.NotEqual(pluginName, "run");
+
+        var copilotNames = CommandNames(
+            Path.Combine(repo.PluginDirectory("squad"), "com.github.copilot", "commands"));
+        Assert.Equal(
+            new HashSet<string>(["run", "squad-review"], StringComparer.Ordinal),
+            copilotNames);
+
+        var claudeEntry = run.File(".claude-plugin/marketplace.json").Content["plugins"]!.AsArray()
+            .OfType<JsonObject>()
+            .Single(plugin => plugin["name"]!.GetValue<string>() == "squad");
+        var claudeNames = DiscoverableClaudeCommandNames(repo.PluginDirectory("squad"), claudeEntry);
+        Assert.Equal(["squad", "squad-review"], claudeNames.OrderBy(name => name, StringComparer.Ordinal));
+        Assert.DoesNotContain("run", claudeNames);
+        Assert.Equal(1, claudeNames.Count(name => name == "squad"));
+
+        var rootNames = CommandNames(Path.Combine(repo.PluginDirectory("squad"), "commands"));
+        Assert.Equal(
+            new HashSet<string>(["squad", "squad-review"], StringComparer.Ordinal),
+            rootNames);
+
+        Assert.True(run.HasFile("plugins/pack-check/com.github.copilot/commands/pack-check.md"));
+        Assert.False(run.HasFile("plugins/pack-check/com.github.copilot/commands/run.md"));
+
+        Squad_commands_are_exactly_squad_and_review();
+    }
+
+    /// <summary>
     /// Po 38 fail bar: caveman and caveman-compress pins are Skill-tool only. Publication
     /// writes <c>user-invocable: false</c>. Authored tree stays URL records; no vendored
     /// caveman catalog.

@@ -385,6 +385,9 @@ internal sealed class ClientTreeGenerator(RepositoryContext context, ModelCatalo
     /// carry the .agent.md extension. Rules go the same way they do for Claude: Copilot's plugin
     /// schema declares agents, skills, commands, hooks, mcpServers and lspServers and nothing for
     /// instructions, so an instructions file inside the plugin is a file nothing ever loads.
+    /// Copilot hides <c>/plugin:command</c> when the two names match, so Squad's factory is
+    /// rematerialized as <c>run</c> (<c>/squad:run</c>). Claude, Cursor and Codex keep
+    /// <c>squad</c>. <c>pack-check</c> is a setup slash and is not remapped.
     /// </summary>
     private void GenerateCopilot(
         PluginPackage plugin,
@@ -417,15 +420,37 @@ internal sealed class ClientTreeGenerator(RepositoryContext context, ModelCatalo
 
         foreach (var command in plugin.Commands)
         {
+            var name = CopilotCommandName(plugin, command);
+
             add(
-                profile.PluginRelative($"commands/{command.Name}.md"),
+                profile.PluginRelative($"commands/{name}.md"),
                 ComponentWriter.Markdown(
-                    [new("description", ComponentWriter.Yaml(command.Description))],
+                    [
+                        new("name", ComponentWriter.Yaml(name)),
+                        new("description", ComponentWriter.Yaml(command.Description))
+                    ],
                     command.Body),
                 false);
         }
 
         GenerateRulesContext(plugin, profile, add, addJson);
+    }
+
+    /// <summary>
+    /// Copilot CLI drops the factory slash when command name equals plugin name. Only Squad's
+    /// colliding factory is rewritten; a setup command such as <c>pack-check</c> stays.
+    /// </summary>
+    private static string CopilotCommandName(PluginPackage plugin, MarkdownComponent command)
+    {
+        var pluginName = plugin.Name ?? plugin.DirectoryName;
+
+        if (string.Equals(pluginName, "squad", StringComparison.Ordinal) &&
+            string.Equals(command.Name, "squad", StringComparison.Ordinal))
+        {
+            return "run";
+        }
+
+        return command.Name;
     }
 
     // ---------------------------------------------------------------- Shared

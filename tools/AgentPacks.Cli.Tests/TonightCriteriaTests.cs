@@ -105,6 +105,8 @@ public sealed class TonightCriteriaTests
         nameof(SquadContractTests.Squad_and_squad_review_command_blurbs_are_short_user_friendly))]
     [InlineData("39 learnings-digest is not user-invocable", typeof(SquadContractTests),
         nameof(SquadContractTests.Learnings_digest_is_not_user_invocable))]
+    [InlineData("41 Copilot factory command name differs from plugin name", typeof(SquadContractTests),
+        nameof(SquadContractTests.Copilot_factory_command_name_differs_from_plugin_name))]
     public void Each_ticket_criterion_has_a_proving_test(string criterion, Type fixture, string method)
     {
         Assert.True(
