@@ -115,6 +115,14 @@ public sealed class TonightCriteriaTests
         nameof(SquadContractTests.Lang_test_patterns_local_vs_deployed_smoke_examples))]
     [InlineData("43 smoke-matrix not user slash no new plugin", typeof(SquadContractTests),
         nameof(SquadContractTests.Smoke_matrix_not_user_slash_no_new_plugin))]
+    [InlineData("44 /http-scenarios writes docs/smoke md only", typeof(HttpScenariosContractTests),
+        nameof(HttpScenariosContractTests.Http_scenarios_command_writes_docs_smoke_md_only))]
+    [InlineData("44 /http-scenarios table case kind request status expected why", typeof(HttpScenariosContractTests),
+        nameof(HttpScenariosContractTests.Http_scenarios_table_has_case_kind_request_status_expected_why))]
+    [InlineData("44 /http-scenarios no code edits no secrets seeded from smoke-matrix", typeof(HttpScenariosContractTests),
+        nameof(HttpScenariosContractTests.Http_scenarios_no_code_edits_no_secrets_seeded_from_smoke_matrix))]
+    [InlineData("44 user commands stay squad squad-review pack-check plus http-scenarios", typeof(HttpScenariosContractTests),
+        nameof(HttpScenariosContractTests.User_commands_stay_squad_squad_review_pack_check_plus_http_scenarios))]
     public void Each_ticket_criterion_has_a_proving_test(string criterion, Type fixture, string method)
     {
         Assert.True(

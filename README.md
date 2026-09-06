@@ -8,7 +8,7 @@ Three capability packs, installed because you want a behaviour wired into the ag
 
 | Plugin | Use it for |
 | --- | --- |
-| `squad` | User-invoked `/squad` and `/squad-review`: grill-style planning, gated implement/verify/review, ≤2 fix rounds, uncommitted hand-off, append-only learnings |
+| `squad` | User-invoked `/squad` and `/squad-review`: grill-style planning, gated implement/verify/review, ≤2 fix rounds, uncommitted hand-off, append-only learnings. Sibling `/http-scenarios` writes `docs/smoke/<slug>.md` from OpenAPI |
 | `pack-check` | Detecting the repository stack at session start and asking before installing the language pack that supplies its required build and test skills |
 | `git` | Blocking the git commands that destroy work an agent cannot get back — `reset --hard`, `clean -fd`, `push --force`, `branch -D`, `checkout .` — before the client runs them |
 | `dotnet` | Teaching the loop how C# is built, tested and reviewed, backed by one canonical set of standards distributed only to the skills that need each document |
@@ -31,7 +31,7 @@ copilot plugin install rust@agentpacks
 copilot plugin install typescript@agentpacks
 ```
 
-After install, pick `/squad:run`. Copilot hides a command named the same as the plugin, so there is no `/squad:squad`. Review is `/squad:squad-review`. Setup is `/pack-check`.
+After install, pick `/squad:run`. Copilot hides a command named the same as the plugin, so there is no `/squad:squad`. Review is `/squad:squad-review`. HTTP scenarios are `/squad:http-scenarios`. Setup is `/pack-check`.
 
 Update later with:
 
@@ -148,7 +148,8 @@ Glob-scoped rules remain Cursor-only; other clients receive only always-on rules
 
 ## Using the plugins
 
-Two user-invoked entrypoints. The model does not pick the orchestrator. The numbered flow below is
+Two Squad entrypoints. The model does not pick the orchestrator. `/http-scenarios` is a sibling
+slash on the same plugin; it is not a Squad phase. The numbered flow below is
 the locked v1 plan; the [`squad` skill](plugins/squad/skills/squad/SKILL.md) carries the same block.
 
 ## Locked v1 flow
@@ -198,6 +199,21 @@ merging to `main`: [docs/ADD-SKILL.md](docs/ADD-SKILL.md#test-a-skill-locally).
 After the merged list, `/squad-review` asks once: Save report as markdown? Yes writes
 `docs/reviews/<slug>.md` and still shows the findings in the IDE/CLI. No stays IDE/CLI only.
 No verdict, grill, or fix round. Never `docs/decisions.md`.
+
+### `/http-scenarios`
+
+```
+/http-scenarios https://api.example.com/openapi.json
+/http-scenarios ./openapi.yaml
+```
+
+Writes only `docs/smoke/<slug>.md` in the current app workspace (the repo under test) —
+scenarios md for a real tester on TST. `/squad-review` stays code/diff. `/squad` may read
+the file later; it does not write smoke for push.
+Columns: case · kind (happy/edge/fail/auth/biz/nothing-breaks) · request · status · expected · why.
+Seed from [`plugins/squad/references/smoke-matrix.md`](plugins/squad/references/smoke-matrix.md).
+No product-source edits. No commit, merge, or push. Secrets stay placeholders (`BASE_URL`,
+`TOKEN_VALID`). Bruno/Postman is an optional mention only. Copilot picker: `/squad:http-scenarios`.
 
 Language-pack slots (`dotnet-build`, `rust-review`, …) are loop internals, loaded by exact Skill
 tool name. They are not a second public skill surface.
