@@ -804,6 +804,41 @@ public class SquadContractTests
     }
 
     /// <summary>
+    /// Po 46 fail bar: root README maps the three user slashes plus setup
+    /// <c>/pack-check</c> near Using the plugins. Fails leftover
+    /// "Two Squad entrypoints" / two-command wording and a missing row.
+    /// </summary>
+    [Fact]
+    public void Readme_lists_three_user_commands_plus_pack_check()
+    {
+        var root = SourceRoot();
+        var readme = File.ReadAllText(Path.Combine(root, "README.md"));
+        var pluginReadme = File.ReadAllText(Path.Combine(root, "plugins", "squad", "README.md"));
+
+        var usingPlugins = readme.IndexOf("## Using the plugins", StringComparison.Ordinal);
+        Assert.True(usingPlugins >= 0, "root README is missing ## Using the plugins");
+
+        var squadRow = "| `/squad` | Dev | build factory, code-only hand-off |";
+        var map = readme.IndexOf(squadRow, StringComparison.Ordinal);
+        Assert.True(map > usingPlugins, "command map must sit under Using the plugins");
+        Assert.True(map - usingPlugins < 400, "command map must be the first thing under Using the plugins");
+
+        Assert.Contains("| Command | Who | What |", readme, StringComparison.Ordinal);
+        Assert.Contains(squadRow, readme, StringComparison.Ordinal);
+        Assert.Contains("| `/squad-review` | Dev | code/diff report |", readme, StringComparison.Ordinal);
+        Assert.Contains("| `/http-scenarios` | Office tester | `docs/smoke/*.md` only |", readme, StringComparison.Ordinal);
+        Assert.Contains("| `/pack-check` | Setup | not a Squad flow |", readme, StringComparison.Ordinal);
+
+        foreach (var text in new[] { readme, pluginReadme })
+        {
+            Assert.DoesNotContain("Two Squad entrypoints", text, StringComparison.Ordinal);
+            Assert.DoesNotContain("Two user-invoked entrypoints", text, StringComparison.Ordinal);
+            Assert.DoesNotContain("Two entrypoints", text, StringComparison.Ordinal);
+            Assert.DoesNotContain("two commands only", text, StringComparison.OrdinalIgnoreCase);
+        }
+    }
+
+    /// <summary>
     /// Po 25 fail bar: learnings-digest is a user-invoked Matt-tiny skill, not a third slash
     /// command, and it must not rewrite skills.
     /// </summary>

@@ -137,6 +137,8 @@ public sealed class TonightCriteriaTests
         nameof(SquadContractTests.Squad_local_secrets_unauth_ask_continue))]
     [InlineData("16 /http-scenarios defers local secrets to squad rule", typeof(HttpScenariosContractTests),
         nameof(HttpScenariosContractTests.Http_scenarios_defers_local_secrets_to_squad_rule))]
+    [InlineData("46 README command map three user commands plus pack-check", typeof(SquadContractTests),
+        nameof(SquadContractTests.Readme_lists_three_user_commands_plus_pack_check))]
     public void Each_ticket_criterion_has_a_proving_test(string criterion, Type fixture, string method)
     {
         Assert.True(
