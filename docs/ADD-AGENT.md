@@ -72,7 +72,7 @@ tools it needs. Load skills with the Skill tool by exact name.
 | `.cursor-plugin/agents/<name>.md` | Cursor — remapped id (`inherit`, `composer-2`, `grok-4.5`, `claude-opus-5`) |
 | `com.anthropic.claude-code/agents/<name>.md` | Claude — remapped id, tool names in PascalCase |
 | `com.github.copilot/agents/<name>.agent.md` | Copilot — remapped id; `model` is never dropped |
-| `com.openai.codex/agents/<name>.toml` | Codex — `model` is emitted and inherit-first |
+| `com.openai.codex/agents/<name>.toml` | Codex — `model` is emitted from the catalog (`gpt-5.6-luna` / `gpt-5.6-terra` / `gpt-5.6-sol`) |
 
 ## The Codex gap
 
@@ -82,9 +82,8 @@ Codex loads subagents from `~/.codex/agents/` or `<repo>/.codex/agents/` only. I
 cp plugins/squad/com.openai.codex/agents/*.toml .codex/agents/
 ```
 
-Codex generation always emits `model = "inherit"`. A non-inherit TOML pin is inherit-first on
-purpose: pinning a specific Codex model in the generated TOML is flaky on spawn, so the catalog's
-Codex column stays `inherit` even when the authored tier is `frontier`.
+Codex generation emits the catalog Codex id into `model =`. `fast` → `gpt-5.6-luna`,
+`standard` → `gpt-5.6-terra`, `frontier` → `gpt-5.6-sol`. `inherit` stays `inherit`.
 
 If Codex gains plugin-shipped agents, only the generated manifest needs a field.
 

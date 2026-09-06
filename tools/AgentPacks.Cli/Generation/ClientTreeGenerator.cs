@@ -464,18 +464,12 @@ internal sealed class ClientTreeGenerator(RepositoryContext context, ModelCatalo
         plugin.Rules.Where(rule => ComponentWriter.Flag(rule, "alwaysApply")).ToList();
 
     /// <summary>
-    /// Maps the authored portable tier to the identifier this client accepts. Codex stays
-    /// inherit-first even when the catalog lists another id: a TOML model pin is flaky on spawn.
+    /// Maps the authored portable tier to the identifier this client accepts, including Codex
+    /// <c>model =</c> in generated agent TOML.
     /// </summary>
     private string ResolveModel(MarkdownComponent agent, Client client)
     {
         var authored = agent.Frontmatter?.Scalar("model") ?? ModelCatalog.DefaultTier;
-
-        if (client == Client.Codex)
-        {
-            return ModelCatalog.DefaultTier;
-        }
-
         return models.Resolve(authored, client);
     }
 }

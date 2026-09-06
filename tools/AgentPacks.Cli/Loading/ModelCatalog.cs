@@ -9,8 +9,7 @@ namespace AgentPacks.Cli.Loading;
 /// <para>
 /// Agents author a portable tier — <c>inherit</c>, <c>fast</c>, <c>standard</c> or
 /// <c>frontier</c> — never a Claude-only alias such as <c>sonnet</c>. Generation emits the
-/// client column. Codex stays inherit-first: a non-inherit Codex pin is allowed in the catalog
-/// but is documented as flaky on spawn.
+/// client column. Codex emits the catalog id into generated agent TOML <c>model =</c>.
 /// </para>
 /// </summary>
 internal sealed class ModelCatalog
@@ -36,9 +35,9 @@ internal sealed class ModelCatalog
     public static ModelCatalog BuiltIn { get; } = new(new Dictionary<string, ClientModels>(StringComparer.Ordinal)
     {
         ["inherit"] = new("inherit", "inherit", "inherit", "inherit"),
-        ["fast"] = new("haiku", "composer-2", "gpt-4.1", "inherit"),
-        ["standard"] = new("sonnet", "grok-4.5", "gpt-5", "inherit"),
-        ["frontier"] = new("opus", "claude-opus-5", "gpt-5", "inherit")
+        ["fast"] = new("haiku", "composer-2", "gpt-4.1", "gpt-5.6-luna"),
+        ["standard"] = new("sonnet", "grok-4.5", "gpt-5", "gpt-5.6-terra"),
+        ["frontier"] = new("opus", "claude-opus-5", "gpt-5", "gpt-5.6-sol")
     });
 
     public IReadOnlyCollection<string> TierNames => _tiers.Keys;

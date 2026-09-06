@@ -38,26 +38,57 @@ public sealed class ModelCatalogTests
 
         Assert.Contains("model: \"sonnet\"", claude, StringComparison.Ordinal);
         Assert.Contains("model: \"gpt-5\"", copilot, StringComparison.Ordinal);
-        Assert.Contains("model = \"inherit\"", codex, StringComparison.Ordinal);
+        Assert.Contains("model = \"gpt-5.6-terra\"", codex, StringComparison.Ordinal);
 
         var cursor = run.File("plugins/engineering/.cursor-plugin/agents/reviewer.md").Text;
         Assert.Contains("model: \"grok-4.5\"", cursor, StringComparison.Ordinal);
         Assert.DoesNotContain("model: \"sonnet\"", cursor, StringComparison.Ordinal);
     }
 
+    /// <summary>
+    /// Po 34: Codex catalog ids are real model names, emitted into agent TOML <c>model =</c>.
+    /// </summary>
     [Fact]
-    public void Codex_stays_inherit_even_when_the_authored_tier_is_frontier()
+    public void Codex_tiers_map_to_real_ids_not_all_inherit()
     {
+        var catalog = File.ReadAllText(Path.Combine(SourceRoot(), "models.source.json"));
+        Assert.Contains("\"codex\": \"gpt-5.6-luna\"", catalog, StringComparison.Ordinal);
+        Assert.Contains("\"codex\": \"gpt-5.6-terra\"", catalog, StringComparison.Ordinal);
+        Assert.Contains("\"codex\": \"gpt-5.6-sol\"", catalog, StringComparison.Ordinal);
+
         using var repo = new TestRepository()
             .WithValidPlugin()
-            .WithAgent("writer", extraFrontmatter: "model: frontier\nreadonly: false\ntools:\n  - read\n  - write");
+            .WithAgent("fast-agent", extraFrontmatter: "model: fast\nreadonly: true\ntools:\n  - read")
+            .WithAgent("standard-agent", extraFrontmatter: "model: standard\nreadonly: true\ntools:\n  - read")
+            .WithAgent("frontier-agent", extraFrontmatter: "model: frontier\nreadonly: false\ntools:\n  - read\n  - write")
+            .WithAgent("inherit-agent", extraFrontmatter: "model: inherit\nreadonly: true\ntools:\n  - read");
 
         var run = repo.ValidateAndGenerate();
-        var toml = run.File("plugins/engineering/com.openai.codex/agents/writer.toml").Text;
-
         Assert.False(run.HasErrors, run.Text);
-        Assert.Contains("model = \"inherit\"", toml, StringComparison.Ordinal);
-        Assert.DoesNotContain("model = \"opus\"", toml, StringComparison.Ordinal);
+
+        Assert.Contains(
+            "model = \"gpt-5.6-luna\"",
+            run.File("plugins/engineering/com.openai.codex/agents/fast-agent.toml").Text,
+            StringComparison.Ordinal);
+        Assert.Contains(
+            "model = \"gpt-5.6-terra\"",
+            run.File("plugins/engineering/com.openai.codex/agents/standard-agent.toml").Text,
+            StringComparison.Ordinal);
+        Assert.Contains(
+            "model = \"gpt-5.6-sol\"",
+            run.File("plugins/engineering/com.openai.codex/agents/frontier-agent.toml").Text,
+            StringComparison.Ordinal);
+        Assert.Contains(
+            "model = \"inherit\"",
+            run.File("plugins/engineering/com.openai.codex/agents/inherit-agent.toml").Text,
+            StringComparison.Ordinal);
+
+        var emitted = string.Join('\n',
+            run.File("plugins/engineering/com.openai.codex/agents/fast-agent.toml").Text,
+            run.File("plugins/engineering/com.openai.codex/agents/standard-agent.toml").Text,
+            run.File("plugins/engineering/com.openai.codex/agents/frontier-agent.toml").Text);
+        Assert.DoesNotContain("model = \"inherit\"", emitted, StringComparison.Ordinal);
+        Assert.DoesNotContain("model = \"opus\"", emitted, StringComparison.Ordinal);
     }
 
     [Fact]

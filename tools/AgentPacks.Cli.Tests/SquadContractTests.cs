@@ -606,7 +606,7 @@ public class SquadContractTests
     /// exactly /squad + /review, authored MCP files are empty scaffolds.
     /// </summary>
     [Fact]
-    public void Usable_gates_not_essays_exactly_two_commands_and_mcp_only_in_dotnet()
+    public void Usable_gates_not_essays_exactly_two_commands_and_empty_mcp_scaffolds()
     {
         Loop_agents_restore_operational_steps_not_empty_tiny();
         Loop_agent_bodies_stay_tiny();
@@ -614,6 +614,83 @@ public class SquadContractTests
 
         Loop_agent_bodies_stay_above_the_thin_floor();
         Plugin_mcp_files_are_empty_scaffolds();
+    }
+
+    /// <summary>
+    /// Po 34: leftover mcp_only_in_dotnet name is gone; the bar is empty mcp scaffolds.
+    /// </summary>
+    [Fact]
+    public void Empty_mcp_scaffolds_test_is_not_named_dotnet_only()
+    {
+        var leftover = typeof(SquadContractTests).Assembly.GetTypes()
+            .SelectMany(type => type.GetMethods(
+                System.Reflection.BindingFlags.Instance
+                | System.Reflection.BindingFlags.Static
+                | System.Reflection.BindingFlags.Public
+                | System.Reflection.BindingFlags.NonPublic))
+            .Where(method => method.Name.Contains("mcp_only_in_dotnet", StringComparison.OrdinalIgnoreCase))
+            .Select(method => $"{method.DeclaringType!.Name}.{method.Name}")
+            .ToArray();
+        Assert.False(
+            leftover.Length > 0,
+            "leftover mcp_only_in_dotnet: " + string.Join(", ", leftover));
+
+        Plugin_mcp_files_are_empty_scaffolds();
+    }
+
+    /// <summary>
+    /// Po 34: small-change spawns nobody; at most two fix rounds; gates are hard stops.
+    /// Does not grow the squad skill with new sections.
+    /// </summary>
+    [Fact]
+    public void Anti_loop_small_change_spawn_none_and_two_fix_rounds_max()
+    {
+        var skill = Fixture("SKILL.md");
+        var command = Fixture("squad.md");
+        var contract = Fixture("review-contract.md");
+        var orchestrator = Fixture("squad-orchestrator.md");
+
+        Assert.Contains("Small change: spawn none of these", skill, StringComparison.Ordinal);
+        Assert.Contains("spawn nobody", skill, StringComparison.Ordinal);
+        Assert.Contains(
+            "Do not call the planner, implementer, verifier, orchestrator, or reviewers",
+            command,
+            StringComparison.Ordinal);
+
+        Assert.Contains("≤2 fix rounds", skill, StringComparison.Ordinal);
+        Assert.Contains("most two fix rounds", skill, StringComparison.Ordinal);
+        Assert.Contains("at most two fix rounds", command, StringComparison.Ordinal);
+
+        Assert.Contains("end the current", skill, StringComparison.Ordinal);
+        Assert.Contains("Do not obtain another report, invoke merge again", skill, StringComparison.Ordinal);
+        Assert.Contains("end the loop without retrying", command, StringComparison.Ordinal);
+        Assert.Contains("Do not launch, retry, or hand work to another agent", orchestrator, StringComparison.Ordinal);
+        Assert.Contains(
+            "No plan write, verdict, retry, fix round, or agent handoff is allowed",
+            contract,
+            StringComparison.Ordinal);
+        Assert.Contains("no plan/fix loop", skill, StringComparison.Ordinal);
+
+        var headings = skill.Split('\n')
+            .Where(line => line.StartsWith("## ", StringComparison.Ordinal))
+            .Select(line => line.TrimEnd('\r'))
+            .ToArray();
+        Assert.Equal(
+        [
+            "## Locked v1 flow",
+            "## Route",
+            "## Gated agents",
+            "## Skills",
+            "## Stacks",
+            "## Plan",
+            "## Implement, verify, review",
+            "## Advisor-lite",
+            "## Worktree"
+        ], headings);
+
+        var packCheck = File.ReadAllText(Path.Combine(SourceRoot(), "plugins", "pack-check", "README.md"));
+        Assert.Contains("`/pack-check` is setup-only", packCheck, StringComparison.Ordinal);
+        Assert.Contains("`/squad` already runs this check", packCheck, StringComparison.Ordinal);
     }
 
     /// <summary>

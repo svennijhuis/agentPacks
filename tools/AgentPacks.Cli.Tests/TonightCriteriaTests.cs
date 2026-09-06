@@ -51,8 +51,8 @@ public sealed class TonightCriteriaTests
         nameof(SquadContractTests.Loop_agents_restore_operational_steps_not_empty_tiny))]
     [InlineData("language skills name standards", typeof(LanguagePackContractTests),
         nameof(LanguagePackContractTests.Language_slot_skills_name_their_canonical_standards))]
-    [InlineData("19 usable gates not essays two commands mcp in dotnet", typeof(SquadContractTests),
-        nameof(SquadContractTests.Usable_gates_not_essays_exactly_two_commands_and_mcp_only_in_dotnet))]
+    [InlineData("19 usable gates not essays two commands empty mcp scaffolds", typeof(SquadContractTests),
+        nameof(SquadContractTests.Usable_gates_not_essays_exactly_two_commands_and_empty_mcp_scaffolds))]
     [InlineData("20 simplifier report-only one agent three axes two commands mcp", typeof(SquadContractTests),
         nameof(SquadContractTests.Simplifier_is_report_only_one_agent_three_axes))]
     [InlineData("21 no DotnetSolutionMcp empty mcpServers", typeof(PluginMcpContractTests),
@@ -85,6 +85,12 @@ public sealed class TonightCriteriaTests
         nameof(LanguagePackContractTests.Copilot_emits_user_invocable_false_for_loop_audience))]
     [InlineData("33 pack-check README setup-only", typeof(PackCheckContractTests),
         nameof(PackCheckContractTests.Pack_check_readme_is_setup_only_squad_already_runs_check))]
+    [InlineData("34 Codex tiers map to real ids", typeof(ModelCatalogTests),
+        nameof(ModelCatalogTests.Codex_tiers_map_to_real_ids_not_all_inherit))]
+    [InlineData("34 empty mcp scaffolds not named dotnet-only", typeof(SquadContractTests),
+        nameof(SquadContractTests.Empty_mcp_scaffolds_test_is_not_named_dotnet_only))]
+    [InlineData("34 anti-loop spawn none two fix rounds", typeof(SquadContractTests),
+        nameof(SquadContractTests.Anti_loop_small_change_spawn_none_and_two_fix_rounds_max))]
     public void Each_ticket_criterion_has_a_proving_test(string criterion, Type fixture, string method)
     {
         Assert.True(
