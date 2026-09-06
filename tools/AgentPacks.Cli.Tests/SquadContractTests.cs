@@ -639,6 +639,9 @@ public class SquadContractTests
         Assert.Contains("Skill tool by exact name", simplifier, StringComparison.Ordinal);
         Assert.Contains("CLAUDE.md", simplifier, StringComparison.Ordinal);
         Assert.Contains("Never treat CLAUDE.md as the stack standard", simplifier, StringComparison.Ordinal);
+        Assert.Contains("2. Standards:", simplifier, StringComparison.Ordinal);
+        Assert.Contains("`references/standards/`", simplifier, StringComparison.Ordinal);
+        Assert.Contains("readable > clever", simplifier, StringComparison.Ordinal);
         Assert.Contains("Good:", simplifier, StringComparison.Ordinal);
         Assert.Contains("Bad:", simplifier, StringComparison.Ordinal);
         Assert.DoesNotContain("auto-edit", simplifier, StringComparison.OrdinalIgnoreCase);
