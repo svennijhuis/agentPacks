@@ -1,6 +1,6 @@
 ---
 name: squad
-description: User-invoked orchestrator for /squad and /review. Mediates grill-style planning, runs plan-bound implementation and verification, fans reviewers on two axes, and caps two fix rounds. Do not model-invoke; type the entrypoint.
+description: User-invoked orchestrator for /squad and /squad-review. Mediates grill-style planning, runs plan-bound implementation and verification, fans reviewers on two axes, and caps two fix rounds. Do not model-invoke; type the entrypoint.
 license: UNLICENSED
 disable-model-invocation: true
 user-invocable: false
@@ -8,7 +8,7 @@ user-invocable: false
 
 # Squad
 
-Two entrypoints only: `/squad` and `/review`. Type the command.
+Two entrypoints only: `/squad` and `/squad-review`. Type the command.
 
 ## Locked v1 flow
 
@@ -21,7 +21,7 @@ Two entrypoints only: `/squad` and `/review`. Type the command.
 5. Gate spins: implementer → verifier → reviewers in parallel (correctness + plan/spec; security ONLY if trust boundary)
 6. Orchestrator merges ≤2 fix rounds → hand off uncommitted → append learnings
 
-/review
+/squad-review
 Pin vs PR / uncommitted / main → same gated dual-axis reviewers (no plan/fix loop) → append learnings → one save-markdown ask
 
 Always
@@ -44,7 +44,7 @@ No commits, merges, or pushes. `pass` is ready for human review, not permission 
 | Typo, rename, one-line change | The main agent implements and verifies directly. Do not call `squad-planner`, `squad-implementer`, `squad-verifier`, or any review agent. Do not create a plan. Small changes spawn nobody. |
 | Behavior or design change | Full loop. |
 | Trust-boundary / irreversible | Full loop; record the human decision first. |
-| Existing diff, no plan | `/review`. No verifier report, plan write, verdict, or fix round. One save-markdown ask at the end. |
+| Existing diff, no plan | `/squad-review`. No verifier report, plan write, verdict, or fix round. One save-markdown ask at the end. |
 
 Cost-first: default `inherit`. `squad-implementer` is `standard`. Other squad agents are `fast`.
 
@@ -102,7 +102,7 @@ most two fix rounds.
 At plan-confirm, when stuck, and before handoff: one read-only consult on a stronger
 `models.source.json` tier than the current default. Order: inherit < fast < standard < frontier.
 Default `inherit` consults `standard`. Read-only: no edits, no extra reviewer fan-out, no new loop.
-Skip on `/review`.
+Skip on `/squad-review`.
 
 ## Worktree
 

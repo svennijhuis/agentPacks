@@ -95,7 +95,7 @@ copilot plugin marketplace add /tmp/agentpacks-marketplace
 copilot plugin install squad@agentpacks
 ```
 
-5. Reload, then smoke `/squad` or `/review` once.
+5. Reload, then smoke `/squad` or `/squad-review` once.
 
 `validate-all --out` writes the marketplace-shaped tree: client namespaces, remapped agent `model`
 fields, and `skills/<name>/agents/openai.yaml` for user-invoked skills. Inspect the fixture plugin

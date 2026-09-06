@@ -36,7 +36,7 @@ Claude resolves plugin updates from an explicit `version` first, and only falls 
 
 ## Why `strict: true`
 
-Claude auto-discovers root `commands/` (Cursor's dialect) unless the marketplace entry is strict. The catalog already points at `com.anthropic.claude-code/commands/`, so `strict: false` loads both trees and `/squad` plus the review-side command appear twice.
+Claude auto-discovers root `commands/` (Cursor's dialect) unless the marketplace entry is strict. The catalog already points at `com.anthropic.claude-code/commands/`, so `strict: false` loads both trees and `/squad` plus `/squad-review` appear twice.
 
 `strict: true` keeps Claude on the declared paths. Cursor still reads root `commands/`. Skills and `.mcp.json` stay explicitly declared; a plugin.json version bump is not how Claude picks up this change (the catalog omits `version` and updates from the commit SHA).
 

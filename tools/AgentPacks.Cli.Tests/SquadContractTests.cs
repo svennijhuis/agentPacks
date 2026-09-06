@@ -188,7 +188,7 @@ public class SquadContractTests
     {
         var skill = Fixture("SKILL.md");
         var command = Fixture("squad.md");
-        var standalone = Fixture("review.md");
+        var standalone = Fixture("squad-review.md");
         var orchestrator = Fixture("squad-orchestrator.md");
         var contract = Fixture("review-contract.md");
         var combined = string.Join('\n', skill, command, standalone, orchestrator, contract);
@@ -218,12 +218,12 @@ public class SquadContractTests
     [Fact]
     public void Review_without_a_plan_is_explicit_in_every_applicable_reviewer()
     {
-        Assert.Contains("For `/review`", Fixture("squad-reviewer.md"), StringComparison.Ordinal);
-        Assert.Contains("With `/review`", Fixture("squad-security-reviewer.md"), StringComparison.Ordinal);
-        Assert.Contains("With `/review`", Fixture("squad-simplifier.md"), StringComparison.Ordinal);
+        Assert.Contains("For `/squad-review`", Fixture("squad-reviewer.md"), StringComparison.Ordinal);
+        Assert.Contains("With `/squad-review`", Fixture("squad-security-reviewer.md"), StringComparison.Ordinal);
+        Assert.Contains("With `/squad-review`", Fixture("squad-simplifier.md"), StringComparison.Ordinal);
         Assert.Contains("## Standalone merge report", Fixture("review-contract.md"), StringComparison.Ordinal);
         Assert.Contains("There is no `Verdict`", Fixture("review-contract.md"), StringComparison.Ordinal);
-        Assert.Contains("`round number: 1`", Fixture("review.md"), StringComparison.Ordinal);
+        Assert.Contains("`round number: 1`", Fixture("squad-review.md"), StringComparison.Ordinal);
     }
 
     [Fact]
@@ -254,15 +254,15 @@ public class SquadContractTests
     {
         var skill = Fixture("SKILL.md");
         var squad = Fixture("squad.md");
-        var review = Fixture("review.md");
+        var review = Fixture("squad-review.md");
 
         Assert.Contains("disable-model-invocation: true", skill, StringComparison.Ordinal);
         Assert.Contains("Two entrypoints only", skill, StringComparison.Ordinal);
         Assert.Contains("`/squad`", skill, StringComparison.Ordinal);
-        Assert.Contains("`/review`", skill, StringComparison.Ordinal);
+        Assert.Contains("`/squad-review`", skill, StringComparison.Ordinal);
         Assert.DoesNotContain("`/squad` or `/build`", skill, StringComparison.Ordinal);
         Assert.Contains("name: squad", squad, StringComparison.Ordinal);
-        Assert.Contains("name: review", review, StringComparison.Ordinal);
+        Assert.Contains("name: squad-review", review, StringComparison.Ordinal);
         Assert.DoesNotContain("name: build", squad + review, StringComparison.Ordinal);
         Assert.DoesNotContain("name: deliver", squad + review, StringComparison.Ordinal);
         Assert.DoesNotContain("name: review-diff", squad + review, StringComparison.Ordinal);
@@ -277,9 +277,10 @@ public class SquadContractTests
             .OrderBy(name => name, StringComparer.Ordinal)
             .ToArray();
 
-        Assert.Equal(["review.md", "squad.md"], names);
+        Assert.Equal(["squad-review.md", "squad.md"], names);
         Assert.DoesNotContain("build.md", names, StringComparer.OrdinalIgnoreCase);
-        Assert.Contains("name: review", File.ReadAllText(Path.Combine(directory, "review.md")),
+        Assert.False(File.Exists(Path.Combine(directory, "review.md")));
+        Assert.Contains("name: squad-review", File.ReadAllText(Path.Combine(directory, "squad-review.md")),
             StringComparison.Ordinal);
         Assert.Contains("name: squad", File.ReadAllText(Path.Combine(directory, "squad.md")),
             StringComparison.Ordinal);
@@ -291,7 +292,7 @@ public class SquadContractTests
         var combined = string.Join('\n',
             Fixture("SKILL.md"),
             Fixture("squad.md"),
-            Fixture("review.md"),
+            Fixture("squad-review.md"),
             Fixture("squad-planner.md"),
             Fixture("squad-implementer.md"),
             Fixture("squad-verifier.md"),
@@ -311,7 +312,7 @@ public class SquadContractTests
     public void Review_is_dual_axis_and_startable_for_pr_uncommitted_and_main()
     {
         var skill = Fixture("SKILL.md");
-        var review = Fixture("review.md");
+        var review = Fixture("squad-review.md");
         var reviewer = Fixture("squad-reviewer.md");
 
         Assert.Contains("Dual-axis", skill, StringComparison.Ordinal);
@@ -406,7 +407,7 @@ public class SquadContractTests
             5. Gate spins: implementer → verifier → reviewers in parallel (correctness + plan/spec; security ONLY if trust boundary)
             6. Orchestrator merges ≤2 fix rounds → hand off uncommitted → append learnings
 
-            /review
+            /squad-review
             Pin vs PR / uncommitted / main → same gated dual-axis reviewers (no plan/fix loop) → append learnings → one save-markdown ask
 
             Always
@@ -425,9 +426,9 @@ public class SquadContractTests
         Assert.Contains(flow, pluginReadme, StringComparison.Ordinal);
         Assert.Contains(flow, skill, StringComparison.Ordinal);
         Assert.Contains("Apply the latest same-entrypoint entry", skill, StringComparison.Ordinal);
-        Assert.Contains("PR", Fixture("review.md"), StringComparison.Ordinal);
-        Assert.Contains("uncommitted", Fixture("review.md"), StringComparison.Ordinal);
-        Assert.Contains("main", Fixture("review.md"), StringComparison.Ordinal);
+        Assert.Contains("PR", Fixture("squad-review.md"), StringComparison.Ordinal);
+        Assert.Contains("uncommitted", Fixture("squad-review.md"), StringComparison.Ordinal);
+        Assert.Contains("main", Fixture("squad-review.md"), StringComparison.Ordinal);
 
         var coworkerDocs = File.ReadAllText(Path.Combine(root, "docs", "ADD-SKILL.md"));
         Assert.Contains("Do not publish to the marketplace branch", coworkerDocs, StringComparison.Ordinal);
@@ -451,7 +452,8 @@ public class SquadContractTests
             Assert.Contains("~/.cursor/plugins/local", text, StringComparison.Ordinal);
             Assert.Contains("copilot plugin marketplace add /tmp/agentpacks-marketplace", text, StringComparison.Ordinal);
             Assert.Contains("/squad", text, StringComparison.Ordinal);
-            Assert.Contains("/review", text, StringComparison.Ordinal);
+            Assert.Contains("/squad-review", text, StringComparison.Ordinal);
+            Assert.DoesNotMatch(@"(?<![A-Za-z0-9-])/review(?![A-Za-z0-9-])", text);
         }
     }
 
@@ -501,7 +503,7 @@ public class SquadContractTests
         Assert.False(
             leftovers.Count > 0,
             "leftover delivery* on user-facing surfaces: " + string.Join(", ", leftovers));
-        Assert.Equal(["review.md", "squad.md"],
+        Assert.Equal(["squad-review.md", "squad.md"],
             commands.Select(path => Path.GetFileName(path) ?? path)
                 .OrderBy(name => name, StringComparer.Ordinal));
         Assert.False(Directory.Exists(Path.Combine(root, "plugins", "delivery-loop")));
@@ -605,7 +607,7 @@ public class SquadContractTests
 
     /// <summary>
     /// Po 19 fail bar: usable gates/ops (not too thin to run), not essay-length,
-    /// exactly /squad + /review, authored MCP files are empty scaffolds.
+    /// exactly /squad + /squad-review, authored MCP files are empty scaffolds.
     /// </summary>
     [Fact]
     public void Usable_gates_not_essays_exactly_two_commands_and_empty_mcp_scaffolds()
@@ -697,7 +699,7 @@ public class SquadContractTests
 
     /// <summary>
     /// Po 20 fail bar: simplifier is report-only (no edits), three axes in one
-    /// agent, Matt-clear ops on every loop agent, exactly /squad+/review, MCP
+    /// agent, Matt-clear ops on every loop agent, exactly /squad+/squad-review, MCP
     /// authored MCP files are empty scaffolds.
     /// </summary>
     [Fact]
@@ -841,7 +843,7 @@ public class SquadContractTests
         var surfaces = new List<string>
         {
             Path.Combine(root, "plugins", "squad", "commands", "squad.md"),
-            Path.Combine(root, "plugins", "squad", "commands", "review.md"),
+            Path.Combine(root, "plugins", "squad", "commands", "squad-review.md"),
             Path.Combine(root, "plugins", "squad", "README.md"),
             Path.Combine(root, "plugins", "squad", "skills", "learnings-digest", "SKILL.md")
         };
@@ -915,13 +917,13 @@ public class SquadContractTests
     }
 
     /// <summary>
-    /// Po 38 fail bar: Claude discovers one squad slash and one review-side slash. Root
-    /// <c>commands/</c> stays for Cursor; <c>strict: true</c> keeps it from pairing with
-    /// <c>com.anthropic.claude-code/commands/</c>. The review-side filename is not locked.
-    /// Fails if both trees are still discoverable twins.
+    /// Po 38 fail bar: Claude discovers one <c>/squad</c> and one <c>/squad-review</c>.
+    /// Root <c>commands/</c> stays for Cursor; <c>strict: true</c> keeps it from pairing
+    /// with <c>com.anthropic.claude-code/commands/</c>. Fails if both trees are still
+    /// discoverable twins.
     /// </summary>
     [Fact]
-    public void Claude_package_ships_one_squad_and_one_review_command()
+    public void Claude_package_ships_one_squad_and_one_squad_review_command()
     {
         var sourceCommands = Path.Combine(SourceRoot(), "plugins", "squad", "commands");
         using var repo = new TestRepository().WithPlugin(
@@ -953,9 +955,7 @@ public class SquadContractTests
 
         var pluginDirectory = repo.PluginDirectory("squad");
         var names = DiscoverableClaudeCommandNames(pluginDirectory, entry);
-        Assert.Equal(2, names.Count);
-        Assert.Equal(1, names.Count(name => name == "squad"));
-        Assert.Equal(1, names.Count(name => name != "squad"));
+        Assert.Equal(["squad", "squad-review"], names.OrderBy(name => name, StringComparer.Ordinal));
 
         var rootNames = CommandNames(Path.Combine(pluginDirectory, "commands"));
         var claudeNames = CommandNames(
@@ -1033,6 +1033,72 @@ public class SquadContractTests
     }
 
     /// <summary>
+    /// Po 38 fail bar: user-facing surfaces say <c>/squad-review</c>, not bare
+    /// <c>/review</c> or <c>code-review</c>. Squad ships exactly two slashes. Fails
+    /// leftover <c>commands/review.md</c> or a third command.
+    /// </summary>
+    [Fact]
+    public void User_facing_surfaces_say_squad_review_not_bare_review()
+    {
+        var root = SourceRoot();
+        var commandDir = Path.Combine(root, "plugins", "squad", "commands");
+        var commandNames = Directory.GetFiles(commandDir, "*.md")
+            .Select(path => Path.GetFileName(path) ?? path)
+            .OrderBy(name => name, StringComparer.Ordinal)
+            .ToArray();
+
+        Assert.Equal(["squad-review.md", "squad.md"], commandNames);
+        Assert.False(File.Exists(Path.Combine(commandDir, "review.md")));
+        Assert.False(File.Exists(Path.Combine(commandDir, "code-review.md")));
+
+        var command = File.ReadAllText(Path.Combine(commandDir, "squad-review.md"));
+        Assert.Contains("name: squad-review", command, StringComparison.Ordinal);
+        Assert.DoesNotContain("name: review\n", command, StringComparison.Ordinal);
+        Assert.DoesNotContain("code-review", command, StringComparison.Ordinal);
+        Assert.Contains("Save report as markdown?", command, StringComparison.Ordinal);
+
+        var leftovers = new List<string>();
+        var surfaces = new List<string>
+        {
+            Path.Combine(root, "README.md"),
+            Path.Combine(root, "plugins", "squad", "README.md"),
+            Path.Combine(root, "plugins", "squad", "plugin.json"),
+            Path.Combine(root, "plugins", "squad", "skills", "squad", "SKILL.md"),
+            Path.Combine(root, "plugins", "squad", "skills", "learnings-digest", "SKILL.md"),
+            Path.Combine(root, "plugins", "squad", "skills", "squad", "references", "learnings.md"),
+            Path.Combine(root, "docs", "ADD-SKILL.md"),
+            Path.Combine(root, "docs", "PLAN.md"),
+            Path.Combine(root, "docs", "CLAUDE-PRIVATE-REPO.md")
+        };
+        surfaces.AddRange(Directory.GetFiles(commandDir, "*.md"));
+        surfaces.AddRange(Directory.GetFiles(Path.Combine(root, "plugins", "squad", "agents"), "*.md"));
+
+        var bareReview = new System.Text.RegularExpressions.Regex(
+            @"(?<![A-Za-z0-9-])/review(?![A-Za-z0-9-])");
+
+        foreach (var path in surfaces.Distinct(StringComparer.Ordinal))
+        {
+            var text = File.ReadAllText(path);
+            if (bareReview.IsMatch(text))
+                leftovers.Add(Path.GetRelativePath(root, path));
+        }
+
+        Assert.False(
+            leftovers.Count > 0,
+            "leftover bare /review on user-facing surfaces: " + string.Join(", ", leftovers));
+
+        var readme = File.ReadAllText(Path.Combine(root, "README.md"));
+        var skill = Fixture("SKILL.md");
+        Assert.Contains("/squad-review", readme, StringComparison.Ordinal);
+        Assert.Contains("/squad-review", skill, StringComparison.Ordinal);
+        Assert.Contains("/squad-review", File.ReadAllText(
+            Path.Combine(root, "plugins", "squad", "plugin.json")), StringComparison.Ordinal);
+        Assert.DoesNotContain("/code-review", readme, StringComparison.Ordinal);
+        Assert.DoesNotContain("/code-review", skill, StringComparison.Ordinal);
+        Squad_commands_are_exactly_squad_and_review();
+    }
+
+    /// <summary>
     /// Po 37 fail bar: squad skill is not a slash twin. Copilot <c>user-invocable: false</c>
     /// plus Claude <c>disable-model-invocation: true</c>. Slash entry is
     /// <c>commands/squad.md</c> only. Skill tool still loads by exact name <c>squad</c>.
@@ -1043,7 +1109,7 @@ public class SquadContractTests
     {
         var skill = Fixture("SKILL.md");
         var command = Fixture("squad.md");
-        var review = Fixture("review.md");
+        var review = Fixture("squad-review.md");
 
         Assert.Contains("user-invocable: false", skill, StringComparison.Ordinal);
         Assert.DoesNotContain("user-invocable: true", skill, StringComparison.Ordinal);
@@ -1058,7 +1124,7 @@ public class SquadContractTests
         Squad_commands_are_exactly_squad_and_review();
 
         Assert.DoesNotContain("user-invocable", review, StringComparison.Ordinal);
-        Assert.Contains("name: review", review, StringComparison.Ordinal);
+        Assert.Contains("name: squad-review", review, StringComparison.Ordinal);
         Assert.Contains("Save report as markdown?", review, StringComparison.Ordinal);
 
         var root = SourceRoot();
@@ -1080,15 +1146,15 @@ public class SquadContractTests
     }
 
     /// <summary>
-    /// Po 36 fail bar: end of /review asks once to save markdown. Yes writes
+    /// Po 36 fail bar: end of /squad-review asks once to save markdown. Yes writes
     /// docs/reviews/&lt;slug&gt;.md and still shows IDE/CLI. No stays IDE/CLI only.
-    /// Fails if /review starts a fix round, grills more than that one ask, or writes
+    /// Fails if /squad-review starts a fix round, grills more than that one ask, or writes
     /// docs/decisions.md.
     /// </summary>
     [Fact]
     public void Review_asks_save_markdown_yes_writes_file_no_stays_ide_only()
     {
-        var review = Fixture("review.md");
+        var review = Fixture("squad-review.md");
         var contract = Fixture("review-contract.md");
         var skill = Fixture("SKILL.md");
         var squad = Fixture("squad.md");
@@ -1180,7 +1246,7 @@ public class SquadContractTests
     {
         var skill = Fixture("SKILL.md");
         var command = Fixture("squad.md");
-        var review = Fixture("review.md");
+        var review = Fixture("squad-review.md");
         var root = SourceRoot();
 
         Assert.Contains("## Advisor-lite", skill, StringComparison.Ordinal);

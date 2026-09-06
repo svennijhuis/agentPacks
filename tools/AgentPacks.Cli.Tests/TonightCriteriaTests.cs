@@ -7,11 +7,11 @@ namespace AgentPacks.Cli.Tests;
 public sealed class TonightCriteriaTests
 {
     [Theory]
-    [InlineData("1 /squad+/review flow", typeof(SquadContractTests),
+    [InlineData("1 /squad+/squad-review flow", typeof(SquadContractTests),
         nameof(SquadContractTests.Two_user_invoked_entrypoints_are_squad_and_review))]
     [InlineData("2 README flow", typeof(SquadContractTests),
         nameof(SquadContractTests.Readme_mirrors_the_orchestrator_numbered_flow))]
-    [InlineData("3 /review", typeof(SquadContractTests),
+    [InlineData("3 /squad-review", typeof(SquadContractTests),
         nameof(SquadContractTests.Review_is_dual_axis_and_startable_for_pr_uncommitted_and_main))]
     [InlineData("4 models.source.json", typeof(ModelCatalogTests),
         nameof(ModelCatalogTests.Claude_receives_the_mapped_tier_and_copilot_and_codex_emit_model))]
@@ -91,14 +91,16 @@ public sealed class TonightCriteriaTests
         nameof(SquadContractTests.Empty_mcp_scaffolds_test_is_not_named_dotnet_only))]
     [InlineData("34 anti-loop spawn none two fix rounds", typeof(SquadContractTests),
         nameof(SquadContractTests.Anti_loop_small_change_spawn_none_and_two_fix_rounds_max))]
-    [InlineData("36 /review save-markdown ask", typeof(SquadContractTests),
+    [InlineData("36 /squad-review save-markdown ask", typeof(SquadContractTests),
         nameof(SquadContractTests.Review_asks_save_markdown_yes_writes_file_no_stays_ide_only))]
     [InlineData("37 squad skill not user-invocable command is slash", typeof(SquadContractTests),
         nameof(SquadContractTests.Squad_skill_is_not_user_invocable_command_is_the_only_slash))]
-    [InlineData("38 Claude package one squad and one review command", typeof(SquadContractTests),
-        nameof(SquadContractTests.Claude_package_ships_one_squad_and_one_review_command))]
+    [InlineData("38 Claude package one squad and one squad-review command", typeof(SquadContractTests),
+        nameof(SquadContractTests.Claude_package_ships_one_squad_and_one_squad_review_command))]
     [InlineData("38 caveman pins are not user-invocable", typeof(SquadContractTests),
         nameof(SquadContractTests.Caveman_pins_are_not_user_invocable))]
+    [InlineData("38 user-facing surfaces say squad-review not bare review", typeof(SquadContractTests),
+        nameof(SquadContractTests.User_facing_surfaces_say_squad_review_not_bare_review))]
     public void Each_ticket_criterion_has_a_proving_test(string criterion, Type fixture, string method)
     {
         Assert.True(

@@ -1,5 +1,5 @@
 ---
-name: review
+name: squad-review
 description: User-invoked dual-axis review of an existing change — a PR, uncommitted work, or a diff versus main — without a plan, verdict, or fix round.
 ---
 
@@ -7,7 +7,7 @@ description: User-invoked dual-axis review of an existing change — a PR, uncom
 
 Load the `squad` skill with the Skill tool by exact name `squad`. Never write `/squad` as prose
 to load it. Then read `references/review-contract.md`. Read
-`docs/learnings.md` first when that file exists and **apply** the latest `/review` entry
+`docs/learnings.md` first when that file exists and **apply** the latest `/squad-review` entry
 when gating reviewers.
 
 This command reviews an existing change with no plan. Dual-axis: correctness and the spec implied

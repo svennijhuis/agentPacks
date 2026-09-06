@@ -123,7 +123,7 @@ internal sealed class ClaudeCompatGenerator(RepositoryContext context)
         }
 
         // strict:true keeps Claude on the declared paths only. strict:false also auto-discovers
-        // root commands/ (Cursor dialect), so /squad and the review-side command appear twice.
+        // root commands/ (Cursor dialect), so /squad and /squad-review appear twice.
         entry["strict"] = true;
 
         return entry;

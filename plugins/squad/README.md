@@ -1,7 +1,7 @@
 # Squad
 
 A capability pack for a user-invoked, main-agent-controlled Squad workflow. Two entrypoints:
-`/squad` and `/review`. The `squad` skill is the thin orchestrator and is not model-invoked.
+`/squad` and `/squad-review`. The `squad` skill is the thin orchestrator and is not model-invoked.
 
 The numbered flow below is locked v1 and is copied verbatim into the
 [skill](skills/squad/SKILL.md) and the repository [README](../../README.md).
@@ -17,7 +17,7 @@ The numbered flow below is locked v1 and is copied verbatim into the
 5. Gate spins: implementer → verifier → reviewers in parallel (correctness + plan/spec; security ONLY if trust boundary)
 6. Orchestrator merges ≤2 fix rounds → hand off uncommitted → append learnings
 
-/review
+/squad-review
 Pin vs PR / uncommitted / main → same gated dual-axis reviewers (no plan/fix loop) → append learnings → one save-markdown ask
 
 Always
@@ -43,7 +43,7 @@ Obvious typos, renames, and one-line fixes take the small-change route: the main
 | Skill | `learnings-digest` | User-invoked digest of `docs/learnings.md`. Does not rewrite skills. |
 | Contract | `planning-contract` | Turn-based grill inside the orchestrator: frontier rounds, recommended answers, confirmation, plan shape |
 | Contract | `review-contract` | Dual-axis review, severity, report formats, verify-path evaluator gates, and verdict rules |
-| Contract | `learnings` | Append-only run log read on the next `/squad` or `/review` |
+| Contract | `learnings` | Append-only run log read on the next `/squad` or `/squad-review` |
 | Rule | `review-checklist` | Source-review checklist scoped by glob; Cursor-only by design |
 | Agent | `squad-planner` | Returns one numbered planning round, or writes the one confirmed plan |
 | Agent | `squad-implementer` | Implements a confirmed plan or merged fix list |
@@ -53,7 +53,7 @@ Obvious typos, renames, and one-line fixes take the small-change route: the main
 | Agent | `squad-simplifier` | Finds unnecessary implementation complexity |
 | Agent | `squad-orchestrator` | Deduplicates completed reports, assigns the verdict, and appends the fix list |
 | Command | `squad` | Runs a new change through the proportional workflow |
-| Command | `review` | Reviews a PR, uncommitted work, or a diff versus main, without a plan, verdict, or fix round |
+| Command | `squad-review` | Reviews a PR, uncommitted work, or a diff versus main, without a plan, verdict, or fix round |
 
 All seven agents remain portable across supported generated clients.
 
@@ -69,7 +69,7 @@ For a planned change, the main agent runs correctness and simplification reviewe
 
 `pass` requires adequate evidence for every criterion and no blocking merged finding. `high` or `medium` findings produce `fix`; a plan defect produces `replan`. At most two fix rounds are allowed.
 
-`/review` uses the same conditional reviewers for a PR, uncommitted work, or a diff versus main, but has no plan, verifier evidence, verdict, or fix round. At the end it asks once: Save report as markdown? Yes writes `docs/reviews/<slug>.md` and still shows the findings in the IDE/CLI. No stays IDE/CLI only. Never `docs/decisions.md`.
+`/squad-review` uses the same conditional reviewers for a PR, uncommitted work, or a diff versus main, but has no plan, verifier evidence, verdict, or fix round. At the end it asks once: Save report as markdown? Yes writes `docs/reviews/<slug>.md` and still shows the findings in the IDE/CLI. No stays IDE/CLI only. Never `docs/decisions.md`.
 
 ## Stack and workspace
 
