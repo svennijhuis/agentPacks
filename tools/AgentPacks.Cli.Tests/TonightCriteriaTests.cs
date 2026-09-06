@@ -105,6 +105,8 @@ public sealed class TonightCriteriaTests
         nameof(SquadContractTests.Squad_and_squad_review_command_blurbs_are_short_user_friendly))]
     [InlineData("39 learnings-digest is not user-invocable", typeof(SquadContractTests),
         nameof(SquadContractTests.Learnings_digest_is_not_user_invocable))]
+    [InlineData("40 README VS Code needs marketplace branch not hash-only", typeof(SquadContractTests),
+        nameof(SquadContractTests.Readme_documents_vs_code_needs_marketplace_branch_not_hash_only))]
     public void Each_ticket_criterion_has_a_proving_test(string criterion, Type fixture, string method)
     {
         Assert.True(

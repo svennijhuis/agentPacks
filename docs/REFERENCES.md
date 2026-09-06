@@ -33,6 +33,10 @@ There is no JSON Schema for skills. The normative frontmatter table in the speci
 - Custom agents — https://docs.github.com/en/copilot/how-tos/copilot-cli/customize-copilot/create-custom-agents-for-cli
 - MCP servers — https://docs.github.com/en/copilot/how-tos/copilot-cli/customize-copilot/add-mcp-servers
 
+## VS Code
+
+- Agent plugins — https://code.visualstudio.com/docs/agent-customization/agent-plugins
+
 ## Cursor
 
 - Plugins — https://cursor.com/docs/plugins

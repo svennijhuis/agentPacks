@@ -801,6 +801,39 @@ public class SquadContractTests
     }
 
     /// <summary>
+    /// Po 40 fail bar: VS Code Install Plugin from Source needs the marketplace branch.
+    /// A <c>#marketplace</c> URL fragment is not enough — VS Code often clones main, which
+    /// has no <c>.github/plugin/marketplace.json</c>, and fails with
+    /// "No plugins found / not a valid marketplace."
+    /// </summary>
+    [Fact]
+    public void Readme_documents_vs_code_needs_marketplace_branch_not_hash_only()
+    {
+        var root = SourceRoot();
+        var readme = File.ReadAllText(Path.Combine(root, "README.md"));
+
+        Assert.Contains("Install Plugin from Source", readme, StringComparison.Ordinal);
+        Assert.Contains("branch picker", readme, StringComparison.Ordinal);
+        Assert.Contains("local clone", readme, StringComparison.Ordinal);
+        Assert.Contains(".github/plugin/marketplace.json", readme, StringComparison.Ordinal);
+        Assert.Contains(
+            "https://github.com/svennijhuis/agentPacks.git#marketplace",
+            readme,
+            StringComparison.Ordinal);
+        Assert.Contains("often hits `main`", readme, StringComparison.Ordinal);
+        Assert.Contains("No plugins found", readme, StringComparison.Ordinal);
+        Assert.Contains("not a valid marketplace", readme, StringComparison.Ordinal);
+        Assert.Contains(
+            "copilot plugin marketplace add https://github.com/svennijhuis/agentPacks.git#marketplace",
+            readme,
+            StringComparison.Ordinal);
+        Assert.Contains("copilot plugin install squad@agentpacks", readme, StringComparison.Ordinal);
+        Assert.False(
+            File.Exists(Path.Combine(root, ".github", "plugin", "marketplace.json")),
+            "generated marketplace.json must not live on main");
+    }
+
+    /// <summary>
     /// Po 25 fail bar: learnings-digest is a user-invoked Matt-tiny skill, not a third slash
     /// command, and it must not rewrite skills.
     /// </summary>
