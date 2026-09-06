@@ -28,3 +28,5 @@ Use `IClassFixture` / `ICollectionFixture`, not the constructor, for containers.
 ```bash
 dotnet test <solution> --filter "FullyQualifiedName~Integration"
 ```
+
+Local host. Deployed URL smoke: [deployed-smoke](deployed-smoke.md).

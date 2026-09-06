@@ -35,7 +35,7 @@ rg -n '"vitest"|"jest"|"node:test"' -g 'package.json'
 
 A `"test"` script wins when it already encodes the runner. Do not add Vitest to a Jest repo.
 
-Concrete cases: [unit](references/examples/unit.md), [integration](references/examples/integration.md).
+Concrete cases: [unit](references/examples/unit.md), [integration](references/examples/integration.md), [deployed-smoke](references/examples/deployed-smoke.md).
 
 ## Boundary
 

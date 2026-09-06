@@ -107,6 +107,12 @@ public sealed class TonightCriteriaTests
         nameof(SquadContractTests.Learnings_digest_is_not_user_invocable))]
     [InlineData("41 Copilot factory command name differs from plugin name", typeof(SquadContractTests),
         nameof(SquadContractTests.Copilot_factory_command_name_differs_from_plugin_name))]
+    [InlineData("43 squad smoke-matrix template happy edge fail auth timeout 5xx", typeof(SquadContractTests),
+        nameof(SquadContractTests.Squad_smoke_matrix_template_covers_happy_edge_fail_auth_timeout_5xx))]
+    [InlineData("43 lang test-patterns local vs deployed smoke examples", typeof(SquadContractTests),
+        nameof(SquadContractTests.Lang_test_patterns_local_vs_deployed_smoke_examples))]
+    [InlineData("43 smoke-matrix not user slash no new plugin", typeof(SquadContractTests),
+        nameof(SquadContractTests.Smoke_matrix_not_user_slash_no_new_plugin))]
     public void Each_ticket_criterion_has_a_proving_test(string criterion, Type fixture, string method)
     {
         Assert.True(

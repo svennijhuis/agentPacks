@@ -14,3 +14,5 @@ it("returns 400 when the field is missing", async () => {
 ```
 
 A green happy-path-only file is not coverage.
+
+Local process. Deployed URL smoke: [deployed-smoke](deployed-smoke.md).

@@ -41,7 +41,7 @@ and a crate using async-std does not want its first Tokio test because an exampl
 | System/end-to-end | Repository-specific harness | Processes, services, real protocols, migrations, or native boundaries |
 
 Integration tests are separate crates and cannot access private items. Concrete commands:
-[unit](references/examples/unit.md), [integration](references/examples/integration.md).
+[unit](references/examples/unit.md), [integration](references/examples/integration.md), [deployed-smoke](references/examples/deployed-smoke.md).
 
 ## Failures, async work, and isolation
 
