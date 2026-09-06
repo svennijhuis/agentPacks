@@ -1,9 +1,9 @@
 # Squad
 
-A capability pack for a user-invoked, main-agent-controlled Squad workflow. Two Squad
-entrypoints: `/squad` and `/squad-review`. Sibling slash `/http-scenarios` writes smoke
-markdown from changed code; it is not a Squad phase. The `squad` skill is the thin orchestrator
-and is not model-invoked.
+A capability pack for a user-invoked, main-agent-controlled Squad workflow.
+`/squad` and `/squad-review` run the Squad loop. Sibling slash `/http-scenarios` writes smoke
+markdown from changed code; it is not a Squad phase. `/pack-check` is setup, not a Squad flow.
+The `squad` skill is the thin orchestrator and is not model-invoked.
 
 The numbered flow below is locked v1 and is copied verbatim into the
 [skill](skills/squad/SKILL.md) and the repository [README](../../README.md).

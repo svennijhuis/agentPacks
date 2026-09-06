@@ -148,7 +148,14 @@ Glob-scoped rules remain Cursor-only; other clients receive only always-on rules
 
 ## Using the plugins
 
-Two Squad entrypoints. The model does not pick the orchestrator. `/http-scenarios` is a sibling
+| Command | Who | What |
+| --- | --- | --- |
+| `/squad` | Dev | build factory, code-only hand-off |
+| `/squad-review` | Dev | code/diff report |
+| `/http-scenarios` | Office tester | `docs/smoke/*.md` only |
+| `/pack-check` | Setup | not a Squad flow |
+
+The model does not pick the orchestrator. `/http-scenarios` is a sibling
 slash on the same plugin; it is not a Squad phase. The numbered flow below is
 the locked v1 plan; the [`squad` skill](plugins/squad/skills/squad/SKILL.md) carries the same block.
 
