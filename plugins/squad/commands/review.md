@@ -21,7 +21,11 @@ by the diff. Security only when a trust boundary changed.
 2. Decide whether the security gate applies and record the reason.
 3. The main agent directly launches `squad-reviewer`, `squad-simplifier`, and, when applicable, `squad-security-reviewer` in parallel against the same diff.
 4. After every report completes, pass the reports, security decision, `round number: 1`, `plan path: none`, and `verifier evidence: none` to `squad-orchestrator` for normalization and merge only. If it returns an input error, surface that error unchanged and stop without retrying or launching another agent.
-5. Return the ranked merged list. Do not assign a Squad verdict, write a plan, or start a fix round.
+5. Return the ranked merged list in the IDE/CLI. Do not assign a Squad verdict, write a plan, or start a fix round.
 6. Append one learnings entry.
+7. Ask exactly one question: Save report as markdown?
+   Yes — write the merged review to `docs/reviews/<slug>.md` and still show the findings in the IDE/CLI. Never write `docs/decisions.md`.
+   No — IDE/CLI only; write no report file.
+   Do not ask anything else. Do not start a fix round.
 
 Without a plan, `squad-reviewer` checks correctness but has no acceptance criteria or plan-specific standards. A high finding is still actionable; it does not retroactively create a Squad run.
