@@ -275,7 +275,7 @@ public class LanguagePackContractTests
         foreach (var path in AuthoredSkillFiles(root))
         {
             var text = File.ReadAllText(path);
-            if (!text.Contains("audience: loop", StringComparison.Ordinal))
+            if (!FrontmatterBlock(text).Contains("audience: loop", StringComparison.Ordinal))
             {
                 continue;
             }
@@ -295,7 +295,7 @@ public class LanguagePackContractTests
         })
         {
             var text = File.ReadAllText(Path.Combine(root, relative));
-            Assert.DoesNotContain("audience: loop", text, StringComparison.Ordinal);
+            Assert.DoesNotContain("audience: loop", FrontmatterBlock(text), StringComparison.Ordinal);
             Assert.NotEqual(InternalDoNotRunLine, FirstBodyLine(text));
         }
 
@@ -328,14 +328,26 @@ public class LanguagePackContractTests
         Directory.GetFiles(Path.Combine(root, "plugins"), "SKILL.md", SearchOption.AllDirectories)
             .Where(path => !path.Contains($"{Path.DirectorySeparatorChar}com.", StringComparison.Ordinal));
 
-    private static string BodyAfterFrontmatter(string text)
+    private static (int Start, int End) FrontmatterFence(string text)
     {
         const string fence = "---";
         var start = text.IndexOf(fence, StringComparison.Ordinal);
         Assert.True(start >= 0, "missing opening frontmatter fence");
         var end = text.IndexOf(fence, start + fence.Length, StringComparison.Ordinal);
         Assert.True(end > start, "missing closing frontmatter fence");
-        return text[(end + fence.Length)..];
+        return (start, end);
+    }
+
+    private static string FrontmatterBlock(string text)
+    {
+        var (start, end) = FrontmatterFence(text);
+        return text[start..end];
+    }
+
+    private static string BodyAfterFrontmatter(string text)
+    {
+        var (_, end) = FrontmatterFence(text);
+        return text[(end + "---".Length)..];
     }
 
     private static string FirstBodyLine(string text) =>
