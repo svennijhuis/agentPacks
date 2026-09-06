@@ -955,17 +955,8 @@ public class SquadContractTests
             Assert.DoesNotContain("disable-model-invocation: true", text, StringComparison.Ordinal);
         }
 
-        using var repo = new TestRepository().WithPlugin("squad", Manifest);
-        repo.WithFile("plugins/squad/skills/squad/SKILL.md", skill);
-        repo.WithFile("plugins/squad/commands/squad.md", command);
-        repo.WithFile("plugins/squad/commands/review.md", review);
-        var run = repo.ValidateAndGenerate();
-        Assert.False(run.HasErrors, run.Text);
-        Assert.True(run.HasFile("plugins/squad/com.github.copilot/commands/squad.md"));
-        Assert.True(run.HasFile("plugins/squad/com.github.copilot/commands/review.md"));
-        Assert.False(run.HasFile("plugins/squad/com.github.copilot/skills/squad/SKILL.md"));
-        Assert.False(run.HasFile("plugins/squad/commands/squad-skill.md"));
         Assert.False(File.Exists(Path.Combine(root, "plugins", "squad", "commands", "squad-skill.md")));
+        Assert.False(Directory.Exists(Path.Combine(root, "plugins", "squad", "com.github.copilot", "skills", "squad")));
     }
 
     /// <summary>
