@@ -921,7 +921,7 @@ public class SquadContractTests
     /// /squad-review. Fails a third command or a long essay description.
     /// </summary>
     [Fact]
-    public void Command_blurbs_are_short_and_commands_stay_squad_and_squad_review()
+    public void Squad_and_squad_review_command_blurbs_are_short_user_friendly()
     {
         var squad = Fixture("squad.md");
         var review = Fixture("squad-review.md");
@@ -933,6 +933,30 @@ public class SquadContractTests
             "Report-only review of a PR / uncommitted / vs main.",
             FrontmatterDescription(review));
 
+        Squad_commands_are_exactly_squad_and_review();
+    }
+
+    /// <summary>
+    /// Po 39 fail bar: learnings-digest is Skill-tool only, like caveman.
+    /// <c>user-invocable: false</c>. Exact name <c>learnings-digest</c> still loads.
+    /// Fails a third slash or a removed skill.
+    /// </summary>
+    [Fact]
+    public void Learnings_digest_is_not_user_invocable()
+    {
+        var root = SourceRoot();
+        var skillPath = Path.Combine(root, "plugins", "squad", "skills", "learnings-digest", "SKILL.md");
+        Assert.True(File.Exists(skillPath), "learnings-digest skill must stay; do not remove it.");
+        var skill = File.ReadAllText(skillPath);
+
+        Assert.Contains("name: learnings-digest", skill, StringComparison.Ordinal);
+        Assert.Contains("user-invocable: false", skill, StringComparison.Ordinal);
+        Assert.DoesNotContain("user-invocable: true", skill, StringComparison.Ordinal);
+        Assert.Contains("disable-model-invocation: true", skill, StringComparison.Ordinal);
+        Assert.DoesNotContain("disable-model-invocation: false", skill, StringComparison.Ordinal);
+
+        Assert.False(File.Exists(Path.Combine(root, "plugins", "squad", "commands", "learnings-digest.md")));
+        Assert.False(File.Exists(Path.Combine(root, "plugins", "squad", "commands", "digest.md")));
         Squad_commands_are_exactly_squad_and_review();
     }
 
