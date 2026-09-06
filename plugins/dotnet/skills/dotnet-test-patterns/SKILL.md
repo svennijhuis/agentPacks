@@ -55,7 +55,8 @@ Tests in the same collection do not run in parallel; different collections do. S
 Testcontainers database in a constructor starts one container per test.
 
 Concrete fixtures and commands: [xunit-unit](references/examples/xunit-unit.md),
-[http-integration](references/examples/http-integration.md).
+[http-integration](references/examples/http-integration.md),
+[deployed-smoke](references/examples/deployed-smoke.md).
 
 `Program` must be reachable from the test project (`public partial class Program;` or
 `InternalsVisibleTo`). Prefer a real dependency in a container over `UseInMemoryDatabase`.

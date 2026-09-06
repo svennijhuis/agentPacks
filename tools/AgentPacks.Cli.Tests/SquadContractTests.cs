@@ -1429,6 +1429,141 @@ public class SquadContractTests
         new VerificationEvidenceTests().Happy_path_only_agent_written_tests_are_rejected();
     }
 
+    /// <summary>
+    /// Reviewer named proof (item 43). Smoke-matrix template covers
+    /// happy/edge/fail/auth/timeout/5xx. Planning-contract, verifier, and the
+    /// reviewer checklist cite it. App-filled Bruno collections stay out.
+    /// </summary>
+    [Fact]
+    public void Squad_smoke_matrix_template_covers_happy_edge_fail_auth_timeout_5xx()
+    {
+        var root = SourceRoot();
+        var matrix = File.ReadAllText(Path.Combine(root, "plugins", "squad", "references", "smoke-matrix.md"));
+        AssertMattTiny(matrix, "smoke-matrix.md");
+        AssertNoSecretsOrFilledCollections(matrix, "smoke-matrix.md");
+        foreach (var token in new[] { "Happy", "Edge", "Fail", "Auth", "Timeout", "5xx" })
+            Assert.Contains(token, matrix, StringComparison.Ordinal);
+        Assert.Contains("app repo", matrix, StringComparison.Ordinal);
+        Assert.Contains("Kind `smoke`", matrix, StringComparison.Ordinal);
+
+        var contract = Fixture("planning-contract.md");
+        Assert.Contains("smoke-matrix", contract, StringComparison.Ordinal);
+        Assert.Contains("../../../references/smoke-matrix.md", contract, StringComparison.Ordinal);
+        Assert.Contains("happy/edge/fail/auth/timeout/5xx", contract, StringComparison.Ordinal);
+        Assert.Contains("unit or integration", contract, StringComparison.Ordinal);
+
+        var verifier = Fixture("squad-verifier.md");
+        Assert.Contains("smoke-matrix.md", verifier, StringComparison.Ordinal);
+        Assert.Contains("happy/edge/fail/auth/timeout/5xx", verifier, StringComparison.Ordinal);
+
+        var checklist = File.ReadAllText(Path.Combine(root, "plugins", "squad", "rules", "review-checklist.mdc"));
+        Assert.Contains("Report all edges", checklist, StringComparison.Ordinal);
+        Assert.Contains("../references/smoke-matrix.md", checklist, StringComparison.Ordinal);
+        Assert.Contains("happy/edge/fail/auth/timeout/5xx", checklist, StringComparison.Ordinal);
+
+        Assert.Contains("smoke-matrix", Fixture("squad-planner.md"), StringComparison.Ordinal);
+        Assert.Contains("plugins/*/references",
+            File.ReadAllText(Path.Combine(root, ".github", "workflows", "publish-marketplace.yml")),
+            StringComparison.Ordinal);
+    }
+
+    /// <summary>
+    /// Reviewer named proof (item 43). Language <c>*-test-patterns</c> ship
+    /// Matt-tiny examples that distinguish local integration from deployed smoke.
+    /// URLs and secrets stay in the app repo. <c>standards.source.json</c> is
+    /// untouched.
+    /// </summary>
+    [Fact]
+    public void Lang_test_patterns_local_vs_deployed_smoke_examples()
+    {
+        var root = SourceRoot();
+        foreach (var pack in new[] { "dotnet", "typescript", "rust" })
+        {
+            var skillDir = Path.Combine(root, "plugins", pack, "skills", $"{pack}-test-patterns");
+            var smoke = File.ReadAllText(Path.Combine(skillDir, "references", "examples", "deployed-smoke.md"));
+            AssertMattTiny(smoke, $"{pack} deployed-smoke.md");
+            AssertNoSecretsOrFilledCollections(smoke, $"{pack} deployed-smoke.md");
+            Assert.Contains("Local", smoke, StringComparison.Ordinal);
+            Assert.Contains("deployed", smoke, StringComparison.OrdinalIgnoreCase);
+            Assert.Contains("app repo", smoke, StringComparison.Ordinal);
+            Assert.Contains("SMOKE_BASE_URL", smoke, StringComparison.Ordinal);
+
+            var skill = File.ReadAllText(Path.Combine(skillDir, "SKILL.md"));
+            Assert.Contains("references/examples/deployed-smoke.md", skill, StringComparison.Ordinal);
+
+            var examples = Path.Combine(skillDir, "references", "examples");
+            Assert.True(
+                File.Exists(Path.Combine(examples, "http-integration.md"))
+                || File.Exists(Path.Combine(examples, "integration.md")),
+                $"{pack} is missing a local integration example");
+
+            var catalog = JsonNode.Parse(File.ReadAllText(
+                Path.Combine(root, "plugins", pack, "standards.source.json")))!;
+            var mapped = catalog["consumers"]![$"{pack}-test-patterns"]!.AsArray()
+                .Select(value => value!.GetValue<string>())
+                .ToArray();
+            Assert.Equal(["testing"], mapped);
+        }
+    }
+
+    /// <summary>
+    /// Reviewer named proof (item 43). In-pack only: no new plugin, no new slash.
+    /// <c>/squad-review</c> stays a code-diff report. Checklist may link the
+    /// smoke-matrix path; it is not a command.
+    /// </summary>
+    [Fact]
+    public void Smoke_matrix_not_user_slash_no_new_plugin()
+    {
+        var root = SourceRoot();
+        Assert.Equal(
+            ["dotnet", "git", "pack-check", "rust", "squad", "typescript"],
+            Directory.GetDirectories(Path.Combine(root, "plugins"))
+                .Select(path => Path.GetFileName(path) ?? path)
+                .OrderBy(name => name, StringComparer.Ordinal));
+
+        Squad_commands_are_exactly_squad_and_review();
+        Assert.False(File.Exists(Path.Combine(root, "plugins", "squad", "commands", "smoke.md")));
+        Assert.False(File.Exists(Path.Combine(root, "plugins", "squad", "commands", "squad-smoke.md")));
+        Assert.False(Directory.Exists(Path.Combine(root, "plugins", "smoke")));
+        Assert.True(File.Exists(Path.Combine(root, "plugins", "squad", "rules", "review-checklist.mdc")));
+        Assert.False(File.Exists(Path.Combine(root, "plugins", "squad", "commands", "review-checklist.md")));
+
+        var review = Fixture("squad-review.md");
+        Assert.Contains("Report-only", review, StringComparison.Ordinal);
+        Assert.Contains("Do not assign a Squad verdict", review, StringComparison.Ordinal);
+        Assert.DoesNotContain("Bruno", review, StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain("Postman", review, StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain("smoke runner", review, StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain("TST", review, StringComparison.Ordinal);
+
+        foreach (var file in Directory.GetFiles(Path.Combine(root, "plugins"), "*", SearchOption.AllDirectories))
+        {
+            var name = Path.GetFileName(file) ?? file;
+            Assert.DoesNotContain("bruno", name, StringComparison.OrdinalIgnoreCase);
+            Assert.DoesNotContain("postman", name, StringComparison.OrdinalIgnoreCase);
+        }
+
+        Pull_request_ci_stays_one_job_no_matrix();
+    }
+
+    private static void AssertMattTiny(string text, string label)
+    {
+        var lines = text.Split('\n').Count(line => !string.IsNullOrWhiteSpace(line));
+        Assert.True(lines <= 16, $"{label} is {lines} lines; Matt-tiny cap is 16.");
+    }
+
+    private static void AssertNoSecretsOrFilledCollections(string text, string label)
+    {
+        Assert.DoesNotContain("Bruno", text, StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain("Postman", text, StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain("sk-", text, StringComparison.Ordinal);
+        Assert.DoesNotContain("Bearer ", text, StringComparison.Ordinal);
+        Assert.DoesNotContain("password=", text, StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain("api_key", text, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("app repo", text, StringComparison.Ordinal);
+        Assert.False(string.IsNullOrEmpty(label));
+    }
+
     [Fact]
     public void Loop_agents_use_per_role_tiers_implementer_standard_others_fast()
     {

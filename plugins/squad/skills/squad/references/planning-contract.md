@@ -153,7 +153,9 @@ exist yet, making that check is itself planned work.
 Every business criterion in `## Acceptance criteria` requires one `## Test plan matrix` row: a
 happy path, an edge case, a failure case, and whether that check is a unit or an integration test.
 The implementer TDDs that matrix. The verifier proves the matrix is covered; happy-path-only
-coverage is rejected.
+coverage is rejected. Deployed/API smoke cites
+[smoke-matrix](../../../references/smoke-matrix.md): happy/edge/fail/auth/timeout/5xx. Kind is
+`smoke`. URLs and secrets stay in the app repo.
 
 The plan lives in the file. The implementer builds from it, the verifier checks it, and reviewers
 measure the change against it.

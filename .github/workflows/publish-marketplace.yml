@@ -91,6 +91,7 @@ jobs:
           # dispatchers generated beside each authored script pair.
           targets+=(plugins/*/.mcp.json plugins/*/hooks plugins/*/scripts)
           targets+=(plugins/*/.cursor-plugin plugins/*/.codex-plugin plugins/*/com.*)
+          targets+=(plugins/*/references)
           # Tracked-but-deleted generated files never match a glob; list them so their removal
           # is staged too.
           while IFS= read -r tracked; do
