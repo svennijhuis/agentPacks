@@ -266,6 +266,58 @@ public class LanguagePackContractTests
         }
     }
 
+    /// <summary>
+    /// Po 42 fail bar: <c>dotnet-review</c> ships 1–2 Matt-tiny Good/Bad finding
+    /// cites. <c>standards.source.json</c> still maps the three canonical docs
+    /// into this skill. SKILL.md still loads and cites <c>references/standards/</c>
+    /// first. CI stays the existing one-job <c>validate</c> workflow.
+    /// </summary>
+    [Fact]
+    public void Dotnet_review_examples_matt_tiny_standards_source_kept()
+    {
+        var root = SourceRoot();
+        var skillDir = Path.Combine(root, "plugins", "dotnet", "skills", "dotnet-review");
+        var examples = Path.Combine(skillDir, "references", "examples");
+        Assert.True(Directory.Exists(examples), examples);
+
+        var files = Directory.GetFiles(examples, "*.md");
+        Assert.InRange(files.Length, 1, 2);
+        foreach (var file in files)
+        {
+            var text = File.ReadAllText(file);
+            var lines = text.Split('\n').Count(line => !string.IsNullOrWhiteSpace(line));
+            Assert.Contains("Good:", text, StringComparison.Ordinal);
+            Assert.Contains("Bad:", text, StringComparison.Ordinal);
+            Assert.Contains(".md", text, StringComparison.Ordinal);
+            Assert.True(lines <= 16, $"{Path.GetFileName(file)} is {lines} lines; Matt-tiny cap is 16.");
+        }
+
+        var catalog = JsonNode.Parse(File.ReadAllText(
+            Path.Combine(root, "plugins", "dotnet", "standards.source.json")))!;
+        var mapped = catalog["consumers"]!["dotnet-review"]!.AsArray()
+            .Select(value => value!.GetValue<string>())
+            .ToArray();
+        Assert.Equal(["csharp", "async-errors", "testing"], mapped);
+        foreach (var document in mapped)
+        {
+            Assert.Equal(
+                $"standards/{document}.md",
+                catalog["documents"]![document]!.GetValue<string>());
+        }
+
+        var skill = File.ReadAllText(Path.Combine(skillDir, "SKILL.md"));
+        Assert.Contains("Read every file in `references/standards/`.", skill, StringComparison.Ordinal);
+        Assert.Contains("Standards in force:", skill, StringComparison.Ordinal);
+        Assert.Contains("references/standards/", skill, StringComparison.Ordinal);
+        Assert.DoesNotContain("Read every file in `references/examples/`.", skill, StringComparison.Ordinal);
+        var standardsAt = skill.IndexOf("references/standards/", StringComparison.Ordinal);
+        var examplesAt = skill.IndexOf("references/examples/", StringComparison.Ordinal);
+        Assert.True(standardsAt >= 0 && (examplesAt < 0 || standardsAt < examplesAt),
+            "SKILL.md must still read/cite references/standards/ before any example pointer.");
+
+        new SquadContractTests().Pull_request_ci_stays_one_job_no_matrix();
+    }
+
     /// <summary>Po 33: loop-audience skills open with the Internal do-not-run line.</summary>
     [Fact]
     public void Loop_audience_skills_start_with_internal_do_not_run_directly()
