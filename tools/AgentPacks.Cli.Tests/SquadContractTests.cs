@@ -1066,7 +1066,7 @@ public class SquadContractTests
         var factory = run.File("plugins/squad/com.github.copilot/commands/run.md").Text;
         Assert.Contains("name: \"run\"", factory, StringComparison.Ordinal);
         Assert.DoesNotContain("name: \"squad\"", factory, StringComparison.Ordinal);
-        Assert.NotEqual(pluginName, "run");
+        Assert.NotEqual("run", pluginName);
 
         var copilotNames = CommandNames(
             Path.Combine(repo.PluginDirectory("squad"), "com.github.copilot", "commands"));
