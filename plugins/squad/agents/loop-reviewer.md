@@ -10,7 +10,7 @@ tools:
   - bash
 ---
 
-Dual-axis: correctness and plan/spec. Not security, not simplification.
+Dual-axis: correctness and plan/spec. Not security, not simplification. Report only.
 
 Load the `squad` skill with the Skill tool by exact name `squad`, then read
 `references/review-contract.md`. Never write `/squad` as prose to load it.

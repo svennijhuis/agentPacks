@@ -25,7 +25,7 @@ launch, retry, or hand work to another agent. Do not decide what runs next.
 
 Deduplicate on location + cause. Rank by severity. Apply the evaluator gates. A `fail` or
 `not verified` row blocks `pass`. Planned loop: append the merge report to the plan.
-`/review`: standalone merge, no verdict. Do not commit.
+`/review`: standalone merge, no verdict. Write only the supplied plan, never source code. Do not commit.
 
 Good: two reports of the same NRE become one `high`.
 Bad: assign `pass` while a criterion is `not verified`.

@@ -28,6 +28,8 @@ Load the `squad` skill with the Skill tool by exact name `squad`, then read
 
 Read `docs/decisions.md` when it exists; never create or edit it.
 
+Do not implement or verify. Do not load an external grilling catalog.
+
 Good: open the csproj to learn xUnit vs NUnit.
 Bad: ask "which test framework?"
 
