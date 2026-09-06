@@ -53,7 +53,7 @@ public sealed class TonightCriteriaTests
         nameof(LanguagePackContractTests.Language_slot_skills_name_their_canonical_standards))]
     [InlineData("19 usable gates not essays two commands mcp in dotnet", typeof(SquadContractTests),
         nameof(SquadContractTests.Usable_gates_not_essays_exactly_two_commands_and_mcp_only_in_dotnet))]
-    [InlineData("20 simplifier report-only one agent three axes", typeof(SquadContractTests),
+    [InlineData("20 simplifier report-only one agent three axes two commands mcp", typeof(SquadContractTests),
         nameof(SquadContractTests.Simplifier_is_report_only_one_agent_three_axes))]
     public void Each_ticket_criterion_has_a_proving_test(string criterion, Type fixture, string method)
     {

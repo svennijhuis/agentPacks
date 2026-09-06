@@ -553,6 +553,63 @@ public class SquadContractTests
         Loop_agent_bodies_stay_tiny();
         Squad_commands_are_exactly_squad_and_review();
 
+        Loop_agent_bodies_stay_above_the_thin_floor();
+        Mcp_stays_only_in_dotnet_with_empty_squad_scaffold();
+    }
+
+    /// <summary>
+    /// Po 20 fail bar: simplifier is report-only (no edits), three axes in one
+    /// agent, Matt-clear ops on every loop agent, exactly /squad+/review, MCP
+    /// only at plugins/dotnet/mcp.json.
+    /// </summary>
+    [Fact]
+    public void Simplifier_is_report_only_one_agent_three_axes()
+    {
+        var simplifier = Fixture("loop-simplifier.md");
+        Assert.Contains("readonly: true", simplifier, StringComparison.Ordinal);
+        Assert.Contains("One agent, three axes", simplifier, StringComparison.Ordinal);
+        Assert.Contains("reuse, quality, efficiency", simplifier, StringComparison.Ordinal);
+        Assert.Contains("Report only", simplifier, StringComparison.Ordinal);
+        Assert.Contains("Do not edit", simplifier, StringComparison.Ordinal);
+        Assert.Contains("preserve behaviour", simplifier, StringComparison.Ordinal);
+        Assert.Contains("Clarity > fewer lines", simplifier, StringComparison.Ordinal);
+        Assert.Contains("over-simplify", simplifier, StringComparison.Ordinal);
+        Assert.Contains("nested-clever", simplifier, StringComparison.Ordinal);
+        Assert.Contains("Diff-scope only", simplifier, StringComparison.Ordinal);
+        Assert.Contains("changed code", simplifier, StringComparison.Ordinal);
+        Assert.Contains("Skill tool by exact name", simplifier, StringComparison.Ordinal);
+        Assert.Contains("CLAUDE.md", simplifier, StringComparison.Ordinal);
+        Assert.Contains("Never treat CLAUDE.md as the stack standard", simplifier, StringComparison.Ordinal);
+        Assert.Contains("Good:", simplifier, StringComparison.Ordinal);
+        Assert.Contains("Bad:", simplifier, StringComparison.Ordinal);
+        Assert.DoesNotContain("auto-edit", simplifier, StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain("loop-reuse", simplifier, StringComparison.Ordinal);
+        Assert.DoesNotContain("loop-quality", simplifier, StringComparison.Ordinal);
+        Assert.DoesNotContain("loop-efficiency", simplifier, StringComparison.Ordinal);
+        Assert.DoesNotContain("- write", simplifier, StringComparison.Ordinal);
+        Assert.DoesNotContain("- edit", simplifier, StringComparison.Ordinal);
+
+        Assert.Contains("Do not implement or verify", Fixture("loop-planner.md"), StringComparison.Ordinal);
+        Assert.Contains("Good:", Fixture("loop-planner.md"), StringComparison.Ordinal);
+        Assert.Contains("the code around the change", Fixture("loop-implementer.md"), StringComparison.Ordinal);
+        Assert.Contains("Good:", Fixture("loop-implementer.md"), StringComparison.Ordinal);
+        Assert.Contains("Do not edit source", Fixture("loop-verifier.md"), StringComparison.Ordinal);
+        Assert.Contains("Good:", Fixture("loop-verifier.md"), StringComparison.Ordinal);
+        Assert.Contains("Report only", Fixture("loop-reviewer.md"), StringComparison.Ordinal);
+        Assert.Contains("Good:", Fixture("loop-reviewer.md"), StringComparison.Ordinal);
+        Assert.Contains("Do not edit", Fixture("loop-security-reviewer.md"), StringComparison.Ordinal);
+        Assert.Contains("Good:", Fixture("loop-security-reviewer.md"), StringComparison.Ordinal);
+        Assert.Contains("never source code", Fixture("loop-orchestrator.md"), StringComparison.Ordinal);
+        Assert.Contains("Good:", Fixture("loop-orchestrator.md"), StringComparison.Ordinal);
+
+        Loop_agent_bodies_stay_tiny();
+        Loop_agent_bodies_stay_above_the_thin_floor();
+        Squad_commands_are_exactly_squad_and_review();
+        Mcp_stays_only_in_dotnet_with_empty_squad_scaffold();
+    }
+
+    private static void Loop_agent_bodies_stay_above_the_thin_floor()
+    {
         foreach (var agent in AgentNames)
         {
             var lines = BodyAfterFrontmatter(Fixture($"{agent}.md"))
@@ -560,7 +617,10 @@ public class SquadContractTests
             var floor = agent == "loop-security-reviewer" ? 16 : 8;
             Assert.True(lines >= floor, $"{agent} body is {lines} lines; too thin (floor {floor}).");
         }
+    }
 
+    private void Mcp_stays_only_in_dotnet_with_empty_squad_scaffold()
+    {
         var root = SourceRoot();
         var authored = Directory.GetFiles(root, "mcp.json", SearchOption.AllDirectories)
             .Where(path => !IsGeneratedPath(path))
@@ -579,42 +639,6 @@ public class SquadContractTests
         Assert.Equal("stdio", dotnet["mcpServers"]!["dotnet-solution"]!["type"]!.GetValue<string>());
         Assert.Contains("${PLUGIN_ROOT}/mcp/DotnetSolutionMcp.csproj", dotnet.ToJsonString(),
             StringComparison.Ordinal);
-    }
-
-    /// <summary>
-    /// Po 20 fail bar: simplifier stays report-only, one agent × three axes; stolen
-    /// ops stay in-body; no auto-edit, no split spawn, no extra command.
-    /// </summary>
-    [Fact]
-    public void Simplifier_is_report_only_one_agent_three_axes()
-    {
-        var simplifier = Fixture("loop-simplifier.md");
-        Assert.Contains("One agent, three axes", simplifier, StringComparison.Ordinal);
-        Assert.Contains("reuse, quality, efficiency", simplifier, StringComparison.Ordinal);
-        Assert.Contains("Report only", simplifier, StringComparison.Ordinal);
-        Assert.Contains("Do not edit", simplifier, StringComparison.Ordinal);
-        Assert.Contains("preserve behaviour", simplifier, StringComparison.Ordinal);
-        Assert.Contains("Clarity > fewer lines", simplifier, StringComparison.Ordinal);
-        Assert.Contains("over-simplify", simplifier, StringComparison.Ordinal);
-        Assert.Contains("nested-clever", simplifier, StringComparison.Ordinal);
-        Assert.Contains("Diff-scope only", simplifier, StringComparison.Ordinal);
-        Assert.Contains("changed code", simplifier, StringComparison.Ordinal);
-        Assert.Contains("Skill tool by exact name", simplifier, StringComparison.Ordinal);
-        Assert.Contains("CLAUDE.md", simplifier, StringComparison.Ordinal);
-        Assert.Contains("Never treat CLAUDE.md as the stack standard", simplifier, StringComparison.Ordinal);
-        Assert.DoesNotContain("auto-edit", simplifier, StringComparison.OrdinalIgnoreCase);
-        Assert.DoesNotContain("loop-reuse", simplifier, StringComparison.Ordinal);
-        Assert.DoesNotContain("loop-quality", simplifier, StringComparison.Ordinal);
-        Assert.DoesNotContain("loop-efficiency", simplifier, StringComparison.Ordinal);
-
-        Assert.Contains("Do not implement or verify", Fixture("loop-planner.md"), StringComparison.Ordinal);
-        Assert.Contains("the code around the change", Fixture("loop-implementer.md"), StringComparison.Ordinal);
-        Assert.Contains("Do not edit source", Fixture("loop-verifier.md"), StringComparison.Ordinal);
-        Assert.Contains("Report only", Fixture("loop-reviewer.md"), StringComparison.Ordinal);
-        Assert.Contains("Do not edit", Fixture("loop-security-reviewer.md"), StringComparison.Ordinal);
-        Assert.Contains("never source code", Fixture("loop-orchestrator.md"), StringComparison.Ordinal);
-
-        Squad_commands_are_exactly_squad_and_review();
     }
 
     private static bool IsGeneratedPath(string path) =>
