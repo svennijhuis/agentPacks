@@ -91,6 +91,8 @@ public sealed class TonightCriteriaTests
         nameof(SquadContractTests.Empty_mcp_scaffolds_test_is_not_named_dotnet_only))]
     [InlineData("34 anti-loop spawn none two fix rounds", typeof(SquadContractTests),
         nameof(SquadContractTests.Anti_loop_small_change_spawn_none_and_two_fix_rounds_max))]
+    [InlineData("36 /review save-markdown ask", typeof(SquadContractTests),
+        nameof(SquadContractTests.Review_asks_save_markdown_yes_writes_file_no_stays_ide_only))]
     public void Each_ticket_criterion_has_a_proving_test(string criterion, Type fixture, string method)
     {
         Assert.True(

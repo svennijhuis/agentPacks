@@ -405,7 +405,7 @@ public class SquadContractTests
             6. Orchestrator merges ≤2 fix rounds → hand off uncommitted → append learnings
 
             /review
-            Pin vs PR / uncommitted / main → same gated dual-axis reviewers (no plan/fix loop) → append learnings
+            Pin vs PR / uncommitted / main → same gated dual-axis reviewers (no plan/fix loop) → append learnings → one save-markdown ask
 
             Always
             models.source.json tiers (default inherit); load only contracted <lang>-* by Skill name; coworker docs = real dotnet test/validate on a fixture.
@@ -910,6 +910,87 @@ public class SquadContractTests
         Assert.DoesNotContain("grilling", catalog, StringComparison.Ordinal);
         Assert.False(Directory.Exists(Path.Combine(root, "plugins", "squad", "skills", "caveman")));
         Assert.False(Directory.Exists(Path.Combine(root, "plugins", "squad", "skills", "caveman-compress")));
+    }
+
+    /// <summary>
+    /// Po 36 fail bar: end of /review asks once to save markdown. Yes writes
+    /// docs/reviews/&lt;slug&gt;.md and still shows IDE/CLI. No stays IDE/CLI only.
+    /// Fails if /review starts a fix round, grills more than that one ask, or writes
+    /// docs/decisions.md.
+    /// </summary>
+    [Fact]
+    public void Review_asks_save_markdown_yes_writes_file_no_stays_ide_only()
+    {
+        var review = Fixture("review.md");
+        var contract = Fixture("review-contract.md");
+        var skill = Fixture("SKILL.md");
+        var squad = Fixture("squad.md");
+        var reviewSurfaces = string.Join('\n', review, contract);
+
+        Assert.Equal(1, CountToken(review, "Save report as markdown?"));
+        Assert.Contains("Save report as markdown?", contract, StringComparison.Ordinal);
+        Assert.DoesNotContain("Save report as markdown?", squad, StringComparison.Ordinal);
+
+        Assert.Contains("docs/reviews/<slug>.md", reviewSurfaces, StringComparison.Ordinal);
+        Assert.Contains("IDE/CLI", review, StringComparison.Ordinal);
+        Assert.Contains("IDE/CLI only", review, StringComparison.Ordinal);
+        Assert.Contains("write no report file", review, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("still show the findings in the IDE/CLI", review, StringComparison.Ordinal);
+
+        Assert.Contains("Do not assign a Squad verdict", review, StringComparison.Ordinal);
+        Assert.Contains("Do not start a fix round", review, StringComparison.Ordinal);
+        Assert.Contains("There is no `Verdict`", contract, StringComparison.Ordinal);
+        Assert.Contains("no plan/fix loop", skill, StringComparison.Ordinal);
+        Assert.DoesNotContain("**Verdict:**", review, StringComparison.Ordinal);
+        Assert.DoesNotContain("Invoke `squad-implementer`", review, StringComparison.Ordinal);
+        Assert.DoesNotContain("fresh implementer", review, StringComparison.OrdinalIgnoreCase);
+
+        Assert.Contains("Never write `docs/decisions.md`", review, StringComparison.Ordinal);
+        Assert.Contains("(never", contract, StringComparison.Ordinal);
+        Assert.Contains("`docs/decisions.md`", contract, StringComparison.Ordinal);
+        Assert.DoesNotContain("append `docs/decisions.md`", reviewSurfaces, StringComparison.OrdinalIgnoreCase);
+        foreach (var text in new[] { review, contract })
+        {
+            for (var index = 0;
+                 (index = text.IndexOf("docs/decisions.md", index, StringComparison.Ordinal)) >= 0;
+                 index += "docs/decisions.md".Length)
+            {
+                var start = Math.Max(0, index - 24);
+                var window = text[start..Math.Min(text.Length, index + "docs/decisions.md".Length)];
+                Assert.True(
+                    window.Contains("Never write", StringComparison.Ordinal)
+                    || window.Contains("never", StringComparison.OrdinalIgnoreCase),
+                    "docs/decisions.md mentioned without a prohibition: " + window);
+            }
+        }
+
+        Assert.Equal(1, CountToken(review, "?"));
+        Assert.DoesNotContain("Planning round", review, StringComparison.Ordinal);
+        Assert.DoesNotContain("❓", review, StringComparison.Ordinal);
+        Assert.DoesNotContain("Ask the whole frontier", review, StringComparison.Ordinal);
+        Assert.DoesNotContain("Advisor-lite", review, StringComparison.Ordinal);
+        Assert.Contains("Do not ask anything else", review, StringComparison.Ordinal);
+        Assert.Contains("exactly one question", contract, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("No other question, grill, verdict, or fix round", contract, StringComparison.Ordinal);
+
+        var headings = skill.Split('\n')
+            .Where(line => line.StartsWith("## ", StringComparison.Ordinal))
+            .Select(line => line.TrimEnd('\r'))
+            .ToArray();
+        Assert.Equal(
+        [
+            "## Locked v1 flow",
+            "## Route",
+            "## Gated agents",
+            "## Skills",
+            "## Stacks",
+            "## Plan",
+            "## Implement, verify, review",
+            "## Advisor-lite",
+            "## Worktree"
+        ], headings);
+
+        Squad_commands_are_exactly_squad_and_review();
     }
 
     /// <summary>Po 28 fail bar: review-contract drops findings below 80 confidence.</summary>

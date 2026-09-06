@@ -21,7 +21,7 @@ Two entrypoints only: `/squad` and `/review`. Type the command.
 6. Orchestrator merges ≤2 fix rounds → hand off uncommitted → append learnings
 
 /review
-Pin vs PR / uncommitted / main → same gated dual-axis reviewers (no plan/fix loop) → append learnings
+Pin vs PR / uncommitted / main → same gated dual-axis reviewers (no plan/fix loop) → append learnings → one save-markdown ask
 
 Always
 models.source.json tiers (default inherit); load only contracted <lang>-* by Skill name; coworker docs = real dotnet test/validate on a fixture.
@@ -43,7 +43,7 @@ No commits, merges, or pushes. `pass` is ready for human review, not permission 
 | Typo, rename, one-line change | The main agent implements and verifies directly. Do not call `squad-planner`, `squad-implementer`, `squad-verifier`, or any review agent. Do not create a plan. Small changes spawn nobody. |
 | Behavior or design change | Full loop. |
 | Trust-boundary / irreversible | Full loop; record the human decision first. |
-| Existing diff, no plan | `/review`. No verifier report, plan write, verdict, or fix round. |
+| Existing diff, no plan | `/review`. No verifier report, plan write, verdict, or fix round. One save-markdown ask at the end. |
 
 Cost-first: default `inherit`. `squad-implementer` is `standard`. Other squad agents are `fast`.
 

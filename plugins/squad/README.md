@@ -18,7 +18,7 @@ The numbered flow below is locked v1 and is copied verbatim into the
 6. Orchestrator merges ≤2 fix rounds → hand off uncommitted → append learnings
 
 /review
-Pin vs PR / uncommitted / main → same gated dual-axis reviewers (no plan/fix loop) → append learnings
+Pin vs PR / uncommitted / main → same gated dual-axis reviewers (no plan/fix loop) → append learnings → one save-markdown ask
 
 Always
 models.source.json tiers (default inherit); load only contracted <lang>-* by Skill name; coworker docs = real dotnet test/validate on a fixture.
@@ -69,7 +69,7 @@ For a planned change, the main agent runs correctness and simplification reviewe
 
 `pass` requires adequate evidence for every criterion and no blocking merged finding. `high` or `medium` findings produce `fix`; a plan defect produces `replan`. At most two fix rounds are allowed.
 
-`/review` uses the same conditional reviewers for a PR, uncommitted work, or a diff versus main, but has no plan, verifier evidence, verdict, or fix round.
+`/review` uses the same conditional reviewers for a PR, uncommitted work, or a diff versus main, but has no plan, verifier evidence, verdict, or fix round. At the end it asks once: Save report as markdown? Yes writes `docs/reviews/<slug>.md` and still shows the findings in the IDE/CLI. No stays IDE/CLI only. Never `docs/decisions.md`.
 
 ## Stack and workspace
 

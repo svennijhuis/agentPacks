@@ -168,3 +168,8 @@ For standalone diff review, use round 1 and return this shape instead of the orc
 ```
 
 There is no `Verdict`, plan append, verifier evidence, or fix round in this shape.
+
+After this shape is returned, the main agent shows it in the IDE/CLI and asks exactly one
+question: Save report as markdown? Yes writes `docs/reviews/<slug>.md` (never
+`docs/decisions.md`) and still shows the findings in the IDE/CLI. No writes no report file.
+No other question, grill, verdict, or fix round.

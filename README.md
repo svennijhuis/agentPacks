@@ -161,7 +161,7 @@ the locked v1 plan; the [`squad` skill](plugins/squad/skills/squad/SKILL.md) car
 6. Orchestrator merges ≤2 fix rounds → hand off uncommitted → append learnings
 
 /review
-Pin vs PR / uncommitted / main → same gated dual-axis reviewers (no plan/fix loop) → append learnings
+Pin vs PR / uncommitted / main → same gated dual-axis reviewers (no plan/fix loop) → append learnings → one save-markdown ask
 
 Always
 models.source.json tiers (default inherit); load only contracted <lang>-* by Skill name; coworker docs = real dotnet test/validate on a fixture.
@@ -192,6 +192,10 @@ merging to `main`: [docs/ADD-SKILL.md](docs/ADD-SKILL.md#test-a-skill-locally).
 /review --pr
 /review --base main
 ```
+
+After the merged list, `/review` asks once: Save report as markdown? Yes writes
+`docs/reviews/<slug>.md` and still shows the findings in the IDE/CLI. No stays IDE/CLI only.
+No verdict, grill, or fix round. Never `docs/decisions.md`.
 
 Language-pack slots (`dotnet-build`, `rust-review`, …) are loop internals, loaded by exact Skill
 tool name. They are not a second public skill surface.
