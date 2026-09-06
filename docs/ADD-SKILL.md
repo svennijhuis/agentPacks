@@ -38,8 +38,9 @@ metadata:
 ---
 ```
 
-A user-invoked entrypoint (`squad`, `pack-check`) adds `disable-model-invocation: true` and omits
-`audience: loop`. Load either kind with the Skill tool by exact name, never slash-prose.
+A user-invoked entrypoint (`squad`, `pack-check`, `learnings-digest`) adds
+`disable-model-invocation: true` and omits `audience: loop`. Load either kind with the Skill tool
+by exact name, never slash-prose.
 
 ## Writing the description
 

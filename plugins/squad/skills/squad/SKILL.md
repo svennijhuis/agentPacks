@@ -63,8 +63,9 @@ Small change: spawn none of these. Do not add a tester agent. Do not split simpl
 
 ## Skills
 
-Load only with the Skill tool by exact name: `squad`, `<lang>-build`,
+Load only with the Skill tool by exact name: `squad`, `caveman`, `<lang>-build`,
 `<lang>-test-patterns`, `<lang>-review`, `<lang>-security-review`, and `<lang>-solution` when it exists.
+Load `caveman` with the Skill tool by exact name `caveman`. Never write `/caveman` as prose to load it.
 Never write slash-prose. Language-pack slots are internals (`metadata.audience: loop`).
 Authored `mcp.json` files are empty scaffolds. No shipped MCP server. No new command. No credentials. No remote service.
 

@@ -26,5 +26,3 @@ The main agent is the thin workflow controller. Specialists own their context.
 9. Route `fix`, `pass`, or `replan` as defined by the skill. A `fix` uses a fresh implementer
    invocation; the author of the rejected code is not the fixer. Allow at most two fix rounds.
 10. Hand off the plan path, files touched, criterion evidence, verdict, rounds, notes, pack status, workspace, and cleanup status. State that nothing was committed, merged, or pushed. Append one learnings entry.
-
-For worktrees, preserve the primary checkout and externally created worktrees. Remove only a clean worktree created by this loop, following the skill's exact lifecycle rules.

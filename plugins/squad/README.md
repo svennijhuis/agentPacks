@@ -39,7 +39,8 @@ Obvious typos, renames, and one-line fixes take the small-change route: the main
 
 | Component | Name | Responsibility |
 |---|---|---|
-| Skill | `squad` | User-invoked routing, exact Skill-name loading, security gate, fix-round cap, learnings, worktree lifecycle, and hand-off |
+| Skill | `squad` | User-invoked routing, exact Skill-name loading, security gate, fix-round cap, learnings, and hand-off |
+| Skill | `learnings-digest` | User-invoked digest of `docs/learnings.md`. Does not rewrite skills. |
 | Contract | `planning-contract` | Turn-based grill inside the orchestrator: frontier rounds, recommended answers, confirmation, plan shape |
 | Contract | `review-contract` | Dual-axis review, severity, report formats, verify-path evaluator gates, and verdict rules |
 | Contract | `learnings` | Append-only run log read on the next `/squad` or `/review` |
@@ -77,8 +78,6 @@ applicable to the target paths, diff, and acceptance criteria. A mixed change lo
 Rust slots; a single-stack change does not load or request the unrelated pack. A full loop records
 the applicable plugin standards and concrete repository conventions in the plan. The
 [language-pack contract](../../docs/ADD-LANGUAGE-PACK.md) defines the required skill names.
-
-The hand-off records whether work ran in the primary checkout, an existing worktree, or a squad-created worktree. Externally owned and dirty worktrees are preserved. A clean squad-created worktree may be removed without force.
 
 ## Provider support
 

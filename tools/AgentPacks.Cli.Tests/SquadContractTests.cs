@@ -482,6 +482,7 @@ public class SquadContractTests
         surfaces.AddRange(Directory.GetFiles(
             Path.Combine(root, "plugins", "squad", "commands"), "*.md"));
         surfaces.Add(Path.Combine(root, "plugins", "squad", "skills", "squad", "SKILL.md"));
+        surfaces.Add(Path.Combine(root, "plugins", "squad", "skills", "learnings-digest", "SKILL.md"));
         surfaces.AddRange(Directory.GetFiles(Path.Combine(root, "docs"), "ADD-*.md"));
 
         foreach (var path in surfaces.Distinct(StringComparer.Ordinal))
@@ -542,6 +543,7 @@ public class SquadContractTests
         surfaces.AddRange(Directory.GetFiles(
             Path.Combine(root, "plugins", "squad", "commands"), "*.md"));
         surfaces.Add(Path.Combine(root, "plugins", "squad", "skills", "squad", "SKILL.md"));
+        surfaces.Add(Path.Combine(root, "plugins", "squad", "skills", "learnings-digest", "SKILL.md"));
         surfaces.AddRange(Directory.GetFiles(Path.Combine(root, "docs"), "ADD-*.md"));
         surfaces.AddRange(Directory.GetFiles(agentsDir, "*.md"));
 
@@ -699,6 +701,131 @@ public class SquadContractTests
         path.Contains($"{Path.DirectorySeparatorChar}bin{Path.DirectorySeparatorChar}", StringComparison.Ordinal)
         || path.Contains($"{Path.DirectorySeparatorChar}obj{Path.DirectorySeparatorChar}", StringComparison.Ordinal)
         || path.Contains($"{Path.DirectorySeparatorChar}.git{Path.DirectorySeparatorChar}", StringComparison.Ordinal);
+
+    /// <summary>Po 24 fail bar: root README documents the Codex agent TOML copy one-liner.</summary>
+    [Fact]
+    public void Readme_has_codex_agent_toml_copy_one_liner()
+    {
+        var readme = File.ReadAllText(Path.Combine(SourceRoot(), "README.md"));
+        Assert.Contains(
+            "cp plugins/squad/com.openai.codex/agents/*.toml .codex/agents/",
+            readme,
+            StringComparison.Ordinal);
+    }
+
+    /// <summary>
+    /// Po 25 fail bar: learnings-digest is a user-invoked Matt-tiny skill, not a third slash
+    /// command, and it must not rewrite skills.
+    /// </summary>
+    [Fact]
+    public void Learnings_digest_is_user_invoked_matt_tiny_no_rewrite()
+    {
+        var root = SourceRoot();
+        var skillPath = Path.Combine(root, "plugins", "squad", "skills", "learnings-digest", "SKILL.md");
+        Assert.True(File.Exists(skillPath));
+        var skill = File.ReadAllText(skillPath);
+        var body = BodyAfterFrontmatter(skill);
+        var lines = body.Split('\n').Count(line => !string.IsNullOrWhiteSpace(line));
+
+        Assert.Contains("name: learnings-digest", skill, StringComparison.Ordinal);
+        Assert.Contains("disable-model-invocation: true", skill, StringComparison.Ordinal);
+        Assert.Contains("Do not rewrite skills", skill, StringComparison.Ordinal);
+        Assert.Contains("append-only", skill, StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain("audience: loop", skill, StringComparison.Ordinal);
+        Assert.DoesNotContain("rewrite the skill", skill, StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain("edit SKILL.md", skill, StringComparison.Ordinal);
+        Assert.True(lines <= 12, $"learnings-digest body is {lines} lines; Matt-tiny cap is 12.");
+        Assert.False(File.Exists(Path.Combine(root, "plugins", "squad", "commands", "learnings-digest.md")));
+        Squad_commands_are_exactly_squad_and_review();
+    }
+
+    /// <summary>Po 26 fail bar: worktree lifecycle lives only in the /squad skill.</summary>
+    [Fact]
+    public void Worktree_note_only_in_squad_skill()
+    {
+        Worktree_cleanup_preserves_uncommitted_or_externally_owned_work();
+
+        var root = SourceRoot();
+        var skill = File.ReadAllText(Path.Combine(root, "plugins", "squad", "skills", "squad", "SKILL.md"));
+        Assert.Contains("## Worktree", skill, StringComparison.Ordinal);
+        Assert.Contains("git worktree remove <exact-path>", skill, StringComparison.Ordinal);
+
+        var leftovers = new List<string>();
+        var surfaces = new List<string>
+        {
+            Path.Combine(root, "plugins", "squad", "commands", "squad.md"),
+            Path.Combine(root, "plugins", "squad", "commands", "review.md"),
+            Path.Combine(root, "plugins", "squad", "README.md"),
+            Path.Combine(root, "plugins", "squad", "skills", "learnings-digest", "SKILL.md")
+        };
+        surfaces.AddRange(Directory.GetFiles(Path.Combine(root, "plugins", "squad", "agents"), "*.md"));
+
+        foreach (var path in surfaces)
+        {
+            var text = File.ReadAllText(path);
+            if (text.Contains("git worktree", StringComparison.Ordinal)
+                || text.Contains("worktree lifecycle", StringComparison.OrdinalIgnoreCase)
+                || text.Contains("## Worktree", StringComparison.Ordinal))
+            {
+                leftovers.Add(Path.GetRelativePath(root, path));
+            }
+        }
+
+        Assert.False(
+            leftovers.Count > 0,
+            "worktree lifecycle leaked outside the squad skill: " + string.Join(", ", leftovers));
+    }
+
+    /// <summary>
+    /// Po 27 fail bar: pin only caveman + caveman-compress at the locked SHA; /squad loads
+    /// caveman by exact Skill name. No full catalog. Authored tree stays URL records only.
+    /// </summary>
+    [Fact]
+    public void Caveman_external_pins_and_squad_invokes_by_exact_name()
+    {
+        const string sha = "5184b3d11ac6a1acb7d44b9bfaa31698157cff97";
+        var root = SourceRoot();
+        var manifest = JsonNode.Parse(File.ReadAllText(
+            Path.Combine(root, "plugins", "squad", "external-skills.json")))!;
+        var sources = manifest["sources"]!.AsArray();
+        Assert.Equal(2, sources.Count);
+
+        var byName = sources.OfType<JsonObject>().ToDictionary(
+            entry => entry["name"]!.GetValue<string>(),
+            StringComparer.Ordinal);
+        Assert.Equal(["caveman", "caveman-compress"],
+            byName.Keys.OrderBy(name => name, StringComparer.Ordinal));
+
+        foreach (var (name, path) in new[]
+                 {
+                     ("caveman", "skills/caveman"),
+                     ("caveman-compress", "skills/caveman-compress")
+                 })
+        {
+            var entry = byName[name];
+            Assert.Equal("https://github.com/JuliusBrussee/caveman", entry["repository"]!.GetValue<string>());
+            Assert.Equal(path, entry["path"]!.GetValue<string>());
+            Assert.Equal(sha, entry["commit"]!.GetValue<string>());
+            Assert.Equal("MIT", entry["license"]!.GetValue<string>());
+        }
+
+        var skill = Fixture("SKILL.md");
+        Assert.Contains("Skill tool by exact name `caveman`", skill, StringComparison.Ordinal);
+        Assert.Contains("Never write `/caveman`", skill, StringComparison.Ordinal);
+        Assert.DoesNotContain("Load `/caveman`", skill, StringComparison.Ordinal);
+        Assert.DoesNotContain("grill-me", skill, StringComparison.Ordinal);
+        Assert.DoesNotContain("writing-for-agents", skill, StringComparison.Ordinal);
+        Assert.DoesNotContain("caveman-help", skill, StringComparison.Ordinal);
+        Assert.DoesNotContain("caveman-review", skill, StringComparison.Ordinal);
+        Assert.DoesNotContain("mattpocock", skill, StringComparison.OrdinalIgnoreCase);
+
+        var catalog = File.ReadAllText(Path.Combine(root, "plugins", "squad", "external-skills.json"));
+        Assert.DoesNotContain("grill-me", catalog, StringComparison.Ordinal);
+        Assert.DoesNotContain("writing-for-agents", catalog, StringComparison.Ordinal);
+        Assert.DoesNotContain("grilling", catalog, StringComparison.Ordinal);
+        Assert.False(Directory.Exists(Path.Combine(root, "plugins", "squad", "skills", "caveman")));
+        Assert.False(Directory.Exists(Path.Combine(root, "plugins", "squad", "skills", "caveman-compress")));
+    }
 
     [Fact]
     public void Loop_agents_use_per_role_tiers_implementer_standard_others_fast()

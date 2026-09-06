@@ -136,7 +136,13 @@ Skills and MCP servers are portable: every client loads them from the same files
 | GitHub Copilot | yes | yes | always-on only, at session start | yes | yes | yes |
 | Codex | yes | yes | always-on, manual copy | manual copy | — | yes |
 
-Codex loads subagents only from `.codex/agents/` and reads `AGENTS.md` from the workspace rather than from a plugin, so those arrive as generated files you copy once. Glob-scoped rules remain Cursor-only; other clients receive only always-on rules, and validation reports the expected portability warning. The [`squad`](plugins/squad/README.md) README has the details.
+Codex loads subagents only from `.codex/agents/` and reads `AGENTS.md` from the workspace rather than from a plugin, so those arrive as generated files you copy once:
+
+```shell
+cp plugins/squad/com.openai.codex/agents/*.toml .codex/agents/
+```
+
+Glob-scoped rules remain Cursor-only; other clients receive only always-on rules, and validation reports the expected portability warning. The [`squad`](plugins/squad/README.md) README has the details.
 
 ## Using the plugins
 

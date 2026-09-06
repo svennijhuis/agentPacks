@@ -61,6 +61,14 @@ public sealed class TonightCriteriaTests
         nameof(SquadContractTests.No_user_facing_loop_star_agents_are_squad_star))]
     [InlineData("23 typescript pack required slots loop audience", typeof(LanguagePackContractTests),
         nameof(LanguagePackContractTests.Typescript_pack_fills_required_slots_with_loop_audience))]
+    [InlineData("24 README Codex agent toml copy one-liner", typeof(SquadContractTests),
+        nameof(SquadContractTests.Readme_has_codex_agent_toml_copy_one_liner))]
+    [InlineData("25 learnings-digest user-invoked Matt-tiny no rewrite", typeof(SquadContractTests),
+        nameof(SquadContractTests.Learnings_digest_is_user_invoked_matt_tiny_no_rewrite))]
+    [InlineData("26 worktree note only in /squad skill", typeof(SquadContractTests),
+        nameof(SquadContractTests.Worktree_note_only_in_squad_skill))]
+    [InlineData("27 caveman pins and /squad invokes by exact name", typeof(SquadContractTests),
+        nameof(SquadContractTests.Caveman_external_pins_and_squad_invokes_by_exact_name))]
     public void Each_ticket_criterion_has_a_proving_test(string criterion, Type fixture, string method)
     {
         Assert.True(
