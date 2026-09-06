@@ -8,8 +8,9 @@ user-invocable: false
 
 # HTTP scenarios
 
-One job. Current app workspace (the repo under test). Scenarios md for a real tester on TST.
+One job. Current app workspace (the repo under test). Scenarios md for a real tester on a deployed env.
 `/squad-review` is code/diff. `/squad` may read this file later; it does not write smoke for push.
+Do not require Azure, TST, or AWS. Use `BASE_URL`.
 
 1. Read [the smoke matrix](../../references/smoke-matrix.md). Seed kinds from that shape.
 2. Take OpenAPI/Swagger from a URL or file path. If missing, ask once.
@@ -19,13 +20,15 @@ One job. Current app workspace (the repo under test). Scenarios md for a real te
 | case | kind | request | status | expected | why |
 |---|---|---|---|---|---|
 
-   Kind is one of `happy` / `edge` / `fail` / `auth` / `biz` / `nothing-breaks`.
-   Fill rows from each path/operation. Map matrix Happy/Edge/Fail/Auth/Timeout/5xx into those kinds; add `biz` and `nothing-breaks` from documented rules and no-op cases.
-5. Placeholders only: `BASE_URL`, `TOKEN_VALID`, `TOKEN_INVALID`. Never a real token.
-6. Do not edit product source. Do not commit, merge, or push.
-7. Bruno/Postman: optional mention of an existing app-repo collection. Do not write one.
+   Default kinds: `happy` / `edge` / `fail` / `biz` / `nothing-breaks`.
+   Fill rows from each path/operation. Map matrix Happy/Edge/Fail/Timeout/5xx into those kinds; add `biz` and `nothing-breaks` from documented rules and no-op cases.
+5. Auth header only, by default: `Auth: Bearer TOKEN_VALID (tester supplies)`.
+   Add `auth` / policy rows ONLY when the user ask or the OpenAPI change is about auth or new policies. Do not spam 401/403 rows by default.
+6. Placeholders only: `BASE_URL`, `TOKEN_VALID`. Never a real token.
+7. Do not edit product source. Do not commit, merge, or push.
+8. Bruno/Postman: optional mention of an existing app-repo collection. Do not write one.
 
 Stop when the file is written.
 
-Good: rows from OpenAPI operations; env placeholders only.
-Bad: patching a controller or committing a collection.
+Good: rows from OpenAPI operations; env placeholders only; deployed env via `BASE_URL`.
+Bad: patching a controller, requiring Azure/TST/AWS, or a default 401/403 matrix.

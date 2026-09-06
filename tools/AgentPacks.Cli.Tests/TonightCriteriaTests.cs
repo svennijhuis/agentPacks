@@ -123,6 +123,10 @@ public sealed class TonightCriteriaTests
         nameof(HttpScenariosContractTests.Http_scenarios_no_code_edits_no_secrets_seeded_from_smoke_matrix))]
     [InlineData("44 user commands stay squad squad-review pack-check plus http-scenarios", typeof(HttpScenariosContractTests),
         nameof(HttpScenariosContractTests.User_commands_stay_squad_squad_review_pack_check_plus_http_scenarios))]
+    [InlineData("44 /http-scenarios env-agnostic no required cloud", typeof(HttpScenariosContractTests),
+        nameof(HttpScenariosContractTests.Http_scenarios_env_agnostic_no_required_cloud))]
+    [InlineData("44 /http-scenarios auth rows default skip", typeof(HttpScenariosContractTests),
+        nameof(HttpScenariosContractTests.Http_scenarios_auth_rows_default_skip))]
     public void Each_ticket_criterion_has_a_proving_test(string criterion, Type fixture, string method)
     {
         Assert.True(

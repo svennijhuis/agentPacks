@@ -9,5 +9,5 @@ Load the `http-scenarios` skill with the Skill tool by exact name `http-scenario
 `/http-scenarios` as prose to load it. Then write only `docs/smoke/<slug>.md` in the current
 app workspace (the repo under test) from the given OpenAPI/Swagger URL or file path. Do not
 edit product source. Do not commit, merge, or push. `/squad-review` is code/diff; this slash
-is scenarios md for a real tester on TST. `/squad` may read the file later; it does not write
-smoke for push.
+is scenarios md for a real tester on a deployed env. `/squad` may read the file later; it does
+not write smoke for push. Use `BASE_URL`. Do not require Azure, TST, or AWS.

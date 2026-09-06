@@ -46,7 +46,7 @@ public sealed class HttpScenariosContractTests
 
     /// <summary>
     /// Reviewer named proof (item 44). Output table columns are case · kind ·
-    /// request · status · expected · why. Kinds include happy/edge/fail/auth/biz/nothing-breaks.
+    /// request · status · expected · why. Default kinds: happy/edge/fail/biz/nothing-breaks.
     /// </summary>
     [Fact]
     public void Http_scenarios_table_has_case_kind_request_status_expected_why()
@@ -56,7 +56,7 @@ public sealed class HttpScenariosContractTests
 
         Assert.Contains("case · kind · request · status · expected · why", skill, StringComparison.Ordinal);
         Assert.Contains("| case | kind | request | status | expected | why |", skill, StringComparison.Ordinal);
-        foreach (var kind in new[] { "happy", "edge", "fail", "auth", "biz", "nothing-breaks" })
+        foreach (var kind in new[] { "happy", "edge", "fail", "biz", "nothing-breaks" })
             Assert.Contains($"`{kind}`", skill, StringComparison.Ordinal);
 
         Assert.Contains("path/operation", skill, StringComparison.Ordinal);
@@ -87,15 +87,12 @@ public sealed class HttpScenariosContractTests
 
         Assert.Contains("BASE_URL", skill, StringComparison.Ordinal);
         Assert.Contains("TOKEN_VALID", skill, StringComparison.Ordinal);
-        Assert.Contains("TOKEN_INVALID", skill, StringComparison.Ordinal);
         Assert.Contains("Never a real token", skill, StringComparison.Ordinal);
         Assert.Contains("Placeholders only", skill, StringComparison.Ordinal);
 
         Assert.DoesNotContain("sk-", combined, StringComparison.Ordinal);
-        Assert.DoesNotContain("Bearer ", combined, StringComparison.Ordinal);
         Assert.DoesNotContain("password=", combined, StringComparison.OrdinalIgnoreCase);
         Assert.DoesNotContain("api_key", combined, StringComparison.OrdinalIgnoreCase);
-        Assert.DoesNotContain("Authorization:", combined, StringComparison.OrdinalIgnoreCase);
 
         Assert.Contains("optional mention", skill, StringComparison.OrdinalIgnoreCase);
         Assert.Contains("Do not write one", skill, StringComparison.Ordinal);
@@ -105,8 +102,8 @@ public sealed class HttpScenariosContractTests
     /// Reviewer named proof (item 44). User slashes stay
     /// <c>/squad</c> + <c>/squad-review</c> + <c>/pack-check</c> +
     /// <c>/http-scenarios</c>. Slash split: review is code/diff; http-scenarios
-    /// is scenarios md for a real tester on TST. Packaged for Claude/Cursor/Copilot
-    /// without colliding names. No new marketplace plugin.
+    /// is scenarios md for a real tester on a deployed env. Packaged for
+    /// Claude/Cursor/Copilot without colliding names. No new marketplace plugin.
     /// </summary>
     [Fact]
     public void User_commands_stay_squad_squad_review_pack_check_plus_http_scenarios()
@@ -136,7 +133,7 @@ public sealed class HttpScenariosContractTests
         var combined = string.Join('\n', command, skill);
 
         Assert.Contains("`/squad-review` is code/diff", combined, StringComparison.Ordinal);
-        Assert.Contains("scenarios md for a real tester on TST", combined, StringComparison.Ordinal);
+        Assert.Contains("scenarios md for a real tester on a deployed env", combined, StringComparison.Ordinal);
         Assert.Contains("`/squad` may read", combined, StringComparison.Ordinal);
         Assert.DoesNotContain("http-scenarios", review, StringComparison.Ordinal);
         Assert.Contains("name: squad-review", review, StringComparison.Ordinal);
@@ -193,6 +190,48 @@ public sealed class HttpScenariosContractTests
         Assert.True(claudeEntry["strict"]!.GetValue<bool>());
 
         new SquadContractTests().Pull_request_ci_stays_one_job_no_matrix();
+    }
+
+    /// <summary>
+    /// Item 44 lock. Env-agnostic: <c>BASE_URL</c> / deployed env. Azure, TST,
+    /// and AWS are not required targets.
+    /// </summary>
+    [Fact]
+    public void Http_scenarios_env_agnostic_no_required_cloud()
+    {
+        var root = SourceRoot();
+        var command = File.ReadAllText(Path.Combine(root, "plugins", "squad", "commands", "http-scenarios.md"));
+        var skill = File.ReadAllText(Path.Combine(root, "plugins", "squad", "skills", "http-scenarios", "SKILL.md"));
+        var readme = File.ReadAllText(Path.Combine(root, "README.md"));
+        var combined = string.Join('\n', command, skill);
+
+        Assert.Contains("BASE_URL", combined, StringComparison.Ordinal);
+        Assert.Contains("deployed env", combined, StringComparison.Ordinal);
+        Assert.Contains("Do not require Azure, TST, or AWS", command, StringComparison.Ordinal);
+        Assert.Contains("Do not require Azure, TST, or AWS", skill, StringComparison.Ordinal);
+        Assert.Contains("Do not require Azure, TST, or AWS", readme, StringComparison.Ordinal);
+        Assert.DoesNotContain("on TST", combined, StringComparison.Ordinal);
+        Assert.DoesNotContain("Azure App Service", combined, StringComparison.Ordinal);
+        Assert.DoesNotContain("AWS API Gateway", combined, StringComparison.Ordinal);
+    }
+
+    /// <summary>
+    /// Item 44 lock. Auth rows default skip: one header line. Add auth/policy
+    /// rows only when the ask or OpenAPI change is about auth or new policies.
+    /// </summary>
+    [Fact]
+    public void Http_scenarios_auth_rows_default_skip()
+    {
+        var skill = File.ReadAllText(Path.Combine(
+            SourceRoot(), "plugins", "squad", "skills", "http-scenarios", "SKILL.md"));
+
+        Assert.Contains("Auth: Bearer TOKEN_VALID (tester supplies)", skill, StringComparison.Ordinal);
+        Assert.Contains("Add `auth` / policy rows ONLY when the user ask", skill, StringComparison.Ordinal);
+        Assert.Contains("OpenAPI change is about auth or new policies", skill, StringComparison.Ordinal);
+        Assert.Contains("Do not spam 401/403 rows by default", skill, StringComparison.Ordinal);
+        foreach (var kind in new[] { "happy", "edge", "fail", "biz", "nothing-breaks" })
+            Assert.Contains($"`{kind}`", skill, StringComparison.Ordinal);
+        Assert.DoesNotContain("TOKEN_INVALID", skill, StringComparison.Ordinal);
     }
 
     private static string SourceRoot()
