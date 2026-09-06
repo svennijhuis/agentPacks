@@ -66,7 +66,7 @@ Small change: spawn none of these. Do not add a tester agent. Do not split simpl
 Load only with the Skill tool by exact name: `squad`, `<lang>-build`,
 `<lang>-test-patterns`, `<lang>-review`, `<lang>-security-review`, and `<lang>-solution` when it exists.
 Never write slash-prose. Language-pack slots are internals (`metadata.audience: loop`).
-Read-only MCP lives in the language pack `mcp.json` as a local stdio process. No new command. No credentials. No remote service.
+Authored `mcp.json` files are empty scaffolds. No shipped MCP server. No new command. No credentials. No remote service.
 
 Grill stays here. Do not load an external grilling catalog.
 

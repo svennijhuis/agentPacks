@@ -4,43 +4,44 @@ using AgentPacks.Cli.Verification;
 namespace AgentPacks.Cli.Tests;
 
 /// <summary>
-/// Authored MCP is local, read-only, and fixture-tested. No hosted service. No swagger generator.
+/// Authored MCP is empty scaffolds plus a how-to. No shipped server. No swagger generator.
 /// </summary>
 public sealed class PluginMcpContractTests
 {
+    /// <summary>
+    /// Po 21 fail bar: no DotnetSolutionMcp project; plugin mcpServers are empty scaffolds.
+    /// </summary>
     [Fact]
-    public void Dotnet_mcp_is_local_stdio_dotnet_process_with_no_credentials()
-    {
-        var mcp = JsonNode.Parse(File.ReadAllText(Path.Combine(SourceRoot(), "plugins", "dotnet", "mcp.json")))!;
-        var server = mcp["mcpServers"]!["dotnet-solution"]!;
-        var json = mcp.ToJsonString();
-
-        Assert.Equal("stdio", server["type"]!.GetValue<string>());
-        Assert.Equal("dotnet", server["command"]!.GetValue<string>());
-        Assert.Contains("${PLUGIN_ROOT}/mcp/DotnetSolutionMcp.csproj", json, StringComparison.Ordinal);
-        Assert.Null(server["url"]);
-        Assert.Null(server["headers"]);
-        Assert.DoesNotContain("authorization", json, StringComparison.OrdinalIgnoreCase);
-        Assert.DoesNotContain("\"url\"", json, StringComparison.Ordinal);
-    }
-
-    [Fact]
-    public void Authored_dotnet_mcp_validates_and_generates_the_claude_file()
+    public void No_dotnet_solution_mcp_project_and_plugin_mcp_servers_are_empty_scaffolds()
     {
         var root = SourceRoot();
-        using var repo = new TestRepository()
-            .WithPlugin("dotnet", File.ReadAllText(Path.Combine(root, "plugins", "dotnet", "plugin.json")))
-            .WithLoopSkill("dotnet-build")
-            .WithLoopSkill("dotnet-test-patterns")
-            .WithMcp(File.ReadAllText(Path.Combine(root, "plugins", "dotnet", "mcp.json")), plugin: "dotnet");
+        Assert.False(Directory.Exists(Path.Combine(root, "plugins", "dotnet", "mcp")));
+        Assert.False(File.Exists(Path.Combine(root, "plugins", "dotnet", "mcp", "DotnetSolutionMcp.csproj")));
+        Assert.False(File.Exists(Path.Combine(root, "plugins", "dotnet", "mcp", "Program.cs")));
+        Assert.False(File.Exists(Path.Combine(root, "plugins", "dotnet", "mcp", "RoslynLookup.cs")));
 
-        var run = repo.ValidateAndGenerate();
+        var leftovers = Directory.GetFiles(root, "*DotnetSolutionMcp*", SearchOption.AllDirectories)
+            .Where(path => !IsGeneratedPath(path))
+            .Select(path => Path.GetRelativePath(root, path).Replace('\\', '/'))
+            .ToArray();
+        Assert.False(leftovers.Length > 0, "leftover DotnetSolutionMcp: " + string.Join(", ", leftovers));
 
-        Assert.False(run.HasErrors, run.Text);
-        var generated = run.File("plugins/dotnet/.mcp.json").Content["mcpServers"]!["dotnet-solution"]!;
-        Assert.Equal("stdio", generated["type"]!.GetValue<string>());
-        Assert.Contains("${CLAUDE_PLUGIN_ROOT}/mcp/DotnetSolutionMcp.csproj", generated.ToJsonString(), StringComparison.Ordinal);
-        Assert.Null(generated["url"]);
+        var authored = Directory.GetFiles(Path.Combine(root, "plugins"), "mcp.json",
+            SearchOption.AllDirectories);
+        Assert.NotEmpty(authored);
+        foreach (var path in authored)
+        {
+            var mcp = JsonNode.Parse(File.ReadAllText(path))!;
+            Assert.NotNull(mcp["mcpServers"]);
+            Assert.Empty(mcp["mcpServers"]!.AsObject());
+        }
+
+        foreach (var relative in new[] { "README.md", Path.Combine("docs", "ADD-SKILL.md") })
+        {
+            var text = File.ReadAllText(Path.Combine(root, relative));
+            Assert.DoesNotContain("DotnetSolutionMcp", text, StringComparison.Ordinal);
+            Assert.DoesNotContain("--list-tools", text, StringComparison.Ordinal);
+        }
     }
 
     [Fact]
@@ -93,18 +94,14 @@ public sealed class PluginMcpContractTests
 
         Assert.Contains("audience: loop", skill, StringComparison.Ordinal);
         Assert.Contains("not as a user entrypoint", skill, StringComparison.Ordinal);
-        Assert.Contains("list_projects", skill, StringComparison.Ordinal);
-        Assert.Contains("list_packages", skill, StringComparison.Ordinal);
-        Assert.Contains("describe_project", skill, StringComparison.Ordinal);
-        Assert.Contains("list_symbols", skill, StringComparison.Ordinal);
-        Assert.Contains("find_references", skill, StringComparison.Ordinal);
-        Assert.Contains("list_diagnostics", skill, StringComparison.Ordinal);
         Assert.Contains("No write tools", skill, StringComparison.Ordinal);
         Assert.Contains("No codegen", skill, StringComparison.Ordinal);
         Assert.DoesNotContain("disable-model-invocation: true", skill, StringComparison.Ordinal);
         Assert.Contains("dotnet sln", skill, StringComparison.Ordinal);
         Assert.Contains("dotnet list", skill, StringComparison.Ordinal);
         Assert.Contains("Local machine only", skill, StringComparison.Ordinal);
+        Assert.DoesNotContain("DotnetSolutionMcp", skill, StringComparison.Ordinal);
+        Assert.DoesNotContain("list_symbols", skill, StringComparison.Ordinal);
         Assert.DoesNotContain("https://", skill, StringComparison.OrdinalIgnoreCase);
         Assert.DoesNotContain("127.0.0.1", skill, StringComparison.Ordinal);
         Assert.DoesNotContain("Load `/dotnet-solution`", skill, StringComparison.Ordinal);
@@ -231,91 +228,10 @@ public sealed class PluginMcpContractTests
         }
     }
 
-    [Fact]
-    public void Local_roslyn_is_on_machine_read_only_symbols_refs_diagnostics()
-    {
-        var root = SourceRoot();
-        var mcp = File.ReadAllText(Path.Combine(root, "plugins", "dotnet", "mcp.json"));
-        var program = File.ReadAllText(Path.Combine(root, "plugins", "dotnet", "mcp", "Program.cs"));
-        var lookup = File.ReadAllText(Path.Combine(root, "plugins", "dotnet", "mcp", "RoslynLookup.cs"));
-        var combined = mcp + program + lookup;
-
-        Assert.Contains("\"type\": \"stdio\"", mcp, StringComparison.Ordinal);
-        Assert.DoesNotContain("\"url\"", mcp, StringComparison.Ordinal);
-        Assert.DoesNotContain("streamable-http", mcp, StringComparison.Ordinal);
-        Assert.DoesNotContain("sse", mcp, StringComparison.Ordinal);
-        Assert.Contains("Microsoft.CodeAnalysis", lookup, StringComparison.Ordinal);
-        Assert.Contains("list_symbols", lookup, StringComparison.Ordinal);
-        Assert.Contains("find_references", lookup, StringComparison.Ordinal);
-        Assert.Contains("list_diagnostics", lookup, StringComparison.Ordinal);
-        Assert.DoesNotContain("apply_fix", combined, StringComparison.Ordinal);
-        Assert.DoesNotContain("rename_symbol", combined, StringComparison.Ordinal);
-        Assert.DoesNotContain("CodeAction", combined, StringComparison.Ordinal);
-        Assert.DoesNotContain("127.0.0.1", combined, StringComparison.Ordinal);
-        Assert.False(DotnetRoslynTools.IsAllowedTool("apply_fix"));
-        Assert.False(DotnetRoslynTools.IsAllowedTool("refactor"));
-        Assert.True(DotnetRoslynTools.IsWriteTool("refactor"));
-        Assert.True(DotnetRoslynTools.IsAllowedTool("list_symbols"));
-
-        var project = Path.Combine(root, "plugins", "dotnet", "mcp", "DotnetSolutionMcp.csproj");
-        var fixtures = Path.Combine(AppContext.BaseDirectory, "Fixtures", "dotnet-solution");
-        var tools = RunMcp(project, "--list-tools");
-        Assert.Contains("list_symbols", tools, StringComparison.Ordinal);
-        Assert.Contains("find_references", tools, StringComparison.Ordinal);
-        Assert.Contains("list_diagnostics", tools, StringComparison.Ordinal);
-
-        var symbols = RunMcp(project, "--list-symbols", Path.Combine(fixtures, "Symbols.cs"));
-        Assert.Contains("Greeter", symbols, StringComparison.Ordinal);
-        Assert.Contains("Hello", symbols, StringComparison.Ordinal);
-
-        var refs = RunMcp(project, "--find-references", Path.Combine(fixtures, "Symbols.cs"), "Hello");
-        Assert.False(string.IsNullOrWhiteSpace(refs));
-
-        var diagnostics = RunMcp(project, "--list-diagnostics", Path.Combine(fixtures, "Broken.cs"));
-        Assert.Contains("CS", diagnostics, StringComparison.Ordinal);
-    }
-
-    [Fact]
-    public void Local_solution_cli_lists_tools_without_a_network()
-    {
-        var project = Path.Combine(SourceRoot(), "plugins", "dotnet", "mcp", "DotnetSolutionMcp.csproj");
-        var start = new System.Diagnostics.ProcessStartInfo("dotnet")
-        {
-            RedirectStandardOutput = true,
-            RedirectStandardError = true,
-            UseShellExecute = false,
-            ArgumentList = { "run", "--project", project, "--", "--list-tools" }
-        };
-        using var process = System.Diagnostics.Process.Start(start);
-        Assert.NotNull(process);
-        var output = process.StandardOutput.ReadToEnd();
-        process.WaitForExit(60_000);
-        Assert.Equal(0, process.ExitCode);
-        Assert.Contains("list_projects", output, StringComparison.Ordinal);
-        Assert.Contains("list_packages", output, StringComparison.Ordinal);
-        Assert.Contains("describe_project", output, StringComparison.Ordinal);
-    }
-
-    private static string RunMcp(string project, params string[] args)
-    {
-        var start = new System.Diagnostics.ProcessStartInfo("dotnet")
-        {
-            RedirectStandardOutput = true,
-            RedirectStandardError = true,
-            UseShellExecute = false,
-            ArgumentList = { "run", "--project", project, "--" }
-        };
-        foreach (var arg in args)
-            start.ArgumentList.Add(arg);
-
-        using var process = System.Diagnostics.Process.Start(start);
-        Assert.NotNull(process);
-        var output = process.StandardOutput.ReadToEnd();
-        var errors = process.StandardError.ReadToEnd();
-        process.WaitForExit(90_000);
-        Assert.True(process.ExitCode == 0, errors + output);
-        return output;
-    }
+    private static bool IsGeneratedPath(string path) =>
+        path.Contains($"{Path.DirectorySeparatorChar}bin{Path.DirectorySeparatorChar}", StringComparison.Ordinal)
+        || path.Contains($"{Path.DirectorySeparatorChar}obj{Path.DirectorySeparatorChar}", StringComparison.Ordinal)
+        || path.Contains($"{Path.DirectorySeparatorChar}.git{Path.DirectorySeparatorChar}", StringComparison.Ordinal);
 
     private static string SourceRoot()
     {

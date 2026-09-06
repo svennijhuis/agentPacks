@@ -106,7 +106,6 @@ Edit under `plugins/squad/` or a language pack (`plugins/dotnet/`, `plugins/rust
 ```bash
 dotnet run --project tools/AgentPacks.Cli -- validate
 dotnet test tools/AgentPacks.Cli.Tests
-dotnet run --project plugins/dotnet/mcp/DotnetSolutionMcp.csproj -- --list-tools
 dotnet run --project tools/AgentPacks.Cli -- validate-all --out /tmp/agentpacks-marketplace
 ```
 

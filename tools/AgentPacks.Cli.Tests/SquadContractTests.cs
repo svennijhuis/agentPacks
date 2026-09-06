@@ -444,7 +444,7 @@ public class SquadContractTests
         {
             Assert.Contains("dotnet run --project tools/AgentPacks.Cli -- validate", text, StringComparison.Ordinal);
             Assert.Contains("dotnet test tools/AgentPacks.Cli.Tests", text, StringComparison.Ordinal);
-            Assert.Contains("dotnet run --project plugins/dotnet/mcp/DotnetSolutionMcp.csproj -- --list-tools", text, StringComparison.Ordinal);
+            Assert.DoesNotContain("DotnetSolutionMcp", text, StringComparison.Ordinal);
             Assert.Contains("claude --plugin-dir", text, StringComparison.Ordinal);
             Assert.Contains("~/.cursor/plugins/local", text, StringComparison.Ordinal);
             Assert.Contains("copilot plugin marketplace add /tmp/agentpacks-marketplace", text, StringComparison.Ordinal);
@@ -544,7 +544,7 @@ public class SquadContractTests
 
     /// <summary>
     /// Po 19 fail bar: usable gates/ops (not too thin to run), not essay-length,
-    /// exactly /squad + /review, MCP only at plugins/dotnet/mcp.json (squad scaffold OK).
+    /// exactly /squad + /review, authored MCP files are empty scaffolds.
     /// </summary>
     [Fact]
     public void Usable_gates_not_essays_exactly_two_commands_and_mcp_only_in_dotnet()
@@ -554,13 +554,13 @@ public class SquadContractTests
         Squad_commands_are_exactly_squad_and_review();
 
         Loop_agent_bodies_stay_above_the_thin_floor();
-        Mcp_stays_only_in_dotnet_with_empty_squad_scaffold();
+        Plugin_mcp_files_are_empty_scaffolds();
     }
 
     /// <summary>
     /// Po 20 fail bar: simplifier is report-only (no edits), three axes in one
     /// agent, Matt-clear ops on every loop agent, exactly /squad+/review, MCP
-    /// only at plugins/dotnet/mcp.json.
+    /// authored MCP files are empty scaffolds.
     /// </summary>
     [Fact]
     public void Simplifier_is_report_only_one_agent_three_axes()
@@ -605,7 +605,7 @@ public class SquadContractTests
         Loop_agent_bodies_stay_tiny();
         Loop_agent_bodies_stay_above_the_thin_floor();
         Squad_commands_are_exactly_squad_and_review();
-        Mcp_stays_only_in_dotnet_with_empty_squad_scaffold();
+        Plugin_mcp_files_are_empty_scaffolds();
     }
 
     private static void Loop_agent_bodies_stay_above_the_thin_floor()
@@ -619,7 +619,7 @@ public class SquadContractTests
         }
     }
 
-    private void Mcp_stays_only_in_dotnet_with_empty_squad_scaffold()
+    private void Plugin_mcp_files_are_empty_scaffolds()
     {
         var root = SourceRoot();
         var authored = Directory.GetFiles(root, "mcp.json", SearchOption.AllDirectories)
@@ -631,14 +631,11 @@ public class SquadContractTests
         Assert.Empty(Directory.GetFiles(Path.Combine(root, "plugins"), ".mcp.json",
             SearchOption.AllDirectories));
 
-        var squad = JsonNode.Parse(File.ReadAllText(Path.Combine(root, "plugins", "squad", "mcp.json")))!;
-        Assert.Empty(squad["mcpServers"]!.AsObject());
-
-        var dotnet = JsonNode.Parse(File.ReadAllText(Path.Combine(root, "plugins", "dotnet", "mcp.json")))!;
-        Assert.Single(dotnet["mcpServers"]!.AsObject());
-        Assert.Equal("stdio", dotnet["mcpServers"]!["dotnet-solution"]!["type"]!.GetValue<string>());
-        Assert.Contains("${PLUGIN_ROOT}/mcp/DotnetSolutionMcp.csproj", dotnet.ToJsonString(),
-            StringComparison.Ordinal);
+        foreach (var relative in authored)
+        {
+            var mcp = JsonNode.Parse(File.ReadAllText(Path.Combine(root, relative)))!;
+            Assert.Empty(mcp["mcpServers"]!.AsObject());
+        }
     }
 
     private static bool IsGeneratedPath(string path) =>

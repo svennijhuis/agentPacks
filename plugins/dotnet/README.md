@@ -10,7 +10,7 @@ build, test, and review skills that the Loop discovers by exact name.
 | `dotnet-build` | implementer, simplifier | Internal loop skill. Inspect the solution, restore, build, implement, and format once at the end |
 | `dotnet-test-patterns` | implementer, verifier | Internal loop skill. Choose the right test boundary, fixtures, packages, and commands |
 | `dotnet-review` | correctness reviewer | Internal loop skill. Review C# correctness, API shape, async/error handling, resources, and testability |
-| `dotnet-solution` | implementer | Internal loop skill. Read-only `.sln` / `.slnx` / package graph via local MCP tools |
+| `dotnet-solution` | implementer | Internal loop skill. Read-only `.sln` / `.slnx` / package graph via `dotnet sln` / `dotnet list` |
 
 Canonical standards live once under `standards/`:
 
@@ -43,11 +43,9 @@ checks the whole solution with `--verify-no-changes`. See the
 
 ## Editing this pack
 
-Authored: `plugin.json`, `mcp.json`, `standards.source.json`, `standards/`, and `skills/`.
+Authored: `plugin.json`, `mcp.json` (empty scaffold), `standards.source.json`, `standards/`, and `skills/`.
 
-`mcp.json` starts a **local stdio** process (`dotnet run --project mcp/DotnetSolutionMcp.csproj`).
-Read-only. No URL. No hosted Roslyn. File lookups plus on-machine symbols, refs, and diagnostics.
-Agents can also use `dotnet sln list` and `dotnet list <csproj> package` on the machine.
+v1 ships no MCP server. Agents use `dotnet sln list` and `dotnet list <csproj> package` on the machine. See [ADD-MCP.md](../../docs/ADD-MCP.md) to add a server later.
 
 Generated on the `marketplace` branch or in temporary validation output, never on `main`:
 `.cursor-plugin/`, `.codex-plugin/`, `com.anthropic.claude-code/`, `com.openai.codex/`,

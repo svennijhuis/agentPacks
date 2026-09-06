@@ -61,7 +61,7 @@ Configured headers and environment values are literal, visible package data. Age
 
 Company MCP servers are .NET services, so use the official [MCP C# SDK](https://devblogs.microsoft.com/dotnet/announcing-v20-of-the-official-mcp-csharp-sdk/). Reference `ModelContextProtocol.AspNetCore` for an HTTP server or `ModelContextProtocol` for stdio with attribute-based tool discovery.
 
-Local C# tools in this repo use `stdio` on the developer machine — never a hosted URL or Roslyn
+A later local stdio process on the developer machine is never a hosted URL or Roslyn
 service. A later remote lookup server would use `streamable-http`: v2.0 servers are stateless by
 default, with no `initialize` handshake or session header, so they scale horizontally behind ordinary
 HTTP infrastructure. A tool that needs input mid-execution returns `InputRequiredResult` rather than
@@ -71,16 +71,13 @@ holding a session open.
 
 For the first phase, prefer lookups over writes: architecture search, coding standard search, service lookup, owner lookup. Add deployment or resource tooling later, and do not start with production write access.
 
-This repository's first server is a **local stdio process**, not a URL. `plugins/dotnet/mcp.json`
-runs `dotnet --project ${PLUGIN_ROOT}/mcp/DotnetSolutionMcp.csproj`. No headers. No credentials.
-No hosted Roslyn. File lookups: `list_projects`, `list_packages`, `describe_project`. On-machine
-Roslyn: `list_symbols`, `find_references`, `list_diagnostics`. No write or refactor tools.
-`plugins/squad/mcp.json` is an empty scaffold — Squad has no server worth installing.
-Agents can also use `dotnet sln list` and `dotnet list <csproj> package` on the developer machine.
+v1 ships **no MCP server**. Authored `plugins/*/mcp.json` files are empty scaffolds. Replace
+`mcpServers` when a real server exists. Agents use `dotnet sln list` and
+`dotnet list <csproj> package` on the developer machine. A later stdio server is never a hosted URL.
 
 ## swagger→MCP (recipe, not a generator)
 
-Do not emit one tool per endpoint. Filter first:
+Do not emit one tool per endpoint. Keep a filtered GET set:
 
 1. Keep `GET` only.
 2. Keep an allowlisted tag (for example `pets`).
@@ -97,8 +94,8 @@ dotnet test tools/AgentPacks.slnx
 dotnet run --project tools/AgentPacks.Cli -- validate
 ```
 
-`PluginMcpContractTests` and `DotnetSolutionTools` prove the authored `mcp.json`, the three
-read-only lookups on a fixture `.sln` / `.csproj`, and the filtered swagger example.
+`PluginMcpContractTests` prove authored `mcp.json` files stay empty scaffolds, and
+`DotnetSolutionTools` / `SwaggerToolFilter` keep the how-to recipe on a fixture.
 
 ## Generated Claude file
 

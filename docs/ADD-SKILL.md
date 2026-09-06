@@ -78,7 +78,6 @@ files, and skill-local standards references.
 dotnet run --project tools/AgentPacks.Cli -- validate
 dotnet test tools/AgentPacks.Cli.Tests
 dotnet test tools/AgentPacks.slnx
-dotnet run --project plugins/dotnet/mcp/DotnetSolutionMcp.csproj -- --list-tools
 dotnet run --project tools/AgentPacks.Cli -- validate-all --out /tmp/agentpacks-marketplace
 ```
 

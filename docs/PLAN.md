@@ -44,8 +44,8 @@ Both give a Rust shop a way to avoid installing .NET skills. Only one stays read
 ## What ships today
 
 The repository currently ships **three capability packs and two language packs**: `squad`,
-`pack-check`, `git`, `dotnet`, and `rust`. `dotnet` also ships a local read-only `mcp.json`
-(`dotnet-solution`: local stdio `dotnet` process, no credentials, no hosted service) and the `dotnet-solution` skill.
+`pack-check`, `git`, `dotnet`, and `rust`. Authored `mcp.json` files are empty scaffolds.
+v1 ships no MCP server. `dotnet` still has the `dotnet-solution` skill (`dotnet sln` / `dotnet list`).
 
 The earlier catalog carried five role packs and three language packs, six of which held nothing but a `plugin.json`. An empty pack is not a placeholder — it is an install that appears in the marketplace, resolves, and does nothing, which is worse than not being listed. They were removed in the same branch that added Squad; the pinned external-skill imports and the two authored skills (`engineering/testing`, `dotnet/dotnet-review`) are in history at `007f609` and can be restored when there is a pack around them worth installing.
 
