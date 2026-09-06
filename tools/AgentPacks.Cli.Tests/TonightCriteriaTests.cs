@@ -107,6 +107,8 @@ public sealed class TonightCriteriaTests
         nameof(SquadContractTests.Learnings_digest_is_not_user_invocable))]
     [InlineData("41 Copilot factory command name differs from plugin name", typeof(SquadContractTests),
         nameof(SquadContractTests.Copilot_factory_command_name_differs_from_plugin_name))]
+    [InlineData("42 dotnet-review Matt-tiny examples standards.source kept", typeof(LanguagePackContractTests),
+        nameof(LanguagePackContractTests.Dotnet_review_examples_matt_tiny_standards_source_kept))]
     [InlineData("43 squad smoke-matrix template happy edge fail auth timeout 5xx", typeof(SquadContractTests),
         nameof(SquadContractTests.Squad_smoke_matrix_template_covers_happy_edge_fail_auth_timeout_5xx))]
     [InlineData("43 lang test-patterns local vs deployed smoke examples", typeof(SquadContractTests),
