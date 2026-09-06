@@ -52,7 +52,7 @@ Obvious typos, renames, and one-line fixes take the small-change route: the main
 | Agent | `squad-security-reviewer` | Reviews trust-boundary changes against [OWASP Top 10:2025](https://owasp.org/Top10/) |
 | Agent | `squad-simplifier` | Finds unnecessary implementation complexity |
 | Agent | `squad-orchestrator` | Deduplicates completed reports, assigns the verdict, and appends the fix list |
-| Command | `squad` | Runs a new change through the proportional workflow |
+| Command | `squad` | Runs a new change through the proportional workflow. Copilot picker: `/squad:run` |
 | Command | `squad-review` | Reviews a PR, uncommitted work, or a diff versus main, without a plan, verdict, or fix round |
 
 All seven agents remain portable across supported generated clients.
@@ -85,7 +85,7 @@ the applicable plugin standards and concrete repository conventions in the plan.
 |---|---|---|---|---|
 | Claude | yes | no | yes | yes |
 | Cursor | yes | yes | yes | yes |
-| GitHub Copilot | yes | no | yes | yes |
+| GitHub Copilot | yes | no | yes | `/squad:run` |
 | Codex | yes | no | manual copy | — |
 
 The scoped-rule limitation is intentional. Cursor is the only target that can carry the rule's glob contract through plugin packaging; generation emits the documented portability warning for the other clients instead of making the checklist always-on.
