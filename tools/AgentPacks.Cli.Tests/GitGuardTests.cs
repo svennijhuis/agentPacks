@@ -108,6 +108,18 @@ public sealed class GitGuardTests
         Assert.Equal(string.Empty, result.Error);
     }
 
+    /// <summary>
+    /// The documented escape hatch. Without this test, AGENTPACKS_GIT_GUARD=off is only prose.
+    /// </summary>
+    [Fact]
+    public void Guard_off_allows_a_command_that_would_otherwise_be_blocked()
+    {
+        var result = Run("git reset --hard", "nested", guard: "off");
+
+        Assert.Equal(0, result.ExitCode);
+        Assert.DoesNotContain("GIT00", result.Error, StringComparison.Ordinal);
+    }
+
     [Fact]
     public void Posix_and_powershell_guards_declare_the_same_rules()
     {
@@ -127,7 +139,7 @@ public sealed class GitGuardTests
     /// spelling the flag comparison misses, or a parse error. Skipped where pwsh is unavailable
     /// — the point is that CI, which has it, runs this.
     /// </summary>
-    [Theory]
+    [PowerShellTheory]
     [InlineData("cd /tmp && git -C /repo reset --hard", 2)]
     [InlineData("git clean -fd", 2)]
     [InlineData("git push -uf origin main", 2)]
@@ -143,15 +155,24 @@ public sealed class GitGuardTests
     [InlineData("git restore --staged src/Changed.cs", 0)]
     public void The_powershell_guard_reaches_the_same_verdict(string command, int expected)
     {
-        if (PowerShell is null)
-        {
-            return;
-        }
-
         var payload = JsonSerializer.Serialize(new { tool_input = new { command } });
-        var result = RunPayload(payload, PowerShell, PowerShellArguments());
+        var result = RunPayload(payload, PowerShell!, PowerShellArguments());
 
         Assert.Equal(expected, result.ExitCode);
+    }
+
+    /// <summary>
+    /// xUnit v2 has no Assert.Skip. Setting Theory.Skip at discovery is the skip, not a pass.
+    /// </summary>
+    private sealed class PowerShellTheoryAttribute : TheoryAttribute
+    {
+        public PowerShellTheoryAttribute()
+        {
+            if (PowerShell is null)
+            {
+                Skip = "pwsh is not available";
+            }
+        }
     }
 
     private static readonly string PowerShellScript =
@@ -192,21 +213,22 @@ public sealed class GitGuardTests
     private static string[] PowerShellArguments() =>
         ["-NoProfile", "-ExecutionPolicy", "Bypass", "-File", PowerShellScript, "-Matcher", "git"];
 
-    private static (int ExitCode, string Error) Run(string command, string shape)
+    private static (int ExitCode, string Error) Run(string command, string shape, string guard = "on")
     {
         var payload = shape == "flat"
             ? JsonSerializer.Serialize(new { command })
             : JsonSerializer.Serialize(new { tool_input = new { command } });
-        return RunPayload(payload);
+        return RunPayload(payload, guard);
     }
 
-    private static (int ExitCode, string Error) RunPayload(string payload) =>
-        RunPayload(payload, "bash", [Script, "-Matcher", "git"]);
+    private static (int ExitCode, string Error) RunPayload(string payload, string guard = "on") =>
+        RunPayload(payload, "bash", [Script, "-Matcher", "git"], guard);
 
     private static (int ExitCode, string Error) RunPayload(
         string payload,
         string executable,
-        IReadOnlyList<string> arguments)
+        IReadOnlyList<string> arguments,
+        string guard = "on")
     {
         var start = new ProcessStartInfo(executable)
         {
@@ -221,11 +243,19 @@ public sealed class GitGuardTests
             start.ArgumentList.Add(argument);
         }
 
-        start.Environment["AGENTPACKS_GIT_GUARD"] = "on";
+        start.Environment["AGENTPACKS_GIT_GUARD"] = guard;
 
         using var process = Process.Start(start)!;
-        process.StandardInput.Write(payload);
-        process.StandardInput.Close();
+        try
+        {
+            process.StandardInput.Write(payload);
+            process.StandardInput.Close();
+        }
+        catch (IOException)
+        {
+            // The disable switch exits before reading stdin.
+        }
+
         var error = process.StandardError.ReadToEnd();
         process.WaitForExit();
         return (process.ExitCode, error);
