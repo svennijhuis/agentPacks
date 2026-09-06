@@ -2,16 +2,19 @@
 name: typescript-build
 description: Internal loop skill. Loaded by the Squad orchestrator by exact Skill tool name, not as a user entrypoint. How a TypeScript repository is laid out and built — package manager, tsconfig, and the exact tsc / script commands.
 license: UNLICENSED
+user-invocable: false
 metadata:
   audience: loop
 ---
+
+Internal. Do not run directly — Squad loads by exact Skill name.
 
 # TypeScript build
 
 Facts before editing. Read the repository files first.
 
 When loaded by exact Skill tool name `typescript-build` during implement or review:
-1. Read every file in `references/standards/` (authored tree: `../../standards/` before generation).
+1. Read every file in `references/standards/`.
 2. Standards in force: `typescript.md`.
 3. Cite `typescript.md` on each edit.
 

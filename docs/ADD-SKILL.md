@@ -23,6 +23,7 @@ Agent Skills publishes no JSON Schema, so the validator implements the specifica
 | `metadata` | no | A mapping of string keys to string values. Contracted `<lang>-*` slots must set `audience: loop`. |
 | `allowed-tools` | no | Space-separated string. Experimental; support varies between clients. |
 | `disable-model-invocation` | no | `true` for a user-invoked entrypoint. Generation writes the Codex `agents/openai.yaml` half so both dialects stay in sync. |
+| `user-invocable` | no | Copilot. `false` on `audience: loop` skills. Generation also emits that flag on the Copilot dialect copy. |
 
 Plugin names may contain periods (`acme.tools` is valid); skill names may not. This trips people up.
 
@@ -33,9 +34,12 @@ Authored skills in this repo use that short frontmatter. A loop slot (not a user
 name: dotnet-build
 description: Internal loop skill. Loaded by the Squad orchestrator by exact Skill tool name, not as a user entrypoint. How a .NET repository is laid out, restored and built.
 license: UNLICENSED
+user-invocable: false
 metadata:
   audience: loop
 ---
+
+Internal. Do not run directly — Squad loads by exact Skill name.
 ```
 
 A user-invoked entrypoint (`squad`, `pack-check`, `learnings-digest`) adds

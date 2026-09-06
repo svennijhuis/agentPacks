@@ -32,7 +32,8 @@ The names *are* the interface. A skill called `dotnet-testing` instead of `dotne
 The orchestrator loads these with the Skill tool by exact name, never slash-prose. Slot skills are
 internals: set `metadata.audience: loop` and say so in the description so they do not look like a
 second user-facing entrypoint. They must stay model-invoked; `disable-model-invocation` would hide
-them from the loop.
+them from the loop. Copilot: set `user-invocable: false`. The first body line is exactly
+`Internal. Do not run directly — Squad loads by exact Skill name.`
 
 ## Framework skills are not slots
 
@@ -92,9 +93,15 @@ Do not repeat the same rule across three skills. Put canonical Markdown document
 }
 ```
 
-Generation places the selected documents under each skill's `references/standards/` directory on the
-`marketplace` branch or in temporary output. Source `main` stays authored-only. Every consuming skill
-must name them under `Standards in force:` and tell the agent to cite the document filename during review and build.
+Author the documents in `plugins/<lang>/standards/`. That author path belongs in this document, not
+in a skill body. Generation copies the selected files into each consumer's `references/standards/`
+directory on the `marketplace` branch or in temporary output. Source `main` stays authored-only.
+Skill bodies point only at `references/standards/` — never `authored tree: ../../standards/` or
+`../../standards/`. Every consuming skill must name them under `Standards in force:` and tell the
+agent to cite the document filename during review and build.
+
+`<lang>-test-patterns` also ships concrete commands under `references/examples/`. The skill loads
+`references/standards/` first, then `references/examples/`.
 
 The validator rejects unknown keys, paths outside the plugin, missing Markdown files, unknown skills,
 duplicate references, and unused documents.

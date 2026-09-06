@@ -2,9 +2,12 @@
 name: rust-test-patterns
 description: Internal loop skill. Loaded by the Squad orchestrator by exact Skill tool name, not as a user entrypoint. How tests are written and run in a Rust repository — unit, integration and doc tests, async runtimes, feature matrices, Cargo and nextest commands.
 license: UNLICENSED
+user-invocable: false
 metadata:
   audience: loop
 ---
+
+Internal. Do not run directly — Squad loads by exact Skill name.
 
 # Rust test patterns
 
@@ -12,9 +15,10 @@ How a test is written *in this stack*. What deserves a test at all is a separate
 not a Rust one.
 
 When loaded by exact Skill tool name `rust-test-patterns` during implement or verify:
-1. Read every file in `references/standards/` (authored tree: `../../standards/` before generation).
-2. Standards in force: `testing.md`.
-3. Cite `testing.md` when choosing a runner, boundary, or command.
+1. Read every file in `references/standards/`.
+2. Read every file in `references/examples/`.
+3. Standards in force: `testing.md`.
+4. Cite `testing.md` when choosing a runner, boundary, or command.
 
 ## Find the shape before writing
 
@@ -36,29 +40,14 @@ and a crate using async-std does not want its first Tokio test because an exampl
 | Documentation | Rustdoc code blocks on public items | A public example that must keep compiling and behaving as documented |
 | System/end-to-end | Repository-specific harness | Processes, services, real protocols, migrations, or native boundaries |
 
-Integration tests are separate crates and cannot access private items. Do not make an implementation
-item public only to test it; test through the public behavior or keep a focused unit test beside it.
+Integration tests are separate crates and cannot access private items. Concrete commands:
+[unit](references/examples/unit.md), [integration](references/examples/integration.md).
 
 ## Failures, async work, and isolation
 
-A fallible setup can return `Result`:
-
-```rust
-#[test]
-fn parses_valid_input() -> Result<(), Box<dyn std::error::Error>> {
-    let value = parse("42")?;
-    assert_eq!(value, 42);
-    Ok(())
-}
-```
-
-When failure is the behavior under test, inspect the error instead of propagating it with `?`.
-Use `#[should_panic(expected = "...")]` only for an intentional panic contract.
-
-Use the async test attribute already supplied by the crate's runtime. Avoid real sleeps: control time
-with the runtime's test facilities or inject a clock. Tests in one binary run in parallel by default,
-so give files, ports, databases, environment, and global state unique ownership; serialize only the
-smallest unavoidable shared group.
+Use the async test attribute already supplied by the crate's runtime. Avoid real sleeps. Tests in
+one binary run in parallel by default, so give files, ports, databases, environment, and global
+state unique ownership; serialize only the smallest unavoidable shared group.
 
 ## Running them
 
@@ -69,24 +58,8 @@ cargo fmt --all -- --check
 cargo test --workspace --no-fail-fast
 ```
 
-`cargo test` covers unit, integration, and library documentation tests by default. Use narrow commands
-while iterating, then run the workspace command:
-
-```bash
-cargo test -p <package> <test-name>
-cargo test -p <package> --test <integration-target>
-cargo test -p <package> --doc
-```
-
-When the repository configures nextest, use its checked-in profile and the equivalent workspace scope:
-
-```bash
-cargo nextest run --workspace
-cargo test --workspace --doc
-```
-
-Nextest does not replace documentation tests. Run the feature and target combinations established by
-CI; do not invent `--all-features` when the manifest permits incompatible combinations.
+Nextest does not replace documentation tests. Do not invent `--all-features` when the manifest
+permits incompatible combinations.
 
 Good: `cargo test -p <package> --test <integration-target>` for a real boundary.
 Bad: a happy-path-only unit test marked as coverage.

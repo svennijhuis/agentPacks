@@ -2,14 +2,17 @@
 name: rust-review
 description: Internal loop skill. Loaded by the Squad orchestrator by exact Skill tool name, not as a user entrypoint. Supply Rust-specific findings from the pack's canonical ownership, API, error, concurrency, unsafe-code, and testing standards.
 license: UNLICENSED
+user-invocable: false
 metadata:
   audience: loop
 ---
 
+Internal. Do not run directly — Squad loads by exact Skill name.
+
 # Rust review
 
 When loaded by exact Skill tool name `rust-review` during review or build:
-1. Read every file in `references/standards/` (authored tree: `../../standards/` before generation).
+1. Read every file in `references/standards/`.
 2. Standards in force: `rust.md`, `errors-concurrency.md`, `testing.md`.
 3. Cite the document filename on each finding (`rust.md`, not "the Rust standard").
 

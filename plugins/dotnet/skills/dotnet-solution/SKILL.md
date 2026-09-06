@@ -2,9 +2,12 @@
 name: dotnet-solution
 description: Internal loop skill. Loaded by the Squad orchestrator by exact Skill tool name, not as a user entrypoint. Read-only local view of a .NET solution and package graph via `dotnet sln` / `dotnet list` and project files. Never a remote service.
 license: UNLICENSED
+user-invocable: false
 metadata:
   audience: loop
 ---
+
+Internal. Do not run directly — Squad loads by exact Skill name.
 
 # .NET solution (local, read-only)
 

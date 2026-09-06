@@ -2,18 +2,22 @@
 name: typescript-test-patterns
 description: Internal loop skill. Loaded by the Squad orchestrator by exact Skill tool name, not as a user entrypoint. How tests are written and run in a TypeScript repository — Vitest, Jest, node:test, and the exact test command.
 license: UNLICENSED
+user-invocable: false
 metadata:
   audience: loop
 ---
+
+Internal. Do not run directly — Squad loads by exact Skill name.
 
 # TypeScript test patterns
 
 How a test is written *in this stack*. What deserves a test is not a TypeScript question.
 
 When loaded by exact Skill tool name `typescript-test-patterns` during implement or verify:
-1. Read every file in `references/standards/` (authored tree: `../../standards/` before generation).
-2. Standards in force: `testing.md`.
-3. Cite `testing.md` when choosing a runner or command.
+1. Read every file in `references/standards/`.
+2. Read every file in `references/examples/`.
+3. Standards in force: `testing.md`.
+4. Cite `testing.md` when choosing a runner or command.
 
 ## Find the shape
 
@@ -30,6 +34,8 @@ rg -n '"vitest"|"jest"|"node:test"' -g 'package.json'
 | `"test"` script | That script | `<pm> run test` |
 
 A `"test"` script wins when it already encodes the runner. Do not add Vitest to a Jest repo.
+
+Concrete cases: [unit](references/examples/unit.md), [integration](references/examples/integration.md).
 
 ## Boundary
 

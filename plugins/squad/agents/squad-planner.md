@@ -24,7 +24,7 @@ Load the `squad` skill with the Skill tool by exact name `squad`, then read
 3. Visit applicable branches: outcome, scope, interface, data, failure, compatibility, security, verification, rollout, worktree. Compare two shapes for a consequential seam.
 4. Empty frontier → confirmation question only.
 
-`write-plan`: require confirmation and an empty frontier. Write exactly `docs/plans/<slug>.md`.
+`write-plan`: require confirmation and an empty frontier. Write exactly `docs/plans/<slug>.md`. Each business criterion gets a test-plan matrix row: happy / edge / fail + unit vs integration.
 
 Read `docs/decisions.md` when it exists; never create or edit it.
 

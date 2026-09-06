@@ -3,10 +3,11 @@ using AgentPacks.Cli.Loading;
 namespace AgentPacks.Cli.Generation;
 
 /// <summary>
-/// Emits the Codex half of a user-invoked skill. Claude reads
-/// <c>disable-model-invocation</c> from SKILL.md; Codex reads
-/// <c>policy.allow_implicit_invocation</c> from <c>agents/openai.yaml</c>. A pack that sets only
-/// one dialect is user-invoked on one client and model-invoked on the others.
+/// Emits client-specific invocation flags that the portable SKILL.md cannot carry alone.
+/// Claude reads <c>disable-model-invocation</c> from SKILL.md; Codex reads
+/// <c>policy.allow_implicit_invocation</c> from <c>agents/openai.yaml</c>. Copilot reads
+/// <c>user-invocable</c> — loop-audience skills are not user entrypoints, so the generated
+/// Copilot copy always sets <c>user-invocable: false</c>.
 /// </summary>
 internal static class SkillPolicyGenerator
 {
@@ -20,23 +21,67 @@ internal static class SkillPolicyGenerator
         {
             foreach (var skill in plugin.Skills)
             {
-                if (skill.Frontmatter?.Scalar("disable-model-invocation") != "true")
+                if (skill.Frontmatter?.Scalar("disable-model-invocation") == "true")
                 {
-                    continue;
+                    var relative = Path.Combine(
+                        "plugins",
+                        plugin.DirectoryName,
+                        "skills",
+                        skill.DirectoryName,
+                        CodexPolicyRelative.Replace('/', Path.DirectorySeparatorChar));
+
+                    files.Add(new GeneratedFile(relative, CodexPolicy));
                 }
 
-                var relative = Path.Combine(
-                    "plugins",
-                    plugin.DirectoryName,
-                    "skills",
-                    skill.DirectoryName,
-                    CodexPolicyRelative.Replace('/', Path.DirectorySeparatorChar));
+                if (skill.Frontmatter?.StringMap("metadata") is { } metadata &&
+                    metadata.TryGetValue("audience", out var audience) &&
+                    audience == "loop")
+                {
+                    var relative = Path.Combine(
+                        "plugins",
+                        plugin.DirectoryName,
+                        "com.github.copilot",
+                        "skills",
+                        skill.DirectoryName,
+                        "SKILL.md");
 
-                files.Add(new GeneratedFile(relative, CodexPolicy));
+                    var source = File.ReadAllText(skill.SkillFilePath);
+                    files.Add(new GeneratedFile(relative, WithUserInvocableFalse(source)));
+                }
             }
         }
 
         return files;
+    }
+
+    internal static string WithUserInvocableFalse(string skillMarkdown)
+    {
+        if (skillMarkdown.Contains("user-invocable: false", StringComparison.Ordinal))
+        {
+            return skillMarkdown;
+        }
+
+        if (skillMarkdown.Contains("user-invocable: true", StringComparison.Ordinal))
+        {
+            return skillMarkdown.Replace(
+                "user-invocable: true",
+                "user-invocable: false",
+                StringComparison.Ordinal);
+        }
+
+        const string open = "---\n";
+        if (skillMarkdown.StartsWith(open, StringComparison.Ordinal))
+        {
+            return open + "user-invocable: false\n" + skillMarkdown[open.Length..];
+        }
+
+        const string openCrlf = "---\r\n";
+        if (skillMarkdown.StartsWith(openCrlf, StringComparison.Ordinal))
+        {
+            return openCrlf + "user-invocable: false\r\n" + skillMarkdown[openCrlf.Length..];
+        }
+
+        return skillMarkdown;
     }
 
     private const string CodexPolicy =

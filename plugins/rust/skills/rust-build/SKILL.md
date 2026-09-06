@@ -2,9 +2,12 @@
 name: rust-build
 description: Internal loop skill. Loaded by the Squad orchestrator by exact Skill tool name, not as a user entrypoint. How a Rust repository is laid out, checked and built — Cargo workspaces, toolchain pinning, features, lock files, and the exact check, build, run, format and Clippy commands.
 license: UNLICENSED
+user-invocable: false
 metadata:
   audience: loop
 ---
+
+Internal. Do not run directly — Squad loads by exact Skill name.
 
 # Rust build
 
@@ -12,7 +15,7 @@ The facts an agent needs before it touches a `Cargo.toml`. Read the repository's
 the layout below is the common one, not a guarantee.
 
 When loaded by exact Skill tool name `rust-build` during implement or review:
-1. Read every file in `references/standards/` (authored tree: `../../standards/` before generation).
+1. Read every file in `references/standards/`.
 2. Standards in force: `rust.md`, `errors-concurrency.md`.
 3. Cite the document filename on each edit (`rust.md`, not "the Rust standard").
 

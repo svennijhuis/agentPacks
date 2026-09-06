@@ -13,6 +13,15 @@ public sealed class PackCheckContractTests
 
     private static string Fixture(string name) => File.ReadAllText(Path.Combine(FixtureRoot, name));
 
+    /// <summary>Po 33: /pack-check is setup-only; /squad already runs the check.</summary>
+    [Fact]
+    public void Pack_check_readme_is_setup_only_squad_already_runs_check()
+    {
+        var readme = File.ReadAllText(Path.Combine(SourceRoot(), "plugins", "pack-check", "README.md"));
+        Assert.Contains("`/pack-check` is setup-only", readme, StringComparison.Ordinal);
+        Assert.Contains("`/squad` already runs this check", readme, StringComparison.Ordinal);
+    }
+
     [Fact]
     public void Pack_check_does_not_opt_into_the_language_pack_contract()
     {

@@ -2,14 +2,17 @@
 name: dotnet-review
 description: Internal loop skill. Loaded by the Squad orchestrator by exact Skill tool name, not as a user entrypoint. Supply .NET-specific findings for a C# file, diff, or pull request from the pack's canonical design, async/error, and testing standards.
 license: UNLICENSED
+user-invocable: false
 metadata:
   audience: loop
 ---
 
+Internal. Do not run directly — Squad loads by exact Skill name.
+
 # .NET review
 
 When loaded by exact Skill tool name `dotnet-review` during review or build:
-1. Read every file in `references/standards/` (authored tree: `../../standards/` before generation).
+1. Read every file in `references/standards/`.
 2. Standards in force: `csharp.md`, `async-errors.md`, `testing.md`.
 3. Cite the document filename on each finding (`csharp.md`, not "the C# standard").
 

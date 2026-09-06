@@ -2,18 +2,22 @@
 name: dotnet-test-patterns
 description: Internal loop skill. Loaded by the Squad orchestrator by exact Skill tool name, not as a user entrypoint. How tests are written and run in a .NET repository — unit vs integration, xUnit fixtures, WebApplicationFactory, Testcontainers, and the exact test command.
 license: UNLICENSED
+user-invocable: false
 metadata:
   audience: loop
 ---
+
+Internal. Do not run directly — Squad loads by exact Skill name.
 
 # .NET test patterns
 
 How a test is written *in this stack*. What deserves a test at all is a separate question, and it is not a .NET one.
 
 When loaded by exact Skill tool name `dotnet-test-patterns` during implement or verify:
-1. Read every file in `references/standards/` (authored tree: `../../standards/` before generation).
-2. Standards in force: `testing.md`.
-3. Cite `testing.md` when choosing a fixture, boundary, or command.
+1. Read every file in `references/standards/`.
+2. Read every file in `references/examples/`.
+3. Standards in force: `testing.md`.
+4. Cite `testing.md` when choosing a fixture, boundary, or command.
 
 ## Find the shape before writing
 
@@ -47,54 +51,14 @@ Put it where it fails usefully. Logic with branches is a unit test; a route that
 | `IClassFixture<T>` | Once per test class | An expensive object one class shares |
 | `ICollectionFixture<T>` + `[Collection("name")]` | Once per collection, across classes | A container, a host, a database |
 
-Tests in the same collection do not run in parallel; different collections do. That is the lever: a shared database goes in a collection fixture so it is started once, and the tests that share it are serialised against each other and nothing else.
+Tests in the same collection do not run in parallel; different collections do. Standing up a
+Testcontainers database in a constructor starts one container per test.
 
-Standing up a Testcontainers database in a constructor starts one container per test. On a twenty-test class that is twenty containers and several minutes, and it will look like flakiness rather than a design mistake.
+Concrete fixtures and commands: [xunit-unit](references/examples/xunit-unit.md),
+[http-integration](references/examples/http-integration.md).
 
-## An HTTP integration test
-
-`WebApplicationFactory<TEntryPoint>` boots the real host in-process — real routing, real middleware, real DI — with no port and no network.
-
-```csharp
-public sealed class ApiFactory : WebApplicationFactory<Program>
-{
-    protected override void ConfigureWebHost(IWebHostBuilder builder) =>
-        builder.ConfigureTestServices(services =>
-        {
-            // Replace only what must not be real. Everything else stays wired.
-        });
-}
-```
-
-Replace the narrowest thing that works. A factory that stubs out the whole data layer is testing the test double.
-
-`Program` must be reachable from the test project. Microsoft documents two alternatives for a
-top-level-statements host: add `public partial class Program;` to `Program.cs`, **or** keep it internal
-and grant the test assembly access with `InternalsVisibleTo`. Choose the shape that matches the
-repository; do not require both. See [ASP.NET Core integration tests](https://learn.microsoft.com/en-us/aspnet/core/test/integration-tests).
-
-## A real dependency
-
-Testcontainers gives a real database per collection, disposed at the end.
-
-```csharp
-public sealed class DatabaseFixture : IAsyncLifetime
-{
-    private readonly PostgreSqlContainer container = new PostgreSqlBuilder().Build();
-
-    public string ConnectionString => container.GetConnectionString();
-
-    public Task InitializeAsync() => container.StartAsync();
-    public Task DisposeAsync() => container.DisposeAsync().AsTask();
-}
-```
-
-That signature is xUnit v2. xUnit v3 uses `ValueTask`; inspect the installed package version before
-choosing the interface implementation. See the [xUnit v3 migration guidance](https://xunit.net/docs/getting-started/v3/migration).
-
-Use `IAsyncLifetime`, not the constructor: starting a container is I/O, and a constructor cannot await it.
-
-Prefer a real dependency in a container over an in-memory substitute. `UseInMemoryDatabase` does not enforce constraints, does not run migrations and does not speak the provider's SQL — it passes on the queries most likely to break in production.
+`Program` must be reachable from the test project (`public partial class Program;` or
+`InternalsVisibleTo`). Prefer a real dependency in a container over `UseInMemoryDatabase`.
 
 ## Running them
 
@@ -102,20 +66,10 @@ Check formatting without rewriting the verifier's input:
 
 ```bash
 dotnet format <solution> --no-restore --verify-no-changes
-```
-
-```bash
 dotnet test <solution>
 ```
 
-```bash
-dotnet test <solution> --filter "FullyQualifiedName~Integration"
-```
-
 Report the command and its output. `dotnet test` exits non-zero on failure, and a test run whose output was not read is not evidence.
-
-The canonical testing standard owns test naming, observable behavior, deterministic time, fixture
-lifetime, and behavior-change coverage. Apply it rather than restating a second local checklist here.
 
 Good: `IClassFixture` for a shared factory.
 Bad: start Testcontainers in the constructor.

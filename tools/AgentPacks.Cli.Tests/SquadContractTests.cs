@@ -892,6 +892,31 @@ public class SquadContractTests
         Assert.Contains("happy-path only", contract, StringComparison.Ordinal);
     }
 
+    /// <summary>
+    /// Po 32 fail bar: planning-contract requires a happy/edge/fail + unit vs integration
+    /// matrix per business criterion. Implementer TDDs it; verifier proves coverage.
+    /// </summary>
+    [Fact]
+    public void Planning_contract_requires_the_test_plan_matrix()
+    {
+        var contract = Fixture("planning-contract.md");
+        Assert.Contains("## Test plan matrix", contract, StringComparison.Ordinal);
+        Assert.Contains("| Criterion | Happy | Edge | Fail | Kind |", contract, StringComparison.Ordinal);
+        Assert.Contains("unit or integration", contract, StringComparison.Ordinal);
+        Assert.Contains("business criterion", contract, StringComparison.Ordinal);
+        Assert.Contains("TDDs that matrix", contract, StringComparison.Ordinal);
+        Assert.Contains("happy-path-only", contract, StringComparison.Ordinal);
+
+        Assert.Contains("test-plan matrix", Fixture("squad-planner.md"), StringComparison.Ordinal);
+        Assert.Contains("test-plan matrix", Fixture("squad-implementer.md"), StringComparison.Ordinal);
+        Assert.Contains("TDD", Fixture("squad-implementer.md"), StringComparison.Ordinal);
+        Assert.Contains("Happy-path-only", Fixture("squad-implementer.md"), StringComparison.Ordinal);
+        Assert.Contains("Do not run the full suite", Fixture("squad-implementer.md"), StringComparison.Ordinal);
+        Assert.Contains("test-plan matrix", Fixture("squad-verifier.md"), StringComparison.Ordinal);
+
+        new VerificationEvidenceTests().Happy_path_only_agent_written_tests_are_rejected();
+    }
+
     [Fact]
     public void Loop_agents_use_per_role_tiers_implementer_standard_others_fast()
     {

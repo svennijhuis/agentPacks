@@ -3,6 +3,8 @@
 The TypeScript language pack for [Squad](../squad/README.md). It supplies the
 build, test, and review skills that Squad discovers by exact name.
 
+Slot skills are Squad internals. Do not run them directly — Squad loads each by exact Skill name.
+
 ## What is in it
 
 | Skill | Used by | Purpose |

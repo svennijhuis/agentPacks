@@ -2,9 +2,12 @@
 name: dotnet-build
 description: Internal loop skill. Loaded by the Squad orchestrator by exact Skill tool name, not as a user entrypoint. How a .NET repository is laid out, restored and built — solution files, Central Package Management, SDK pinning, lock files, and the exact build, run and format commands.
 license: UNLICENSED
+user-invocable: false
 metadata:
   audience: loop
 ---
+
+Internal. Do not run directly — Squad loads by exact Skill name.
 
 # .NET build
 
@@ -12,7 +15,7 @@ The facts an agent needs before it touches a `.csproj`. Read the repository's ow
 When opening a solution or package graph, load `dotnet-solution` by exact Skill tool name. Use local `dotnet sln list` / `dotnet list package`. Never a remote service.
 
 When loaded by exact Skill tool name `dotnet-build` during implement or review:
-1. Read every file in `references/standards/` (authored tree: `../../standards/` before generation).
+1. Read every file in `references/standards/`.
 2. Standards in force: `csharp.md`, `async-errors.md`.
 3. Cite the document filename on each edit (`csharp.md`, not "the C# standard").
 

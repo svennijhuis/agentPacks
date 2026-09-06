@@ -232,4 +232,116 @@ public class LanguagePackContractTests
         throw new DirectoryNotFoundException("Could not locate the agentPacks source root.");
     }
 
+    public const string InternalDoNotRunLine =
+        "Internal. Do not run directly — Squad loads by exact Skill name.";
+
+    /// <summary>Po 31: skill bodies cite generated references, never the authored standards tree.</summary>
+    [Fact]
+    public void Skill_bodies_point_only_at_references_standards()
+    {
+        var root = SourceRoot();
+        foreach (var path in AuthoredSkillFiles(root))
+        {
+            var body = BodyAfterFrontmatter(File.ReadAllText(path));
+            Assert.DoesNotContain("authored tree", body, StringComparison.Ordinal);
+            Assert.DoesNotContain("../../standards", body, StringComparison.Ordinal);
+        }
+
+        Language_test_patterns_ship_references_examples();
+    }
+
+    [Fact]
+    public void Language_test_patterns_ship_references_examples()
+    {
+        var root = SourceRoot();
+        foreach (var pack in new[] { "dotnet", "rust", "typescript" })
+        {
+            var skillDir = Path.Combine(root, "plugins", pack, "skills", $"{pack}-test-patterns");
+            var examples = Path.Combine(skillDir, "references", "examples");
+            Assert.True(Directory.Exists(examples), examples);
+            Assert.NotEmpty(Directory.GetFiles(examples, "*.md"));
+            var skill = File.ReadAllText(Path.Combine(skillDir, "SKILL.md"));
+            Assert.Contains("references/standards/", skill, StringComparison.Ordinal);
+            Assert.Contains("references/examples/", skill, StringComparison.Ordinal);
+        }
+    }
+
+    /// <summary>Po 33: loop-audience skills open with the Internal do-not-run line.</summary>
+    [Fact]
+    public void Loop_audience_skills_start_with_internal_do_not_run_directly()
+    {
+        var root = SourceRoot();
+        var loopCount = 0;
+        foreach (var path in AuthoredSkillFiles(root))
+        {
+            var text = File.ReadAllText(path);
+            if (!text.Contains("audience: loop", StringComparison.Ordinal))
+            {
+                continue;
+            }
+
+            loopCount++;
+            Assert.Equal(InternalDoNotRunLine, FirstBodyLine(text));
+            Assert.Contains("audience: loop", text, StringComparison.Ordinal);
+        }
+
+        Assert.True(loopCount >= 10, $"expected authored loop skills, found {loopCount}.");
+
+        foreach (var relative in new[]
+        {
+            Path.Combine("plugins", "pack-check", "skills", "pack-check", "SKILL.md"),
+            Path.Combine("plugins", "squad", "skills", "squad", "SKILL.md"),
+            Path.Combine("plugins", "squad", "skills", "learnings-digest", "SKILL.md")
+        })
+        {
+            var text = File.ReadAllText(Path.Combine(root, relative));
+            Assert.DoesNotContain("audience: loop", text, StringComparison.Ordinal);
+            Assert.NotEqual(InternalDoNotRunLine, FirstBodyLine(text));
+        }
+
+        foreach (var pack in new[] { "dotnet", "rust", "typescript" })
+        {
+            var readme = File.ReadAllText(Path.Combine(root, "plugins", pack, "README.md"));
+            Assert.Contains("Slot skills are Squad internals", readme, StringComparison.Ordinal);
+        }
+    }
+
+    /// <summary>Po 33: Copilot dialect emit sets user-invocable false for audience loop.</summary>
+    [Fact]
+    public void Copilot_emits_user_invocable_false_for_loop_audience()
+    {
+        using var repo = LanguagePack()
+            .WithLoopSkill("dotnet-build")
+            .WithLoopSkill("dotnet-test-patterns")
+            .WithSkill("dotnet-error-handling", plugin: "dotnet");
+
+        var run = repo.ValidateAndGenerate();
+        Assert.False(run.HasErrors, run.Text);
+
+        var generated = run.File("plugins/dotnet/com.github.copilot/skills/dotnet-build/SKILL.md").Text;
+        Assert.Contains("user-invocable: false", generated, StringComparison.Ordinal);
+        Assert.True(run.HasFile("plugins/dotnet/com.github.copilot/skills/dotnet-test-patterns/SKILL.md"));
+        Assert.False(run.HasFile("plugins/dotnet/com.github.copilot/skills/dotnet-error-handling/SKILL.md"));
+    }
+
+    private static IEnumerable<string> AuthoredSkillFiles(string root) =>
+        Directory.GetFiles(Path.Combine(root, "plugins"), "SKILL.md", SearchOption.AllDirectories)
+            .Where(path => !path.Contains($"{Path.DirectorySeparatorChar}com.", StringComparison.Ordinal));
+
+    private static string BodyAfterFrontmatter(string text)
+    {
+        const string fence = "---";
+        var start = text.IndexOf(fence, StringComparison.Ordinal);
+        Assert.True(start >= 0, "missing opening frontmatter fence");
+        var end = text.IndexOf(fence, start + fence.Length, StringComparison.Ordinal);
+        Assert.True(end > start, "missing closing frontmatter fence");
+        return text[(end + fence.Length)..];
+    }
+
+    private static string FirstBodyLine(string text) =>
+        BodyAfterFrontmatter(text)
+            .Split('\n')
+            .Select(line => line.TrimEnd('\r'))
+            .First(line => !string.IsNullOrWhiteSpace(line));
+
 }

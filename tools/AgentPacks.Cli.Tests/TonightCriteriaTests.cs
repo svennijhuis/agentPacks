@@ -75,6 +75,16 @@ public sealed class TonightCriteriaTests
         nameof(SquadContractTests.Squad_advisor_lite_at_confirm_stuck_handoff_no_slash))]
     [InlineData("30 verifier rejects happy-path-only coverage", typeof(SquadContractTests),
         nameof(SquadContractTests.Verifier_rejects_happy_path_only_coverage))]
+    [InlineData("31 skill bodies references/standards only", typeof(LanguagePackContractTests),
+        nameof(LanguagePackContractTests.Skill_bodies_point_only_at_references_standards))]
+    [InlineData("32 test plan matrix", typeof(SquadContractTests),
+        nameof(SquadContractTests.Planning_contract_requires_the_test_plan_matrix))]
+    [InlineData("33 Internal do-not-run line", typeof(LanguagePackContractTests),
+        nameof(LanguagePackContractTests.Loop_audience_skills_start_with_internal_do_not_run_directly))]
+    [InlineData("33 Copilot user-invocable false", typeof(LanguagePackContractTests),
+        nameof(LanguagePackContractTests.Copilot_emits_user_invocable_false_for_loop_audience))]
+    [InlineData("33 pack-check README setup-only", typeof(PackCheckContractTests),
+        nameof(PackCheckContractTests.Pack_check_readme_is_setup_only_squad_already_runs_check))]
     public void Each_ticket_criterion_has_a_proving_test(string criterion, Type fixture, string method)
     {
         Assert.True(

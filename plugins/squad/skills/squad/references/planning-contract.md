@@ -130,6 +130,11 @@ The plan contains:
 ## Acceptance criteria
 1. <observable, testable statement>
 
+## Test plan matrix
+| Criterion | Happy | Edge | Fail | Kind |
+|---|---|---|---|---|
+| 1 | <happy path> | <edge> | <fail> | unit or integration |
+
 ## In scope
 ## Out of scope
 ## Open questions
@@ -144,6 +149,11 @@ Each acceptance criterion is observable and can fail. "Handles errors well" is n
 "returns 400 naming the missing field" is. State what is out of scope so review can distinguish a
 deliberate boundary from an omission. Give the exact verification commands; when a check does not
 exist yet, making that check is itself planned work.
+
+Every business criterion in `## Acceptance criteria` requires one `## Test plan matrix` row: a
+happy path, an edge case, a failure case, and whether that check is a unit or an integration test.
+The implementer TDDs that matrix. The verifier proves the matrix is covered; happy-path-only
+coverage is rejected.
 
 The plan lives in the file. The implementer builds from it, the verifier checks it, and reviewers
 measure the change against it.
