@@ -1556,6 +1556,16 @@ public class SquadContractTests
         Pull_request_ci_stays_one_job_no_matrix();
     }
 
+    /// <summary>
+    /// Reviewer fail bar (PR #16). Local Key Vault / secrets / unauthenticated
+    /// protected resources: mention and ask to continue.
+    /// </summary>
+    [Fact]
+    public void Http_scenarios_local_unauth_kv_ask_continue()
+    {
+        new HttpScenariosContractTests().Http_scenarios_local_unauth_kv_ask_continue();
+    }
+
     private static void AssertMattTiny(string text, string label)
     {
         var lines = text.Split('\n').Count(line => !string.IsNullOrWhiteSpace(line));

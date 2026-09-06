@@ -29,10 +29,11 @@ Do not require Azure, TST, or AWS. Use `BASE_URL`.
 7. Auth header only, by default: `Auth: Bearer TOKEN_VALID (tester supplies)`.
    Add `auth` / policy rows ONLY when the user ask or the OpenAPI change is about auth or new policies. Do not spam 401/403 rows by default.
 8. Placeholders only: `BASE_URL`, `TOKEN_VALID`. Never a real token.
-9. Do not edit product source. Do not commit, merge, or push.
-10. Bruno/Postman: optional mention of an existing app-repo collection. Do not write one.
+9. Local Key Vault, secrets stores, or unauthenticated protected resources needed to fill the matrix: mention that in the chat/output and ask the user to continue. Do not invent secrets. Do not silently skip. Do not hardcode tokens.
+10. Do not edit product source. Do not commit, merge, or push.
+11. Bruno/Postman: optional mention of an existing app-repo collection. Do not write one.
 
 Stop when the file is written.
 
 Good: rows from changed handlers; OpenAPI fills gaps; timer rows are not GET.
-Bad: requiring a swagger URL, fake HTTP for a cron trigger, or pushing the md.
+Bad: inventing a Key Vault secret, silently skipping an unauthenticated store, or pushing the md.

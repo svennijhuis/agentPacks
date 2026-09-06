@@ -294,6 +294,30 @@ public sealed class HttpScenariosContractTests
         Assert.Contains("timer rows are not GET", skill, StringComparison.Ordinal);
     }
 
+    /// <summary>
+    /// Reviewer fail bar (PR #16). Local Key Vault, secrets stores, or
+    /// unauthenticated protected resources: mention in chat/output and ask the
+    /// user to continue. Do not invent secrets, silently skip, or hardcode tokens.
+    /// </summary>
+    [Fact]
+    public void Http_scenarios_local_unauth_kv_ask_continue()
+    {
+        var root = SourceRoot();
+        var command = File.ReadAllText(Path.Combine(root, "plugins", "squad", "commands", "http-scenarios.md"));
+        var skill = File.ReadAllText(Path.Combine(root, "plugins", "squad", "skills", "http-scenarios", "SKILL.md"));
+        var combined = string.Join('\n', command, skill);
+
+        Assert.Contains("Key Vault", combined, StringComparison.Ordinal);
+        Assert.Contains("secrets store", combined, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("unauthenticated", combined, StringComparison.Ordinal);
+        Assert.Contains("ask the user to continue", combined, StringComparison.Ordinal);
+        Assert.Contains("mention that in the chat/output", combined, StringComparison.Ordinal);
+        Assert.Contains("Do not invent secrets", combined, StringComparison.Ordinal);
+        Assert.Contains("Do not silently skip", combined, StringComparison.Ordinal);
+        Assert.Contains("Do not hardcode tokens", combined, StringComparison.Ordinal);
+        Assert.DoesNotContain("sk-", combined, StringComparison.Ordinal);
+    }
+
     private static string SourceRoot()
     {
         for (var directory = new DirectoryInfo(AppContext.BaseDirectory);

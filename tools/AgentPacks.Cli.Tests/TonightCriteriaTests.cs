@@ -131,6 +131,8 @@ public sealed class TonightCriteriaTests
         nameof(HttpScenariosContractTests.Http_scenarios_seeds_from_code_first_openapi_optional))]
     [InlineData("45 /http-scenarios covers timer cron triggers", typeof(HttpScenariosContractTests),
         nameof(HttpScenariosContractTests.Http_scenarios_covers_timer_cron_triggers))]
+    [InlineData("16 /http-scenarios local unauth kv ask continue", typeof(SquadContractTests),
+        nameof(SquadContractTests.Http_scenarios_local_unauth_kv_ask_continue))]
     public void Each_ticket_criterion_has_a_proving_test(string criterion, Type fixture, string method)
     {
         Assert.True(
