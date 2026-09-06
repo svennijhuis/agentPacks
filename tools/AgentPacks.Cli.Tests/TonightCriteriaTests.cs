@@ -93,6 +93,8 @@ public sealed class TonightCriteriaTests
         nameof(SquadContractTests.Anti_loop_small_change_spawn_none_and_two_fix_rounds_max))]
     [InlineData("36 /review save-markdown ask", typeof(SquadContractTests),
         nameof(SquadContractTests.Review_asks_save_markdown_yes_writes_file_no_stays_ide_only))]
+    [InlineData("37 squad skill not user-invocable command is slash", typeof(SquadContractTests),
+        nameof(SquadContractTests.Squad_skill_is_not_user_invocable_command_is_the_only_slash))]
     public void Each_ticket_criterion_has_a_proving_test(string criterion, Type fixture, string method)
     {
         Assert.True(
