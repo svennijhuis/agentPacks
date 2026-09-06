@@ -83,6 +83,14 @@ internal sealed class TestRepository : IDisposable
         return this;
     }
 
+    /// <summary>A contracted language-pack slot: internals the loop loads by exact name.</summary>
+    public TestRepository WithLoopSkill(string directoryName, string plugin = "dotnet") =>
+        WithSkill(
+            directoryName,
+            description: "Internal loop skill. Loaded by the Squad orchestrator by exact Skill tool name, not as a user entrypoint.",
+            extraFrontmatter: "license: UNLICENSED\nmetadata:\n  audience: loop",
+            plugin: plugin);
+
     public TestRepository WithRawSkill(string directoryName, string content, string plugin = "engineering")
     {
         var directory = Path.Combine(PluginDirectory(plugin), "skills", directoryName);
@@ -112,7 +120,7 @@ internal sealed class TestRepository : IDisposable
         string fileName,
         string? name = null,
         string description = "Reviews the current diff and reports findings.",
-        string body = "Review the diff.",
+        string body = "Load the skill with the Skill tool by exact name. Review the diff.",
         string plugin = "engineering") =>
         WithMarkdownComponent("commands", $"{fileName}.md", name ?? fileName, description, null, body, plugin);
 

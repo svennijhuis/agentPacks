@@ -1,15 +1,17 @@
 # rust
 
-The Rust language pack for the [delivery loop](../delivery-loop/README.md). It supplies the build,
+The Rust language pack for [Squad](../squad/README.md). It supplies the build,
 test, and review skills that the Loop discovers by exact name.
+
+Slot skills are Squad internals. Do not run them directly — Squad loads each by exact Skill name.
 
 ## What is in it
 
 | Skill | Used by | Purpose |
 |---|---|---|
-| `rust-build` | implementer, simplifier | Inspect the Cargo workspace and toolchain, build, implement, lint, and format once at the end |
-| `rust-test-patterns` | implementer, verifier | Choose the right unit, integration, documentation, async, and feature test boundary |
-| `rust-review` | correctness reviewer | Review Rust correctness, ownership, API shape, errors, concurrency, unsafe code, and testability |
+| `rust-build` | implementer, simplifier | Internal loop skill. Inspect the Cargo workspace and toolchain, build, implement, lint, and format once at the end |
+| `rust-test-patterns` | implementer, verifier | Internal loop skill. Choose the right unit, integration, documentation, async, and feature test boundary |
+| `rust-review` | correctness reviewer | Internal loop skill. Review Rust correctness, ownership, API shape, errors, concurrency, unsafe code, and testability |
 
 Canonical standards live once under `standards/`:
 

@@ -1,6 +1,6 @@
 # Add a language pack
 
-A language pack is how the [delivery loop](../plugins/delivery-loop/README.md) learns what it is looking at. The loop's agents are language-agnostic on purpose; the code they edit never is. This document is the contract between the two.
+A language pack is how [Squad](../plugins/squad/README.md) learns what it is looking at. The loop's agents are language-agnostic on purpose; the code they edit never is. This document is the contract between the two.
 
 Read [the catalog plan](PLAN.md) first — it decides *whether* something earns a plugin. This decides what a language pack must contain once it has.
 
@@ -20,34 +20,46 @@ Skills are the one component every client loads identically, which makes them th
 
 | Slot | Skill name | Answers | Read by | Required |
 |---|---|---|---|---|
-| Build | `<lang>-build` | Toolchain, project layout, the build and run commands | `loop-implementer`, `loop-simplifier` | yes |
-| Test | `<lang>-test-patterns` | How a test is written here; unit vs integration; fixtures; the test command | `loop-implementer`, `loop-verifier` | yes |
-| Review | `<lang>-review` | Language-specific review checklist | `loop-reviewer` | no |
-| Security | `<lang>-security-review` | Ecosystem footguns, layered on top of OWASP | `loop-security-reviewer` | no |
+| Build | `<lang>-build` | Toolchain, project layout, the build and run commands | `squad-implementer`, `squad-simplifier` | yes |
+| Test | `<lang>-test-patterns` | How a test is written here; unit vs integration; fixtures; the test command | `squad-implementer`, `squad-verifier` | yes |
+| Review | `<lang>-review` | Language-specific review checklist | `squad-reviewer` | no |
+| Security | `<lang>-security-review` | Ecosystem footguns, layered on top of OWASP | `squad-security-reviewer` | no |
 
 `<lang>` is the pack name, for example `dotnet`.
 
 The names *are* the interface. A skill called `dotnet-testing` instead of `dotnet-test-patterns` is a skill the loop silently never loads — which is why `LanguagePackValidator` fails the build on a near-miss rather than letting it ship.
 
+The orchestrator loads these with the Skill tool by exact name, never slash-prose. Slot skills are
+internals: set `metadata.audience: loop` and say so in the description so they do not look like a
+second user-facing entrypoint. They must stay model-invoked; `disable-model-invocation` would hide
+them from the loop. Copilot: set `user-invocable: false`. The first body line is exactly
+`Internal. Do not run directly — Squad loads by exact Skill name.`
+
 ## Framework skills are not slots
 
 Framework knowledge keeps the `[<framework>-]<action>-<object>` shape from [PLAN.md](PLAN.md) — `aspnet-api-design`, `react-component-scaffold`, `axum-routing` — and is reached *through* the slot skills, never discovered by the loop directly.
 
-That is deliberate. Frameworks churn faster than languages; if the loop's contract named them, every Next.js major would be a change to the delivery loop.
+That is deliberate. Frameworks churn faster than languages; if the loop's contract named them, every Next.js major would be a change to Squad.
 
 ## Steps
 
 1. Confirm the pack earns a plugin at all: [PLAN.md](PLAN.md). A framework never does.
-2. Create both `plugins/<lang>/skills/<lang>-build/SKILL.md` and `plugins/<lang>/skills/<lang>-test-patterns/SKILL.md`. A delivery loop must be able to build and verify the stack.
+2. Create both `plugins/<lang>/skills/<lang>-build/SKILL.md` and `plugins/<lang>/skills/<lang>-test-patterns/SKILL.md`. Squad must be able to build and verify the stack.
 3. Add `"language-pack"` to `keywords` in `plugins/<lang>/plugin.json`. That is what turns the validator's checks on.
 4. Add the marker, stack and pack row to `plugins/pack-check/skills/pack-check/references/packs.md`. That row is what makes the new pack discoverable at session start.
-5. Fill the optional review slots as you have real content for them. A thin `<lang>-security-review` is worse than none — OWASP is already the floor.
+5. Fill the optional review slots as you have real content for them. A thin `<lang>-security-review` is worse than none — OWASP is already the floor. `<lang>-solution` is an optional loop skill for read-only solution/package facts plus local MCP — not a required slot.
 6. Write the pack `README.md` with the slot table, so a reader can see what is filled and what is not.
-7. Validate and open a pull request:
+7. Validate with the real suite, not only a symlink, then open a pull request. [ADD-SKILL.md](ADD-SKILL.md)
+   has the marketplace-shaped commands.
 
 ```bash
+dotnet test tools/AgentPacks.slnx
 dotnet run --project tools/AgentPacks.Cli -- validate
+dotnet run --project tools/AgentPacks.Cli -- validate-all --out /tmp/agentpacks-marketplace
 ```
+
+Those commands work on a feature branch. Do not merge to `main` or publish to the marketplace
+branch to test a pack.
 
 Frontmatter and body rules are the ordinary skill rules: [ADD-SKILL.md](ADD-SKILL.md).
 
@@ -81,9 +93,15 @@ Do not repeat the same rule across three skills. Put canonical Markdown document
 }
 ```
 
-Generation places the selected documents under each skill's `references/standards/` directory on the
-`marketplace` branch or in temporary output. Source `main` stays authored-only. Every consuming skill
-must tell the agent to read those references before acting.
+Author the documents in `plugins/<lang>/standards/`. That author path belongs in this document, not
+in a skill body. Generation copies the selected files into each consumer's `references/standards/`
+directory on the `marketplace` branch or in temporary output. Source `main` stays authored-only.
+Skill bodies point only at `references/standards/` — never `authored tree: ../../standards/` or
+`../../standards/`. Every consuming skill must name them under `Standards in force:` and tell the
+agent to cite the document filename during review and build.
+
+`<lang>-test-patterns` also ships concrete commands under `references/examples/`. The skill loads
+`references/standards/` first, then `references/examples/`.
 
 The validator rejects unknown keys, paths outside the plugin, missing Markdown files, unknown skills,
 duplicate references, and unused documents.

@@ -39,6 +39,7 @@ internal sealed class Pipeline(RepositoryContext context)
         new LanguagePackValidator(context).Validate(plugins);
         new StandardsValidator(context).Validate(plugins);
         new HookValidator(context).Validate(plugins);
+        context.Models = ModelCatalog.Load(context);
 
         return plugins;
     }
@@ -48,8 +49,9 @@ internal sealed class Pipeline(RepositoryContext context)
         var files = new ClaudeCompatGenerator(context).Generate(plugins)
             .Concat(new CodexMarketplaceGenerator(context).Generate(plugins))
             .Concat(new CopilotMarketplaceGenerator(context).Generate(plugins))
-            .Concat(new ClientTreeGenerator(context).Generate(plugins))
+            .Concat(new ClientTreeGenerator(context, context.Models).Generate(plugins))
             .Concat(new StandardsGenerator().Generate(plugins))
+            .Concat(SkillPolicyGenerator.Generate(plugins))
             .OrderBy(f => f.RelativePath, StringComparer.Ordinal)
             .ToList();
 

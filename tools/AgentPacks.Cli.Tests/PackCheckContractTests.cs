@@ -13,6 +13,15 @@ public sealed class PackCheckContractTests
 
     private static string Fixture(string name) => File.ReadAllText(Path.Combine(FixtureRoot, name));
 
+    /// <summary>Po 33: /pack-check is setup-only; /squad already runs the check.</summary>
+    [Fact]
+    public void Pack_check_readme_is_setup_only_squad_already_runs_check()
+    {
+        var readme = File.ReadAllText(Path.Combine(SourceRoot(), "plugins", "pack-check", "README.md"));
+        Assert.Contains("`/pack-check` is setup-only", readme, StringComparison.Ordinal);
+        Assert.Contains("`/squad` already runs this check", readme, StringComparison.Ordinal);
+    }
+
     [Fact]
     public void Pack_check_does_not_opt_into_the_language_pack_contract()
     {
@@ -175,17 +184,17 @@ public sealed class PackCheckContractTests
     }
 
     [Fact]
-    public void Delivery_loop_honors_install_refusal_bypass_and_small_change_gate()
+    public void Squad_honors_install_refusal_bypass_and_small_change_gate()
     {
         var skill = Fixture("SKILL.md");
-        var delivery = File.ReadAllText(
-            Path.Combine(AppContext.BaseDirectory, "Fixtures", "delivery-loop", "deliver.md"));
+        var squad = File.ReadAllText(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "squad", "squad.md"));
 
         Assert.Contains("do not ask again in that session", skill, StringComparison.OrdinalIgnoreCase);
         Assert.Contains("continue an ordinary", skill, StringComparison.OrdinalIgnoreCase);
-        Assert.Contains("--no-pack", delivery, StringComparison.Ordinal);
-        Assert.Contains("Small work may continue", delivery, StringComparison.Ordinal);
-        Assert.Contains("stop for a reload before creating `docs/plans/`", delivery, StringComparison.Ordinal);
+        Assert.Contains("--no-pack", squad, StringComparison.Ordinal);
+        Assert.Contains("Small work may continue", squad, StringComparison.Ordinal);
+        Assert.Contains("stop for a reload before creating `docs/plans/`", squad, StringComparison.Ordinal);
     }
 
     private static IReadOnlyList<string> RegistryPacks(string registry) =>

@@ -13,9 +13,12 @@ namespace AgentPacks.Cli.Validation;
 /// </summary>
 internal sealed class ComponentValidator(RepositoryContext context)
 {
-    /// <summary>Models a neutral agent may request. 'inherit' is the portable default.</summary>
+    /// <summary>
+    /// Portable tiers an agent may author. Client-specific ids such as opus/sonnet/haiku or
+    /// composer-2 are generated from <c>models.source.json</c>, never authored.
+    /// </summary>
     private static readonly IReadOnlySet<string> AllowedModels =
-        new HashSet<string>(StringComparer.Ordinal) { "inherit", "opus", "sonnet", "haiku" };
+        new HashSet<string>(StringComparer.Ordinal) { "inherit", "fast", "standard", "frontier" };
 
     private static readonly IReadOnlySet<string> AgentKeys =
         new HashSet<string>(StringComparer.Ordinal) { "name", "description", "model", "tools", "readonly" };
@@ -162,10 +165,14 @@ internal sealed class ComponentValidator(RepositoryContext context)
 
         if (model is not null && !AllowedModels.Contains(model))
         {
+            var hint = ModelCatalog.IsClaudeOnlyAlias(model)
+                ? " Those names are Claude ids; author a portable tier and let generation emit the client id."
+                : string.Empty;
+
             context.Diagnostics.Policy(
                 relative,
                 $"agent model '{model}' is not portable. Use one of: " +
-                $"{string.Join(", ", AllowedModels.Order(StringComparer.Ordinal))}.");
+                $"{string.Join(", ", AllowedModels.Order(StringComparer.Ordinal))}.{hint}");
         }
 
         if (agent.Frontmatter.Has("tools") && agent.Frontmatter.Node("tools") is not YamlSequenceNode)

@@ -74,16 +74,30 @@ internal sealed class Frontmatter
 
     public bool Has(string key) => Node(key) is not null;
 
-    /// <summary>True when the value is a mapping whose keys and values are all scalars.</summary>
-    public bool IsStringMap(string key)
+    /// <summary>A string-to-string mapping, or null when the key is absent or not that shape.</summary>
+    public IReadOnlyDictionary<string, string>? StringMap(string key)
     {
         if (Node(key) is not YamlMappingNode mapping)
         {
-            return false;
+            return null;
         }
 
-        return mapping.Children.All(pair =>
-            pair.Key is YamlScalarNode { Value: not null } &&
-            pair.Value is YamlScalarNode { Value: not null });
+        var values = new Dictionary<string, string>(StringComparer.Ordinal);
+
+        foreach (var pair in mapping.Children)
+        {
+            if (pair.Key is not YamlScalarNode { Value: { } mapKey } ||
+                pair.Value is not YamlScalarNode { Value: { } mapValue })
+            {
+                return null;
+            }
+
+            values[mapKey] = mapValue;
+        }
+
+        return values;
     }
+
+    /// <summary>True when the value is a mapping whose keys and values are all scalars.</summary>
+    public bool IsStringMap(string key) => StringMap(key) is not null;
 }

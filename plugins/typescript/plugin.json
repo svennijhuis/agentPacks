@@ -1,0 +1,22 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "typescript",
+  "version": "0.1.0",
+  "description": "The TypeScript pack: canonical tsc build, test and review standards consumed by Squad.",
+  "author": {
+    "name": "agentPacks Maintainers"
+  },
+  "license": "UNLICENSED",
+  "keywords": [
+    "typescript",
+    "language-pack",
+    "build",
+    "testing",
+    "review"
+  ],
+  "extensions": {
+    "com.anthropic.claude-code": {},
+    "com.openai.codex": {},
+    "com.github.copilot": {}
+  }
+}

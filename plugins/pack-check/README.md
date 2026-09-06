@@ -23,10 +23,11 @@ unrelated detected stack, or prints a marketplace URL.
 
 Installed plugins become available after the client reloads or starts a new session. Declining the
 install lets an ordinary coding request continue from repository evidence without another prompt in
-that session. A full delivery loop stops unless `--no-pack` or its small-change gate applies.
+that session. A full Squad run stops unless `--no-pack` or its small-change gate applies.
 
-Run `/pack-check` where commands are supported. In Codex, invoke `$pack-check` or ask naturally to
-check the repository's language-pack setup.
+`/pack-check` is setup-only. `/squad` already runs this check at the start of a full run. Use
+`/pack-check` when you need the onboarding probe without starting Squad. In Codex, invoke
+`$pack-check` or ask naturally to check the repository's language-pack setup.
 
 ## Editing this pack
 

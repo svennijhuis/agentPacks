@@ -43,10 +43,11 @@ Both give a Rust shop a way to avoid installing .NET skills. Only one stays read
 
 ## What ships today
 
-The repository currently ships **three capability packs and two language packs**: `delivery-loop`,
-`pack-check`, `git`, `dotnet`, and `rust`.
+The repository currently ships **three capability packs and three language packs**: `squad`,
+`pack-check`, `git`, `dotnet`, `rust`, and `typescript`. Authored `mcp.json` files are empty scaffolds.
+v1 ships no MCP server. `dotnet` still has the `dotnet-solution` skill (`dotnet sln` / `dotnet list`).
 
-The earlier catalog carried five role packs and three language packs, six of which held nothing but a `plugin.json`. An empty pack is not a placeholder — it is an install that appears in the marketplace, resolves, and does nothing, which is worse than not being listed. They were removed in the same branch that added `delivery-loop`; the pinned external-skill imports and the two authored skills (`engineering/testing`, `dotnet/dotnet-review`) are in history at `007f609` and can be restored when there is a pack around them worth installing.
+The earlier catalog carried five role packs and three language packs, six of which held nothing but a `plugin.json`. An empty pack is not a placeholder — it is an install that appears in the marketplace, resolves, and does nothing, which is worse than not being listed. They were removed in the same branch that added Squad; the pinned external-skill imports and the two authored skills (`engineering/testing`, `dotnet/dotnet-review`) are in history at `007f609` and can be restored when there is a pack around them worth installing.
 
 The rest of this document is the rule for what earns a plugin, unchanged. The catalog below is the target, not an inventory.
 
@@ -66,23 +67,23 @@ Capability packs — installed because of a workflow you want wired into the age
 
 | Plugin | Who installs it | Holds |
 | --- | --- | --- |
-| `delivery-loop` | anyone who wants a change planned before it is built and checked after | the main-agent-controlled `delivery-loop` skill, planning and review contracts, a Cursor-only scoped checklist, all seven Loop agents, and the `deliver` and `review-diff` commands |
+| `squad` | anyone who wants a change planned before it is built and checked after | the user-invoked orchestrator (`/squad` and `/review`), planning, review and learnings contracts, seven Loop agents, and per-role model tiers |
 | `git` | anyone letting an agent run git | one `beforeShellExecution` hook that blocks the commands which destroy work: `reset --hard`, `clean -f`, `push --force`, `branch -D`, `checkout .`, `restore .` |
 
 A capability pack is the exception to "a role is a role pack", and it earns the exception only by shipping components a skill cannot express: rules that apply without being invoked, subagents, commands, or hooks. A pack that would hold nothing but skills is a role pack, not a capability pack.
 
-There was briefly a second one. `code-review` shipped a review skill, review standards, a security subagent, a diff subagent and a review command; `delivery-loop` then shipped a review phase with its own security gate and its own diff reviewer. Two packs, one subject, and the only real difference was whether a finding cost a fix round or was merely printed. Review folded into the loop as a phase, and the pack was removed.
+There was briefly a second one. `code-review` shipped a review skill, review standards, a security subagent, a diff subagent and a review command; Squad then shipped a review phase with its own security gate and its own diff reviewer. Two packs, one subject, and the only real difference was whether a finding cost a fix round or was merely printed. Review folded into the loop as a phase, and the pack was removed.
 
 The rule that falls out of it: **a capability pack is a workflow, and a phase of an existing workflow is not a new pack.** A third has to clear both bars — components a skill cannot express, and a loop that is not already someone else's phase.
 
 `git` is the second one and is deliberately separate from the Loop. You want destructive-command
-protection whether or not a delivery workflow is running. The Loop states its no-commit hand-off in
+protection whether or not a Squad run is in progress. The Loop states its no-commit hand-off in
 its prompts; it does not install a global advisory hook for ordinary `commit`, `merge`, or `push`.
 The `git` pack owns the only shell guard and blocks commands that can destroy local or remote work.
 
 The general rule, then: **two packs may share an event, but not a command.** Overlapping subjects is what folded `code-review` into the loop; overlapping *events* with disjoint matchers is fine, and is what keeps a data-loss guard from being welded to a workflow nobody is obliged to use.
 
-Language packs — installed because of the ecosystem you live in, one per language family. A language pack has a second job the role packs do not: it fills the delivery loop's **contracted slots**, so the loop knows how this ecosystem builds, tests and reviews. The names are the interface and [`ADD-LANGUAGE-PACK.md`](ADD-LANGUAGE-PACK.md) is the contract; a near miss is a skill the loop silently never loads, so the validator fails the build on one.
+Language packs — installed because of the ecosystem you live in, one per language family. A language pack has a second job the role packs do not: it fills Squad's **contracted slots**, so the loop knows how this ecosystem builds, tests and reviews. The names are the interface and [`ADD-LANGUAGE-PACK.md`](ADD-LANGUAGE-PACK.md) is the contract; a near miss is a skill the loop silently never loads, so the validator fails the build on one.
 
 | Plugin | Holds |
 | --- | --- |
@@ -131,13 +132,21 @@ Set it in both dialects or in neither. A pack that sets only the Claude half is 
 | Claude Code | `disable-model-invocation: true` in the skill's frontmatter |
 | Codex | `policy.allow_implicit_invocation: false` in the skill's `agents/openai.yaml` |
 
-Nothing in the catalog sets it today, and that is a decision rather than an omission:
+The two user-facing loop entrypoints are user-invoked. Everything they load by exact Skill tool
+name stays model-invoked so the orchestrator can reach it.
 
-- `delivery-loop` has to fire on "plan and then build this". That is the whole point of it.
-- The contracted `<lang>-*` slot skills are resolved **by exact name by the main delivery workflow and its plan-bound agents**. Making one user-only would silently remove it from that workflow.
-- `/deliver` and `/review-diff` are commands, which a person types already.
+- `squad` sets `disable-model-invocation: true` (and the generated Codex
+  `agents/openai.yaml`). People type `/squad` and `/review`; the model does not pick
+  the orchestrator.
+- The contracted `<lang>-*` slot skills stay model-invoked and are resolved **by exact Skill tool
+  name**. They carry `metadata.audience: loop` so they do not look like a second public entrypoint.
+  Making one user-only would silently remove it from the workflow.
+- `/squad` and `/review` are the only commands. There is no second skill pack and no
+  public skill surface for planner/reviewer internals.
 
-Reach for it when a skill is destructive, is scaffolding that should never run unasked, or is a setup step that runs once — the cases where an agent choosing to fire it is the failure.
+Reach for user-invoked on a skill that is destructive, is scaffolding that should never run unasked,
+or is a setup step that runs once — and on the orchestrator itself, so planning does not start
+unasked.
 
 ## Where review, testing and security live
 
@@ -147,7 +156,7 @@ Reach for it when a skill is destructive, is scaffolding that should never run u
 | How we review a TypeScript pull request | `typescript` → `typescript-review` |
 | Two-axis review of any diff | `engineering` → `code-review` |
 | Threat-model any system | `security` |
-| Per-change OWASP Top 10 review | `delivery-loop` → `loop-security-reviewer` |
+| Per-change OWASP Top 10 review | `squad` → `squad-security-reviewer` |
 | .NET crypto and auth footguns | `dotnet` → `dotnet-security-review` |
 | What deserves a test, as philosophy | `engineering` → `testing` |
 | How to write a test in this stack | the language pack → `*-test-patterns` |
@@ -187,7 +196,7 @@ That was the wrong trade. A reserved name still appears in the generated marketp
 
 ## How this catalog was reached
 
-*Historical record. The packs named below are the ones removed in the branch that added `delivery-loop`; the layout they describe is the target catalog, not what is on disk.*
+*Historical record. The packs named below are the ones removed in the branch that added Squad; the layout they describe is the target catalog, not what is on disk.*
 
 The previous catalog was `engineering`, `review` and `testing`: a role split with no language axis, which had already put a `.NET`-only skill inside a general `review` pack. Restructuring moved every existing skill to the home this rule gives it, without changing any skill content:
 

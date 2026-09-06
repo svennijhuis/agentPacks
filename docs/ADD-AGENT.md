@@ -13,21 +13,32 @@ A subagent is a focused reviewer or worker the main agent delegates to, with its
 
 ```markdown
 ---
-name: security-reviewer
-description: Reviews a change for security defects only. Use when a change touches authentication, user input, file paths or credentials.
-model: inherit
+name: squad-reviewer
+description: Reviews a change against its plan and verifier evidence when present, then reports correctness findings. Use in every review phase, in parallel with simplification and with security when its gate applies.
+model: fast
 readonly: true
 tools:
   - read
   - grep
+  - glob
+  - bash
 ---
+
+One job. Load skills with the Skill tool by exact name. Never write slash-prose.
 ```
+
+That is the production shape: short frontmatter, portable tier, `readonly`, closed tool list, one
+job, exact Skill-tool names. Squad agents are `squad-*`. The implementer is `standard`; other squad
+agents are `fast`. Bodies stay operational-but-short (28 non-empty lines after frontmatter;
+security reviewer 40). Numbered steps, required outputs, one Good/Bad pair — not essay soup.
+Copy from [`plugins/squad/agents/`](../plugins/squad/agents/); do not invent a public command
+per specialist.
 
 | Field | Required | Rule |
 |---|---|---|
 | `name` | yes | Kebab-case, and equal to the filename. Clients disagree on which one wins, so they must match. |
 | `description` | yes | What it does *and* when to delegate to it. This is the only thing the main agent uses to decide. |
-| `model` | no | `inherit`, `opus`, `sonnet` or `haiku`. Defaults to `inherit`. |
+| `model` | no | A portable tier: `inherit` (default), `fast`, `standard`, or `frontier`. Never a Claude alias (`opus`, `sonnet`, `haiku`) and never a Cursor id. [`models.source.json`](../models.source.json) maps the tier to each client. |
 | `tools` | no | List of lowercase tool names, from the closed vocabulary below. Translated to each client's spelling. |
 | `readonly` | no | `true` or `false`. Cursor honours it directly; elsewhere it is expressed by the tools you grant, so `readonly: true` requires a `tools` list and rejects `write` and `edit`. |
 
@@ -49,23 +60,33 @@ The vocabulary lives in `tools/AgentPacks.Cli/Generation/NeutralTools.cs`, which
 
 ## Writing the prompt
 
-The body is the system prompt. Say what the agent does, in what order, and what it must not do. A reviewer that can edit files will eventually edit files, so state the boundary and grant only the tools it needs.
+The body is the system prompt. One job. Numbered steps. A Good/Bad pair. Required output fields.
+A reviewer that can edit files will eventually edit files, so state the boundary and grant only the
+tools it needs. Load skills with the Skill tool by exact name.
 
 ## What gets generated
 
 | Path | For |
 |---|---|
-| `agents/<name>.md` | Cursor — reads the authored file directly |
-| `com.anthropic.claude-code/agents/<name>.md` | Claude — tool names in PascalCase |
-| `com.github.copilot/agents/<name>.agent.md` | Copilot — note the extension |
-| `com.openai.codex/agents/<name>.toml` | Codex — body becomes `developer_instructions` |
+| `agents/<name>.md` | Authored portable tier (source). Cursor's plugin loader still reads this root file |
+| `.cursor-plugin/agents/<name>.md` | Cursor — remapped id (`inherit`, `composer-2`, `grok-4.5`, `claude-opus-5`) |
+| `com.anthropic.claude-code/agents/<name>.md` | Claude — remapped id, tool names in PascalCase |
+| `com.github.copilot/agents/<name>.agent.md` | Copilot — remapped id; `model` is never dropped |
+| `com.openai.codex/agents/<name>.toml` | Codex — `model` is emitted from the catalog (`gpt-5.6-luna` / `gpt-5.6-terra` / `gpt-5.6-sol`) |
 
 ## The Codex gap
 
 Codex loads subagents from `~/.codex/agents/` or `<repo>/.codex/agents/` only. Its plugin format has no agents component, so installing the plugin does **not** register them. The TOML is generated correctly and ready to copy:
 
 ```shell
-cp plugins/delivery-loop/com.openai.codex/agents/*.toml .codex/agents/
+cp plugins/squad/com.openai.codex/agents/*.toml .codex/agents/
 ```
 
+Codex generation emits the catalog Codex id into `model =`. `fast` → `gpt-5.6-luna`,
+`standard` → `gpt-5.6-terra`, `frontier` → `gpt-5.6-sol`. `inherit` stays `inherit`.
+
 If Codex gains plugin-shipped agents, only the generated manifest needs a field.
+
+Cost-first: catalog default is `inherit`. The implementer (the agent that writes code) uses
+`standard`. Other loop subagents use `fast`. Generation remaps those portable tiers for every
+client, including Cursor under `.cursor-plugin/agents/`. Do not author `sonnet` to mean Cursor.

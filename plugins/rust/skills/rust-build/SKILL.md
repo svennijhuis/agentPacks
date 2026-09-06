@@ -1,16 +1,23 @@
 ---
 name: rust-build
-description: How a Rust repository is laid out, checked and built — Cargo workspaces, toolchain pinning, features, dependencies, lock files, and the exact check, build, run, format and Clippy commands. Use before editing Rust in an unfamiliar repository, when adding a crate or dependency, or when Cargo fails.
+description: Internal loop skill. Loaded by the Squad orchestrator by exact Skill tool name, not as a user entrypoint. How a Rust repository is laid out, checked and built — Cargo workspaces, toolchain pinning, features, lock files, and the exact check, build, run, format and Clippy commands.
 license: UNLICENSED
+user-invocable: false
+metadata:
+  audience: loop
 ---
+
+Internal. Do not run directly — Squad loads by exact Skill name.
 
 # Rust build
 
 The facts an agent needs before it touches a `Cargo.toml`. Read the repository's own files first —
 the layout below is the common one, not a guarantee.
 
-Before writing Rust, read every file in `references/standards/`. In the authored source tree, before
-marketplace generation, the same canonical documents are under `../../standards/`.
+When loaded by exact Skill tool name `rust-build` during implement or review:
+1. Read every file in `references/standards/`.
+2. Standards in force: `rust.md`, `errors-concurrency.md`.
+3. Cite the document filename on each edit (`rust.md`, not "the Rust standard").
 
 ## Find the shape before building
 
@@ -89,3 +96,6 @@ lifetimes or cloning data blindly.
 | Toolchain/component unavailable | The pinned channel, target, rustfmt, or Clippy component is not installed |
 | Linker error after `cargo check` passes | Native dependency, target, linker, or feature configuration differs at build time |
 | Failure only with `--all-features` | The repository's features are not intended to be enabled together |
+
+Good: `cargo clippy` with the repo's feature set.
+Bad: invent `--all-features` the CI does not use.

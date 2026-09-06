@@ -1,0 +1,15 @@
+{
+  "paths": {
+    "/pets": {
+      "get": { "operationId": "listPets", "tags": ["pets"] },
+      "post": { "operationId": "createPet", "tags": ["pets"] }
+    },
+    "/pets/{id}": {
+      "get": { "operationId": "getPet", "tags": ["pets"] },
+      "delete": { "operationId": "deletePet", "tags": ["pets"] }
+    },
+    "/admin/users": {
+      "get": { "operationId": "listUsers", "tags": ["admin"] }
+    }
+  }
+}

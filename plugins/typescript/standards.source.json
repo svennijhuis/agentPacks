@@ -1,0 +1,20 @@
+{
+  "$schema": "../../schema/standards.schema.json",
+  "version": 1,
+  "documents": {
+    "typescript": "standards/typescript.md",
+    "testing": "standards/testing.md"
+  },
+  "consumers": {
+    "typescript-build": [
+      "typescript"
+    ],
+    "typescript-test-patterns": [
+      "testing"
+    ],
+    "typescript-review": [
+      "typescript",
+      "testing"
+    ]
+  }
+}

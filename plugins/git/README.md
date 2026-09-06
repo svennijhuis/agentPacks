@@ -1,7 +1,7 @@
 # git
 
 A capability pack with one job: block selected Git commands that can destroy local or remote work.
-It is independent of the delivery loop and protects shell calls in any task.
+It is independent of Squad and protects shell calls in any task.
 
 ## Blocked operations
 

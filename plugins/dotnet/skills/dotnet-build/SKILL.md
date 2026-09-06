@@ -1,15 +1,23 @@
 ---
 name: dotnet-build
-description: How a .NET repository is laid out, restored and built — solution files, Central Package Management, SDK pinning, lock files, and the exact build, run and format commands. Use before editing C# in an unfamiliar .NET repository, when adding a project or a package reference, or when a restore or build fails.
+description: Internal loop skill. Loaded by the Squad orchestrator by exact Skill tool name, not as a user entrypoint. How a .NET repository is laid out, restored and built — solution files, Central Package Management, SDK pinning, lock files, and the exact build, run and format commands.
 license: UNLICENSED
+user-invocable: false
+metadata:
+  audience: loop
 ---
+
+Internal. Do not run directly — Squad loads by exact Skill name.
 
 # .NET build
 
 The facts an agent needs before it touches a `.csproj`. Read the repository's own files first — the layout below is the common one, not a guarantee.
+When opening a solution or package graph, load `dotnet-solution` by exact Skill tool name. Use local `dotnet sln list` / `dotnet list package`. Never a remote service.
 
-Before writing C#, read every file in `references/standards/`. In the authored source tree, before
-marketplace generation, the same canonical documents are under `../../standards/`.
+When loaded by exact Skill tool name `dotnet-build` during implement or review:
+1. Read every file in `references/standards/`.
+2. Standards in force: `csharp.md`, `async-errors.md`.
+3. Cite the document filename on each edit (`csharp.md`, not "the C# standard").
 
 ## Find the shape before building
 
@@ -85,3 +93,6 @@ Read the first error, not the last. The C# compiler cascades: one missing type p
 | `NU1004` / lock file out of date | `--force-evaluate` was not run after a package change |
 | `NETSDK1045` | `global.json` pins an SDK that is not installed |
 | A version attribute error on `PackageReference` | CPM is on; the version belongs in `Directory.Packages.props` |
+
+Good: version in `Directory.Packages.props`, Version-less `PackageReference`.
+Bad: put `Version` on the csproj under CPM.

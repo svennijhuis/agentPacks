@@ -1,6 +1,7 @@
 ---
 name: pack-check
-description: Check whether the stacks applicable to a repository change have their required language-pack skills. Use at session start, before delivery-loop planning, or when asked about pack readiness; request approval before installing and stop for a reload after success.
+description: Check whether the stacks applicable to a repository change have their required language-pack skills. Use at session start, before Squad planning, or when asked about pack readiness; request approval before installing and stop for a reload after success.
+license: UNLICENSED
 ---
 
 # Pack check
@@ -54,8 +55,9 @@ Missing: dotnet-build, dotnet-test-patterns
 May I install dotnet@agentpacks?
 ```
 
-For Rust, substitute `Rust`, `rust`, `rust-build`, and `rust-test-patterns`. A refusal is session state: continue an ordinary
-request from repository evidence and do not ask again in that session. For a full delivery loop,
+For Rust, substitute `Rust`, `rust`, `rust-build`, and `rust-test-patterns`. For TypeScript, substitute
+`TypeScript`, `typescript`, `typescript-build`, and `typescript-test-patterns`. A refusal is session state: continue an ordinary
+request from repository evidence and do not ask again in that session. For a full Squad run,
 stop unless the user supplied `--no-pack`; the small-change gate may continue after reporting the
 gap.
 

@@ -1,0 +1,21 @@
+{
+  "$schema": "../../schema/external-skills.schema.json",
+  "sources": [
+    {
+      "name": "caveman",
+      "description": "Compressed communication mode loaded by /squad by exact Skill name.",
+      "repository": "https://github.com/JuliusBrussee/caveman",
+      "path": "skills/caveman",
+      "commit": "5184b3d11ac6a1acb7d44b9bfaa31698157cff97",
+      "license": "MIT"
+    },
+    {
+      "name": "caveman-compress",
+      "description": "Dependency of caveman; imported so the pin set is closed under skill references.",
+      "repository": "https://github.com/JuliusBrussee/caveman",
+      "path": "skills/caveman-compress",
+      "commit": "5184b3d11ac6a1acb7d44b9bfaa31698157cff97",
+      "license": "MIT"
+    }
+  ]
+}

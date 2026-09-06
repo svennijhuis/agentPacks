@@ -9,7 +9,7 @@ namespace AgentPacks.Cli.Generation;
 /// and command formats, rule translations, and the manifests/catalogs that route each provider to
 /// its own dialect.
 /// </summary>
-internal sealed class ClientTreeGenerator(RepositoryContext context)
+internal sealed class ClientTreeGenerator(RepositoryContext context, ModelCatalog models)
 {
     public IReadOnlyList<GeneratedFile> Generate(IReadOnlyList<PluginPackage> plugins)
     {
@@ -51,7 +51,7 @@ internal sealed class ClientTreeGenerator(RepositoryContext context)
         }
 
         GenerateClaude(plugin, Add, AddJson);
-        GenerateCursor(plugin, AddJson);
+        GenerateCursor(plugin, Add, AddJson);
         GenerateCodex(plugin, Add, AddJson);
         GenerateCopilot(plugin, Add, AddJson);
         GenerateShims(plugin, Add);
@@ -89,7 +89,7 @@ internal sealed class ClientTreeGenerator(RepositoryContext context)
             {
                 new("name", ComponentWriter.Yaml(agent.Name)),
                 new("description", ComponentWriter.Yaml(agent.Description)),
-                new("model", ComponentWriter.Yaml(agent.Frontmatter?.Scalar("model") ?? "inherit"))
+                new("model", ComponentWriter.Yaml(ResolveModel(agent, Client.Claude)))
             };
 
             var tools = ComponentWriter.Sequence(agent, "tools");
@@ -201,11 +201,15 @@ internal sealed class ClientTreeGenerator(RepositoryContext context)
     // ---------------------------------------------------------------- Cursor
 
     /// <summary>
-    /// Cursor is the one client that consumes the authored root directly: rules/*.mdc, agents/*.md
-    /// and commands/*.md are already its dialect. It only needs the manifest that turns the
-    /// directory from an Agent Plugin into a Cursor plugin, plus its own hooks dialect.
+    /// Cursor reads rules/*.mdc and commands/*.md from the plugin root. Authored agents stay the
+    /// portable source. Generation writes remapped Cursor ids into <c>.cursor-plugin/agents/</c>
+    /// so Cursor never receives a Claude alias, and Copilot/Codex are not the only clients that
+    /// emit <c>model</c>.
     /// </summary>
-    private static void GenerateCursor(PluginPackage plugin, Action<string, JsonNode> addJson)
+    private void GenerateCursor(
+        PluginPackage plugin,
+        Action<string, string, bool> add,
+        Action<string, JsonNode> addJson)
     {
         var manifest = plugin.Manifest!;
 
@@ -223,6 +227,33 @@ internal sealed class ClientTreeGenerator(RepositoryContext context)
         }
 
         addJson(".cursor-plugin/plugin.json", cursor);
+
+        foreach (var agent in plugin.Agents)
+        {
+            var frontmatter = new List<KeyValuePair<string, string>>
+            {
+                new("name", ComponentWriter.Yaml(agent.Name)),
+                new("description", ComponentWriter.Yaml(agent.Description)),
+                new("model", ComponentWriter.Yaml(ResolveModel(agent, Client.Cursor)))
+            };
+
+            if (ComponentWriter.Flag(agent, "readonly"))
+            {
+                frontmatter.Add(new("readonly", "true"));
+            }
+
+            var tools = ComponentWriter.Sequence(agent, "tools");
+
+            if (tools.Count > 0)
+            {
+                frontmatter.Add(new("tools", ComponentWriter.YamlList(tools)));
+            }
+
+            add(
+                $".cursor-plugin/agents/{agent.Name}.md",
+                ComponentWriter.Markdown(frontmatter, agent.Body),
+                false);
+        }
     }
 
     // ---------------------------------------------------------------- Codex
@@ -232,7 +263,7 @@ internal sealed class ClientTreeGenerator(RepositoryContext context)
     /// outside the root that Cursor owns. It cannot load subagents from a plugin at all, so the
     /// TOML agents are generated for a documented manual copy rather than pretending otherwise.
     /// </summary>
-    private static void GenerateCodex(
+    private void GenerateCodex(
         PluginPackage plugin,
         Action<string, string, bool> add,
         Action<string, JsonNode> addJson)
@@ -319,7 +350,8 @@ internal sealed class ClientTreeGenerator(RepositoryContext context)
                 ComponentWriter.Toml(
                     [
                         new("name", agent.Name),
-                        new("description", agent.Description)
+                        new("description", agent.Description),
+                        new("model", ResolveModel(agent, Client.Codex))
                     ],
                     "developer_instructions",
                     agent.Body),
@@ -366,7 +398,8 @@ internal sealed class ClientTreeGenerator(RepositoryContext context)
             var frontmatter = new List<KeyValuePair<string, string>>
             {
                 new("name", ComponentWriter.Yaml(agent.Name)),
-                new("description", ComponentWriter.Yaml(agent.Description))
+                new("description", ComponentWriter.Yaml(agent.Description)),
+                new("model", ComponentWriter.Yaml(ResolveModel(agent, Client.Copilot)))
             };
 
             var tools = ComponentWriter.Sequence(agent, "tools");
@@ -429,4 +462,14 @@ internal sealed class ClientTreeGenerator(RepositoryContext context)
 
     private static List<MarkdownComponent> AlwaysApplyRules(PluginPackage plugin) =>
         plugin.Rules.Where(rule => ComponentWriter.Flag(rule, "alwaysApply")).ToList();
+
+    /// <summary>
+    /// Maps the authored portable tier to the identifier this client accepts, including Codex
+    /// <c>model =</c> in generated agent TOML.
+    /// </summary>
+    private string ResolveModel(MarkdownComponent agent, Client client)
+    {
+        var authored = agent.Frontmatter?.Scalar("model") ?? ModelCatalog.DefaultTier;
+        return models.Resolve(authored, client);
+    }
 }

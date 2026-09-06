@@ -20,6 +20,9 @@ internal sealed class RepositoryContext
 
     public DiagnosticCollector Diagnostics { get; } = new();
 
+    /// <summary>Filled by source validation so generation does not parse the catalog twice.</summary>
+    public ModelCatalog Models { get; set; } = ModelCatalog.BuiltIn;
+
     public string Relative(string path) => PathUtils.Relative(Root, path);
 }
 
