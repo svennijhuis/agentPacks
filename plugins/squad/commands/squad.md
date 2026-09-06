@@ -1,6 +1,6 @@
 ---
 name: squad
-description: User-invoked Squad orchestrator. The main agent mediates planning, implements, verifies, reviews on two axes, and hands off uncommitted. Use --no-pack to continue a full loop after declining a missing language pack.
+description: Plan → build → verify → review (gated). Uncommitted hand-off.
 ---
 
 # Squad
@@ -15,7 +15,7 @@ The main agent is the thin workflow controller. Specialists own their context.
 1. Print the request, size route, every detected stack, the stacks applicable to this change, pack
    status, workspace, standards, repository conventions, and next action. Missing facts remain explicit.
 2. For an obvious small change, implement and verify directly. Do not call the planner, implementer, verifier, orchestrator, or reviewers, and do not create a plan.
-3. For a full loop, enforce language-pack readiness as described by the skill. After an approved installation, stop for a reload before creating `docs/plans/`. Small work may continue after reporting missing pack skills because its direct route does not depend on the plan-bound agents.
+3. For a full loop, enforce language-pack readiness as described by the skill. Use `--no-pack` to continue a full loop after declining a missing language pack. After an approved installation, stop for a reload before creating `docs/plans/`. Small work may continue after reporting missing pack skills because its direct route does not depend on the plan-bound agents.
 4. Invoke `squad-planner` in `next-round` mode with the request, evidence, decisions, user answers, and frontier. Present exactly the returned numbered round to the user. Pass their answers and returned state into the next invocation. Repeat until the planner returns the shared-understanding confirmation. Grill stays in these rounds; do not load a grilling catalog.
 5. After the user confirms, one Advisor-lite consult as defined by the skill, then invoke `squad-planner` in `write-plan` mode. Do not create the plan before confirmation. When stuck, one Advisor-lite consult; do not fan out.
 6. Invoke `squad-implementer` (TDD, then stop — no full suite), then `squad-verifier`, announcing the round number.

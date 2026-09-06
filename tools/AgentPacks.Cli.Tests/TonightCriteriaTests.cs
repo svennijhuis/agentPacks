@@ -101,6 +101,10 @@ public sealed class TonightCriteriaTests
         nameof(SquadContractTests.Caveman_pins_are_not_user_invocable))]
     [InlineData("38 user-facing surfaces say squad-review not bare review", typeof(SquadContractTests),
         nameof(SquadContractTests.User_facing_surfaces_say_squad_review_not_bare_review))]
+    [InlineData("39 friendlier command blurbs still squad and squad-review", typeof(SquadContractTests),
+        nameof(SquadContractTests.Squad_and_squad_review_command_blurbs_are_short_user_friendly))]
+    [InlineData("39 learnings-digest is not user-invocable", typeof(SquadContractTests),
+        nameof(SquadContractTests.Learnings_digest_is_not_user_invocable))]
     public void Each_ticket_criterion_has_a_proving_test(string criterion, Type fixture, string method)
     {
         Assert.True(
