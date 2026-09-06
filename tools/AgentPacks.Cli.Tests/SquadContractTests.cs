@@ -15,13 +15,13 @@ public class SquadContractTests
 
     private static readonly string[] AgentNames =
     [
-        "loop-planner",
-        "loop-implementer",
-        "loop-verifier",
-        "loop-reviewer",
-        "loop-security-reviewer",
-        "loop-simplifier",
-        "loop-orchestrator"
+        "squad-planner",
+        "squad-implementer",
+        "squad-verifier",
+        "squad-reviewer",
+        "squad-security-reviewer",
+        "squad-simplifier",
+        "squad-orchestrator"
     ];
 
     private static string Fixture(string name) =>
@@ -50,7 +50,7 @@ public class SquadContractTests
     [Fact]
     public void Planner_is_turn_based_main_agent_mediated_and_writes_only_after_confirmation()
     {
-        var planner = Fixture("loop-planner.md");
+        var planner = Fixture("squad-planner.md");
         var contract = Fixture("planning-contract.md");
         var combined = string.Join('\n', planner, contract);
 
@@ -83,27 +83,27 @@ public class SquadContractTests
         Assert.Contains("main agent implements and verifies directly", skill, StringComparison.OrdinalIgnoreCase);
         Assert.Contains("Do not call the planner, implementer, verifier, orchestrator, or reviewers", command, StringComparison.Ordinal);
         Assert.Contains("do not create a plan", command, StringComparison.OrdinalIgnoreCase);
-        Assert.Contains("small-change route bypasses this agent", Fixture("loop-implementer.md"), StringComparison.OrdinalIgnoreCase);
-        Assert.Contains("small-change route bypasses this agent", Fixture("loop-verifier.md"), StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("small-change route bypasses this agent", Fixture("squad-implementer.md"), StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("small-change route bypasses this agent", Fixture("squad-verifier.md"), StringComparison.OrdinalIgnoreCase);
     }
 
     [Fact]
     public void Gated_agents_spawn_only_when_their_gate_says()
     {
         var skill = Fixture("SKILL.md");
-        var simplifier = Fixture("loop-simplifier.md");
-        var security = Fixture("loop-security-reviewer.md");
-        var orchestrator = Fixture("loop-orchestrator.md");
-        var verifier = Fixture("loop-verifier.md");
+        var simplifier = Fixture("squad-simplifier.md");
+        var security = Fixture("squad-security-reviewer.md");
+        var orchestrator = Fixture("squad-orchestrator.md");
+        var verifier = Fixture("squad-verifier.md");
 
-        Assert.Contains("`loop-planner` | full change only | grill/plan", skill, StringComparison.Ordinal);
-        Assert.Contains("`loop-implementer` | full change only | build", skill, StringComparison.Ordinal);
-        Assert.Contains("`loop-verifier` | after implement/fix", skill, StringComparison.Ordinal);
+        Assert.Contains("`squad-planner` | full change only | grill/plan", skill, StringComparison.Ordinal);
+        Assert.Contains("`squad-implementer` | full change only | build", skill, StringComparison.Ordinal);
+        Assert.Contains("`squad-verifier` | after implement/fix", skill, StringComparison.Ordinal);
         Assert.Contains("`not verified` is not a pass", skill, StringComparison.Ordinal);
-        Assert.Contains("`loop-reviewer` | every review phase | correctness + plan/spec", skill, StringComparison.Ordinal);
-        Assert.Contains("`loop-simplifier` | every review phase | reuse, quality, efficiency in one spawn", skill, StringComparison.Ordinal);
-        Assert.Contains("`loop-security-reviewer` | trust boundary only | OWASP gate", skill, StringComparison.Ordinal);
-        Assert.Contains("`loop-orchestrator` | merge only | verdict / ≤2 fixes", skill, StringComparison.Ordinal);
+        Assert.Contains("`squad-reviewer` | every review phase | correctness + plan/spec", skill, StringComparison.Ordinal);
+        Assert.Contains("`squad-simplifier` | every review phase | reuse, quality, efficiency in one spawn", skill, StringComparison.Ordinal);
+        Assert.Contains("`squad-security-reviewer` | trust boundary only | OWASP gate", skill, StringComparison.Ordinal);
+        Assert.Contains("`squad-orchestrator` | merge only | verdict / ≤2 fixes", skill, StringComparison.Ordinal);
         Assert.Contains("spawn none of these", skill, StringComparison.Ordinal);
         Assert.DoesNotContain("loop-tester", skill, StringComparison.Ordinal);
         Assert.DoesNotContain("On-Call", skill, StringComparison.Ordinal);
@@ -121,7 +121,7 @@ public class SquadContractTests
     public void Main_agent_fans_reviewers_out_and_orchestrator_only_merges_completed_reports()
     {
         var command = Fixture("squad.md");
-        var orchestrator = Fixture("loop-orchestrator.md");
+        var orchestrator = Fixture("squad-orchestrator.md");
 
         Assert.Contains("Directly launch", command, StringComparison.Ordinal);
         Assert.Contains("in parallel", command, StringComparison.Ordinal);
@@ -134,12 +134,12 @@ public class SquadContractTests
     [Fact]
     public void Orchestrator_requires_merge_inputs_and_pass_requires_complete_evidence()
     {
-        var orchestrator = Fixture("loop-orchestrator.md");
+        var orchestrator = Fixture("squad-orchestrator.md");
         var contract = Fixture("review-contract.md");
 
         Assert.Contains("round number", orchestrator, StringComparison.Ordinal);
         Assert.Contains("plan path", orchestrator, StringComparison.Ordinal);
-        Assert.Contains("loop-verifier", orchestrator, StringComparison.Ordinal);
+        Assert.Contains("squad-verifier", orchestrator, StringComparison.Ordinal);
         Assert.Contains("security-gate decision", orchestrator, StringComparison.Ordinal);
         Assert.Contains("completed reports", orchestrator, StringComparison.Ordinal);
         Assert.Contains("`pass` additionally requires", contract, StringComparison.OrdinalIgnoreCase);
@@ -153,8 +153,8 @@ public class SquadContractTests
     public void Applicable_stacks_come_from_change_scope_and_mixed_work_loads_both()
     {
         var skill = Fixture("SKILL.md");
-        var implementer = Fixture("loop-implementer.md");
-        var verifier = Fixture("loop-verifier.md");
+        var implementer = Fixture("squad-implementer.md");
+        var verifier = Fixture("squad-verifier.md");
 
         Assert.Contains("target paths, the existing diff, and acceptance criteria", skill, StringComparison.Ordinal);
         Assert.Contains("Rust-only", skill, StringComparison.Ordinal);
@@ -163,15 +163,15 @@ public class SquadContractTests
         Assert.Contains("never request or load a pack for code outside the change", skill, StringComparison.Ordinal);
         Assert.Contains("every applicable stack's `<lang>-build`", implementer, StringComparison.Ordinal);
         Assert.Contains("every applicable stack's `<lang>-test-patterns`", verifier, StringComparison.Ordinal);
-        Assert.Contains("every applicable stack's `<lang>-review`", Fixture("loop-reviewer.md"), StringComparison.Ordinal);
-        Assert.Contains("every applicable stack's `<lang>-security-review`", Fixture("loop-security-reviewer.md"), StringComparison.Ordinal);
-        Assert.Contains("every applicable stack's `<lang>-build`", Fixture("loop-simplifier.md"), StringComparison.Ordinal);
+        Assert.Contains("every applicable stack's `<lang>-review`", Fixture("squad-reviewer.md"), StringComparison.Ordinal);
+        Assert.Contains("every applicable stack's `<lang>-security-review`", Fixture("squad-security-reviewer.md"), StringComparison.Ordinal);
+        Assert.Contains("every applicable stack's `<lang>-build`", Fixture("squad-simplifier.md"), StringComparison.Ordinal);
     }
 
     [Fact]
     public void Orchestrator_normalizes_usable_noncanonical_reports_without_another_agent_call()
     {
-        var orchestrator = Fixture("loop-orchestrator.md");
+        var orchestrator = Fixture("squad-orchestrator.md");
         var contract = Fixture("review-contract.md");
 
         Assert.Contains("Normalize a noncanonical-but-usable report in memory", orchestrator, StringComparison.Ordinal);
@@ -187,7 +187,7 @@ public class SquadContractTests
         var skill = Fixture("SKILL.md");
         var command = Fixture("squad.md");
         var standalone = Fixture("review.md");
-        var orchestrator = Fixture("loop-orchestrator.md");
+        var orchestrator = Fixture("squad-orchestrator.md");
         var contract = Fixture("review-contract.md");
         var combined = string.Join('\n', skill, command, standalone, orchestrator, contract);
 
@@ -201,7 +201,7 @@ public class SquadContractTests
     [Fact]
     public void Security_checklist_is_exclusively_OWASP_2025()
     {
-        var security = Fixture("loop-security-reviewer.md");
+        var security = Fixture("squad-security-reviewer.md");
 
         for (var category = 1; category <= 10; category++)
             Assert.Contains($"A{category:00}_2025", security, StringComparison.Ordinal);
@@ -216,9 +216,9 @@ public class SquadContractTests
     [Fact]
     public void Review_without_a_plan_is_explicit_in_every_applicable_reviewer()
     {
-        Assert.Contains("For `/review`", Fixture("loop-reviewer.md"), StringComparison.Ordinal);
-        Assert.Contains("With `/review`", Fixture("loop-security-reviewer.md"), StringComparison.Ordinal);
-        Assert.Contains("With `/review`", Fixture("loop-simplifier.md"), StringComparison.Ordinal);
+        Assert.Contains("For `/review`", Fixture("squad-reviewer.md"), StringComparison.Ordinal);
+        Assert.Contains("With `/review`", Fixture("squad-security-reviewer.md"), StringComparison.Ordinal);
+        Assert.Contains("With `/review`", Fixture("squad-simplifier.md"), StringComparison.Ordinal);
         Assert.Contains("## Standalone merge report", Fixture("review-contract.md"), StringComparison.Ordinal);
         Assert.Contains("There is no `Verdict`", Fixture("review-contract.md"), StringComparison.Ordinal);
         Assert.Contains("`round number: 1`", Fixture("review.md"), StringComparison.Ordinal);
@@ -240,10 +240,10 @@ public class SquadContractTests
     public void Planning_and_review_each_have_one_contract_owner()
     {
         Assert.Contains("references/planning-contract.md", Fixture("SKILL.md"), StringComparison.Ordinal);
-        Assert.Contains("references/planning-contract.md", Fixture("loop-planner.md"), StringComparison.Ordinal);
+        Assert.Contains("references/planning-contract.md", Fixture("squad-planner.md"), StringComparison.Ordinal);
         Assert.Contains("references/review-contract.md", Fixture("SKILL.md"), StringComparison.Ordinal);
 
-        foreach (var agent in new[] { "loop-orchestrator.md", "loop-reviewer.md", "loop-security-reviewer.md", "loop-simplifier.md" })
+        foreach (var agent in new[] { "squad-orchestrator.md", "squad-reviewer.md", "squad-security-reviewer.md", "squad-simplifier.md" })
             Assert.Contains("references/review-contract.md", Fixture(agent), StringComparison.Ordinal);
     }
 
@@ -290,11 +290,11 @@ public class SquadContractTests
             Fixture("SKILL.md"),
             Fixture("squad.md"),
             Fixture("review.md"),
-            Fixture("loop-planner.md"),
-            Fixture("loop-implementer.md"),
-            Fixture("loop-verifier.md"),
-            Fixture("loop-reviewer.md"),
-            Fixture("loop-simplifier.md"));
+            Fixture("squad-planner.md"),
+            Fixture("squad-implementer.md"),
+            Fixture("squad-verifier.md"),
+            Fixture("squad-reviewer.md"),
+            Fixture("squad-simplifier.md"));
 
         Assert.Contains("Skill tool by exact name", combined, StringComparison.Ordinal);
         Assert.Contains("Never write `/squad`", combined, StringComparison.Ordinal);
@@ -310,7 +310,7 @@ public class SquadContractTests
     {
         var skill = Fixture("SKILL.md");
         var review = Fixture("review.md");
-        var reviewer = Fixture("loop-reviewer.md");
+        var reviewer = Fixture("squad-reviewer.md");
 
         Assert.Contains("Dual-axis", skill, StringComparison.Ordinal);
         Assert.Contains("correctness and plan/spec", skill, StringComparison.OrdinalIgnoreCase);
@@ -324,8 +324,8 @@ public class SquadContractTests
     public void Author_is_not_the_fixer_and_implement_stays_tdd_then_one_suite()
     {
         var skill = Fixture("SKILL.md");
-        var implementer = Fixture("loop-implementer.md");
-        var verifier = Fixture("loop-verifier.md");
+        var implementer = Fixture("squad-implementer.md");
+        var verifier = Fixture("squad-verifier.md");
 
         Assert.Contains("author of the rejected code is not the fixer", skill, StringComparison.Ordinal);
         Assert.Contains("fresh", implementer, StringComparison.OrdinalIgnoreCase);
@@ -358,13 +358,13 @@ public class SquadContractTests
     [Fact]
     public void Loop_agents_restore_operational_steps_not_empty_tiny()
     {
-        var implementer = Fixture("loop-implementer.md");
-        var planner = Fixture("loop-planner.md");
-        var verifier = Fixture("loop-verifier.md");
-        var reviewer = Fixture("loop-reviewer.md");
-        var simplifier = Fixture("loop-simplifier.md");
-        var security = Fixture("loop-security-reviewer.md");
-        var orchestrator = Fixture("loop-orchestrator.md");
+        var implementer = Fixture("squad-implementer.md");
+        var planner = Fixture("squad-planner.md");
+        var verifier = Fixture("squad-verifier.md");
+        var reviewer = Fixture("squad-reviewer.md");
+        var simplifier = Fixture("squad-simplifier.md");
+        var security = Fixture("squad-security-reviewer.md");
+        var orchestrator = Fixture("squad-orchestrator.md");
 
         Assert.Contains("references/standards/", implementer, StringComparison.Ordinal);
         Assert.Contains("Standards in force", implementer, StringComparison.Ordinal);
@@ -506,6 +506,63 @@ public class SquadContractTests
             StringComparison.Ordinal);
     }
 
+    /// <summary>Po 22 fail bar: agents are squad-*; user-facing surfaces have no loop-* agents.</summary>
+    [Fact]
+    public void No_user_facing_loop_star_agents_are_squad_star()
+    {
+        var root = SourceRoot();
+        var agentsDir = Path.Combine(root, "plugins", "squad", "agents");
+        var names = Directory.GetFiles(agentsDir, "*.md")
+            .Select(path => Path.GetFileNameWithoutExtension(path) ?? path)
+            .OrderBy(name => name, StringComparer.Ordinal)
+            .ToArray();
+        Assert.Equal(
+        [
+            "squad-implementer",
+            "squad-orchestrator",
+            "squad-planner",
+            "squad-reviewer",
+            "squad-security-reviewer",
+            "squad-simplifier",
+            "squad-verifier"
+        ], names);
+        foreach (var name in names)
+        {
+            Assert.StartsWith("squad-", name, StringComparison.Ordinal);
+            Assert.Contains($"name: {name}", File.ReadAllText(Path.Combine(agentsDir, $"{name}.md")),
+                StringComparison.Ordinal);
+        }
+
+        var leftovers = new List<string>();
+        var surfaces = new List<string> { Path.Combine(root, "README.md") };
+        surfaces.AddRange(Directory.GetFiles(Path.Combine(root, "plugins"), "README.md",
+            SearchOption.AllDirectories));
+        surfaces.AddRange(Directory.GetFiles(Path.Combine(root, "plugins"), "plugin.json",
+            SearchOption.AllDirectories));
+        surfaces.AddRange(Directory.GetFiles(
+            Path.Combine(root, "plugins", "squad", "commands"), "*.md"));
+        surfaces.Add(Path.Combine(root, "plugins", "squad", "skills", "squad", "SKILL.md"));
+        surfaces.AddRange(Directory.GetFiles(Path.Combine(root, "docs"), "ADD-*.md"));
+        surfaces.AddRange(Directory.GetFiles(agentsDir, "*.md"));
+
+        var pattern = @"\bloop-(planner|implementer|verifier|reviewer|simplifier|security-reviewer|orchestrator|tester)\b";
+        foreach (var path in surfaces.Distinct(StringComparer.Ordinal))
+        {
+            if (System.Text.RegularExpressions.Regex.IsMatch(
+                    File.ReadAllText(path),
+                    pattern,
+                    System.Text.RegularExpressions.RegexOptions.IgnoreCase))
+            {
+                leftovers.Add(Path.GetRelativePath(root, path));
+            }
+        }
+
+        Assert.False(
+            leftovers.Count > 0,
+            "leftover loop-* agents on user-facing surfaces: " + string.Join(", ", leftovers));
+        Assert.False(File.Exists(Path.Combine(agentsDir, "loop-planner.md")));
+    }
+
     [Fact]
     public void Loop_agent_bodies_stay_tiny()
     {
@@ -514,7 +571,7 @@ public class SquadContractTests
             var text = Fixture($"{agent}.md");
             var body = BodyAfterFrontmatter(text);
             var lines = body.Split('\n').Count(line => !string.IsNullOrWhiteSpace(line));
-            var cap = agent == "loop-security-reviewer" ? 40 : 28;
+            var cap = agent == "squad-security-reviewer" ? 40 : 28;
             Assert.True(lines <= cap, $"{agent} body is {lines} lines; cap is {cap}.");
         }
     }
@@ -565,7 +622,7 @@ public class SquadContractTests
     [Fact]
     public void Simplifier_is_report_only_one_agent_three_axes()
     {
-        var simplifier = Fixture("loop-simplifier.md");
+        var simplifier = Fixture("squad-simplifier.md");
         Assert.Contains("readonly: true", simplifier, StringComparison.Ordinal);
         Assert.Contains("One agent, three axes", simplifier, StringComparison.Ordinal);
         Assert.Contains("reuse, quality, efficiency", simplifier, StringComparison.Ordinal);
@@ -589,18 +646,18 @@ public class SquadContractTests
         Assert.DoesNotContain("- write", simplifier, StringComparison.Ordinal);
         Assert.DoesNotContain("- edit", simplifier, StringComparison.Ordinal);
 
-        Assert.Contains("Do not implement or verify", Fixture("loop-planner.md"), StringComparison.Ordinal);
-        Assert.Contains("Good:", Fixture("loop-planner.md"), StringComparison.Ordinal);
-        Assert.Contains("the code around the change", Fixture("loop-implementer.md"), StringComparison.Ordinal);
-        Assert.Contains("Good:", Fixture("loop-implementer.md"), StringComparison.Ordinal);
-        Assert.Contains("Do not edit source", Fixture("loop-verifier.md"), StringComparison.Ordinal);
-        Assert.Contains("Good:", Fixture("loop-verifier.md"), StringComparison.Ordinal);
-        Assert.Contains("Report only", Fixture("loop-reviewer.md"), StringComparison.Ordinal);
-        Assert.Contains("Good:", Fixture("loop-reviewer.md"), StringComparison.Ordinal);
-        Assert.Contains("Do not edit", Fixture("loop-security-reviewer.md"), StringComparison.Ordinal);
-        Assert.Contains("Good:", Fixture("loop-security-reviewer.md"), StringComparison.Ordinal);
-        Assert.Contains("never source code", Fixture("loop-orchestrator.md"), StringComparison.Ordinal);
-        Assert.Contains("Good:", Fixture("loop-orchestrator.md"), StringComparison.Ordinal);
+        Assert.Contains("Do not implement or verify", Fixture("squad-planner.md"), StringComparison.Ordinal);
+        Assert.Contains("Good:", Fixture("squad-planner.md"), StringComparison.Ordinal);
+        Assert.Contains("the code around the change", Fixture("squad-implementer.md"), StringComparison.Ordinal);
+        Assert.Contains("Good:", Fixture("squad-implementer.md"), StringComparison.Ordinal);
+        Assert.Contains("Do not edit source", Fixture("squad-verifier.md"), StringComparison.Ordinal);
+        Assert.Contains("Good:", Fixture("squad-verifier.md"), StringComparison.Ordinal);
+        Assert.Contains("Report only", Fixture("squad-reviewer.md"), StringComparison.Ordinal);
+        Assert.Contains("Good:", Fixture("squad-reviewer.md"), StringComparison.Ordinal);
+        Assert.Contains("Do not edit", Fixture("squad-security-reviewer.md"), StringComparison.Ordinal);
+        Assert.Contains("Good:", Fixture("squad-security-reviewer.md"), StringComparison.Ordinal);
+        Assert.Contains("never source code", Fixture("squad-orchestrator.md"), StringComparison.Ordinal);
+        Assert.Contains("Good:", Fixture("squad-orchestrator.md"), StringComparison.Ordinal);
 
         Loop_agent_bodies_stay_tiny();
         Loop_agent_bodies_stay_above_the_thin_floor();
@@ -614,7 +671,7 @@ public class SquadContractTests
         {
             var lines = BodyAfterFrontmatter(Fixture($"{agent}.md"))
                 .Split('\n').Count(line => !string.IsNullOrWhiteSpace(line));
-            var floor = agent == "loop-security-reviewer" ? 16 : 8;
+            var floor = agent == "squad-security-reviewer" ? 16 : 8;
             Assert.True(lines >= floor, $"{agent} body is {lines} lines; too thin (floor {floor}).");
         }
     }
@@ -646,8 +703,8 @@ public class SquadContractTests
     [Fact]
     public void Loop_agents_use_per_role_tiers_implementer_standard_others_fast()
     {
-        Assert.Contains("model: standard", Fixture("loop-implementer.md"), StringComparison.Ordinal);
-        foreach (var agent in AgentNames.Where(name => name != "loop-implementer"))
+        Assert.Contains("model: standard", Fixture("squad-implementer.md"), StringComparison.Ordinal);
+        foreach (var agent in AgentNames.Where(name => name != "squad-implementer"))
         {
             Assert.Contains("model: fast", Fixture($"{agent}.md"), StringComparison.Ordinal);
         }
@@ -679,7 +736,7 @@ public class SquadContractTests
     public void Verify_gates_are_written_in_the_review_contract()
     {
         var contract = Fixture("review-contract.md");
-        var verifier = Fixture("loop-verifier.md");
+        var verifier = Fixture("squad-verifier.md");
 
         Assert.Contains("No confirmed plan", contract, StringComparison.Ordinal);
         Assert.Contains("never covers the criterion", contract, StringComparison.Ordinal);

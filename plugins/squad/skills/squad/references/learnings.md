@@ -27,8 +27,8 @@ a skill from the log.
 - Entrypoint: squad
 - Provider: cursor
 - Model tier: inherit
-- Agents spun: loop-planner, loop-implementer, loop-verifier, loop-reviewer, loop-simplifier, loop-orchestrator
-- Skipped: loop-security-reviewer — no trust boundary changed
+- Agents spun: squad-planner, squad-implementer, squad-verifier, squad-reviewer, squad-simplifier, squad-orchestrator
+- Skipped: squad-security-reviewer — no trust boundary changed
 - Ran: plan, implement, verify, dual-axis review, merge
 - Result: pass
 - Next tweak: keep inherit; the small rename did not need a planner

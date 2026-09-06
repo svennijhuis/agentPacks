@@ -23,14 +23,14 @@
   <ItemGroup>
     <Compile Remove="Fixtures/**/*.cs" />
     <None Include="Fixtures/**" CopyToOutputDirectory="PreserveNewest" />
-    <None Include="../../plugins/squad/agents/loop-planner.md"
-          Link="Fixtures/squad/loop-planner.md"
+    <None Include="../../plugins/squad/agents/squad-planner.md"
+          Link="Fixtures/squad/squad-planner.md"
           CopyToOutputDirectory="PreserveNewest" />
-    <None Include="../../plugins/squad/agents/loop-implementer.md"
-          Link="Fixtures/squad/loop-implementer.md"
+    <None Include="../../plugins/squad/agents/squad-implementer.md"
+          Link="Fixtures/squad/squad-implementer.md"
           CopyToOutputDirectory="PreserveNewest" />
-    <None Include="../../plugins/squad/agents/loop-verifier.md"
-          Link="Fixtures/squad/loop-verifier.md"
+    <None Include="../../plugins/squad/agents/squad-verifier.md"
+          Link="Fixtures/squad/squad-verifier.md"
           CopyToOutputDirectory="PreserveNewest" />
     <None Include="../../plugins/squad/skills/squad/SKILL.md"
           Link="Fixtures/squad/SKILL.md"
@@ -44,17 +44,17 @@
     <None Include="../../plugins/squad/skills/squad/references/learnings.md"
           Link="Fixtures/squad/learnings.md"
           CopyToOutputDirectory="PreserveNewest" />
-    <None Include="../../plugins/squad/agents/loop-orchestrator.md"
-          Link="Fixtures/squad/loop-orchestrator.md"
+    <None Include="../../plugins/squad/agents/squad-orchestrator.md"
+          Link="Fixtures/squad/squad-orchestrator.md"
           CopyToOutputDirectory="PreserveNewest" />
-    <None Include="../../plugins/squad/agents/loop-reviewer.md"
-          Link="Fixtures/squad/loop-reviewer.md"
+    <None Include="../../plugins/squad/agents/squad-reviewer.md"
+          Link="Fixtures/squad/squad-reviewer.md"
           CopyToOutputDirectory="PreserveNewest" />
-    <None Include="../../plugins/squad/agents/loop-security-reviewer.md"
-          Link="Fixtures/squad/loop-security-reviewer.md"
+    <None Include="../../plugins/squad/agents/squad-security-reviewer.md"
+          Link="Fixtures/squad/squad-security-reviewer.md"
           CopyToOutputDirectory="PreserveNewest" />
-    <None Include="../../plugins/squad/agents/loop-simplifier.md"
-          Link="Fixtures/squad/loop-simplifier.md"
+    <None Include="../../plugins/squad/agents/squad-simplifier.md"
+          Link="Fixtures/squad/squad-simplifier.md"
           CopyToOutputDirectory="PreserveNewest" />
     <None Include="../../plugins/squad/skills/squad/references/review-contract.md"
           Link="Fixtures/squad/review-contract.md"

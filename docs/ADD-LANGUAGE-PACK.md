@@ -20,10 +20,10 @@ Skills are the one component every client loads identically, which makes them th
 
 | Slot | Skill name | Answers | Read by | Required |
 |---|---|---|---|---|
-| Build | `<lang>-build` | Toolchain, project layout, the build and run commands | `loop-implementer`, `loop-simplifier` | yes |
-| Test | `<lang>-test-patterns` | How a test is written here; unit vs integration; fixtures; the test command | `loop-implementer`, `loop-verifier` | yes |
-| Review | `<lang>-review` | Language-specific review checklist | `loop-reviewer` | no |
-| Security | `<lang>-security-review` | Ecosystem footguns, layered on top of OWASP | `loop-security-reviewer` | no |
+| Build | `<lang>-build` | Toolchain, project layout, the build and run commands | `squad-implementer`, `squad-simplifier` | yes |
+| Test | `<lang>-test-patterns` | How a test is written here; unit vs integration; fixtures; the test command | `squad-implementer`, `squad-verifier` | yes |
+| Review | `<lang>-review` | Language-specific review checklist | `squad-reviewer` | no |
+| Security | `<lang>-security-review` | Ecosystem footguns, layered on top of OWASP | `squad-security-reviewer` | no |
 
 `<lang>` is the pack name, for example `dotnet`.
 

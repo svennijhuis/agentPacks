@@ -13,7 +13,7 @@ This file defines the shared wire format between Loop agents.
 
 In a planned loop, any `high` or `medium` means `fix`; only `low` and `tiny` can pass with notes. A
 problem no change to this diff can resolve means `replan`. `pass` additionally requires a `pass` row
-with adequate evidence for every acceptance criterion. Only `loop-orchestrator` assigns the verdict.
+with adequate evidence for every acceptance criterion. Only `squad-orchestrator` assigns the verdict.
 Standalone diff review has no verdict or fix-round effect; severity ranks its findings only.
 
 ## Finding identity
@@ -66,7 +66,7 @@ When there are no findings, omit the table and write `No findings.` after the sc
 ## Verifier report
 
 ```markdown
-## loop-verifier — round <n>
+## squad-verifier — round <n>
 
 | Criterion | Result | Command | Evidence |
 |---|---|---|---|
@@ -96,7 +96,7 @@ A verified `pass` is the outcome of the evaluator, not a hopeful reading of the 
 
 A `fail` or `not verified` row blocks `pass`. During merge, the orchestrator turns any such row that
 is not already represented by a reviewer finding with the same cause into a finding attributed to
-`loop-verifier`. Use the supplied plan path as `Location`; name the criterion number and command
+`squad-verifier`. Use the supplied plan path as `Location`; name the criterion number and command
 evidence in `Problem` and `Fix`. This preserves the verifier report fields and requires no new search.
 This is the one exception to normal finding identity: a reviewer finding with the same cause covers
 the verifier row even though its source location differs from the synthesized plan-path location.
@@ -104,7 +104,7 @@ the verifier row even though its source location differs from the synthesized pl
 ## Implementer report
 
 ```markdown
-## loop-implementer — round <n>
+## squad-implementer — round <n>
 
 **Criteria claimed:** <numbers>
 **Fix list entries resolved:** <numbers and deferred low/tiny entries>

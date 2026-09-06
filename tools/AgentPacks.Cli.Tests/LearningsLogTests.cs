@@ -15,8 +15,8 @@ public sealed class LearningsLogTests
         - Entrypoint: build
         - Provider: cursor
         - Model tier: inherit
-        - Agents spun: loop-implementer, loop-verifier
-        - Skipped: loop-security-reviewer — no trust boundary
+        - Agents spun: squad-implementer, squad-verifier
+        - Skipped: squad-security-reviewer — no trust boundary
         - Ran: small-change
         - Result: pass
         - Next tweak: keep inherit; skip security when no boundary
@@ -30,8 +30,8 @@ public sealed class LearningsLogTests
         - Entrypoint: build
         - Provider: cursor
         - Model tier: inherit
-        - Agents spun: loop-implementer, loop-verifier
-        - Skipped: loop-security-reviewer — no trust boundary
+        - Agents spun: squad-implementer, squad-verifier
+        - Skipped: squad-security-reviewer — no trust boundary
         - Ran: small-change
         - Result: fail
         - Next tweak: security gate missed a token check; do not skip security
@@ -43,12 +43,12 @@ public sealed class LearningsLogTests
         var afterPass = LearningsLog.Advise(PassedSkip, "build");
         var afterFail = LearningsLog.Advise(FailedSkip, "squad");
 
-        Assert.Contains("loop-security-reviewer", afterPass.PreferSkip);
-        Assert.DoesNotContain("loop-security-reviewer", afterPass.MustRun);
-        Assert.Contains("loop-security-reviewer", afterFail.MustRun);
-        Assert.DoesNotContain("loop-security-reviewer", afterFail.PreferSkip);
-        Assert.NotEqual(afterPass.MustRun.Contains("loop-security-reviewer"),
-            afterFail.MustRun.Contains("loop-security-reviewer"));
+        Assert.Contains("squad-security-reviewer", afterPass.PreferSkip);
+        Assert.DoesNotContain("squad-security-reviewer", afterPass.MustRun);
+        Assert.Contains("squad-security-reviewer", afterFail.MustRun);
+        Assert.DoesNotContain("squad-security-reviewer", afterFail.PreferSkip);
+        Assert.NotEqual(afterPass.MustRun.Contains("squad-security-reviewer"),
+            afterFail.MustRun.Contains("squad-security-reviewer"));
     }
 
     [Fact]
@@ -60,7 +60,7 @@ public sealed class LearningsLogTests
             - Entrypoint: squad
             - Provider: claude
             - Model tier: standard
-            - Agents spun: loop-planner
+            - Agents spun: squad-planner
             - Skipped: None
             - Result: pass
             - Next tweak: None

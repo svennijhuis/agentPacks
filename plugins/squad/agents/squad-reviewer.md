@@ -1,5 +1,5 @@
 ---
-name: loop-reviewer
+name: squad-reviewer
 description: Reviews a change against its plan and verifier evidence when present, then reports correctness findings. Use in every review phase, in parallel with simplification and with security when its gate applies.
 model: fast
 readonly: true

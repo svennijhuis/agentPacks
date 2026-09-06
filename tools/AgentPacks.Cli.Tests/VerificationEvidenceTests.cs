@@ -23,7 +23,7 @@ public sealed class VerificationEvidenceTests
     public void Plan_command_pass_with_wider_suite_fail_is_not_a_verified_pass()
     {
         var report = VerificationEvidence.Parse("""
-            ## loop-verifier — round 1
+            ## squad-verifier — round 1
 
             | Criterion | Result | Command | Evidence |
             |---|---|---|---|

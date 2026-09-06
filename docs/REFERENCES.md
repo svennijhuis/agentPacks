@@ -55,7 +55,7 @@ There is no JSON Schema for skills. The normative frontmatter table in the speci
 
 ## Security
 
-The `loop-security-reviewer` subagent works from these, and links each category from its own checklist.
+The `squad-security-reviewer` subagent works from these, and links each category from its own checklist.
 
 - OWASP Top 10:2025 — https://owasp.org/Top10/
 - Cheat Sheet Series, the reference for what a good control looks like — https://cheatsheetseries.owasp.org/

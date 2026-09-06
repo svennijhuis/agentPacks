@@ -1,5 +1,5 @@
 ---
-name: loop-implementer
+name: squad-implementer
 description: Implements numbered acceptance criteria or a merged fix list from a confirmed plan and reports what it claims. Use only in a full Squad run; the small-change route bypasses this agent.
 model: standard
 readonly: false

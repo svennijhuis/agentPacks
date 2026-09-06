@@ -1,5 +1,5 @@
 ---
-name: loop-verifier
+name: squad-verifier
 description: Verifies every criterion in a confirmed plan against command output and wider-suite evidence. Use only after a full-loop implementation or fix round; the small-change route bypasses this agent.
 model: fast
 readonly: true

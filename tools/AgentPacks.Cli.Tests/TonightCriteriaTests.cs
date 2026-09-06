@@ -57,6 +57,10 @@ public sealed class TonightCriteriaTests
         nameof(SquadContractTests.Simplifier_is_report_only_one_agent_three_axes))]
     [InlineData("21 no DotnetSolutionMcp empty mcpServers", typeof(PluginMcpContractTests),
         nameof(PluginMcpContractTests.No_dotnet_solution_mcp_project_and_plugin_mcp_servers_are_empty_scaffolds))]
+    [InlineData("22 squad-* agents no user-facing loop-*", typeof(SquadContractTests),
+        nameof(SquadContractTests.No_user_facing_loop_star_agents_are_squad_star))]
+    [InlineData("23 typescript pack required slots loop audience", typeof(LanguagePackContractTests),
+        nameof(LanguagePackContractTests.Typescript_pack_fills_required_slots_with_loop_audience))]
     public void Each_ticket_criterion_has_a_proving_test(string criterion, Type fixture, string method)
     {
         Assert.True(

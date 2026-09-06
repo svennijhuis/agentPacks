@@ -1,5 +1,5 @@
 ---
-name: loop-security-reviewer
+name: squad-security-reviewer
 description: Reviews a trust-boundary change against OWASP Top 10:2025. Use for auth, untrusted input, files, commands, crypto, dependencies, credentials, or exceptional conditions.
 model: fast
 readonly: true

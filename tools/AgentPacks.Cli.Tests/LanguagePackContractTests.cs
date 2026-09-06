@@ -132,7 +132,10 @@ public class LanguagePackContractTests
             Path.Combine("plugins", "dotnet", "skills", "dotnet-solution", "SKILL.md"),
             Path.Combine("plugins", "rust", "skills", "rust-build", "SKILL.md"),
             Path.Combine("plugins", "rust", "skills", "rust-test-patterns", "SKILL.md"),
-            Path.Combine("plugins", "rust", "skills", "rust-review", "SKILL.md")
+            Path.Combine("plugins", "rust", "skills", "rust-review", "SKILL.md"),
+            Path.Combine("plugins", "typescript", "skills", "typescript-build", "SKILL.md"),
+            Path.Combine("plugins", "typescript", "skills", "typescript-test-patterns", "SKILL.md"),
+            Path.Combine("plugins", "typescript", "skills", "typescript-review", "SKILL.md")
         })
         {
             var skill = File.ReadAllText(Path.Combine(root, relative));
@@ -146,7 +149,7 @@ public class LanguagePackContractTests
     public void Language_slot_skills_name_their_canonical_standards()
     {
         var root = SourceRoot();
-        foreach (var pack in new[] { "dotnet", "rust" })
+        foreach (var pack in new[] { "dotnet", "rust", "typescript" })
         {
             var plugin = Path.Combine(root, "plugins", pack);
             var standards = JsonNode.Parse(File.ReadAllText(Path.Combine(plugin, "standards.source.json")))!;
@@ -160,6 +163,34 @@ public class LanguagePackContractTests
                     Assert.Contains(document!.GetValue<string>() + ".md", skill, StringComparison.Ordinal);
             }
         }
+    }
+
+    [Fact]
+    public void Typescript_pack_fills_required_slots_with_loop_audience()
+    {
+        var root = SourceRoot();
+        var plugin = Path.Combine(root, "plugins", "typescript");
+        var manifest = JsonNode.Parse(File.ReadAllText(Path.Combine(plugin, "plugin.json")))!;
+        var standards = JsonNode.Parse(File.ReadAllText(Path.Combine(plugin, "standards.source.json")))!;
+
+        Assert.Equal("typescript", manifest["name"]!.GetValue<string>());
+        Assert.Contains(LanguagePackContract.Keyword,
+            manifest["keywords"]!.AsArray().Select(value => value!.GetValue<string>()));
+        foreach (var skill in new[] { "typescript-build", "typescript-test-patterns", "typescript-review" })
+        {
+            var text = File.ReadAllText(Path.Combine(plugin, "skills", skill, "SKILL.md"));
+            Assert.Contains("audience: loop", text, StringComparison.Ordinal);
+            Assert.Contains("not as a user entrypoint", text, StringComparison.Ordinal);
+            Assert.DoesNotContain("disable-model-invocation: true", text, StringComparison.Ordinal);
+            Assert.NotNull(standards["consumers"]![skill]);
+        }
+
+        Assert.False(Directory.Exists(Path.Combine(plugin, "skills", "typescript-security-review")));
+        Assert.False(Directory.Exists(Path.Combine(plugin, "skills", "react-component-scaffold")));
+        Assert.False(File.Exists(Path.Combine(plugin, "mcp.json")));
+        Assert.Contains("`package.json`, `tsconfig.json`",
+            File.ReadAllText(Path.Combine(root, "plugins", "pack-check", "skills", "pack-check", "references", "packs.md")),
+            StringComparison.Ordinal);
     }
 
     [Fact]

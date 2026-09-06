@@ -4,7 +4,7 @@ Portable [Agent Plugins](https://agent-plugins.org) that wire a workflow into th
 
 ## Available plugins
 
-Three capability packs, installed because you want a behaviour wired into the agent loop rather than knowledge sitting on a shelf, and two language packs, installed because of the ecosystem you compile in:
+Three capability packs, installed because you want a behaviour wired into the agent loop rather than knowledge sitting on a shelf, and three language packs, installed because of the ecosystem you compile in:
 
 | Plugin | Use it for |
 | --- | --- |
@@ -13,6 +13,7 @@ Three capability packs, installed because you want a behaviour wired into the ag
 | `git` | Blocking the git commands that destroy work an agent cannot get back — `reset --hard`, `clean -fd`, `push --force`, `branch -D`, `checkout .` — before the client runs them |
 | `dotnet` | Teaching the loop how C# is built, tested and reviewed, backed by one canonical set of standards distributed only to the skills that need each document |
 | `rust` | Teaching the loop how Cargo workspaces are built, tested and reviewed, backed by canonical Rust, error/concurrency, and testing standards |
+| `typescript` | Teaching the loop how TypeScript is typechecked, tested and reviewed, backed by canonical type and testing standards |
 
 That is the whole catalog. [`docs/PLAN.md`](docs/PLAN.md) is the rule for what earns a later pack, not a list of packs that exist.
 
@@ -27,6 +28,7 @@ copilot plugin install pack-check@agentpacks
 copilot plugin install git@agentpacks
 copilot plugin install dotnet@agentpacks
 copilot plugin install rust@agentpacks
+copilot plugin install typescript@agentpacks
 ```
 
 Update later with:
@@ -44,6 +46,7 @@ codex plugin add pack-check@agentpacks
 codex plugin add git@agentpacks
 codex plugin add dotnet@agentpacks
 codex plugin add rust@agentpacks
+codex plugin add typescript@agentpacks
 ```
 
 Open `/plugins` in Codex to inspect the installed plugins. Update later with:
@@ -61,6 +64,7 @@ claude plugin install pack-check@agentpacks --scope user
 claude plugin install git@agentpacks --scope user
 claude plugin install dotnet@agentpacks --scope user
 claude plugin install rust@agentpacks --scope user
+claude plugin install typescript@agentpacks --scope user
 ```
 
 Update later with:
@@ -81,6 +85,7 @@ ln -s ~/.cursor/agentPacks/plugins/pack-check ~/.cursor/plugins/local/pack-check
 ln -s ~/.cursor/agentPacks/plugins/git ~/.cursor/plugins/local/git
 ln -s ~/.cursor/agentPacks/plugins/dotnet ~/.cursor/plugins/local/dotnet
 ln -s ~/.cursor/agentPacks/plugins/rust ~/.cursor/plugins/local/rust
+ln -s ~/.cursor/agentPacks/plugins/typescript ~/.cursor/plugins/local/typescript
 ```
 
 Create only the links for the plugins you want, then restart Cursor or run **Developer: Reload Window**. Update later with:
@@ -101,7 +106,7 @@ cd agentPacks
 gh pr checkout 7
 ```
 
-Edit under `plugins/squad/` or a language pack (`plugins/dotnet/`, `plugins/rust/`).
+Edit under `plugins/squad/` or a language pack (`plugins/dotnet/`, `plugins/rust/`, `plugins/typescript/`).
 
 ```bash
 dotnet run --project tools/AgentPacks.Cli -- validate
@@ -187,7 +192,8 @@ tool name. They are not a second public skill surface.
 
 `git` needs no invocation either, and has nothing to ask: its hook blocks `git reset --hard`, `git clean -fd`, `git push --force`, `git branch -D`, `git checkout .` and `git restore .` before the client runs them, with the reason on stderr. [Its README](plugins/git/README.md) covers the `AGENTPACKS_GIT_GUARD=off` switch and which clients the blocking contract is actually verified on.
 
-`pack-check` runs at session start. It maps .NET markers to `dotnet` and `Cargo.toml` to `rust`, then
+`pack-check` runs at session start. It maps .NET markers to `dotnet`, `Cargo.toml` to `rust`, and
+`package.json` / `tsconfig.json` to `typescript`, then
 verifies the required build and test slots for the stacks applicable to the change. A mixed change
 loads both; an unrelated stack in the same repository does not trigger an install. CLI clients run
 their own installer after one grouped approval, while Cursor uses **Customize**. Reload after
@@ -199,8 +205,11 @@ has the provider-specific behavior.
 the plugin while agents match the repository they are working in.
 
 `rust` needs no invocation. Its skills are loaded for an applicable Cargo workspace. In a mixed
-repository, the Loop uses Rust, .NET, or both from the target paths, diff, and acceptance criteria.
+repository, the Loop uses Rust, .NET, TypeScript, or the applicable mix from the target paths, diff, and acceptance criteria.
 [Its README](plugins/rust/README.md) covers Cargo commands, standards, and repository evidence.
+
+`typescript` needs no invocation. Its skills are loaded for an applicable `package.json` / `tsconfig.json` tree.
+[Its README](plugins/typescript/README.md) covers package-manager detection, `tsc`, and test runners.
 
 Installed skills are selected when relevant to your request.
 

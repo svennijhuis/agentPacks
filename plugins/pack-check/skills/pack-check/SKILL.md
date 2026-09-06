@@ -55,7 +55,8 @@ Missing: dotnet-build, dotnet-test-patterns
 May I install dotnet@agentpacks?
 ```
 
-For Rust, substitute `Rust`, `rust`, `rust-build`, and `rust-test-patterns`. A refusal is session state: continue an ordinary
+For Rust, substitute `Rust`, `rust`, `rust-build`, and `rust-test-patterns`. For TypeScript, substitute
+`TypeScript`, `typescript`, `typescript-build`, and `typescript-test-patterns`. A refusal is session state: continue an ordinary
 request from repository evidence and do not ask again in that session. For a full Squad run,
 stop unless the user supplied `--no-pack`; the small-change gate may continue after reporting the
 gap.

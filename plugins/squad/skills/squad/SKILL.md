@@ -40,24 +40,24 @@ No commits, merges, or pushes. `pass` is ready for human review, not permission 
 
 | Work | Route |
 |---|---|
-| Typo, rename, one-line change | The main agent implements and verifies directly. Do not call `loop-planner`, `loop-implementer`, `loop-verifier`, or any review agent. Do not create a plan. Small changes spawn nobody. |
+| Typo, rename, one-line change | The main agent implements and verifies directly. Do not call `squad-planner`, `squad-implementer`, `squad-verifier`, or any review agent. Do not create a plan. Small changes spawn nobody. |
 | Behavior or design change | Full loop. |
 | Trust-boundary / irreversible | Full loop; record the human decision first. |
 | Existing diff, no plan | `/review`. No verifier report, plan write, verdict, or fix round. |
 
-Cost-first: default `inherit`. `loop-implementer` is `standard`. Other loop agents are `fast`.
+Cost-first: default `inherit`. `squad-implementer` is `standard`. Other squad agents are `fast`.
 
 ## Gated agents
 
 | Agent | When | Job |
 |---|---|---|
-| `loop-planner` | full change only | grill/plan |
-| `loop-implementer` | full change only | build |
-| `loop-verifier` | after implement/fix | evidence; `not verified` is not a pass |
-| `loop-reviewer` | every review phase | correctness + plan/spec |
-| `loop-simplifier` | every review phase | reuse, quality, efficiency in one spawn |
-| `loop-security-reviewer` | trust boundary only | OWASP gate |
-| `loop-orchestrator` | merge only | verdict / ≤2 fixes |
+| `squad-planner` | full change only | grill/plan |
+| `squad-implementer` | full change only | build |
+| `squad-verifier` | after implement/fix | evidence; `not verified` is not a pass |
+| `squad-reviewer` | every review phase | correctness + plan/spec |
+| `squad-simplifier` | every review phase | reuse, quality, efficiency in one spawn |
+| `squad-security-reviewer` | trust boundary only | OWASP gate |
+| `squad-orchestrator` | merge only | verdict / ≤2 fixes |
 
 Small change: spawn none of these. Do not add a tester agent. Do not split simplifier.
 
@@ -73,20 +73,20 @@ Grill stays here. Do not load an external grilling catalog.
 ## Stacks
 
 Select from target paths, the existing diff, and acceptance criteria. Rust-only loads Rust.
-.NET-only loads .NET. A cross-language scope loads both. never request or load a pack for code outside the change.
+.NET-only loads .NET. TypeScript-only loads TypeScript. A cross-language scope loads both. never request or load a pack for code outside the change.
 Required slots: `<lang>-build`, `<lang>-test-patterns`.
 
 ## Plan
 
-Read [the planning contract](references/planning-contract.md). Invoke `loop-planner` once per
+Read [the planning contract](references/planning-contract.md). Invoke `squad-planner` once per
 turn. Grill stays here: facts via the planner; decisions = human. Read `docs/decisions.md` when
 it exists; do not write it. After confirmation, write exactly `docs/plans/<slug>.md`.
 
 ## Implement, verify, review
 
 Read [the review contract](references/review-contract.md). Dual-axis: correctness and plan/spec.
-Security only when gated. Launch `loop-reviewer`, `loop-simplifier`, and conditional
-`loop-security-reviewer` in parallel, then `loop-orchestrator`.
+Security only when gated. Launch `squad-reviewer`, `squad-simplifier`, and conditional
+`squad-security-reviewer` in parallel, then `squad-orchestrator`.
 
 If the orchestrator returns an input error, surface it unchanged to the human and end the current
 loop. Do not obtain another report, invoke merge again, write the plan, assign a verdict, or start
@@ -95,6 +95,6 @@ most two fix rounds.
 
 ## Worktree
 
-Preserve the primary checkout and externally created worktrees. Remove a loop-created worktree
+Preserve the primary checkout and externally created worktrees. Remove a squad-created worktree
 only when `git status --porcelain` is empty, using `git worktree remove <exact-path>` without `--force`.
 Preserve dirty worktrees. Hand off uncommitted. Append one `docs/learnings.md` entry.

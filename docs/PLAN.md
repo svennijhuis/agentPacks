@@ -43,8 +43,8 @@ Both give a Rust shop a way to avoid installing .NET skills. Only one stays read
 
 ## What ships today
 
-The repository currently ships **three capability packs and two language packs**: `squad`,
-`pack-check`, `git`, `dotnet`, and `rust`. Authored `mcp.json` files are empty scaffolds.
+The repository currently ships **three capability packs and three language packs**: `squad`,
+`pack-check`, `git`, `dotnet`, `rust`, and `typescript`. Authored `mcp.json` files are empty scaffolds.
 v1 ships no MCP server. `dotnet` still has the `dotnet-solution` skill (`dotnet sln` / `dotnet list`).
 
 The earlier catalog carried five role packs and three language packs, six of which held nothing but a `plugin.json`. An empty pack is not a placeholder — it is an install that appears in the marketplace, resolves, and does nothing, which is worse than not being listed. They were removed in the same branch that added Squad; the pinned external-skill imports and the two authored skills (`engineering/testing`, `dotnet/dotnet-review`) are in history at `007f609` and can be restored when there is a pack around them worth installing.
@@ -156,7 +156,7 @@ unasked.
 | How we review a TypeScript pull request | `typescript` → `typescript-review` |
 | Two-axis review of any diff | `engineering` → `code-review` |
 | Threat-model any system | `security` |
-| Per-change OWASP Top 10 review | `squad` → `loop-security-reviewer` |
+| Per-change OWASP Top 10 review | `squad` → `squad-security-reviewer` |
 | .NET crypto and auth footguns | `dotnet` → `dotnet-security-review` |
 | What deserves a test, as philosophy | `engineering` → `testing` |
 | How to write a test in this stack | the language pack → `*-test-patterns` |

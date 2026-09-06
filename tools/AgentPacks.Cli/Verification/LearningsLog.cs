@@ -161,7 +161,7 @@ public static partial class LearningsLog
                 var dash = part.IndexOf(" — ", StringComparison.Ordinal);
                 return (dash >= 0 ? part[..dash] : part).Trim();
             })
-            .Where(part => part.StartsWith("loop-", StringComparison.OrdinalIgnoreCase))
+            .Where(part => part.StartsWith("squad-", StringComparison.OrdinalIgnoreCase))
             .Select(part => part.ToLowerInvariant())
             .Distinct(StringComparer.Ordinal)
             .ToList();

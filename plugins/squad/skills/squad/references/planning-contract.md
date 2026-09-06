@@ -1,6 +1,6 @@
 # Planning contract
 
-This file defines the turn-based handoff between the main agent and `loop-planner`.
+This file defines the turn-based handoff between the main agent and `squad-planner`.
 
 ## Ownership
 

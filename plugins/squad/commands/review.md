@@ -19,9 +19,9 @@ by the diff. Security only when a trust boundary changed.
    - `--base main` or `vs main` — `<base>...HEAD`, defaulting to `main`.
    If the resolved diff is empty, say so and stop.
 2. Decide whether the security gate applies and record the reason.
-3. The main agent directly launches `loop-reviewer`, `loop-simplifier`, and, when applicable, `loop-security-reviewer` in parallel against the same diff.
-4. After every report completes, pass the reports, security decision, `round number: 1`, `plan path: none`, and `verifier evidence: none` to `loop-orchestrator` for normalization and merge only. If it returns an input error, surface that error unchanged and stop without retrying or launching another agent.
+3. The main agent directly launches `squad-reviewer`, `squad-simplifier`, and, when applicable, `squad-security-reviewer` in parallel against the same diff.
+4. After every report completes, pass the reports, security decision, `round number: 1`, `plan path: none`, and `verifier evidence: none` to `squad-orchestrator` for normalization and merge only. If it returns an input error, surface that error unchanged and stop without retrying or launching another agent.
 5. Return the ranked merged list. Do not assign a Squad verdict, write a plan, or start a fix round.
 6. Append one learnings entry.
 
-Without a plan, `loop-reviewer` checks correctness but has no acceptance criteria or plan-specific standards. A high finding is still actionable; it does not retroactively create a Squad run.
+Without a plan, `squad-reviewer` checks correctness but has no acceptance criteria or plan-specific standards. A high finding is still actionable; it does not retroactively create a Squad run.

@@ -7,3 +7,4 @@ repository root; `.git`, `bin`, `obj`, `target`, `node_modules`, and `vendor` di
 |---|---|---|
 | `*.slnx`, `*.sln`, `*.csproj` | `dotnet` | `dotnet` |
 | `Cargo.toml` | `rust` | `rust` |
+| `package.json`, `tsconfig.json` | `typescript` | `typescript` |

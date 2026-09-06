@@ -31,7 +31,7 @@ Step 1 applies the latest learnings entry when gating and spinning; it does not 
 acknowledge the file. Prefer passed skips and tiers. A failed skip is a must-run. After a
 fail, demote one model tier. Do not rewrite skills, and do not grow a graph from the log.
 
-The main agent owns user interaction, invokes `loop-planner` once per question round, launches applicable reviewers in parallel, and routes the merged verdict. `loop-orchestrator` only merges completed reports and verifier evidence. No phase commits, merges, or pushes.
+The main agent owns user interaction, invokes `squad-planner` once per question round, launches applicable reviewers in parallel, and routes the merged verdict. `squad-orchestrator` only merges completed reports and verifier evidence. No phase commits, merges, or pushes.
 
 Obvious typos, renames, and one-line fixes take the small-change route: the main agent implements and verifies directly, with no plan and without invoking planner, implementer, verifier, or review agents.
 
@@ -44,13 +44,13 @@ Obvious typos, renames, and one-line fixes take the small-change route: the main
 | Contract | `review-contract` | Dual-axis review, severity, report formats, verify-path evaluator gates, and verdict rules |
 | Contract | `learnings` | Append-only run log read on the next `/squad` or `/review` |
 | Rule | `review-checklist` | Source-review checklist scoped by glob; Cursor-only by design |
-| Agent | `loop-planner` | Returns one numbered planning round, or writes the one confirmed plan |
-| Agent | `loop-implementer` | Implements a confirmed plan or merged fix list |
-| Agent | `loop-verifier` | Reports independent evidence per plan criterion |
-| Agent | `loop-reviewer` | Reviews correctness and plan compliance |
-| Agent | `loop-security-reviewer` | Reviews trust-boundary changes against [OWASP Top 10:2025](https://owasp.org/Top10/) |
-| Agent | `loop-simplifier` | Finds unnecessary implementation complexity |
-| Agent | `loop-orchestrator` | Deduplicates completed reports, assigns the verdict, and appends the fix list |
+| Agent | `squad-planner` | Returns one numbered planning round, or writes the one confirmed plan |
+| Agent | `squad-implementer` | Implements a confirmed plan or merged fix list |
+| Agent | `squad-verifier` | Reports independent evidence per plan criterion |
+| Agent | `squad-reviewer` | Reviews correctness and plan compliance |
+| Agent | `squad-security-reviewer` | Reviews trust-boundary changes against [OWASP Top 10:2025](https://owasp.org/Top10/) |
+| Agent | `squad-simplifier` | Finds unnecessary implementation complexity |
+| Agent | `squad-orchestrator` | Deduplicates completed reports, assigns the verdict, and appends the fix list |
 | Command | `squad` | Runs a new change through the proportional workflow |
 | Command | `review` | Reviews a PR, uncommitted work, or a diff versus main, without a plan, verdict, or fix round |
 
@@ -58,7 +58,7 @@ All seven agents remain portable across supported generated clients.
 
 ## Planning
 
-Planning is mediated by the main agent. Each `loop-planner` invocation receives the request, repository evidence, settled decisions, prior answers, and open frontier. It returns one numbered round and stops. The main agent presents that round and supplies the answers on the next invocation.
+Planning is mediated by the main agent. Each `squad-planner` invocation receives the request, repository evidence, settled decisions, prior answers, and open frontier. It returns one numbered round and stops. The main agent presents that round and supplies the answers on the next invocation.
 
 After every decision is settled, the planner returns a shared-understanding confirmation question. Only after the user confirms may a write-mode invocation create `docs/plans/<slug>.md`. Repository evidence, citations, decisions, and rejected alternatives stay in that plan; no separate research artifact is created.
 
@@ -78,7 +78,7 @@ Rust slots; a single-stack change does not load or request the unrelated pack. A
 the applicable plugin standards and concrete repository conventions in the plan. The
 [language-pack contract](../../docs/ADD-LANGUAGE-PACK.md) defines the required skill names.
 
-The hand-off records whether work ran in the primary checkout, an existing worktree, or a loop-created worktree. Externally owned and dirty worktrees are preserved. A clean loop-created worktree may be removed without force.
+The hand-off records whether work ran in the primary checkout, an existing worktree, or a squad-created worktree. Externally owned and dirty worktrees are preserved. A clean squad-created worktree may be removed without force.
 
 ## Provider support
 
@@ -104,7 +104,7 @@ Authored: `plugin.json`, `mcp.json` (empty scaffold), `skills/`, `rules/`, `agen
 Generated only in validation output or on the marketplace branch: client manifests and `com.*` provider trees.
 
 Portable model tiers are authored on each agent and mapped in [`models.source.json`](../../models.source.json).
-Default `inherit`. The implementer is `standard`; other loop agents are `fast`.
+Default `inherit`. The implementer is `standard`; other squad agents are `fast`.
 
 Test changes on a feature branch without merging to `main`:
 [ADD-SKILL.md — Test a skill locally](../../docs/ADD-SKILL.md#test-a-skill-locally).

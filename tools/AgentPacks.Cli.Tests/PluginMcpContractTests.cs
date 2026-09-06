@@ -111,7 +111,7 @@ public sealed class PluginMcpContractTests
     public void Implementer_loads_optional_solution_skill_by_exact_name()
     {
         var implementer = File.ReadAllText(Path.Combine(
-            SourceRoot(), "plugins", "squad", "agents", "loop-implementer.md"));
+            SourceRoot(), "plugins", "squad", "agents", "squad-implementer.md"));
         Assert.Contains("<lang>-solution", implementer, StringComparison.Ordinal);
         Assert.Contains("Skill tool by exact name", implementer, StringComparison.Ordinal);
     }
@@ -161,7 +161,7 @@ public sealed class PluginMcpContractTests
         }
 
         var addAgent = File.ReadAllText(Path.Combine(root, "docs", "ADD-AGENT.md"));
-        Assert.Contains("name: loop-reviewer", addAgent, StringComparison.Ordinal);
+        Assert.Contains("name: squad-reviewer", addAgent, StringComparison.Ordinal);
         Assert.Contains("model: fast", addAgent, StringComparison.Ordinal);
         Assert.Contains("Skill tool by exact name", addAgent, StringComparison.Ordinal);
         Assert.DoesNotContain("name: security-reviewer", addAgent, StringComparison.Ordinal);
