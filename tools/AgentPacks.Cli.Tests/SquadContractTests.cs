@@ -913,6 +913,62 @@ public class SquadContractTests
     }
 
     /// <summary>
+    /// Po 37 fail bar: squad skill is not a slash twin. Copilot <c>user-invocable: false</c>
+    /// plus Claude <c>disable-model-invocation: true</c>. Slash entry is
+    /// <c>commands/squad.md</c> only. Skill tool still loads by exact name <c>squad</c>.
+    /// Fails if the skill twin still lists as slash or disable-model-invocation drops.
+    /// </summary>
+    [Fact]
+    public void Squad_skill_is_not_user_invocable_command_is_the_only_slash()
+    {
+        var skill = Fixture("SKILL.md");
+        var command = Fixture("squad.md");
+        var review = Fixture("review.md");
+
+        Assert.Contains("user-invocable: false", skill, StringComparison.Ordinal);
+        Assert.DoesNotContain("user-invocable: true", skill, StringComparison.Ordinal);
+        Assert.Contains("disable-model-invocation: true", skill, StringComparison.Ordinal);
+        Assert.DoesNotContain("disable-model-invocation: false", skill, StringComparison.Ordinal);
+        Assert.Contains("name: squad", skill, StringComparison.Ordinal);
+        Assert.Contains("Skill tool by exact name", skill, StringComparison.Ordinal);
+        Assert.Contains("`squad`", skill, StringComparison.Ordinal);
+
+        Assert.Contains("name: squad", command, StringComparison.Ordinal);
+        Assert.Contains("Skill tool by exact name `squad`", command, StringComparison.Ordinal);
+        Squad_commands_are_exactly_squad_and_review();
+
+        Assert.DoesNotContain("user-invocable", review, StringComparison.Ordinal);
+        Assert.Contains("name: review", review, StringComparison.Ordinal);
+        Assert.Contains("Save report as markdown?", review, StringComparison.Ordinal);
+
+        var root = SourceRoot();
+        foreach (var relative in new[]
+                 {
+                     Path.Combine("plugins", "dotnet", "skills", "dotnet-build", "SKILL.md"),
+                     Path.Combine("plugins", "rust", "skills", "rust-build", "SKILL.md"),
+                     Path.Combine("plugins", "typescript", "skills", "typescript-build", "SKILL.md")
+                 })
+        {
+            var text = File.ReadAllText(Path.Combine(root, relative));
+            Assert.Contains("audience: loop", text, StringComparison.Ordinal);
+            Assert.Contains("Internal. Do not run directly", text, StringComparison.Ordinal);
+            Assert.DoesNotContain("disable-model-invocation: true", text, StringComparison.Ordinal);
+        }
+
+        using var repo = new TestRepository().WithPlugin("squad", Manifest);
+        repo.WithFile("plugins/squad/skills/squad/SKILL.md", skill);
+        repo.WithFile("plugins/squad/commands/squad.md", command);
+        repo.WithFile("plugins/squad/commands/review.md", review);
+        var run = repo.ValidateAndGenerate();
+        Assert.False(run.HasErrors, run.Text);
+        Assert.True(run.HasFile("plugins/squad/com.github.copilot/commands/squad.md"));
+        Assert.True(run.HasFile("plugins/squad/com.github.copilot/commands/review.md"));
+        Assert.False(run.HasFile("plugins/squad/com.github.copilot/skills/squad/SKILL.md"));
+        Assert.False(run.HasFile("plugins/squad/commands/squad-skill.md"));
+        Assert.False(File.Exists(Path.Combine(root, "plugins", "squad", "commands", "squad-skill.md")));
+    }
+
+    /// <summary>
     /// Po 36 fail bar: end of /review asks once to save markdown. Yes writes
     /// docs/reviews/&lt;slug&gt;.md and still shows IDE/CLI. No stays IDE/CLI only.
     /// Fails if /review starts a fix round, grills more than that one ask, or writes
