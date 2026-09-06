@@ -69,6 +69,12 @@ public sealed class TonightCriteriaTests
         nameof(SquadContractTests.Worktree_note_only_in_squad_skill))]
     [InlineData("27 caveman pins and /squad invokes by exact name", typeof(SquadContractTests),
         nameof(SquadContractTests.Caveman_external_pins_and_squad_invokes_by_exact_name))]
+    [InlineData("28 review-contract drops findings below 80 confidence", typeof(SquadContractTests),
+        nameof(SquadContractTests.Review_contract_drops_findings_below_80_confidence))]
+    [InlineData("29 advisor-lite at confirm stuck handoff no slash", typeof(SquadContractTests),
+        nameof(SquadContractTests.Squad_advisor_lite_at_confirm_stuck_handoff_no_slash))]
+    [InlineData("30 verifier rejects happy-path-only coverage", typeof(SquadContractTests),
+        nameof(SquadContractTests.Verifier_rejects_happy_path_only_coverage))]
     public void Each_ticket_criterion_has_a_proving_test(string criterion, Type fixture, string method)
     {
         Assert.True(

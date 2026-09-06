@@ -835,6 +835,63 @@ public class SquadContractTests
         Assert.False(Directory.Exists(Path.Combine(root, "plugins", "squad", "skills", "caveman-compress")));
     }
 
+    /// <summary>Po 28 fail bar: review-contract drops findings below 80 confidence.</summary>
+    [Fact]
+    public void Review_contract_drops_findings_below_80_confidence()
+    {
+        var contract = Fixture("review-contract.md");
+        Assert.Contains("Only report findings with confidence ≥ 80", contract, StringComparison.Ordinal);
+        Assert.Contains("Drop low-confidence noise", contract, StringComparison.Ordinal);
+        Assert.Contains("Do not emit a confidence column", contract, StringComparison.Ordinal);
+        Assert.Contains("confidence ≥ 80", Fixture("squad-reviewer.md"), StringComparison.Ordinal);
+    }
+
+    /// <summary>
+    /// Po 29 fail bar: /squad-only advisor-lite at plan-confirm, stuck, and handoff.
+    /// Stronger models.source.json tier. No advisor slash command.
+    /// </summary>
+    [Fact]
+    public void Squad_advisor_lite_at_confirm_stuck_handoff_no_slash()
+    {
+        var skill = Fixture("SKILL.md");
+        var command = Fixture("squad.md");
+        var review = Fixture("review.md");
+        var root = SourceRoot();
+
+        Assert.Contains("## Advisor-lite", skill, StringComparison.Ordinal);
+        Assert.Contains("plan-confirm", skill, StringComparison.Ordinal);
+        Assert.Contains("stuck", skill, StringComparison.Ordinal);
+        Assert.Contains("before handoff", skill, StringComparison.Ordinal);
+        Assert.Contains("read-only", skill, StringComparison.Ordinal);
+        Assert.Contains("models.source.json", skill, StringComparison.Ordinal);
+        Assert.Contains("stronger", skill, StringComparison.Ordinal);
+        Assert.Contains("`inherit` consults `standard`", skill, StringComparison.Ordinal);
+        Assert.Contains("`/squad` only", skill, StringComparison.Ordinal);
+        Assert.Contains("Advisor-lite", command, StringComparison.Ordinal);
+        Assert.Contains("plan-confirm", command + skill, StringComparison.Ordinal);
+        Assert.DoesNotContain("Advisor-lite", review, StringComparison.Ordinal);
+        Assert.DoesNotContain("name: advisor", command + review, StringComparison.Ordinal);
+        Assert.False(File.Exists(Path.Combine(root, "plugins", "squad", "commands", "advisor.md")));
+        Squad_commands_are_exactly_squad_and_review();
+    }
+
+    /// <summary>
+    /// Po 30 fail bar: verifier names behavioral + edge coverage and fails happy-path-only.
+    /// Reuses the existing executable happy-path gate.
+    /// </summary>
+    [Fact]
+    public void Verifier_rejects_happy_path_only_coverage()
+    {
+        new VerificationEvidenceTests().Happy_path_only_agent_written_tests_are_rejected();
+
+        var verifier = Fixture("squad-verifier.md");
+        var contract = Fixture("review-contract.md");
+        Assert.Contains("behavioral + edge coverage", verifier, StringComparison.Ordinal);
+        Assert.Contains("Reject happy-path-only coverage", verifier, StringComparison.Ordinal);
+        Assert.Contains("behavioral and edge cases named", contract, StringComparison.Ordinal);
+        Assert.Contains("happy-path only", contract, StringComparison.Ordinal);
+    }
+
     [Fact]
     public void Loop_agents_use_per_role_tiers_implementer_standard_others_fast()
     {
