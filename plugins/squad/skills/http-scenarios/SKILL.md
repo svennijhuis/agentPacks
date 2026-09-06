@@ -15,12 +15,14 @@ Do not require Azure, TST, or AWS. Use `BASE_URL`.
 1. Read [the smoke matrix](../../references/smoke-matrix.md). Seed kinds from that shape.
 2. Take OpenAPI/Swagger from a URL or file path. If missing, ask once.
 3. Write only `docs/smoke/<slug>.md`. Slug from `info.title` or the spec filename.
-4. Table columns: case · kind · request · status · expected · why.
+4. Table columns: # · Case · Kind · Request · Status · Expected · Why.
 
-| case | kind | request | status | expected | why |
-|---|---|---|---|---|---|
+| # | Case | Kind | Request | Status | Expected | Why |
+|---|---|---|---|---|---|---|
+| 1 | list happy | happy | GET $BASE_URL/pets | 200 | JSON array | documented list |
 
-   Default kinds: `happy` / `edge` / `fail` / `biz` / `nothing-breaks`.
+   Kinds: `happy` / `edge` / `fail` / `auth` / `biz` / `nothing-breaks`.
+   Default fill: happy / edge / fail / biz / nothing-breaks.
    Fill rows from each path/operation. Map matrix Happy/Edge/Fail/Timeout/5xx into those kinds; add `biz` and `nothing-breaks` from documented rules and no-op cases.
 5. Auth header only, by default: `Auth: Bearer TOKEN_VALID (tester supplies)`.
    Add `auth` / policy rows ONLY when the user ask or the OpenAPI change is about auth or new policies. Do not spam 401/403 rows by default.

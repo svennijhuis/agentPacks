@@ -211,7 +211,8 @@ Writes only `docs/smoke/<slug>.md` in the current app workspace (the repo under 
 scenarios md for a real tester on a deployed env. `/squad-review` stays code/diff. `/squad`
 may read the file later; it does not write smoke for push. Use `BASE_URL`.
 Do not require Azure, TST, or AWS.
-Columns: case · kind (happy/edge/fail/biz/nothing-breaks) · request · status · expected · why.
+Columns: # · Case · Kind · Request · Status · Expected · Why
+(kinds: happy/edge/fail/auth/biz/nothing-breaks).
 Auth header by default: `Auth: Bearer TOKEN_VALID (tester supplies)`. Auth/policy rows only
 when the ask or OpenAPI change is about auth. Seed from
 [`plugins/squad/references/smoke-matrix.md`](plugins/squad/references/smoke-matrix.md).

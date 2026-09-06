@@ -45,8 +45,9 @@ public sealed class HttpScenariosContractTests
     }
 
     /// <summary>
-    /// Reviewer named proof (item 44). Output table columns are case · kind ·
-    /// request · status · expected · why. Default kinds: happy/edge/fail/biz/nothing-breaks.
+    /// Reviewer named proof (item 44). Research table shape:
+    /// # · Case · Kind · Request · Status · Expected · Why.
+    /// Kinds include happy/edge/fail/auth/biz/nothing-breaks.
     /// </summary>
     [Fact]
     public void Http_scenarios_table_has_case_kind_request_status_expected_why()
@@ -54,9 +55,9 @@ public sealed class HttpScenariosContractTests
         var skill = File.ReadAllText(Path.Combine(
             SourceRoot(), "plugins", "squad", "skills", "http-scenarios", "SKILL.md"));
 
-        Assert.Contains("case · kind · request · status · expected · why", skill, StringComparison.Ordinal);
-        Assert.Contains("| case | kind | request | status | expected | why |", skill, StringComparison.Ordinal);
-        foreach (var kind in new[] { "happy", "edge", "fail", "biz", "nothing-breaks" })
+        Assert.Contains("# · Case · Kind · Request · Status · Expected · Why", skill, StringComparison.Ordinal);
+        Assert.Contains("| # | Case | Kind | Request | Status | Expected | Why |", skill, StringComparison.Ordinal);
+        foreach (var kind in new[] { "happy", "edge", "fail", "auth", "biz", "nothing-breaks" })
             Assert.Contains($"`{kind}`", skill, StringComparison.Ordinal);
 
         Assert.Contains("path/operation", skill, StringComparison.Ordinal);
@@ -173,16 +174,26 @@ public sealed class HttpScenariosContractTests
         Assert.False(run.HasErrors, run.Text);
 
         Assert.True(run.HasFile("plugins/squad/com.anthropic.claude-code/commands/http-scenarios.md"));
+        Assert.False(run.HasFile("plugins/squad/com.anthropic.claude-code/commands/run.md"));
         Assert.True(run.HasFile("plugins/squad/com.github.copilot/commands/http-scenarios.md"));
         Assert.True(File.Exists(Path.Combine(repo.PluginDirectory("squad"), "commands", "http-scenarios.md")));
         Assert.False(run.HasFile("plugins/squad/com.github.copilot/commands/squad.md"));
         Assert.True(run.HasFile("plugins/squad/com.github.copilot/commands/run.md"));
         Assert.True(run.HasFile("plugins/pack-check/com.github.copilot/commands/pack-check.md"));
 
+        var claude = run.File("plugins/squad/com.anthropic.claude-code/commands/http-scenarios.md").Text;
+        Assert.DoesNotContain("name: \"squad\"", claude, StringComparison.Ordinal);
+        Assert.DoesNotContain("name: \"run\"", claude, StringComparison.Ordinal);
+
         var copilot = run.File("plugins/squad/com.github.copilot/commands/http-scenarios.md").Text;
         Assert.Contains("name: \"http-scenarios\"", copilot, StringComparison.Ordinal);
         Assert.DoesNotContain("name: \"squad\"", copilot, StringComparison.Ordinal);
         Assert.DoesNotContain("name: \"run\"", copilot, StringComparison.Ordinal);
+
+        var factory = run.File("plugins/squad/com.github.copilot/commands/run.md").Text;
+        Assert.Contains("name: \"run\"", factory, StringComparison.Ordinal);
+        Assert.DoesNotContain("name: \"squad\"", factory, StringComparison.Ordinal);
+        Assert.DoesNotContain("name: \"http-scenarios\"", factory, StringComparison.Ordinal);
 
         var claudeEntry = run.File(".claude-plugin/marketplace.json").Content["plugins"]!.AsArray()
             .OfType<JsonObject>()
