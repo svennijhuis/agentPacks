@@ -39,13 +39,13 @@ copilot plugin marketplace update agentpacks
 
 ## VS Code
 
-**Chat: Install Plugin from Source** needs the generated `marketplace` branch. Use the branch
-picker, or a local clone of that branch. That is the only tree that contains
+**Chat: Install Plugin from Source** needs the generated `marketplace` branch. Use the branch picker,
+or a local clone of that branch. That is the only tree that contains
 `.github/plugin/marketplace.json`.
 
 Pasting `https://github.com/svennijhuis/agentPacks.git#marketplace` often hits `main`. The
-`#marketplace` fragment is not enough: `main` has no catalog, so VS Code reports **No plugins
-found** / **not a valid marketplace**.
+`#marketplace` fragment is not enough: `main` has no catalog, so VS Code reports
+**No plugins found** / **not a valid marketplace**.
 
 ```shell
 git clone --branch marketplace --single-branch https://github.com/svennijhuis/agentPacks.git
