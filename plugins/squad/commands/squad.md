@@ -1,6 +1,6 @@
 ---
 name: squad
-description: User-invoked Squad orchestrator. The main agent mediates planning, implements, verifies, reviews on two axes, and hands off uncommitted. Use --no-pack to continue a full loop after declining a missing language pack.
+description: Plan → build → verify → review (gated). Uncommitted hand-off.
 ---
 
 # Squad

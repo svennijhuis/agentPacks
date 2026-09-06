@@ -917,6 +917,26 @@ public class SquadContractTests
     }
 
     /// <summary>
+    /// Po 39 fail bar: slash picker blurbs stay short. Names stay /squad +
+    /// /squad-review. Fails a third command or a long essay description.
+    /// </summary>
+    [Fact]
+    public void Command_blurbs_are_short_and_commands_stay_squad_and_squad_review()
+    {
+        var squad = Fixture("squad.md");
+        var review = Fixture("squad-review.md");
+
+        Assert.Equal(
+            "Plan → build → verify → review (gated). Uncommitted hand-off.",
+            FrontmatterDescription(squad));
+        Assert.Equal(
+            "Report-only review of a PR / uncommitted / vs main.",
+            FrontmatterDescription(review));
+
+        Squad_commands_are_exactly_squad_and_review();
+    }
+
+    /// <summary>
     /// Po 38 fail bar: Claude discovers one <c>/squad</c> and one <c>/squad-review</c>.
     /// Root <c>commands/</c> stays for Cursor; <c>strict: true</c> keeps it from pairing
     /// with <c>com.anthropic.claude-code/commands/</c>. Fails if both trees are still
@@ -1426,6 +1446,15 @@ public class SquadContractTests
                 .Select(path => Path.GetFileNameWithoutExtension(path)!)
                 .ToHashSet(StringComparer.Ordinal)
             : [];
+
+    private static string FrontmatterDescription(string markdown)
+    {
+        var line = markdown.Replace("\r\n", "\n", StringComparison.Ordinal)
+            .Split('\n')
+            .FirstOrDefault(candidate => candidate.StartsWith("description:", StringComparison.Ordinal));
+        Assert.False(string.IsNullOrWhiteSpace(line), "missing description:");
+        return line!["description:".Length..].Trim();
+    }
 
     private static int CountToken(string text, string token)
     {

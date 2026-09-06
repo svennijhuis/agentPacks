@@ -1,6 +1,6 @@
 ---
 name: squad-review
-description: User-invoked dual-axis review of an existing change — a PR, uncommitted work, or a diff versus main — without a plan, verdict, or fix round.
+description: Report-only review of a PR / uncommitted / vs main.
 ---
 
 # Review an existing change
