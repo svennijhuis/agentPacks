@@ -93,3 +93,6 @@ lifetimes or cloning data blindly.
 | Toolchain/component unavailable | The pinned channel, target, rustfmt, or Clippy component is not installed |
 | Linker error after `cargo check` passes | Native dependency, target, linker, or feature configuration differs at build time |
 | Failure only with `--all-features` | The repository's features are not intended to be enabled together |
+
+Good: `cargo clippy` with the repo's feature set.
+Bad: invent `--all-features` the CI does not use.

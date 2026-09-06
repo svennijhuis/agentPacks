@@ -12,3 +12,6 @@ Read `docs/learnings.md` when it exists. Summarize the latest same-entrypoint en
 Do not rewrite skills. Do not grow a graph. The log is append-only. Never edit or delete an earlier entry.
 
 Report the digest. Stop.
+
+Good: "last `/squad` fail: skipped security is must-run; demote one tier."
+Bad: rewrite a skill because the log blamed the prompt.

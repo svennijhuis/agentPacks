@@ -116,3 +116,6 @@ Report the command and its output. `dotnet test` exits non-zero on failure, and 
 
 The canonical testing standard owns test naming, observable behavior, deterministic time, fixture
 lifetime, and behavior-change coverage. Apply it rather than restating a second local checklist here.
+
+Good: `IClassFixture` for a shared factory.
+Bad: start Testcontainers in the constructor.

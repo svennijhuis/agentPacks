@@ -87,3 +87,6 @@ cargo test --workspace --doc
 
 Nextest does not replace documentation tests. Run the feature and target combinations established by
 CI; do not invent `--all-features` when the manifest permits incompatible combinations.
+
+Good: `cargo test -p <package> --test <integration-target>` for a real boundary.
+Bad: a happy-path-only unit test marked as coverage.

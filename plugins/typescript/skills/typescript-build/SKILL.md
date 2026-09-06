@@ -49,3 +49,6 @@ If `package.json` already has `build` / `typecheck`, run that script instead:
 ```
 
 Target the repo's `tsconfig*.json`. Do not pass `--strict` flags the config already owns. Do not introduce Vite/Next/React as a slot — those are frameworks, reached through this skill when the repo already uses them.
+
+Good: `pnpm run typecheck` when that script exists.
+Bad: pass `--strict` flags the tsconfig already owns.

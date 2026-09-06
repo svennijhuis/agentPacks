@@ -34,3 +34,6 @@ Return findings to the caller. Do not require or invent the Squad table: a Loop 
 findings into its shared review contract, while a standalone review may use its own format. Do not
 restate unchanged code, enforce `--all-features` without repository evidence, edit the code, or
 commit, merge, or push.
+
+Good: cite `errors-concurrency.md` on a dropped `Result`.
+Bad: "clippy is clean" with no location or standard.

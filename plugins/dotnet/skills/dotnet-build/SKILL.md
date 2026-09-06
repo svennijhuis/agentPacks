@@ -90,3 +90,6 @@ Read the first error, not the last. The C# compiler cascades: one missing type p
 | `NU1004` / lock file out of date | `--force-evaluate` was not run after a package change |
 | `NETSDK1045` | `global.json` pins an SDK that is not installed |
 | A version attribute error on `PackageReference` | CPM is on; the version belongs in `Directory.Packages.props` |
+
+Good: version in `Directory.Packages.props`, Version-less `PackageReference`.
+Bad: put `Version` on the csproj under CPM.

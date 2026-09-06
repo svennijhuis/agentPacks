@@ -573,7 +573,7 @@ public class SquadContractTests
             var text = Fixture($"{agent}.md");
             var body = BodyAfterFrontmatter(text);
             var lines = body.Split('\n').Count(line => !string.IsNullOrWhiteSpace(line));
-            var cap = agent == "squad-security-reviewer" ? 40 : 28;
+            var cap = agent == "squad-security-reviewer" ? 44 : 32;
             Assert.True(lines <= cap, $"{agent} body is {lines} lines; cap is {cap}.");
         }
     }
@@ -651,6 +651,9 @@ public class SquadContractTests
         Assert.DoesNotContain("- write", simplifier, StringComparison.Ordinal);
         Assert.DoesNotContain("- edit", simplifier, StringComparison.Ordinal);
 
+        foreach (var agent in AgentNames)
+            Assert.Contains("Standards:", Fixture($"{agent}.md"), StringComparison.Ordinal);
+
         Assert.Contains("Do not implement or verify", Fixture("squad-planner.md"), StringComparison.Ordinal);
         Assert.Contains("Good:", Fixture("squad-planner.md"), StringComparison.Ordinal);
         Assert.Contains("the code around the change", Fixture("squad-implementer.md"), StringComparison.Ordinal);
@@ -676,7 +679,7 @@ public class SquadContractTests
         {
             var lines = BodyAfterFrontmatter(Fixture($"{agent}.md"))
                 .Split('\n').Count(line => !string.IsNullOrWhiteSpace(line));
-            var floor = agent == "squad-security-reviewer" ? 16 : 8;
+            var floor = agent == "squad-security-reviewer" ? 18 : 10;
             Assert.True(lines >= floor, $"{agent} body is {lines} lines; too thin (floor {floor}).");
         }
     }
@@ -737,7 +740,9 @@ public class SquadContractTests
         Assert.DoesNotContain("audience: loop", skill, StringComparison.Ordinal);
         Assert.DoesNotContain("rewrite the skill", skill, StringComparison.OrdinalIgnoreCase);
         Assert.DoesNotContain("edit SKILL.md", skill, StringComparison.Ordinal);
-        Assert.True(lines <= 12, $"learnings-digest body is {lines} lines; Matt-tiny cap is 12.");
+        Assert.Contains("Good:", skill, StringComparison.Ordinal);
+        Assert.Contains("Bad:", skill, StringComparison.Ordinal);
+        Assert.True(lines <= 16, $"learnings-digest body is {lines} lines; Matt-tiny cap is 16.");
         Assert.False(File.Exists(Path.Combine(root, "plugins", "squad", "commands", "learnings-digest.md")));
         Squad_commands_are_exactly_squad_and_review();
     }

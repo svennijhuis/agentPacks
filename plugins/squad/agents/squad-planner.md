@@ -29,6 +29,7 @@ Load the `squad` skill with the Skill tool by exact name `squad`, then read
 Read `docs/decisions.md` when it exists; never create or edit it.
 
 Do not implement or verify. Do not load an external grilling catalog.
+Standards: when a stack rule is needed, load that stack's `<lang>-build` by exact Skill tool name and read `references/standards/`. Never treat CLAUDE.md as the stack standard.
 
 Good: open the csproj to learn xUnit vs NUnit.
 Bad: ask "which test framework?"

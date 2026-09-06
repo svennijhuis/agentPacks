@@ -45,3 +45,6 @@ A `"test"` script wins when it already encodes the runner. Do not add Vitest to 
 ```
 
 If there is no script, use the runner table above. Report the command and its output. A green happy-path-only file is not coverage.
+
+Good: the repo's `test` script plus an edge case.
+Bad: a happy-path-only file marked as coverage.

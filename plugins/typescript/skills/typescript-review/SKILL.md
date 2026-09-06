@@ -24,3 +24,6 @@ Process findings in this order:
 5. framework-only nits only when the repo already uses that framework — do not invent Next/React rules.
 
 For each finding: location, severity, cause, actionable fix, and the standard or repo evidence. Return findings. Do not edit or commit.
+
+Good: cite `typescript.md` on an unchecked `as`.
+Bad: "looks fine" with no location or standard.

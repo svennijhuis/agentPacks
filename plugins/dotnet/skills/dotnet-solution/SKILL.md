@@ -15,3 +15,6 @@ Local machine only. No shipped MCP server. No credentials.
 3. Or read `*.sln`, `*.slnx`, `*.csproj`, `Directory.Packages.props`, `packages.lock.json`
 
 No write tools. No codegen. No rename or refactor. Never write `/dotnet-solution` as prose to load this skill.
+
+Good: `dotnet sln list` on the local slnx.
+Bad: call a remote package service.

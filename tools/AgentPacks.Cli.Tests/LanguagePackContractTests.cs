@@ -159,6 +159,8 @@ public class LanguagePackContractTests
                 Assert.Contains($"exact Skill tool name `{consumer.Key}`", skill, StringComparison.Ordinal);
                 Assert.Contains("Standards in force:", skill, StringComparison.Ordinal);
                 Assert.Contains("references/standards/", skill, StringComparison.Ordinal);
+                Assert.Contains("Good:", skill, StringComparison.Ordinal);
+                Assert.Contains("Bad:", skill, StringComparison.Ordinal);
                 foreach (var document in consumer.Value!.AsArray())
                     Assert.Contains(document!.GetValue<string>() + ".md", skill, StringComparison.Ordinal);
             }
