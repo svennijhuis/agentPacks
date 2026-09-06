@@ -8,7 +8,7 @@ Three capability packs, installed because you want a behaviour wired into the ag
 
 | Plugin | Use it for |
 | --- | --- |
-| `squad` | User-invoked `/squad` and `/squad-review`: grill-style planning, gated implement/verify/review, ≤2 fix rounds, uncommitted hand-off, append-only learnings. Sibling `/http-scenarios` writes `docs/smoke/<slug>.md` from OpenAPI |
+| `squad` | User-invoked `/squad` and `/squad-review`: grill-style planning, gated implement/verify/review, ≤2 fix rounds, uncommitted hand-off, append-only learnings. Sibling `/http-scenarios` writes `docs/smoke/<slug>.md` from changed code |
 | `pack-check` | Detecting the repository stack at session start and asking before installing the language pack that supplies its required build and test skills |
 | `git` | Blocking the git commands that destroy work an agent cannot get back — `reset --hard`, `clean -fd`, `push --force`, `branch -D`, `checkout .` — before the client runs them |
 | `dotnet` | Teaching the loop how C# is built, tested and reviewed, backed by one canonical set of standards distributed only to the skills that need each document |
@@ -203,18 +203,21 @@ No verdict, grill, or fix round. Never `docs/decisions.md`.
 ### `/http-scenarios`
 
 ```
-/http-scenarios https://api.example.com/openapi.json
+/http-scenarios
 /http-scenarios ./openapi.yaml
 ```
 
 Writes only `docs/smoke/<slug>.md` in the current app workspace (the repo under test) —
-scenarios md for a real tester on a deployed env. `/squad-review` stays code/diff. `/squad`
-may read the file later; it does not write smoke for push. Use `BASE_URL`.
+scenarios md for a real tester on a deployed env. Seed **changed code first** (controllers,
+routes, handlers, Azure Functions / AWS Lambda HTTP and timer/cron). OpenAPI/Swagger fills
+gaps only; not required. `/squad-review` stays code/diff. `/squad` may read the file later
+for test design; it does not write smoke for push. Use `BASE_URL`.
 Do not require Azure, TST, or AWS.
 Columns: # · Case · Kind · Request · Status · Expected · Why
 (kinds: happy/edge/fail/auth/biz/nothing-breaks).
-Auth header by default: `Auth: Bearer TOKEN_VALID (tester supplies)`. Auth/policy rows only
-when the ask or OpenAPI change is about auth. Seed from
+Timer/cron rows are `edge`/`fail` (did not run, ran twice, poison message, partial batch) —
+not fake HTTP. Auth header by default: `Auth: Bearer TOKEN_VALID (tester supplies)`.
+Auth/policy rows only when the ask or OpenAPI change is about auth. Seed kinds from
 [`plugins/squad/references/smoke-matrix.md`](plugins/squad/references/smoke-matrix.md).
 No product-source edits. No commit, merge, or push. Secrets stay placeholders (`BASE_URL`,
 `TOKEN_VALID`). Bruno/Postman is an optional mention only. Copilot picker: `/squad:http-scenarios`.

@@ -1,13 +1,14 @@
 ---
 name: http-scenarios
-description: From OpenAPI, write docs/smoke/<slug>.md. No product-code edits.
+description: From changed code, write docs/smoke/<slug>.md. No product-code edits.
 ---
 
 # HTTP scenarios
 
 Load the `http-scenarios` skill with the Skill tool by exact name `http-scenarios`. Never write
 `/http-scenarios` as prose to load it. Then write only `docs/smoke/<slug>.md` in the current
-app workspace (the repo under test) from the given OpenAPI/Swagger URL or file path. Do not
-edit product source. Do not commit, merge, or push. `/squad-review` is code/diff; this slash
-is scenarios md for a real tester on a deployed env. `/squad` may read the file later; it does
-not write smoke for push. Use `BASE_URL`. Do not require Azure, TST, or AWS.
+app workspace (the repo under test). Seed **changed code first** (controllers, routes, handlers,
+Azure Functions / AWS Lambda HTTP and timer/cron). OpenAPI/Swagger fills gaps only; not required.
+Do not edit product source. Do not commit, merge, or push. `/squad-review` is code/diff; this slash
+is scenarios md for a real tester on a deployed env. `/squad` may read the file later for test
+design; it does not write smoke for push. Use `BASE_URL`. Do not require Azure, TST, or AWS.

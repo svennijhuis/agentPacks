@@ -245,6 +245,55 @@ public sealed class HttpScenariosContractTests
         Assert.DoesNotContain("TOKEN_INVALID", skill, StringComparison.Ordinal);
     }
 
+    /// <summary>
+    /// Item 45 lock. Seed changed code first. OpenAPI/Swagger fills gaps only
+    /// and is not required.
+    /// </summary>
+    [Fact]
+    public void Http_scenarios_seeds_from_code_first_openapi_optional()
+    {
+        var root = SourceRoot();
+        var command = File.ReadAllText(Path.Combine(root, "plugins", "squad", "commands", "http-scenarios.md"));
+        var skill = File.ReadAllText(Path.Combine(root, "plugins", "squad", "skills", "http-scenarios", "SKILL.md"));
+        var combined = string.Join('\n', command, skill);
+
+        Assert.Contains("changed code first", combined, StringComparison.Ordinal);
+        Assert.Contains("controllers", combined, StringComparison.Ordinal);
+        Assert.Contains("routes", combined, StringComparison.Ordinal);
+        Assert.Contains("handlers", combined, StringComparison.Ordinal);
+        Assert.Contains("Azure Functions", combined, StringComparison.Ordinal);
+        Assert.Contains("AWS Lambda", combined, StringComparison.Ordinal);
+        Assert.Contains("fills gaps only", combined, StringComparison.Ordinal);
+        Assert.Contains("Not required", skill, StringComparison.Ordinal);
+        Assert.Contains("not required", command, StringComparison.Ordinal);
+        Assert.Contains("Do not ask for a spec when code is enough", skill, StringComparison.Ordinal);
+        Assert.Contains("Write only `docs/smoke/<slug>.md`", combined, StringComparison.Ordinal);
+        Assert.Contains("for test design", combined, StringComparison.Ordinal);
+    }
+
+    /// <summary>
+    /// Item 45 lock. Timer/cron triggers get <c>edge</c>/<c>fail</c> rows.
+    /// Do not invent fake HTTP when the trigger is not HTTP.
+    /// </summary>
+    [Fact]
+    public void Http_scenarios_covers_timer_cron_triggers()
+    {
+        var skill = File.ReadAllText(Path.Combine(
+            SourceRoot(), "plugins", "squad", "skills", "http-scenarios", "SKILL.md"));
+        var command = File.ReadAllText(Path.Combine(
+            SourceRoot(), "plugins", "squad", "commands", "http-scenarios.md"));
+        var combined = string.Join('\n', command, skill);
+
+        Assert.Contains("timer/cron", combined, StringComparison.Ordinal);
+        Assert.Contains("kind `edge` / `fail`", skill, StringComparison.Ordinal);
+        Assert.Contains("did not run", skill, StringComparison.Ordinal);
+        Assert.Contains("ran twice", skill, StringComparison.Ordinal);
+        Assert.Contains("poison message", skill, StringComparison.Ordinal);
+        Assert.Contains("partial batch", skill, StringComparison.Ordinal);
+        Assert.Contains("Not fake HTTP when the trigger is not HTTP", skill, StringComparison.Ordinal);
+        Assert.Contains("timer rows are not GET", skill, StringComparison.Ordinal);
+    }
+
     private static string SourceRoot()
     {
         for (var directory = new DirectoryInfo(AppContext.BaseDirectory);

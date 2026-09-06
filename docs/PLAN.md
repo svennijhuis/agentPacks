@@ -142,7 +142,7 @@ name stays model-invoked so the orchestrator can reach it.
   name**. They carry `metadata.audience: loop` so they do not look like a second public entrypoint.
   Making one user-only would silently remove it from the workflow.
 - `/squad` and `/squad-review` are the Squad commands. `/http-scenarios` is a sibling slash
-  on the same plugin (OpenAPI → `docs/smoke/<slug>.md`); it is not a Squad phase. There is
+  on the same plugin (changed code → `docs/smoke/<slug>.md`; OpenAPI optional); it is not a Squad phase. There is
   no second skill pack and no public skill surface for planner/reviewer internals.
 
 Reach for user-invoked on a skill that is destructive, is scaffolding that should never run unasked,

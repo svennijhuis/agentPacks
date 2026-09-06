@@ -127,6 +127,10 @@ public sealed class TonightCriteriaTests
         nameof(HttpScenariosContractTests.Http_scenarios_env_agnostic_no_required_cloud))]
     [InlineData("44 /http-scenarios auth rows default skip", typeof(HttpScenariosContractTests),
         nameof(HttpScenariosContractTests.Http_scenarios_auth_rows_default_skip))]
+    [InlineData("45 /http-scenarios seeds from code first OpenAPI optional", typeof(HttpScenariosContractTests),
+        nameof(HttpScenariosContractTests.Http_scenarios_seeds_from_code_first_openapi_optional))]
+    [InlineData("45 /http-scenarios covers timer cron triggers", typeof(HttpScenariosContractTests),
+        nameof(HttpScenariosContractTests.Http_scenarios_covers_timer_cron_triggers))]
     public void Each_ticket_criterion_has_a_proving_test(string criterion, Type fixture, string method)
     {
         Assert.True(

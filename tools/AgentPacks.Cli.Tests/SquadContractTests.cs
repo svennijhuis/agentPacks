@@ -938,7 +938,7 @@ public class SquadContractTests
             "Report-only review of a PR / uncommitted / vs main.",
             FrontmatterDescription(review));
         Assert.Equal(
-            "From OpenAPI, write docs/smoke/<slug>.md. No product-code edits.",
+            "From changed code, write docs/smoke/<slug>.md. No product-code edits.",
             FrontmatterDescription(File.ReadAllText(
                 Path.Combine(SourceRoot(), "plugins", "squad", "commands", "http-scenarios.md"))));
 

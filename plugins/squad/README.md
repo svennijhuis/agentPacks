@@ -2,7 +2,7 @@
 
 A capability pack for a user-invoked, main-agent-controlled Squad workflow. Two Squad
 entrypoints: `/squad` and `/squad-review`. Sibling slash `/http-scenarios` writes smoke
-markdown from OpenAPI; it is not a Squad phase. The `squad` skill is the thin orchestrator
+markdown from changed code; it is not a Squad phase. The `squad` skill is the thin orchestrator
 and is not model-invoked.
 
 The numbered flow below is locked v1 and is copied verbatim into the
@@ -43,7 +43,7 @@ Obvious typos, renames, and one-line fixes take the small-change route: the main
 |---|---|---|
 | Skill | `squad` | User-invoked routing, exact Skill-name loading, security gate, fix-round cap, learnings, and hand-off |
 | Skill | `learnings-digest` | User-invoked digest of `docs/learnings.md`. Does not rewrite skills. |
-| Skill | `http-scenarios` | User-invoked OpenAPI → `docs/smoke/<slug>.md`. No product-code edits. |
+| Skill | `http-scenarios` | User-invoked changed-code → `docs/smoke/<slug>.md`. OpenAPI optional. No product-code edits. |
 | Contract | `planning-contract` | Turn-based grill inside the orchestrator: frontier rounds, recommended answers, confirmation, plan shape |
 | Contract | `review-contract` | Dual-axis review, severity, report formats, verify-path evaluator gates, and verdict rules |
 | Contract | `learnings` | Append-only run log read on the next `/squad` or `/squad-review` |
@@ -57,7 +57,7 @@ Obvious typos, renames, and one-line fixes take the small-change route: the main
 | Agent | `squad-orchestrator` | Deduplicates completed reports, assigns the verdict, and appends the fix list |
 | Command | `squad` | Runs a new change through the proportional workflow. Copilot picker: `/squad:run` |
 | Command | `squad-review` | Reviews a PR, uncommitted work, or a diff versus main, without a plan, verdict, or fix round |
-| Command | `http-scenarios` | From OpenAPI/Swagger, writes only `docs/smoke/<slug>.md` in the current app workspace. Copilot picker: `/squad:http-scenarios` |
+| Command | `http-scenarios` | From changed code (OpenAPI optional), writes only `docs/smoke/<slug>.md`. Copilot picker: `/squad:http-scenarios` |
 
 All seven agents remain portable across supported generated clients.
 
