@@ -12,6 +12,4 @@ Azure Functions / AWS Lambda HTTP and timer/cron). OpenAPI/Swagger fills gaps on
 Do not edit product source. Do not commit, merge, or push. `/squad-review` is code/diff; this slash
 is scenarios md for a real tester on a deployed env. `/squad` may read the file later for test
 design; it does not write smoke for push. Use `BASE_URL`. Do not require Azure, TST, or AWS.
-If local Key Vault, a secrets store, or an unauthenticated protected resource is needed to fill
-the matrix, mention that in the chat/output and ask the user to continue. Do not invent secrets.
-Do not silently skip. Do not hardcode tokens.
+Local secrets: the Squad local-secrets rule (skill `squad`).

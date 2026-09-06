@@ -295,27 +295,36 @@ public sealed class HttpScenariosContractTests
     }
 
     /// <summary>
-    /// Reviewer fail bar (PR #16). Local Key Vault, secrets stores, or
-    /// unauthenticated protected resources: mention in chat/output and ask the
-    /// user to continue. Do not invent secrets, silently skip, or hardcode tokens.
+    /// Prior fail bar kept as deferral: http-scenarios points at the Squad
+    /// local-secrets rule instead of repeating the essay.
     /// </summary>
     [Fact]
     public void Http_scenarios_local_unauth_kv_ask_continue()
     {
+        Http_scenarios_defers_local_secrets_to_squad_rule();
+    }
+
+    /// <summary>
+    /// Po lock. <c>/http-scenarios</c> defers local Key Vault / secret-store
+    /// unauth to the Squad local-secrets rule. One-liner pointer, no essay.
+    /// </summary>
+    [Fact]
+    public void Http_scenarios_defers_local_secrets_to_squad_rule()
+    {
         var root = SourceRoot();
         var command = File.ReadAllText(Path.Combine(root, "plugins", "squad", "commands", "http-scenarios.md"));
         var skill = File.ReadAllText(Path.Combine(root, "plugins", "squad", "skills", "http-scenarios", "SKILL.md"));
+        var squad = File.ReadAllText(Path.Combine(root, "plugins", "squad", "skills", "squad", "SKILL.md"));
         var combined = string.Join('\n', command, skill);
 
-        Assert.Contains("Key Vault", combined, StringComparison.Ordinal);
-        Assert.Contains("secrets store", combined, StringComparison.OrdinalIgnoreCase);
-        Assert.Contains("unauthenticated", combined, StringComparison.Ordinal);
-        Assert.Contains("ask the user to continue", combined, StringComparison.Ordinal);
-        Assert.Contains("mention that in the chat/output", combined, StringComparison.Ordinal);
-        Assert.Contains("Do not invent secrets", combined, StringComparison.Ordinal);
-        Assert.Contains("Do not silently skip", combined, StringComparison.Ordinal);
-        Assert.Contains("Do not hardcode tokens", combined, StringComparison.Ordinal);
-        Assert.DoesNotContain("sk-", combined, StringComparison.Ordinal);
+        Assert.Contains("Squad local-secrets rule", combined, StringComparison.Ordinal);
+        Assert.Contains("../squad/SKILL.md", skill, StringComparison.Ordinal);
+        Assert.Contains("skill `squad`", command, StringComparison.Ordinal);
+        Assert.DoesNotContain("mention that in the chat/output", combined, StringComparison.Ordinal);
+        Assert.DoesNotContain("Do not invent secrets", combined, StringComparison.Ordinal);
+        Assert.DoesNotContain("Do not silently skip", combined, StringComparison.Ordinal);
+        Assert.Contains("Local-secrets rule", squad, StringComparison.Ordinal);
+        Assert.Contains("ask: continue?", squad, StringComparison.Ordinal);
     }
 
     private static string SourceRoot()

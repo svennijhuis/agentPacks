@@ -1566,6 +1566,27 @@ public class SquadContractTests
         new HttpScenariosContractTests().Http_scenarios_local_unauth_kv_ask_continue();
     }
 
+    /// <summary>
+    /// Po lock. <c>/squad</c> owns local Key Vault / secret-store unauth:
+    /// expected on local, ask continue, no invented tokens, no hard-fail
+    /// without ask.
+    /// </summary>
+    [Fact]
+    public void Squad_local_secrets_unauth_ask_continue()
+    {
+        var skill = Fixture("SKILL.md");
+        Assert.Contains("Local-secrets rule", skill, StringComparison.Ordinal);
+        Assert.Contains("Key Vault", skill, StringComparison.Ordinal);
+        Assert.Contains("secret store", skill, StringComparison.Ordinal);
+        Assert.Contains("often expected", skill, StringComparison.Ordinal);
+        Assert.Contains("not a product fail", skill, StringComparison.Ordinal);
+        Assert.Contains("ask: continue?", skill, StringComparison.Ordinal);
+        Assert.Contains("workaround / mock / skip secret path", skill, StringComparison.Ordinal);
+        Assert.Contains("Do not invent tokens", skill, StringComparison.Ordinal);
+        Assert.Contains("Do not hard-fail the whole run without ask", skill, StringComparison.Ordinal);
+        Assert.DoesNotContain("sk-", skill, StringComparison.Ordinal);
+    }
+
     private static void AssertMattTiny(string text, string label)
     {
         var lines = text.Split('\n').Count(line => !string.IsNullOrWhiteSpace(line));

@@ -220,8 +220,7 @@ not fake HTTP. Auth header by default: `Auth: Bearer TOKEN_VALID (tester supplie
 Auth/policy rows only when the ask or OpenAPI change is about auth. Seed kinds from
 [`plugins/squad/references/smoke-matrix.md`](plugins/squad/references/smoke-matrix.md).
 No product-source edits. No commit, merge, or push. Secrets stay placeholders (`BASE_URL`,
-`TOKEN_VALID`). Local Key Vault / secrets store / unauthenticated protected resource: mention
-it and ask the user to continue — do not invent secrets or silently skip. Bruno/Postman is an
+`TOKEN_VALID`). Local secrets follow the Squad local-secrets rule. Bruno/Postman is an
 optional mention only. Copilot picker: `/squad:http-scenarios`.
 
 Language-pack slots (`dotnet-build`, `rust-review`, …) are loop internals, loaded by exact Skill
