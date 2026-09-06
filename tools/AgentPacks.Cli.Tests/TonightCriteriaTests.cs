@@ -115,6 +115,28 @@ public sealed class TonightCriteriaTests
         nameof(SquadContractTests.Lang_test_patterns_local_vs_deployed_smoke_examples))]
     [InlineData("43 smoke-matrix not user slash no new plugin", typeof(SquadContractTests),
         nameof(SquadContractTests.Smoke_matrix_not_user_slash_no_new_plugin))]
+    [InlineData("44 /http-scenarios writes docs/smoke md only", typeof(HttpScenariosContractTests),
+        nameof(HttpScenariosContractTests.Http_scenarios_command_writes_docs_smoke_md_only))]
+    [InlineData("44 /http-scenarios table case kind request status expected why", typeof(HttpScenariosContractTests),
+        nameof(HttpScenariosContractTests.Http_scenarios_table_has_case_kind_request_status_expected_why))]
+    [InlineData("44 /http-scenarios no code edits no secrets seeded from smoke-matrix", typeof(HttpScenariosContractTests),
+        nameof(HttpScenariosContractTests.Http_scenarios_no_code_edits_no_secrets_seeded_from_smoke_matrix))]
+    [InlineData("44 user commands stay squad squad-review pack-check plus http-scenarios", typeof(HttpScenariosContractTests),
+        nameof(HttpScenariosContractTests.User_commands_stay_squad_squad_review_pack_check_plus_http_scenarios))]
+    [InlineData("44 /http-scenarios env-agnostic no required cloud", typeof(HttpScenariosContractTests),
+        nameof(HttpScenariosContractTests.Http_scenarios_env_agnostic_no_required_cloud))]
+    [InlineData("44 /http-scenarios auth rows default skip", typeof(HttpScenariosContractTests),
+        nameof(HttpScenariosContractTests.Http_scenarios_auth_rows_default_skip))]
+    [InlineData("45 /http-scenarios seeds from code first OpenAPI optional", typeof(HttpScenariosContractTests),
+        nameof(HttpScenariosContractTests.Http_scenarios_seeds_from_code_first_openapi_optional))]
+    [InlineData("45 /http-scenarios covers timer cron triggers", typeof(HttpScenariosContractTests),
+        nameof(HttpScenariosContractTests.Http_scenarios_covers_timer_cron_triggers))]
+    [InlineData("16 /http-scenarios local unauth kv ask continue", typeof(SquadContractTests),
+        nameof(SquadContractTests.Http_scenarios_local_unauth_kv_ask_continue))]
+    [InlineData("16 squad local secrets unauth ask continue", typeof(SquadContractTests),
+        nameof(SquadContractTests.Squad_local_secrets_unauth_ask_continue))]
+    [InlineData("16 /http-scenarios defers local secrets to squad rule", typeof(HttpScenariosContractTests),
+        nameof(HttpScenariosContractTests.Http_scenarios_defers_local_secrets_to_squad_rule))]
     public void Each_ticket_criterion_has_a_proving_test(string criterion, Type fixture, string method)
     {
         Assert.True(

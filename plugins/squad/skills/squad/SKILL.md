@@ -69,6 +69,7 @@ Load only with the Skill tool by exact name: `squad`, `caveman`, `<lang>-build`,
 Load `caveman` with the Skill tool by exact name `caveman`. Never write `/caveman` as prose to load it.
 Never write slash-prose. Language-pack slots are internals (`metadata.audience: loop`).
 Authored `mcp.json` files are empty scaffolds. No shipped MCP server. No new command. No credentials. No remote service.
+Local-secrets rule: unauthorized Key Vault / secret store on local is often expected — not a product fail. Mention it and ask: continue? (workaround / mock / skip secret path). Do not invent tokens. Do not hard-fail the whole run without ask.
 
 Grill stays here. Do not load an external grilling catalog.
 
