@@ -157,6 +157,12 @@ public sealed class TonightCriteriaTests
         nameof(HttpScenariosContractTests.User_slash_is_scenarios_not_http_scenarios))]
     [InlineData("49 Copilot_ships_scenarios_command", typeof(HttpScenariosContractTests),
         nameof(HttpScenariosContractTests.Copilot_ships_scenarios_command))]
+    [InlineData("50 Copilot_hooks_set_cwd_plugin_root", typeof(ClaudeMarketplaceHooksTests),
+        nameof(ClaudeMarketplaceHooksTests.Copilot_hooks_set_cwd_plugin_root))]
+    [InlineData("51 Copilot_scenarios_command_name_differs_from_skill", typeof(HttpScenariosContractTests),
+        nameof(HttpScenariosContractTests.Copilot_scenarios_command_name_differs_from_skill))]
+    [InlineData("51 Slash_stays_scenarios_or_squad_scenarios", typeof(HttpScenariosContractTests),
+        nameof(HttpScenariosContractTests.Slash_stays_scenarios_or_squad_scenarios))]
     public void Each_ticket_criterion_has_a_proving_test(string criterion, Type fixture, string method)
     {
         Assert.True(

@@ -344,7 +344,7 @@ public class LanguagePackContractTests
             Path.Combine("plugins", "pack-check", "skills", "pack-check", "SKILL.md"),
             Path.Combine("plugins", "squad", "skills", "squad", "SKILL.md"),
             Path.Combine("plugins", "squad", "skills", "learnings-digest", "SKILL.md"),
-            Path.Combine("plugins", "squad", "skills", "scenarios", "SKILL.md")
+            Path.Combine("plugins", "squad", "skills", "scenarios-md", "SKILL.md")
         })
         {
             var text = File.ReadAllText(Path.Combine(root, relative));

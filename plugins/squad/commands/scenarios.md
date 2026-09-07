@@ -5,7 +5,7 @@ description: From changed code, write docs/smoke/<slug>.md. No product-code edit
 
 # HTTP scenarios
 
-Load the `scenarios` skill with the Skill tool by exact name `scenarios`. Never write
+Load the `scenarios-md` skill with the Skill tool by exact name `scenarios-md`. Never write
 `/scenarios` as prose to load it. Then write only `docs/smoke/<slug>.md` in the current
 app workspace (the repo under test). Seed **changed code first** (controllers, routes, handlers,
 Azure Functions / AWS Lambda HTTP and timer/cron). OpenAPI/Swagger fills gaps only; not required.

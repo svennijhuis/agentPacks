@@ -212,6 +212,29 @@ public sealed class HookDialectTests
         Assert.Null(entry["hooks"]);
         Assert.Equal("command", entry["type"]!.GetValue<string>());
         Assert.Contains("${PLUGIN_ROOT}/scripts/", entry["bash"]!.GetValue<string>(), StringComparison.Ordinal);
+        Assert.Equal("${PLUGIN_ROOT}", entry["cwd"]!.GetValue<string>());
+    }
+
+    /// <summary>
+    /// Copilot CLI fail-closes PreToolUse unless hook entries set cwd to the
+    /// plugin root (github/copilot-cli#3659). Claude, Cursor, and Codex expand
+    /// the root token in the command path and must not grow a cwd field.
+    /// </summary>
+    [Fact]
+    public void Copilot_hook_entries_set_cwd_plugin_root_others_omit()
+    {
+        using var repo = new TestRepository();
+        var run = repo.WithValidPlugin().WithHook("sessionStart").ValidateAndGenerate();
+
+        var copilot = (JsonObject)Events(run, CopilotHooks)["SessionStart"]![0]!;
+        Assert.Equal("${PLUGIN_ROOT}", copilot["cwd"]!.GetValue<string>());
+
+        var claude = (JsonObject)((JsonArray)Events(run, ClaudeHooks)["SessionStart"]![0]!["hooks"]!)[0]!;
+        var cursor = (JsonObject)Events(run, CursorHooks)["sessionStart"]![0]!;
+        var codex = (JsonObject)((JsonArray)Events(run, CodexHooks)["SessionStart"]![0]!["hooks"]!)[0]!;
+        Assert.Null(claude["cwd"]);
+        Assert.Null(cursor["cwd"]);
+        Assert.Null(codex["cwd"]);
     }
 
     /// <summary>The command is extensionless so cmd.exe can resolve the .cmd shim through PATHEXT.</summary>

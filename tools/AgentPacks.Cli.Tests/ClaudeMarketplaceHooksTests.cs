@@ -90,6 +90,58 @@ public sealed class ClaudeMarketplaceHooksTests
         }
     }
 
+    /// <summary>
+    /// Item 50 fail bar. Copilot CLI fail-closes PreToolUse when a hook script
+    /// cannot be resolved from the project cwd (github/copilot-cli#3659).
+    /// Generated Copilot hooks.json for git and pack-check must set
+    /// <c>cwd</c> to <c>${PLUGIN_ROOT}</c> on every script-running entry.
+    /// Claude root hooks stay Claude-shaped with no Copilot cwd, and the
+    /// marketplace still omits a hooks path (item 47).
+    /// </summary>
+    [Fact]
+    public void Copilot_hooks_set_cwd_plugin_root()
+    {
+        using var repo = HookedCapabilityPacks();
+        var run = repo.ValidateAndGenerate();
+        Assert.False(run.HasErrors, run.Text);
+
+        foreach (var plugin in (string[])["pack-check", "git"])
+        {
+            var copilotPath = $"plugins/{plugin}/com.github.copilot/hooks/hooks.json";
+            var rootPath = $"plugins/{plugin}/hooks/hooks.json";
+            Assert.True(run.HasFile(copilotPath), copilotPath);
+
+            var copilotEvents = (JsonObject)run.File(copilotPath).Content["hooks"]!;
+            var entries = CopilotHookEntries(copilotEvents).ToArray();
+            Assert.NotEmpty(entries);
+
+            foreach (var entry in entries)
+            {
+                Assert.Equal("command", entry["type"]!.GetValue<string>());
+                Assert.Contains("bash", entry.ToJsonString(), StringComparison.Ordinal);
+                Assert.Equal("${PLUGIN_ROOT}", entry["cwd"]!.GetValue<string>());
+            }
+
+            var rootEvents = (JsonObject)run.File(rootPath).Content["hooks"]!;
+            var rootGroup = FirstHookEntry(rootEvents);
+            Assert.Null(rootGroup["cwd"]);
+            Assert.Null(((JsonObject)((JsonArray)rootGroup["hooks"]!)[0]!)["cwd"]);
+            Assert.DoesNotContain("\"cwd\"", run.File(rootPath).Text, StringComparison.Ordinal);
+        }
+
+        Claude_marketplace_omits_hooks_path_and_array();
+        new SquadContractTests().Pull_request_ci_stays_one_job_no_matrix();
+    }
+
+    private static IEnumerable<JsonObject> CopilotHookEntries(JsonObject events)
+    {
+        foreach (var pair in events)
+        {
+            foreach (var item in pair.Value!.AsArray())
+                yield return (JsonObject)item!;
+        }
+    }
+
     private static JsonObject FirstHookEntry(JsonObject events) =>
         (JsonObject)events.First().Value!.AsArray()[0]!;
 
