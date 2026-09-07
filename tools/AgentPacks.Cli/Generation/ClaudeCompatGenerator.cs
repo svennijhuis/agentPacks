@@ -100,10 +100,14 @@ internal sealed class ClaudeCompatGenerator(RepositoryContext context)
         // Keyed on what ClientTreeGenerator actually writes, not on hooks.source.json existing: an
         // event declared with an empty entry array produces no hooks.json, and an entry pointing at
         // a file that was never written fails the plugin at install time.
+        //
+        // pack-check and git omit the field: Claude rejects a marketplace hooks path or array.
+        // Those packs emit Claude-shaped hooks/hooks.json at the plugin root instead so Claude
+        // auto-discovers it. Do not substitute Copilot's namespaced hooks file.
         var hasHooks = HookGenerator.Build(plugin, claude) is not null
             || plugin.Rules.Any(r => r.Frontmatter?.Scalar("alwaysApply") == "true");
 
-        if (hasHooks)
+        if (hasHooks && !plugin.ClaudeAutoDiscoversRootHooks)
         {
             entry["hooks"] = $"./{claude.Directory}/hooks/hooks.json";
         }

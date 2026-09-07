@@ -18,7 +18,8 @@ internal sealed record ClientProfile(
     /// <summary>
     /// Claude reads the root agents/, commands/ and hooks/ by default unless the marketplace
     /// entry is strict. The entry points at this namespace and sets strict so Cursor's root
-    /// dialect is not a second discoverable copy.
+    /// dialect is not a second discoverable copy. pack-check and git omit marketplace hooks
+    /// (Claude rejects a path or array) and put this dialect at plugin-root hooks/hooks.json.
     /// </summary>
     public static readonly ClientProfile Claude = new(
         Client.Claude,

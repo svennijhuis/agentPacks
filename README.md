@@ -31,7 +31,7 @@ copilot plugin install rust@agentpacks
 copilot plugin install typescript@agentpacks
 ```
 
-After install, pick `/squad:run`. Copilot hides a command named the same as the plugin, so there is no `/squad:squad`. Review is `/squad:squad-review`. HTTP scenarios are `/squad:http-scenarios`. Setup is `/pack-check`.
+Copilot uses namespaced `/squad:…` for run, squad-review, http-scenarios. After install, pick `/squad:run`. Copilot hides a command named the same as the plugin, so there is no `/squad:squad`. Review is `/squad:squad-review`. HTTP scenarios are `/squad:http-scenarios`. Setup is `/pack-check`.
 
 Update later with:
 

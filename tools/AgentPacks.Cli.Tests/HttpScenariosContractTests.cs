@@ -327,6 +327,58 @@ public sealed class HttpScenariosContractTests
         Assert.Contains("ask: continue?", squad, StringComparison.Ordinal);
     }
 
+    /// <summary>
+    /// Po 47 fail bar. Copilot ships sibling <c>http-scenarios</c> as
+    /// <c>/squad:http-scenarios</c> at <c>com.github.copilot/commands/http-scenarios.md</c>.
+    /// No slash rename. README one-liner: Copilot uses namespaced <c>/squad:…</c>
+    /// for run, squad-review, http-scenarios.
+    /// </summary>
+    [Fact]
+    public void Copilot_ships_http_scenarios_command()
+    {
+        var root = SourceRoot();
+        using var repo = new TestRepository().WithPlugin(
+            "squad",
+            File.ReadAllText(Path.Combine(root, "plugins", "squad", "plugin.json")));
+
+        foreach (var path in Directory.GetFiles(Path.Combine(root, "plugins", "squad", "commands"), "*.md"))
+        {
+            repo.WithFile(
+                $"plugins/squad/commands/{Path.GetFileName(path)}",
+                File.ReadAllText(path));
+        }
+
+        repo.WithSkill(
+            "squad",
+            extraFrontmatter: "disable-model-invocation: true\nuser-invocable: false",
+            plugin: "squad");
+        repo.WithSkill(
+            "http-scenarios",
+            extraFrontmatter: "disable-model-invocation: true\nuser-invocable: false",
+            plugin: "squad");
+
+        var run = repo.ValidateAndGenerate();
+        Assert.False(run.HasErrors, run.Text);
+
+        Assert.True(run.HasFile("plugins/squad/com.github.copilot/commands/http-scenarios.md"));
+        Assert.False(run.HasFile("plugins/squad/com.github.copilot/commands/squad.md"));
+        Assert.True(run.HasFile("plugins/squad/com.github.copilot/commands/run.md"));
+        Assert.True(run.HasFile("plugins/squad/com.github.copilot/commands/squad-review.md"));
+
+        var copilot = run.File("plugins/squad/com.github.copilot/commands/http-scenarios.md").Text;
+        Assert.Contains("name: \"http-scenarios\"", copilot, StringComparison.Ordinal);
+        Assert.DoesNotContain("name: \"run\"", copilot, StringComparison.Ordinal);
+        Assert.DoesNotContain("name: \"squad\"", copilot, StringComparison.Ordinal);
+
+        var readme = File.ReadAllText(Path.Combine(root, "README.md"));
+        Assert.Contains("Copilot uses namespaced `/squad:…` for run, squad-review, http-scenarios", readme, StringComparison.Ordinal);
+        Assert.Contains("`/squad:run`", readme, StringComparison.Ordinal);
+        Assert.Contains("`/squad:squad-review`", readme, StringComparison.Ordinal);
+        Assert.Contains("`/squad:http-scenarios`", readme, StringComparison.Ordinal);
+
+        new SquadContractTests().Pull_request_ci_stays_one_job_no_matrix();
+    }
+
     private static string SourceRoot()
     {
         for (var directory = new DirectoryInfo(AppContext.BaseDirectory);
