@@ -3,10 +3,10 @@ using System.Text.Json.Nodes;
 namespace AgentPacks.Cli.Tests;
 
 /// <summary>
-/// Item 49 fail bar: every shipped plugin.json is 0.1.2 so clients see an
+/// Item 50+51 fail bar: every shipped plugin.json is 0.1.3 so clients see an
 /// update when the version string changes. Claude/Copilot skip the install
 /// when it is unchanged. Catalog entries that omit version stay omitted.
-/// Replaces the item 48 0.1.1 bar.
+/// Replaces the item 49 0.1.2 bar.
 /// </summary>
 public sealed class PluginVersionContractTests
 {
@@ -14,7 +14,7 @@ public sealed class PluginVersionContractTests
         ["dotnet", "git", "pack-check", "rust", "squad", "typescript"];
 
     [Fact]
-    public void All_plugins_version_0_1_2()
+    public void All_plugins_version_0_1_3()
     {
         var root = SourceRoot();
         var plugins = Path.Combine(root, "plugins");
@@ -28,7 +28,7 @@ public sealed class PluginVersionContractTests
         {
             var manifest = JsonNode.Parse(File.ReadAllText(
                 Path.Combine(plugins, name, "plugin.json")))!;
-            Assert.Equal("0.1.2", manifest["version"]!.GetValue<string>());
+            Assert.Equal("0.1.3", manifest["version"]!.GetValue<string>());
         }
 
         using var repo = new TestRepository()
@@ -38,10 +38,10 @@ public sealed class PluginVersionContractTests
         Assert.False(run.HasErrors, run.Text);
 
         Assert.Equal(
-            "0.1.2",
+            "0.1.3",
             run.File("plugins/git/.cursor-plugin/plugin.json").Content["version"]!.GetValue<string>());
         Assert.Equal(
-            "0.1.2",
+            "0.1.3",
             run.File("plugins/git/.codex-plugin/plugin.json").Content["version"]!.GetValue<string>());
 
         foreach (var catalog in new[]
