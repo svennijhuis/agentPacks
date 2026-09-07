@@ -41,9 +41,19 @@ internal sealed class ClientTreeGenerator(RepositoryContext context, ModelCatalo
         // Claude and Copilot are handled inside their own methods: their hooks files also carry
         // the generated rules hook, and emitting the same path twice would write it twice and diff
         // it against itself.
+        //
+        // pack-check and git put Claude-shaped hooks at plugin-root hooks/hooks.json so Claude
+        // can auto-discover them (marketplace omits a hooks path). Skip Cursor's write to that
+        // same path — do not leave two dialects at one file, and do not write Claude shape into
+        // Copilot's namespaced tree.
         foreach (var profile in ClientProfile.All
                      .Where(p => p.Client is not (Client.Claude or Client.Copilot)))
         {
+            if (profile.Client == Client.Cursor && plugin.ClaudeAutoDiscoversRootHooks)
+            {
+                continue;
+            }
+
             if (HookGenerator.Build(plugin, profile) is { } hooks)
             {
                 AddJson(profile.PluginRelative("hooks/hooks.json"), hooks);
@@ -144,6 +154,7 @@ internal sealed class ClientTreeGenerator(RepositoryContext context, ModelCatalo
             if (HookGenerator.Build(plugin, profile) is { } authored)
             {
                 addJson(profile.PluginRelative("hooks/hooks.json"), authored);
+                MaybeWriteClaudeRootHooks(plugin, profile, addJson, authored);
             }
 
             return;
@@ -156,7 +167,28 @@ internal sealed class ClientTreeGenerator(RepositoryContext context, ModelCatalo
         add(profile.PluginRelative("scripts/rules-context"), Dispatcher("rules-context"), true);
         add(profile.PluginRelative("scripts/rules-context.cmd"), ShimCommand("rules-context"), false);
 
-        addJson(profile.PluginRelative("hooks/hooks.json"), HooksWithRules(plugin, profile));
+        var document = HooksWithRules(plugin, profile);
+        addJson(profile.PluginRelative("hooks/hooks.json"), document);
+        MaybeWriteClaudeRootHooks(plugin, profile, addJson, document);
+    }
+
+    /// <summary>
+    /// Claude marketplace cannot declare a hooks path, so pack-check and git also emit the
+    /// Claude-shaped document at plugin-root hooks/hooks.json. Copilot keeps
+    /// <c>com.github.copilot/hooks/hooks.json</c> in its own dialect.
+    /// </summary>
+    private static void MaybeWriteClaudeRootHooks(
+        PluginPackage plugin,
+        ClientProfile profile,
+        Action<string, JsonNode> addJson,
+        JsonObject document)
+    {
+        if (profile.Client != Client.Claude || !plugin.ClaudeAutoDiscoversRootHooks)
+        {
+            return;
+        }
+
+        addJson("hooks/hooks.json", document);
     }
 
     /// <summary>Merges the generated rules hook into whatever the author declared.</summary>

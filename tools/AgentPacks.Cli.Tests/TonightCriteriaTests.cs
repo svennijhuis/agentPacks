@@ -139,6 +139,12 @@ public sealed class TonightCriteriaTests
         nameof(HttpScenariosContractTests.Http_scenarios_defers_local_secrets_to_squad_rule))]
     [InlineData("46 README command map three user commands plus pack-check", typeof(SquadContractTests),
         nameof(SquadContractTests.Readme_lists_three_user_commands_plus_pack_check))]
+    [InlineData("47 Claude marketplace omits hooks path and array", typeof(ClaudeMarketplaceHooksTests),
+        nameof(ClaudeMarketplaceHooksTests.Claude_marketplace_omits_hooks_path_and_array))]
+    [InlineData("47 Claude plugin root hooks json is Claude shaped", typeof(ClaudeMarketplaceHooksTests),
+        nameof(ClaudeMarketplaceHooksTests.Claude_plugin_root_hooks_json_is_claude_shaped))]
+    [InlineData("47 Copilot ships http-scenarios command", typeof(HttpScenariosContractTests),
+        nameof(HttpScenariosContractTests.Copilot_ships_http_scenarios_command))]
     public void Each_ticket_criterion_has_a_proving_test(string criterion, Type fixture, string method)
     {
         Assert.True(
