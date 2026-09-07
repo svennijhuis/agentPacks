@@ -1,8 +1,8 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "squad",
-  "version": "0.1.1",
-  "description": "User-invoked /squad, /squad-review, and /http-scenarios: the main agent mediates planning, runs plan-bound implementation and verification, fans dual-axis reviewers, and merges at most two fix rounds before an uncommitted hand-off. /http-scenarios writes docs/smoke/<slug>.md from changed code.",
+  "version": "0.1.2",
+  "description": "User-invoked /squad, /squad-review, and /scenarios: the main agent mediates planning, runs plan-bound implementation and verification, fans dual-axis reviewers, and merges at most two fix rounds before an uncommitted hand-off. /scenarios writes docs/smoke/<slug>.md from changed code.",
   "author": {
     "name": "agentPacks Maintainers"
   },

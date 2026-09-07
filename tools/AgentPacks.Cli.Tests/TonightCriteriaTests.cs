@@ -145,8 +145,14 @@ public sealed class TonightCriteriaTests
         nameof(ClaudeMarketplaceHooksTests.Claude_plugin_root_hooks_json_is_claude_shaped))]
     [InlineData("47 Copilot ships http-scenarios command", typeof(HttpScenariosContractTests),
         nameof(HttpScenariosContractTests.Copilot_ships_http_scenarios_command))]
-    [InlineData("48 all plugins version 0.1.1", typeof(PluginVersionContractTests),
-        nameof(PluginVersionContractTests.All_plugins_version_0_1_1))]
+    [InlineData("48 all plugins version 0.1.2", typeof(PluginVersionContractTests),
+        nameof(PluginVersionContractTests.All_plugins_version_0_1_2))]
+    [InlineData("49 Copilot_http_scenarios_renamed_to_scenarios", typeof(HttpScenariosContractTests),
+        nameof(HttpScenariosContractTests.Copilot_http_scenarios_renamed_to_scenarios))]
+    [InlineData("49 All_trees_command_is_scenarios", typeof(HttpScenariosContractTests),
+        nameof(HttpScenariosContractTests.All_trees_command_is_scenarios))]
+    [InlineData("49 All_plugins_version_0_1_2", typeof(PluginVersionContractTests),
+        nameof(PluginVersionContractTests.All_plugins_version_0_1_2))]
     public void Each_ticket_criterion_has_a_proving_test(string criterion, Type fixture, string method)
     {
         Assert.True(

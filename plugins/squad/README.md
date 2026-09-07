@@ -1,7 +1,7 @@
 # Squad
 
 A capability pack for a user-invoked, main-agent-controlled Squad workflow.
-`/squad` and `/squad-review` run the Squad loop. Sibling slash `/http-scenarios` writes smoke
+`/squad` and `/squad-review` run the Squad loop. Sibling slash `/scenarios` writes smoke
 markdown from changed code; it is not a Squad phase. `/pack-check` is setup, not a Squad flow.
 The `squad` skill is the thin orchestrator and is not model-invoked.
 
@@ -57,7 +57,7 @@ Obvious typos, renames, and one-line fixes take the small-change route: the main
 | Agent | `squad-orchestrator` | Deduplicates completed reports, assigns the verdict, and appends the fix list |
 | Command | `squad` | Runs a new change through the proportional workflow. Copilot picker: `/squad:run` |
 | Command | `squad-review` | Reviews a PR, uncommitted work, or a diff versus main, without a plan, verdict, or fix round |
-| Command | `http-scenarios` | From changed code (OpenAPI optional), writes only `docs/smoke/<slug>.md`. Copilot picker: `/squad:http-scenarios` |
+| Command | `scenarios` | From changed code (OpenAPI optional), writes only `docs/smoke/<slug>.md`. Copilot picker: `/squad:scenarios` |
 
 All seven agents remain portable across supported generated clients.
 
