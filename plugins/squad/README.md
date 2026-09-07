@@ -43,7 +43,7 @@ Obvious typos, renames, and one-line fixes take the small-change route: the main
 |---|---|---|
 | Skill | `squad` | User-invoked routing, exact Skill-name loading, security gate, fix-round cap, learnings, and hand-off |
 | Skill | `learnings-digest` | User-invoked digest of `docs/learnings.md`. Does not rewrite skills. |
-| Skill | `http-scenarios` | User-invoked changed-code → `docs/smoke/<slug>.md`. OpenAPI optional. No product-code edits. |
+| Skill | `scenarios` | Skill-tool only. Changed-code → `docs/smoke/<slug>.md`. OpenAPI optional. No product-code edits. |
 | Contract | `planning-contract` | Turn-based grill inside the orchestrator: frontier rounds, recommended answers, confirmation, plan shape |
 | Contract | `review-contract` | Dual-axis review, severity, report formats, verify-path evaluator gates, and verdict rules |
 | Contract | `learnings` | Append-only run log read on the next `/squad` or `/squad-review` |
