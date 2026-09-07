@@ -333,12 +333,55 @@ public sealed class HttpScenariosContractTests
     }
 
     /// <summary>
+    /// Reviewer lock (item 49). User slash is <c>scenarios</c>, not leftover
+    /// <c>http-scenarios</c> command file. Command frontmatter is
+    /// <c>name: scenarios</c>. Skill stays Skill-tool <c>http-scenarios</c>
+    /// and tells the user to type <c>/scenarios</c>.
+    /// </summary>
+    [Fact]
+    public void User_slash_is_scenarios_not_http_scenarios()
+    {
+        var root = SourceRoot();
+        var commandPath = Path.Combine(root, "plugins", "squad", "commands", "scenarios.md");
+        var leftover = Path.Combine(root, "plugins", "squad", "commands", "http-scenarios.md");
+        var command = File.ReadAllText(commandPath);
+        var skill = File.ReadAllText(Path.Combine(
+            root, "plugins", "squad", "skills", "http-scenarios", "SKILL.md"));
+
+        Assert.True(File.Exists(commandPath));
+        Assert.False(File.Exists(leftover));
+        Assert.Contains("name: scenarios", command, StringComparison.Ordinal);
+        Assert.DoesNotContain("name: http-scenarios", command, StringComparison.Ordinal);
+        Assert.Contains("name: http-scenarios", skill, StringComparison.Ordinal);
+        Assert.Contains("Type /scenarios", skill, StringComparison.Ordinal);
+        Assert.Contains("user-invocable: false", skill, StringComparison.Ordinal);
+
+        var readme = File.ReadAllText(Path.Combine(root, "README.md"));
+        Assert.Contains("| `/scenarios` | Office tester | `docs/smoke/*.md` only |", readme, StringComparison.Ordinal);
+        Assert.DoesNotContain("| `/http-scenarios`", readme, StringComparison.Ordinal);
+        Assert.DoesNotContain("`/squad:http-scenarios`", readme, StringComparison.Ordinal);
+
+        Http_scenarios_command_writes_docs_smoke_md_only();
+        Http_scenarios_no_code_edits_no_secrets_seeded_from_smoke_matrix();
+    }
+
+    /// <summary>
     /// Po 47 fail bar, updated for item 49. Copilot ships sibling
     /// <c>scenarios</c> as <c>/squad:scenarios</c> at
     /// <c>com.github.copilot/commands/scenarios.md</c>.
     /// </summary>
     [Fact]
     public void Copilot_ships_http_scenarios_command()
+    {
+        Copilot_ships_scenarios_command();
+    }
+
+    /// <summary>
+    /// Reviewer lock (item 49). Copilot picker is <c>/squad:scenarios</c>.
+    /// No leftover Copilot <c>http-scenarios.md</c>.
+    /// </summary>
+    [Fact]
+    public void Copilot_ships_scenarios_command()
     {
         Copilot_http_scenarios_renamed_to_scenarios();
     }
