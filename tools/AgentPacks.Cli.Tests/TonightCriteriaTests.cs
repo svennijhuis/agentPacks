@@ -145,14 +145,16 @@ public sealed class TonightCriteriaTests
         nameof(ClaudeMarketplaceHooksTests.Claude_plugin_root_hooks_json_is_claude_shaped))]
     [InlineData("47 Copilot ships http-scenarios command", typeof(HttpScenariosContractTests),
         nameof(HttpScenariosContractTests.Copilot_ships_http_scenarios_command))]
-    [InlineData("48 all plugins version 0.1.2", typeof(PluginVersionContractTests),
-        nameof(PluginVersionContractTests.All_plugins_version_0_1_2))]
+    [InlineData("48 all plugins version 0.1.3", typeof(PluginVersionContractTests),
+        nameof(PluginVersionContractTests.All_plugins_version_0_1_3))]
     [InlineData("49 Copilot_http_scenarios_renamed_to_scenarios", typeof(HttpScenariosContractTests),
         nameof(HttpScenariosContractTests.Copilot_http_scenarios_renamed_to_scenarios))]
     [InlineData("49 All_trees_command_is_scenarios", typeof(HttpScenariosContractTests),
         nameof(HttpScenariosContractTests.All_trees_command_is_scenarios))]
-    [InlineData("49 All_plugins_version_0_1_2", typeof(PluginVersionContractTests),
-        nameof(PluginVersionContractTests.All_plugins_version_0_1_2))]
+    [InlineData("49 All_plugins_version_0_1_3", typeof(PluginVersionContractTests),
+        nameof(PluginVersionContractTests.All_plugins_version_0_1_3))]
+    [InlineData("50+51 All_plugins_version_0_1_3", typeof(PluginVersionContractTests),
+        nameof(PluginVersionContractTests.All_plugins_version_0_1_3))]
     [InlineData("49 User_slash_is_scenarios_not_http_scenarios", typeof(HttpScenariosContractTests),
         nameof(HttpScenariosContractTests.User_slash_is_scenarios_not_http_scenarios))]
     [InlineData("49 Copilot_ships_scenarios_command", typeof(HttpScenariosContractTests),
