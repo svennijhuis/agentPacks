@@ -213,6 +213,7 @@ public sealed class ComponentGenerationTests
             "${PLUGIN_ROOT}/com.github.copilot/scripts/rules-context",
             entry["bash"]!.GetValue<string>(),
             StringComparison.Ordinal);
+        Assert.Equal("${PLUGIN_ROOT}", entry["cwd"]!.GetValue<string>());
     }
 
     /// <summary>

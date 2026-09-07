@@ -13,7 +13,8 @@ internal sealed record ClientProfile(
     string CommandField,
     string? WindowsCommandField,
     string TimeoutField,
-    int? HookDocumentVersion)
+    int? HookDocumentVersion,
+    string? HookCwd = null)
 {
     /// <summary>
     /// Claude reads the root agents/, commands/ and hooks/ by default unless the marketplace
@@ -66,6 +67,9 @@ internal sealed record ClientProfile(
     /// is an inline PowerShell command keyed "powershell", the timeout is "timeoutSec", and the
     /// document carries a format version. Event names accept both casings, so the PascalCase
     /// aliases are emitted for consistency with the other two nesting clients.
+    /// Copilot CLI resolves hook scripts against the project cwd unless the entry sets
+    /// <c>cwd</c> to <c>${PLUGIN_ROOT}</c> (github/copilot-cli#3659). As of ~1.0.57 a missing
+    /// script fail-closes PreToolUse and denies the tool.
     /// </summary>
     public static readonly ClientProfile Copilot = new(
         Client.Copilot,
@@ -75,7 +79,8 @@ internal sealed record ClientProfile(
         CommandField: "bash",
         WindowsCommandField: "powershell",
         TimeoutField: "timeoutSec",
-        HookDocumentVersion: 1);
+        HookDocumentVersion: 1,
+        HookCwd: "${PLUGIN_ROOT}");
 
     public static readonly IReadOnlyList<ClientProfile> All = [Claude, Codex, Copilot, Cursor];
 

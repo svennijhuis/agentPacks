@@ -148,6 +148,21 @@ internal static class HookGenerator
         {
             entry[windows] = WindowsCommand(profile, invocation);
         }
+
+        AddCwd(entry, profile);
+    }
+
+    /// <summary>
+    /// Copilot CLI runs hook commands with the project cwd, not the plugin root, so a
+    /// <c>${PLUGIN_ROOT}</c>-prefixed bash path still fails to resolve unless the entry
+    /// also sets <c>cwd</c> (github/copilot-cli#3659). Other clients leave this unset.
+    /// </summary>
+    private static void AddCwd(JsonObject entry, ClientProfile profile)
+    {
+        if (profile.HookCwd is { } cwd)
+        {
+            entry["cwd"] = cwd;
+        }
     }
 
     private static void AddTimeout(JsonObject entry, ClientProfile profile, HookInvocation invocation)
@@ -204,6 +219,8 @@ internal static class HookGenerator
         {
             entry[windows] = WindowsCommand(profile, pluginRelativeScript, null);
         }
+
+        AddCwd(entry, profile);
 
         if (!profile.NestsHooks)
         {

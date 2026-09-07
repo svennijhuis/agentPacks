@@ -64,9 +64,14 @@ Three clients are not enough alike to share one writer:
 | POSIX command key | `command` | `command` | `command` | `bash` |
 | Windows command key | — | — | `commandWindows` | `powershell` |
 | Timeout key | `timeout` | `timeout` | `timeout` | `timeoutSec` |
+| Working directory | — | — | — | `"cwd": "${PLUGIN_ROOT}"` |
 | Format version | — | — | — | `"version": 1` |
 
 These live in `ClientProfile`, so a client is a row rather than a branch in the generator.
+Copilot CLI fail-closes PreToolUse when a hook script cannot be resolved from the project cwd
+([github/copilot-cli#3659](https://github.com/github/copilot-cli/issues/3659)); the generator
+sets `"cwd": "${PLUGIN_ROOT}"` on every Copilot hook entry. Claude, Cursor and Codex omit that
+field.
 
 ## Where the matcher ends up
 

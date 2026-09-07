@@ -15,14 +15,14 @@ public sealed class HttpScenariosContractTests
     {
         var root = SourceRoot();
         var command = File.ReadAllText(Path.Combine(root, "plugins", "squad", "commands", "scenarios.md"));
-        var skill = File.ReadAllText(Path.Combine(root, "plugins", "squad", "skills", "scenarios", "SKILL.md"));
+        var skill = File.ReadAllText(ScenariosSkillPath(root));
         var review = File.ReadAllText(Path.Combine(root, "plugins", "squad", "commands", "squad-review.md"));
         var squad = File.ReadAllText(Path.Combine(root, "plugins", "squad", "commands", "squad.md"));
         var combined = string.Join('\n', command, skill);
 
-        Assert.Contains("name: scenarios", command, StringComparison.Ordinal);
+        Assert.Equal("scenarios", FrontmatterName(command));
         Assert.DoesNotContain("name: http-scenarios", command, StringComparison.Ordinal);
-        Assert.Contains("name: scenarios", skill, StringComparison.Ordinal);
+        Assert.Equal("scenarios-md", FrontmatterName(skill));
         Assert.DoesNotContain("name: http-scenarios", skill, StringComparison.Ordinal);
         Assert.Contains("docs/smoke/<slug>.md", command, StringComparison.Ordinal);
         Assert.Contains("docs/smoke/<slug>.md", skill, StringComparison.Ordinal);
@@ -54,8 +54,7 @@ public sealed class HttpScenariosContractTests
     [Fact]
     public void Http_scenarios_table_has_case_kind_request_status_expected_why()
     {
-        var skill = File.ReadAllText(Path.Combine(
-            SourceRoot(), "plugins", "squad", "skills", "scenarios", "SKILL.md"));
+        var skill = File.ReadAllText(ScenariosSkillPath(SourceRoot()));
 
         Assert.Contains("# · Case · Kind · Request · Status · Expected · Why", skill, StringComparison.Ordinal);
         Assert.Contains("| # | Case | Kind | Request | Status | Expected | Why |", skill, StringComparison.Ordinal);
@@ -76,7 +75,7 @@ public sealed class HttpScenariosContractTests
     {
         var root = SourceRoot();
         var command = File.ReadAllText(Path.Combine(root, "plugins", "squad", "commands", "scenarios.md"));
-        var skill = File.ReadAllText(Path.Combine(root, "plugins", "squad", "skills", "scenarios", "SKILL.md"));
+        var skill = File.ReadAllText(ScenariosSkillPath(root));
         var combined = string.Join('\n', command, skill);
         var matrix = File.ReadAllText(Path.Combine(root, "plugins", "squad", "references", "smoke-matrix.md"));
 
@@ -131,7 +130,7 @@ public sealed class HttpScenariosContractTests
                 .OrderBy(name => name, StringComparer.Ordinal));
 
         var command = File.ReadAllText(Path.Combine(root, "plugins", "squad", "commands", "scenarios.md"));
-        var skill = File.ReadAllText(Path.Combine(root, "plugins", "squad", "skills", "scenarios", "SKILL.md"));
+        var skill = File.ReadAllText(ScenariosSkillPath(root));
         var review = File.ReadAllText(Path.Combine(root, "plugins", "squad", "commands", "squad-review.md"));
         var combined = string.Join('\n', command, skill);
 
@@ -161,7 +160,7 @@ public sealed class HttpScenariosContractTests
             extraFrontmatter: "disable-model-invocation: true\nuser-invocable: false",
             plugin: "squad");
         repo.WithSkill(
-            "scenarios",
+            "scenarios-md",
             extraFrontmatter: "disable-model-invocation: true\nuser-invocable: false",
             plugin: "squad");
         repo.WithPlugin(
@@ -218,7 +217,7 @@ public sealed class HttpScenariosContractTests
     {
         var root = SourceRoot();
         var command = File.ReadAllText(Path.Combine(root, "plugins", "squad", "commands", "scenarios.md"));
-        var skill = File.ReadAllText(Path.Combine(root, "plugins", "squad", "skills", "scenarios", "SKILL.md"));
+        var skill = File.ReadAllText(ScenariosSkillPath(root));
         var readme = File.ReadAllText(Path.Combine(root, "README.md"));
         var combined = string.Join('\n', command, skill);
 
@@ -239,8 +238,7 @@ public sealed class HttpScenariosContractTests
     [Fact]
     public void Http_scenarios_auth_rows_default_skip()
     {
-        var skill = File.ReadAllText(Path.Combine(
-            SourceRoot(), "plugins", "squad", "skills", "scenarios", "SKILL.md"));
+        var skill = File.ReadAllText(ScenariosSkillPath(SourceRoot()));
 
         Assert.Contains("Auth: Bearer TOKEN_VALID (tester supplies)", skill, StringComparison.Ordinal);
         Assert.Contains("Add `auth` / policy rows ONLY when the user ask", skill, StringComparison.Ordinal);
@@ -260,7 +258,7 @@ public sealed class HttpScenariosContractTests
     {
         var root = SourceRoot();
         var command = File.ReadAllText(Path.Combine(root, "plugins", "squad", "commands", "scenarios.md"));
-        var skill = File.ReadAllText(Path.Combine(root, "plugins", "squad", "skills", "scenarios", "SKILL.md"));
+        var skill = File.ReadAllText(ScenariosSkillPath(root));
         var combined = string.Join('\n', command, skill);
 
         Assert.Contains("changed code first", combined, StringComparison.Ordinal);
@@ -284,8 +282,7 @@ public sealed class HttpScenariosContractTests
     [Fact]
     public void Http_scenarios_covers_timer_cron_triggers()
     {
-        var skill = File.ReadAllText(Path.Combine(
-            SourceRoot(), "plugins", "squad", "skills", "scenarios", "SKILL.md"));
+        var skill = File.ReadAllText(ScenariosSkillPath(SourceRoot()));
         var command = File.ReadAllText(Path.Combine(
             SourceRoot(), "plugins", "squad", "commands", "scenarios.md"));
         var combined = string.Join('\n', command, skill);
@@ -319,7 +316,7 @@ public sealed class HttpScenariosContractTests
     {
         var root = SourceRoot();
         var command = File.ReadAllText(Path.Combine(root, "plugins", "squad", "commands", "scenarios.md"));
-        var skill = File.ReadAllText(Path.Combine(root, "plugins", "squad", "skills", "scenarios", "SKILL.md"));
+        var skill = File.ReadAllText(ScenariosSkillPath(root));
         var squad = File.ReadAllText(Path.Combine(root, "plugins", "squad", "skills", "squad", "SKILL.md"));
         var combined = string.Join('\n', command, skill);
 
@@ -334,16 +331,17 @@ public sealed class HttpScenariosContractTests
     }
 
     /// <summary>
-    /// Reviewer lock (item 49). Command and skill frontmatter are
-    /// <c>name: scenarios</c>. No leftover <c>http-scenarios</c> slash or file.
-    /// Skill stays <c>user-invocable: false</c> so the picker is the command.
+    /// Reviewer lock (item 49). Command frontmatter stays <c>name: scenarios</c>.
+    /// Skill is <c>scenarios-md</c> (item 51). No leftover <c>http-scenarios</c>
+    /// slash or file. Skill stays <c>user-invocable: false</c> so the picker is
+    /// the command.
     /// </summary>
     [Fact]
     public void User_slash_is_scenarios_not_http_scenarios()
     {
         var root = SourceRoot();
         var commandPath = Path.Combine(root, "plugins", "squad", "commands", "scenarios.md");
-        var skillPath = Path.Combine(root, "plugins", "squad", "skills", "scenarios", "SKILL.md");
+        var skillPath = ScenariosSkillPath(root);
         var command = File.ReadAllText(commandPath);
         var skill = File.ReadAllText(skillPath);
 
@@ -351,12 +349,13 @@ public sealed class HttpScenariosContractTests
         Assert.True(File.Exists(skillPath));
         Assert.False(File.Exists(Path.Combine(root, "plugins", "squad", "commands", "http-scenarios.md")));
         Assert.False(Directory.Exists(Path.Combine(root, "plugins", "squad", "skills", "http-scenarios")));
+        Assert.False(Directory.Exists(Path.Combine(root, "plugins", "squad", "skills", "scenarios")));
 
-        Assert.Contains("name: scenarios", command, StringComparison.Ordinal);
-        Assert.Contains("name: scenarios", skill, StringComparison.Ordinal);
+        Assert.Equal("scenarios", FrontmatterName(command));
+        Assert.Equal("scenarios-md", FrontmatterName(skill));
         Assert.DoesNotContain("name: http-scenarios", command, StringComparison.Ordinal);
         Assert.DoesNotContain("name: http-scenarios", skill, StringComparison.Ordinal);
-        Assert.Contains("Skill tool by exact name `scenarios`", command, StringComparison.Ordinal);
+        Assert.Contains("Skill tool by exact name `scenarios-md`", command, StringComparison.Ordinal);
         Assert.Contains("Type /scenarios", skill, StringComparison.Ordinal);
         Assert.Contains("user-invocable: false", skill, StringComparison.Ordinal);
 
@@ -431,7 +430,7 @@ public sealed class HttpScenariosContractTests
     /// <summary>
     /// Item 49 fail bar. Every client tree ships <c>scenarios</c>, not leftover
     /// <c>http-scenarios</c>: root/Cursor, Claude, Copilot, and Codex.
-    /// Skill id stays <c>http-scenarios</c> (Skill-tool only).
+    /// Skill id is <c>scenarios-md</c> (Skill-tool only; item 51).
     /// </summary>
     [Fact]
     public void All_trees_command_is_scenarios()
@@ -443,18 +442,24 @@ public sealed class HttpScenariosContractTests
 
         Assert.True(File.Exists(Path.Combine(root, "plugins", "squad", "commands", "scenarios.md")));
         Assert.False(File.Exists(Path.Combine(root, "plugins", "squad", "commands", "http-scenarios.md")));
-        Assert.Contains(
-            "name: scenarios",
-            File.ReadAllText(Path.Combine(root, "plugins", "squad", "commands", "scenarios.md")),
-            StringComparison.Ordinal);
+        Assert.Equal(
+            "scenarios",
+            FrontmatterName(File.ReadAllText(Path.Combine(root, "plugins", "squad", "commands", "scenarios.md"))));
 
         Assert.True(run.HasFile("plugins/squad/com.anthropic.claude-code/commands/scenarios.md"));
         Assert.False(run.HasFile("plugins/squad/com.anthropic.claude-code/commands/http-scenarios.md"));
+        Assert.Contains(
+            "exact name `scenarios-md`",
+            run.File("plugins/squad/com.anthropic.claude-code/commands/scenarios.md").Text,
+            StringComparison.Ordinal);
 
         Assert.True(run.HasFile("plugins/squad/com.github.copilot/commands/scenarios.md"));
         Assert.False(run.HasFile("plugins/squad/com.github.copilot/commands/http-scenarios.md"));
+        Assert.Equal(
+            "scenarios",
+            FrontmatterName(run.File("plugins/squad/com.github.copilot/commands/scenarios.md").Text));
         Assert.Contains(
-            "name: \"scenarios\"",
+            "exact name `scenarios-md`",
             run.File("plugins/squad/com.github.copilot/commands/scenarios.md").Text,
             StringComparison.Ordinal);
 
@@ -473,12 +478,92 @@ public sealed class HttpScenariosContractTests
             .ToArray();
         Assert.Empty(leftover);
 
-        var skill = File.ReadAllText(Path.Combine(
-            root, "plugins", "squad", "skills", "scenarios", "SKILL.md"));
-        Assert.Contains("name: scenarios", skill, StringComparison.Ordinal);
+        var skill = File.ReadAllText(ScenariosSkillPath(root));
+        Assert.Equal("scenarios-md", FrontmatterName(skill));
         Assert.DoesNotContain("name: http-scenarios", skill, StringComparison.Ordinal);
         Assert.Contains("user-invocable: false", skill, StringComparison.Ordinal);
         Assert.False(Directory.Exists(Path.Combine(root, "plugins", "squad", "skills", "http-scenarios")));
+        Assert.False(Directory.Exists(Path.Combine(root, "plugins", "squad", "skills", "scenarios")));
+
+        new SquadContractTests().Pull_request_ci_stays_one_job_no_matrix();
+    }
+
+    /// <summary>
+    /// Item 51 fail bar. Copilot hides a command whose name equals a skill
+    /// name in the same plugin. Factory avoided this (<c>run</c> ≠ <c>squad</c>).
+    /// Command stays <c>scenarios</c> (<c>/squad:scenarios</c>); skill is
+    /// <c>scenarios-md</c>.
+    /// </summary>
+    [Fact]
+    public void Copilot_scenarios_command_name_differs_from_skill()
+    {
+        var root = SourceRoot();
+        var command = File.ReadAllText(Path.Combine(root, "plugins", "squad", "commands", "scenarios.md"));
+        var skill = File.ReadAllText(ScenariosSkillPath(root));
+
+        Assert.Equal("scenarios", FrontmatterName(command));
+        Assert.Equal("scenarios-md", FrontmatterName(skill));
+        Assert.NotEqual(FrontmatterName(command), FrontmatterName(skill));
+        Assert.True(Directory.Exists(Path.Combine(root, "plugins", "squad", "skills", "scenarios-md")));
+        Assert.False(Directory.Exists(Path.Combine(root, "plugins", "squad", "skills", "scenarios")));
+        Assert.Contains("user-invocable: false", skill, StringComparison.Ordinal);
+        Assert.Contains("Skill tool by exact name `scenarios-md`", command, StringComparison.Ordinal);
+
+        using var repo = SquadCommandRepo(root);
+        var run = repo.ValidateAndGenerate();
+        Assert.False(run.HasErrors, run.Text);
+
+        var copilot = run.File("plugins/squad/com.github.copilot/commands/scenarios.md").Text;
+        Assert.Equal("scenarios", FrontmatterName(copilot));
+        Assert.Contains("exact name `scenarios-md`", copilot, StringComparison.Ordinal);
+        Assert.DoesNotContain("name: \"scenarios-md\"", copilot, StringComparison.Ordinal);
+
+        var factory = run.File("plugins/squad/com.github.copilot/commands/run.md").Text;
+        Assert.Contains("name: \"run\"", factory, StringComparison.Ordinal);
+        Assert.DoesNotContain("name: \"squad\"", factory, StringComparison.Ordinal);
+
+        var claude = run.File("plugins/squad/com.anthropic.claude-code/commands/scenarios.md").Text;
+        Assert.Contains("exact name `scenarios-md`", claude, StringComparison.Ordinal);
+
+        new SquadContractTests().Pull_request_ci_stays_one_job_no_matrix();
+    }
+
+    /// <summary>
+    /// Item 51 fail bar. User slash stays <c>/scenarios</c>; Copilot picker
+    /// stays <c>/squad:scenarios</c>. No leftover <c>http-scenarios</c>.
+    /// </summary>
+    [Fact]
+    public void Slash_stays_scenarios_or_squad_scenarios()
+    {
+        var root = SourceRoot();
+        var command = File.ReadAllText(Path.Combine(root, "plugins", "squad", "commands", "scenarios.md"));
+        var skill = File.ReadAllText(ScenariosSkillPath(root));
+        var readme = File.ReadAllText(Path.Combine(root, "README.md"));
+        var pluginReadme = File.ReadAllText(Path.Combine(root, "plugins", "squad", "README.md"));
+
+        Assert.Equal("scenarios", FrontmatterName(command));
+        Assert.True(File.Exists(Path.Combine(root, "plugins", "squad", "commands", "scenarios.md")));
+        Assert.False(File.Exists(Path.Combine(root, "plugins", "squad", "commands", "http-scenarios.md")));
+        Assert.False(Directory.Exists(Path.Combine(root, "plugins", "squad", "skills", "http-scenarios")));
+
+        Assert.Contains("Type /scenarios", skill, StringComparison.Ordinal);
+        Assert.Contains("| `/scenarios` | Office tester | `docs/smoke/*.md` only |", readme, StringComparison.Ordinal);
+        Assert.Contains("`/squad:scenarios`", readme, StringComparison.Ordinal);
+        Assert.Contains("Copilot picker: `/squad:scenarios`", pluginReadme, StringComparison.Ordinal);
+
+        Assert.DoesNotContain("`/http-scenarios`", readme, StringComparison.Ordinal);
+        Assert.DoesNotContain("`/squad:http-scenarios`", readme, StringComparison.Ordinal);
+        Assert.DoesNotContain("`/http-scenarios`", pluginReadme, StringComparison.Ordinal);
+        Assert.DoesNotContain("`/squad:http-scenarios`", pluginReadme, StringComparison.Ordinal);
+        Assert.DoesNotContain("name: http-scenarios", command, StringComparison.Ordinal);
+        Assert.DoesNotContain("name: http-scenarios", skill, StringComparison.Ordinal);
+
+        using var repo = SquadCommandRepo(root);
+        var run = repo.ValidateAndGenerate();
+        Assert.False(run.HasErrors, run.Text);
+        var copilot = run.File("plugins/squad/com.github.copilot/commands/scenarios.md").Text;
+        Assert.Equal("scenarios", FrontmatterName(copilot));
+        Assert.False(run.HasFile("plugins/squad/com.github.copilot/commands/http-scenarios.md"));
 
         new SquadContractTests().Pull_request_ci_stays_one_job_no_matrix();
     }
@@ -501,11 +586,35 @@ public sealed class HttpScenariosContractTests
             extraFrontmatter: "disable-model-invocation: true\nuser-invocable: false",
             plugin: "squad");
         repo.WithSkill(
-            "scenarios",
+            "scenarios-md",
             extraFrontmatter: "disable-model-invocation: true\nuser-invocable: false",
             plugin: "squad");
 
         return repo;
+    }
+
+    private static string ScenariosSkillPath(string root) =>
+        Path.Combine(root, "plugins", "squad", "skills", "scenarios-md", "SKILL.md");
+
+    private static string FrontmatterName(string markdown)
+    {
+        var inFrontmatter = false;
+        foreach (var line in markdown.Split('\n'))
+        {
+            var trimmed = line.TrimEnd('\r');
+            if (trimmed == "---")
+            {
+                if (inFrontmatter)
+                    break;
+                inFrontmatter = true;
+                continue;
+            }
+
+            if (inFrontmatter && trimmed.StartsWith("name:", StringComparison.Ordinal))
+                return trimmed["name:".Length..].Trim().Trim('"');
+        }
+
+        throw new InvalidOperationException("missing frontmatter name");
     }
 
     private static string SourceRoot()
