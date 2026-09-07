@@ -277,7 +277,7 @@ public class SquadContractTests
             .OrderBy(name => name, StringComparer.Ordinal)
             .ToArray();
 
-        Assert.Equal(["http-scenarios.md", "squad-review.md", "squad.md"], names);
+        Assert.Equal(["scenarios.md", "squad-review.md", "squad.md"], names);
         Assert.DoesNotContain("build.md", names, StringComparer.OrdinalIgnoreCase);
         Assert.DoesNotContain("squad-smoke.md", names, StringComparer.OrdinalIgnoreCase);
         Assert.False(File.Exists(Path.Combine(directory, "review.md")));
@@ -285,8 +285,9 @@ public class SquadContractTests
             StringComparison.Ordinal);
         Assert.Contains("name: squad", File.ReadAllText(Path.Combine(directory, "squad.md")),
             StringComparison.Ordinal);
-        Assert.Contains("name: http-scenarios", File.ReadAllText(Path.Combine(directory, "http-scenarios.md")),
+        Assert.Contains("name: scenarios", File.ReadAllText(Path.Combine(directory, "scenarios.md")),
             StringComparison.Ordinal);
+        Assert.False(File.Exists(Path.Combine(directory, "http-scenarios.md")));
     }
 
     [Fact]
@@ -506,7 +507,7 @@ public class SquadContractTests
         Assert.False(
             leftovers.Count > 0,
             "leftover delivery* on user-facing surfaces: " + string.Join(", ", leftovers));
-        Assert.Equal(["http-scenarios.md", "squad-review.md", "squad.md"],
+        Assert.Equal(["scenarios.md", "squad-review.md", "squad.md"],
             commands.Select(path => Path.GetFileName(path) ?? path)
                 .OrderBy(name => name, StringComparer.Ordinal));
         Assert.False(Directory.Exists(Path.Combine(root, "plugins", "delivery-loop")));
@@ -826,7 +827,7 @@ public class SquadContractTests
         Assert.Contains("| Command | Who | What |", readme, StringComparison.Ordinal);
         Assert.Contains(squadRow, readme, StringComparison.Ordinal);
         Assert.Contains("| `/squad-review` | Dev | code/diff report |", readme, StringComparison.Ordinal);
-        Assert.Contains("| `/http-scenarios` | Office tester | `docs/smoke/*.md` only |", readme, StringComparison.Ordinal);
+        Assert.Contains("| `/scenarios` | Office tester | `docs/smoke/*.md` only |", readme, StringComparison.Ordinal);
         Assert.Contains("| `/pack-check` | Setup | not a Squad flow |", readme, StringComparison.Ordinal);
 
         foreach (var text in new[] { readme, pluginReadme })
@@ -882,7 +883,7 @@ public class SquadContractTests
         {
             Path.Combine(root, "plugins", "squad", "commands", "squad.md"),
             Path.Combine(root, "plugins", "squad", "commands", "squad-review.md"),
-            Path.Combine(root, "plugins", "squad", "commands", "http-scenarios.md"),
+            Path.Combine(root, "plugins", "squad", "commands", "scenarios.md"),
             Path.Combine(root, "plugins", "squad", "README.md"),
             Path.Combine(root, "plugins", "squad", "skills", "learnings-digest", "SKILL.md")
         };
@@ -957,7 +958,7 @@ public class SquadContractTests
 
     /// <summary>
     /// Po 39 fail bar: slash picker blurbs stay short. Names stay /squad +
-    /// /squad-review + sibling /http-scenarios. Fails a fourth command or a long
+    /// /squad-review + sibling /scenarios. Fails a fourth command or a long
     /// essay description.
     /// </summary>
     [Fact]
@@ -975,7 +976,7 @@ public class SquadContractTests
         Assert.Equal(
             "From changed code, write docs/smoke/<slug>.md. No product-code edits.",
             FrontmatterDescription(File.ReadAllText(
-                Path.Combine(SourceRoot(), "plugins", "squad", "commands", "http-scenarios.md"))));
+                Path.Combine(SourceRoot(), "plugins", "squad", "commands", "scenarios.md"))));
 
         Squad_commands_are_exactly_squad_and_review();
     }
@@ -1043,7 +1044,7 @@ public class SquadContractTests
 
         var pluginDirectory = repo.PluginDirectory("squad");
         var names = DiscoverableClaudeCommandNames(pluginDirectory, entry);
-        Assert.Equal(["http-scenarios", "squad", "squad-review"], names.OrderBy(name => name, StringComparer.Ordinal));
+        Assert.Equal(["scenarios", "squad", "squad-review"], names.OrderBy(name => name, StringComparer.Ordinal));
 
         var rootNames = CommandNames(Path.Combine(pluginDirectory, "commands"));
         var claudeNames = CommandNames(
@@ -1064,7 +1065,7 @@ public class SquadContractTests
     /// Po 41 fail bar: Copilot hides <c>/plugin:command</c> when the names match.
     /// Squad's Copilot factory rematerializes as <c>run</c> so the picker is
     /// <c>/squad:run</c>. Authored, Claude, and Cursor keep <c>squad</c>.
-    /// Sibling <c>http-scenarios</c> stays that name. pack-check stays
+    /// Sibling <c>scenarios</c> stays that name. pack-check stays
     /// <c>pack-check</c>.
     /// </summary>
     [Fact]
@@ -1105,7 +1106,8 @@ public class SquadContractTests
 
         Assert.True(run.HasFile("plugins/squad/com.github.copilot/commands/run.md"));
         Assert.True(run.HasFile("plugins/squad/com.github.copilot/commands/squad-review.md"));
-        Assert.True(run.HasFile("plugins/squad/com.github.copilot/commands/http-scenarios.md"));
+        Assert.True(run.HasFile("plugins/squad/com.github.copilot/commands/scenarios.md"));
+        Assert.False(run.HasFile("plugins/squad/com.github.copilot/commands/http-scenarios.md"));
         Assert.False(run.HasFile("plugins/squad/com.github.copilot/commands/squad.md"));
 
         var factory = run.File("plugins/squad/com.github.copilot/commands/run.md").Text;
@@ -1116,20 +1118,20 @@ public class SquadContractTests
         var copilotNames = CommandNames(
             Path.Combine(repo.PluginDirectory("squad"), "com.github.copilot", "commands"));
         Assert.Equal(
-            new HashSet<string>(["http-scenarios", "run", "squad-review"], StringComparer.Ordinal),
+            new HashSet<string>(["run", "scenarios", "squad-review"], StringComparer.Ordinal),
             copilotNames);
 
         var claudeEntry = run.File(".claude-plugin/marketplace.json").Content["plugins"]!.AsArray()
             .OfType<JsonObject>()
             .Single(plugin => plugin["name"]!.GetValue<string>() == "squad");
         var claudeNames = DiscoverableClaudeCommandNames(repo.PluginDirectory("squad"), claudeEntry);
-        Assert.Equal(["http-scenarios", "squad", "squad-review"], claudeNames.OrderBy(name => name, StringComparer.Ordinal));
+        Assert.Equal(["scenarios", "squad", "squad-review"], claudeNames.OrderBy(name => name, StringComparer.Ordinal));
         Assert.DoesNotContain("run", claudeNames);
         Assert.Equal(1, claudeNames.Count(name => name == "squad"));
 
         var rootNames = CommandNames(Path.Combine(repo.PluginDirectory("squad"), "commands"));
         Assert.Equal(
-            new HashSet<string>(["http-scenarios", "squad", "squad-review"], StringComparer.Ordinal),
+            new HashSet<string>(["scenarios", "squad", "squad-review"], StringComparer.Ordinal),
             rootNames);
 
         Assert.True(run.HasFile("plugins/pack-check/com.github.copilot/commands/pack-check.md"));
@@ -1201,7 +1203,7 @@ public class SquadContractTests
     /// <summary>
     /// Po 38 fail bar: user-facing surfaces say <c>/squad-review</c>, not bare
     /// <c>/review</c> or <c>code-review</c>. Squad ships those two plus sibling
-    /// <c>/http-scenarios</c>. Fails leftover <c>commands/review.md</c>.
+    /// <c>/scenarios</c>. Fails leftover <c>commands/review.md</c>.
     /// </summary>
     [Fact]
     public void User_facing_surfaces_say_squad_review_not_bare_review()
@@ -1213,7 +1215,7 @@ public class SquadContractTests
             .OrderBy(name => name, StringComparer.Ordinal)
             .ToArray();
 
-        Assert.Equal(["http-scenarios.md", "squad-review.md", "squad.md"], commandNames);
+        Assert.Equal(["scenarios.md", "squad-review.md", "squad.md"], commandNames);
         Assert.False(File.Exists(Path.Combine(commandDir, "review.md")));
         Assert.False(File.Exists(Path.Combine(commandDir, "code-review.md")));
 

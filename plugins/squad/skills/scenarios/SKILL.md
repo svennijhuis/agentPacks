@@ -1,6 +1,6 @@
 ---
-name: http-scenarios
-description: From changed code (OpenAPI optional), write only docs/smoke/<slug>.md in the current app workspace. No product-code edits. Type /http-scenarios; do not model-invoke.
+name: scenarios
+description: From changed code (OpenAPI optional), write only docs/smoke/<slug>.md in the current app workspace. No product-code edits. Type /scenarios; do not model-invoke.
 license: UNLICENSED
 disable-model-invocation: true
 user-invocable: false
