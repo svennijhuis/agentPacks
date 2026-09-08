@@ -19,7 +19,7 @@ Two entrypoints only: `/squad` and `/squad-review`. Type the command.
 3. Small change? → main agent only, spawn nobody → verify → append learnings → hand off uncommitted
 4. Else grill/plan rounds (facts via subagent; decisions = human) → write plan
 5. Gate spins: implementer → verifier → reviewers in parallel (correctness + plan/spec; security ONLY if trust boundary)
-6. Orchestrator merges ≤2 fix rounds; ≤1 re-ask per producer per review round then blocking marker; optional residual fixup → hand off uncommitted → append learnings
+6. Orchestrator merges ≤2 fix rounds; ≤1 re-ask per producer per review round then accept marker (non-blocking); optional residual fixup → hand off uncommitted → append learnings
 
 /squad-review
 Pin vs PR / uncommitted / main → same gated dual-axis reviewers (no plan/fix loop) → append learnings → one save-markdown ask
@@ -100,7 +100,7 @@ Security only when gated. Launch `squad-reviewer`, `squad-simplifier`, and condi
 ### Malformed report (one re-ask, hard cap)
 
 If the orchestrator returns an input error for a missing or malformed report, the **main agent**
-may re-ask that producer **once** with the contract shape, then merges again with the **same round number**. **Hard cap:** at most one re-ask **per producer per review round**. Never a second re-ask for the same producer in the same round. Never "keep fixing the report until it parses". Do not increment the round for parse repair. After a failed re-ask (or if the budget is already spent), merge **once** with that axis marked `not verified — malformed after re-ask` **replacing** the bad payload (blocking) — do not spawn that producer again. The marker is a conforming stand-in; the orchestrator must not input-error that axis. If input-error still returns after the marker was already supplied, **stop and surface** — no further merge, no further re-ask. A repeated input-error without a marker yet is not a new grant; supply the marker once. Do not hard-stop the whole run on the first malformed report when other reports are usable. The orchestrator itself never retries or launches agents.
+may re-ask that producer **once** with the contract shape, then merges again with the **same round number**. **Hard cap:** at most one re-ask **per producer per review round**. Never a second re-ask for the same producer in the same round. Never "keep fixing the report until it parses". Do not increment the round for parse repair. After a failed re-ask (or if the budget is already spent), merge **once** with that axis marked `accepted — malformed after re-ask` **replacing** the bad payload (**non-blocking**) — do not spawn that producer again. The marker is a conforming stand-in; the orchestrator must not input-error that axis and must not invent a blocking finding from it. If input-error still returns after the marker was already supplied, **stop and surface** — no further merge, no further re-ask. A repeated input-error without a marker yet is not a new grant; supply the marker once. Do not hard-stop the whole run on the first malformed report when other reports are usable. The orchestrator itself never retries or launches agents.
 
 `fix` uses a **fresh** implementer; the author of the rejected code is not the fixer. At most two fix rounds.
 

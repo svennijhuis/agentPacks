@@ -162,9 +162,11 @@ merge that returned the input-error. Do not increment the round for parse repair
 round resets the re-ask budget and is forbidden for this path.
 
 **Axis marker replaces the bad report:** when the budget is spent, the main agent passes
-`<producer>: not verified — malformed after re-ask` **instead of** the malformed/missing payload —
-not in addition to it. The marker is a conforming stand-in for that producer. The orchestrator must **not** emit input-error for an axis that has a marker; it synthesizes a blocking `high` finding
-(plan path as `Location`) so the verdict cannot be `pass`, then completes the merge.
+`<producer>: accepted — malformed after re-ask` **instead of** the malformed/missing payload —
+not in addition to it. The marker is a conforming stand-in for that producer. The orchestrator must **not** emit input-error for an axis that has a marker; it records the skipped axis under
+**Handoff concerns** / **Notes carried forward** as non-blocking (no Fix-list row, no `high`/`medium`,
+does not force `fix` or block `pass` by itself), then completes the merge with the other usable
+reports.
 
 Sequence:
 
@@ -174,7 +176,7 @@ Sequence:
 2. If P is still missing/malformed after that single re-ask, or if the re-ask budget for P is already
    spent → main agent **must not** re-ask again. Invoke merge **once** with the same round number and
    the axis marker **replacing** P's report.
-3. Orchestrator accepts the marker, synthesizes the blocking `high`, merges other usable reports.
+3. Orchestrator accepts the marker as non-blocking, notes the skipped axis, merges other usable reports.
 4. If an input-error is still returned **after** the marker for P was already supplied this round →
    **stop and surface** that error to the human. No further merge attempts. No further re-ask. End
    the loop for this review phase.
@@ -189,8 +191,8 @@ Malformed or missing input on a merge attempt (no replacing marker for that prod
 ## Orchestrator input error — round <n>
 
 **Missing or malformed:** <report and violated requirement>
-**Re-ask budget:** one per producer per this round number — if this producer was already re-asked this round, do not re-ask; merge once with replacing axis marker `not verified — malformed after re-ask`. If the marker was already supplied, stop and surface — no further merge.
-**Action:** Re-ask only if this producer has not already been re-asked this round number. Otherwise marker merge once (same round number, marker replaces payload) or stop. Do not interpret this line as a new grant. Never a second re-ask. Never "keep fixing the report". Orchestrator must not retry, launch, or hand off.
+**Re-ask budget:** one per producer per this round number — if this producer was already re-asked this round, do not re-ask; merge once with replacing axis marker `accepted — malformed after re-ask` (non-blocking). If the marker was already supplied, stop and surface — no further merge.
+**Action:** Re-ask only if this producer has not already been re-asked this round number. Otherwise marker merge once (same round number, marker replaces payload, non-blocking) or stop. Do not interpret this line as a new grant. Never a second re-ask. Never "keep fixing the report". Orchestrator must not retry, launch, or hand off.
 ```
 
 ```markdown

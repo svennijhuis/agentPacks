@@ -195,7 +195,7 @@ public class SquadContractTests
 
         Assert.Contains("re-ask that producer **once**", skill, StringComparison.Ordinal);
         Assert.Contains("re-ask that producer **once**", command, StringComparison.Ordinal);
-        Assert.Contains("not verified — malformed after re-ask", skill, StringComparison.Ordinal);
+        Assert.Contains("accepted — malformed after re-ask", skill, StringComparison.Ordinal);
         Assert.Contains("Orchestrator must not retry, launch, or hand off", contract, StringComparison.Ordinal);
         Assert.Contains("Do not launch, retry, or hand work to another agent", orchestrator, StringComparison.Ordinal);
         Assert.Contains("one re-ask **per producer per review round**", skill, StringComparison.Ordinal);
@@ -215,6 +215,10 @@ public class SquadContractTests
         Assert.Contains("replacing", skill, StringComparison.OrdinalIgnoreCase);
         Assert.Contains("conforming stand-in", contract, StringComparison.Ordinal);
         Assert.Contains("must **not** emit input-error for an axis that has a marker", contract, StringComparison.Ordinal);
+        Assert.Contains("non-blocking", skill, StringComparison.Ordinal);
+        Assert.Contains("non-blocking", contract, StringComparison.Ordinal);
+        Assert.Contains("non-blocking", orchestrator, StringComparison.Ordinal);
+        Assert.DoesNotContain("blocking `high`", contract, StringComparison.Ordinal);
         Assert.Contains("stop and surface", skill, StringComparison.Ordinal);
         Assert.Contains("no further merge", skill, StringComparison.Ordinal);
         Assert.Contains("accept it as conforming", orchestrator, StringComparison.Ordinal);
@@ -438,7 +442,7 @@ public class SquadContractTests
             3. Small change? → main agent only, spawn nobody → verify → append learnings → hand off uncommitted
             4. Else grill/plan rounds (facts via subagent; decisions = human) → write plan
             5. Gate spins: implementer → verifier → reviewers in parallel (correctness + plan/spec; security ONLY if trust boundary)
-            6. Orchestrator merges ≤2 fix rounds; ≤1 re-ask per producer per review round then blocking marker; optional residual fixup → hand off uncommitted → append learnings
+            6. Orchestrator merges ≤2 fix rounds; ≤1 re-ask per producer per review round then accept marker (non-blocking); optional residual fixup → hand off uncommitted → append learnings
 
             /squad-review
             Pin vs PR / uncommitted / main → same gated dual-axis reviewers (no plan/fix loop) → append learnings → one save-markdown ask
@@ -700,9 +704,10 @@ public class SquadContractTests
 
         Assert.Contains("re-ask that producer **once**", skill, StringComparison.Ordinal);
         Assert.Contains("re-ask that producer **once**", command, StringComparison.Ordinal);
-        Assert.Contains("not verified — malformed after re-ask", skill, StringComparison.Ordinal);
+        Assert.Contains("accepted — malformed after re-ask", skill, StringComparison.Ordinal);
         Assert.Contains("Never a second re-ask", skill, StringComparison.Ordinal);
         Assert.Contains("same round number", skill, StringComparison.Ordinal);
+        Assert.Contains("non-blocking", skill, StringComparison.Ordinal);
         Assert.Contains("Do not launch, retry, or hand work to another agent", orchestrator, StringComparison.Ordinal);
         Assert.Contains(
             "Orchestrator must not retry, launch, or hand off",
