@@ -47,6 +47,25 @@ cargo run -p <package> --bin <binary> -- <args>
 Do not add `--all-features` by habit. Some workspaces intentionally define mutually exclusive
 features; use the combinations established by CI or the manifest.
 
+### Targeted verify first
+
+Prefer the changed package before a full workspace check:
+
+```bash
+cargo check -p <package> --all-targets
+cargo check --workspace --all-targets
+```
+
+During implement, check the touched crate first. Reserve `--workspace` for verifier / CI-shaped
+checks. Do not `cargo clean` mid-loop unless diagnosing a corrupted target directory — cleaning
+under contention forces full rebuilds and disk thrash.
+
+### Contention constraints
+
+- Cargo holds a package lock under `target/`; avoid parallel full workspace builds on the same tree.
+- Do not delete `target/` while another agent may be compiling.
+- Do not invent a shared coordination lock file; sequential targeted `-p` checks are enough.
+
 ## Dependencies and workspace members
 
 Prefer the repository's existing edit path. When `cargo add` is available:

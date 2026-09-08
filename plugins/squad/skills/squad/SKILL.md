@@ -19,7 +19,7 @@ Two entrypoints only: `/squad` and `/squad-review`. Type the command.
 3. Small change? → main agent only, spawn nobody → verify → append learnings → hand off uncommitted
 4. Else grill/plan rounds (facts via subagent; decisions = human) → write plan
 5. Gate spins: implementer → verifier → reviewers in parallel (correctness + plan/spec; security ONLY if trust boundary)
-6. Orchestrator merges ≤2 fix rounds → hand off uncommitted → append learnings
+6. Orchestrator merges ≤2 fix rounds; one reviewer re-ask on malformed; optional residual fixup → hand off uncommitted → append learnings
 
 /squad-review
 Pin vs PR / uncommitted / main → same gated dual-axis reviewers (no plan/fix loop) → append learnings → one save-markdown ask
@@ -36,6 +36,10 @@ tiers. A **failed** skip is a must-run. Fail demotes one tier. Do not rewrite sk
 `docs/learnings.md` is append-only.
 
 No commits, merges, or pushes. `pass` is ready for human review, not permission to land.
+
+Cross-agent API is contracts + plan + learnings only. No shared coordination or lock files between
+agents. `docs/plans/<slug>.md` run-scratch sections (`## Status`, `## Fix list`, `## Handoff notes`)
+are rewritten in place; do not append forever inside the plan.
 
 ## Route
 
@@ -61,6 +65,7 @@ Cost-first: default `inherit`. `squad-implementer` is `standard`. Other squad ag
 | `squad-orchestrator` | merge only | verdict / ≤2 fixes |
 
 Small change: spawn none of these. Do not add a tester agent. Do not split simplifier.
+`squad-orchestrator` never launches agents, edits product code, or plans.
 
 ## Skills
 
@@ -82,8 +87,9 @@ Required slots: `<lang>-build`, `<lang>-test-patterns`.
 ## Plan
 
 Read [the planning contract](references/planning-contract.md). Invoke `squad-planner` once per
-turn. Grill stays here: facts via the planner; decisions = human. Read `docs/decisions.md` when
-it exists; do not write it. After confirmation, write exactly `docs/plans/<slug>.md`.
+turn. Grill stays here: facts via the planner; decisions = human. Prefer constraint-shaped
+recommendations. Read `docs/decisions.md` when it exists; do not write it. After confirmation,
+write exactly `docs/plans/<slug>.md`.
 
 ## Implement, verify, review
 
@@ -91,10 +97,22 @@ Read [the review contract](references/review-contract.md). Dual-axis: correctnes
 Security only when gated. Launch `squad-reviewer`, `squad-simplifier`, and conditional
 `squad-security-reviewer` in parallel, then `squad-orchestrator`.
 
-If the orchestrator returns an input error, surface it unchanged to the human and end the current
-loop. Do not obtain another report, invoke merge again, write the plan, assign a verdict, or start
-a fix. `fix` uses a **fresh** implementer; the author of the rejected code is not the fixer. At
-most two fix rounds.
+### Malformed report (one re-ask)
+
+If the orchestrator returns an input error for a missing or malformed report, the **main agent**
+may re-ask that producer **once** with the contract shape, then merges again. After a failed re-ask,
+merge with that axis marked `not verified — malformed after re-ask` (blocking). Do not hard-stop
+the whole run on the first malformed report when other reports are usable. The orchestrator itself
+never retries or launches agents.
+
+`fix` uses a **fresh** implementer; the author of the rejected code is not the fixer. At most two fix rounds.
+
+### Optional residual fixup
+
+After `pass`, or after two fix rounds when only residual `low`/`tiny` notes and known verifier nits
+remain on the merge report: the main agent may run **one** fixup pass (main agent or a fresh
+implementer) limited to those residual notes. No third full reviewer fan-out by default. If code
+changed, run a verifier spot-check only. Still hand off uncommitted; do not land the branch.
 
 ## Advisor-lite
 

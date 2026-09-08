@@ -77,6 +77,31 @@ Return exactly one planning round and stop:
 Design consequential public interfaces, module boundaries, and seams in at least two viable shapes
 before recommending one.
 
+## Decision branches
+
+Visit every applicable branch before the frontier is empty. Mark a branch inapplicable with a reason
+rather than silently skipping it.
+
+| Branch | Ask when | Prefer constraints like |
+|---|---|---|
+| Outcome | Always | What done looks like; what is explicitly out of scope |
+| Scope / non-goals | Always on behavior change | Must not deepen obscure edges when the goal is MVP-complete |
+| Interface | Public API, module, or seam changes | Two shapes; must not break named callers |
+| Data | Persistence or schema | Migration / compatibility bound |
+| Failure | User-visible or trust-boundary paths | Exact error contract |
+| Compatibility | Existing clients or formats | Must not change wire without a version story |
+| Security | Trust boundary | Deny-by-default; must not widen auth surface without a decision |
+| Dependency philosophy | New package, scaffold, or "from scratch" work | Allowed libs; forbidden shortcuts; implement vs reuse |
+| Performance / resources | Latency, throughput, memory, or timeouts matter | Concrete bounds; "fast enough" is not a bound |
+| Architecture fitness | New subsystem or consequential seam | Shape must still work if scope grows one notch |
+| Verification | Always | Exact commands; test-plan matrix |
+| Rollout | Deployed or irreversible | Rollback / feature-flag bound |
+| Worktree | Parallel checkout needed | Exact path; preserve primary checkout |
+
+Recommendations prefer **constraints** ("must not…", "out of scope…", "timeout ≤ …") over long
+do-lists. Do not invent performance or dependency questions when the change cannot touch them; mark
+those branches inapplicable.
+
 ## Find facts yourself
 
 Finding facts is the planner's job, never the user's. Inspect the repository, tests, Git history, and
@@ -137,11 +162,26 @@ The plan contains:
 
 ## In scope
 ## Out of scope
+## Non-goals
+## Dependency philosophy
+<allowed / forbidden libs and implement-vs-reuse, or `N/A — no new dependencies`>
+## Performance / resource bounds
+<concrete bounds, or `N/A — not performance-sensitive`>
 ## Open questions
 None.
+## Status
+planning | implementing | verifying | reviewing | fix-round <n> | fixup | hand-off
+## Fix list
+<rewritten each merge; empty until first review>
+## Handoff notes
+<rewritten each phase; deviations, concerns, open risks>
 ## Verification
 <exact commands or a criterion saying which check must be created>
 ```
+
+`## Status`, `## Fix list`, and `## Handoff notes` are **run scratch**: the main agent and
+`squad-orchestrator` rewrite those sections in place during the loop. Do not append forever inside
+the plan. Learnings stay append-only elsewhere.
 
 An open question is never converted into an assumption or acceptance criterion. Completion means the user confirmed the shared understanding, `## Open questions` is exactly `None.`, and the planner returns the written plan path to the main agent.
 

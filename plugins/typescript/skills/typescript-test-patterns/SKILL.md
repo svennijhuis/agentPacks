@@ -52,5 +52,22 @@ Concrete cases: [unit](references/examples/unit.md), [integration](references/ex
 
 If there is no script, use the runner table above. Report the command and its output. A green happy-path-only file is not coverage.
 
-Good: the repo's `test` script plus an edge case.
-Bad: a happy-path-only file marked as coverage.
+### Targeted verify first
+
+Prefer file or name filters before the full suite:
+
+```bash
+<pm> exec vitest run path/to/file.test.ts
+<pm> exec jest path/to/file.test.ts
+<pm> run test
+```
+
+Implement iterates on the narrow command. Verifier runs the criterion command, then one wider suite.
+
+### Contention constraints
+
+- Avoid overlapping full-suite runs on the same tree from concurrent agents.
+- Do not invent a shared coordination lock file; sequential targeted runs are enough.
+
+Good: the repo's `test` script plus an edge case; filtered file while implementing.
+Bad: a happy-path-only file marked as coverage; full suite every TDD cycle.

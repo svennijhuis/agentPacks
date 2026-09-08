@@ -84,10 +84,13 @@ When there are no findings, omit the table and write `No findings.` after the sc
 **Stacks:** <dotnet | rust | both>
 **Boundary:** <covered | not covered; required when both stacks apply>
 **Coverage:** <behavioral and edge cases named, or `happy-path only`>
+**Evidence gaps:** <criteria or paths lacking a safe check, or `None`>
+**Assumptions challenged:** <plan assumptions that evidence undermines, or `None`>
 ```
 
-No evidence means `not verified`, never `pass`. The suite, stacks, boundary, and coverage lines
-after the table are part of the pass gate, not narration.
+No evidence means `not verified`, never `pass`. The suite, stacks, boundary, coverage, evidence-gaps,
+and assumptions-challenged lines after the table are part of the pass gate, not narration.
+Evidence gaps and challenged assumptions are required fields (`None` when empty).
 
 A verified `pass` is the outcome of the evaluator, not a hopeful reading of the table:
 
@@ -116,27 +119,47 @@ the verifier row even though its source location differs from the synthesized pl
 **Fix list entries resolved:** <numbers and deferred low/tiny entries>
 **Standards followed:** <standard and source, or `None recorded`>
 **Files touched:** <paths>
-**Follow-ups noticed, not done:** <items or `None`>
+**Deviations:** <plan departures and why, or `None`>
+**Concerns:** <risks or doubts for the next phase, or `None`>
+**Open risks:** <unresolved hazards still in the diff, or `None`>
+**Follow-ups left:** <items or `None`>
 ```
 
-The implementer does not claim verification.
+Every field after **Files touched** is required; write `None` when empty. The implementer does not
+claim verification.
 
 ## Orchestrator report
 
 The main agent supplies completed reviewer reports, verifier evidence, round number, plan path, and
 the recorded security-gate decision. The orchestrator normalizes usable inputs, validates their
-semantics, and merges them; it does not launch reviewers, retry malformed reports, or route the verdict.
+semantics, and merges them.
+
+**Invariant — merge only.** The orchestrator never launches agents, never retries a producer, never
+edits product code, never plans, and never routes the next phase. It is not a global integrator or
+quality gate beyond the merge report. Retry belongs to the main agent (one re-ask), not here.
 
 Round 1 is the initial implementation review. Round 2 is the first fix review and round 3 the second.
 When the merged list is empty, replace its table with `No findings.`.
 
-Malformed or missing input returns this shape and does not write the plan or assign a verdict:
+### Malformed input and main-agent re-ask
+
+When a required report is missing or malformed, the orchestrator returns the input-error shape below
+and does not write the plan or assign a verdict. The **main agent** may re-ask that producer **once**
+with the contract shape, then invoke the orchestrator again with the replacement report.
+
+If the same report is still missing or malformed after that single re-ask, the main agent invokes
+merge once more with an explicit axis marker for that producer (for example
+`squad-reviewer: not verified — malformed after re-ask`). The orchestrator treats that axis as
+blocking: synthesize a `high` finding attributed to that producer (plan path as `Location`) so the
+verdict cannot be `pass`. Do not abandon the run without a merge when other reports are usable.
+
+Malformed or missing input on the first merge attempt returns:
 
 ```markdown
 ## Orchestrator input error — round <n>
 
 **Missing or malformed:** <report and violated requirement>
-**Action:** Surface this error unchanged and end the current loop. No plan write, verdict, retry, fix round, or agent handoff is allowed.
+**Action:** Main agent: re-ask that producer once, then merge again. After a failed re-ask, merge with the axis marked not verified (blocking). Orchestrator must not retry, launch, or hand off.
 ```
 
 ```markdown
@@ -150,7 +173,12 @@ Malformed or missing input returns this shape and does not write the plan or ass
 
 **Lowered:** <finding and reason; omit when empty>
 **Notes carried forward:** <unresolved low/tiny entries>
+**Handoff concerns:** <implementer deviations/concerns/open risks and verifier evidence gaps / assumptions challenged that are not already rows above, or `None`>
 ```
+
+When appending to the plan, rewrite `## Fix list` and `## Handoff notes` in place (run scratch).
+Promote handoff concerns that need a fix into the Fix list table; otherwise keep them under
+**Handoff concerns** / plan `## Handoff notes` so the next fix round sees them.
 
 ## Standalone merge report
 

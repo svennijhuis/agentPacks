@@ -184,7 +184,7 @@ public class SquadContractTests
     }
 
     [Fact]
-    public void Malformed_report_input_is_terminal_and_cannot_enter_a_retry_loop()
+    public void Malformed_report_allows_one_main_agent_reask_then_blocking_merge()
     {
         var skill = Fixture("SKILL.md");
         var command = Fixture("squad.md");
@@ -194,9 +194,11 @@ public class SquadContractTests
         var combined = string.Join('\n', skill, command, standalone, orchestrator, contract);
 
         Assert.Contains("Return the review contract's input-error shape for any missing or malformed report", orchestrator, StringComparison.Ordinal);
-        Assert.Contains("surface it unchanged to the human and end the current", skill, StringComparison.OrdinalIgnoreCase);
-        Assert.Contains("No plan write, verdict, retry, fix round, or agent handoff is allowed", contract, StringComparison.Ordinal);
-        Assert.Contains("Do not obtain another report, invoke merge again", skill, StringComparison.Ordinal);
+        Assert.Contains("re-ask that producer **once**", skill, StringComparison.Ordinal);
+        Assert.Contains("re-ask that producer **once**", command, StringComparison.Ordinal);
+        Assert.Contains("not verified — malformed after re-ask", skill, StringComparison.Ordinal);
+        Assert.Contains("Orchestrator must not retry, launch, or hand off", contract, StringComparison.Ordinal);
+        Assert.Contains("Do not launch, retry, or hand work to another agent", orchestrator, StringComparison.Ordinal);
         Assert.DoesNotContain("obtain the named conforming report", combined, StringComparison.OrdinalIgnoreCase);
     }
 
@@ -409,7 +411,7 @@ public class SquadContractTests
             3. Small change? → main agent only, spawn nobody → verify → append learnings → hand off uncommitted
             4. Else grill/plan rounds (facts via subagent; decisions = human) → write plan
             5. Gate spins: implementer → verifier → reviewers in parallel (correctness + plan/spec; security ONLY if trust boundary)
-            6. Orchestrator merges ≤2 fix rounds → hand off uncommitted → append learnings
+            6. Orchestrator merges ≤2 fix rounds; one reviewer re-ask on malformed; optional residual fixup → hand off uncommitted → append learnings
 
             /squad-review
             Pin vs PR / uncommitted / main → same gated dual-axis reviewers (no plan/fix loop) → append learnings → one save-markdown ask
@@ -669,15 +671,16 @@ public class SquadContractTests
         Assert.Contains("most two fix rounds", skill, StringComparison.Ordinal);
         Assert.Contains("at most two fix rounds", command, StringComparison.Ordinal);
 
-        Assert.Contains("end the current", skill, StringComparison.Ordinal);
-        Assert.Contains("Do not obtain another report, invoke merge again", skill, StringComparison.Ordinal);
-        Assert.Contains("end the loop without retrying", command, StringComparison.Ordinal);
+        Assert.Contains("re-ask that producer **once**", skill, StringComparison.Ordinal);
+        Assert.Contains("re-ask that producer **once**", command, StringComparison.Ordinal);
+        Assert.Contains("not verified — malformed after re-ask", skill, StringComparison.Ordinal);
         Assert.Contains("Do not launch, retry, or hand work to another agent", orchestrator, StringComparison.Ordinal);
         Assert.Contains(
-            "No plan write, verdict, retry, fix round, or agent handoff is allowed",
+            "Orchestrator must not retry, launch, or hand off",
             contract,
             StringComparison.Ordinal);
         Assert.Contains("no plan/fix loop", skill, StringComparison.Ordinal);
+        Assert.Contains("optional residual fixup", skill, StringComparison.Ordinal);
 
         var headings = skill.Split('\n')
             .Where(line => line.StartsWith("## ", StringComparison.Ordinal))

@@ -21,8 +21,12 @@ The main agent is the thin workflow controller. Specialists own their context.
 6. Invoke `squad-implementer` (TDD, then stop — no full suite), then `squad-verifier`, announcing the round number.
 7. Directly launch `squad-reviewer`, `squad-simplifier`, and the conditional `squad-security-reviewer` in parallel. Record why the security gate ran or was skipped.
 8. Give the completed reports, verifier evidence, round number, plan path, and security decision to
-   `squad-orchestrator` for normalization, merge, and verdict only. If it returns an input error,
-   surface that error unchanged and end the loop without retrying, routing, or writing the plan.
+   `squad-orchestrator` for normalization, merge, and verdict only. If it returns an input error for a
+   missing or malformed report, re-ask that producer **once**, then merge again. After a failed
+   re-ask, merge with that axis marked `not verified — malformed after re-ask` (blocking). The
+   orchestrator itself never retries or launches agents.
 9. Route `fix`, `pass`, or `replan` as defined by the skill. A `fix` uses a fresh implementer
    invocation; the author of the rejected code is not the fixer. Allow at most two fix rounds.
+   After `pass`, or after two rounds with only residual `low`/`tiny` notes, one optional residual
+   fixup may run as defined by the skill.
 10. Before handoff, one Advisor-lite consult as defined by the skill. Then hand off the plan path, files touched, criterion evidence, verdict, rounds, notes, pack status, workspace, and cleanup status. State that nothing was committed, merged, or pushed. Append one learnings entry.

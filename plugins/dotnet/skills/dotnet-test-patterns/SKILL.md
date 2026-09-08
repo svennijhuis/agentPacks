@@ -70,7 +70,24 @@ dotnet format <solution> --no-restore --verify-no-changes
 dotnet test <solution>
 ```
 
+### Targeted verify first
+
+Prefer filter or project scope that covers the change before the full suite:
+
+```bash
+dotnet test <test-project> --no-restore --filter FullyQualifiedName~<CaseName>
+dotnet test <solution> --no-restore
+```
+
+Implement uses the narrow command while iterating. Verifier runs the criterion command, then one
+wider suite. Do not clean `TestResults/` mid-loop unless diagnosing a stale-output failure.
+
+### Contention constraints
+
+- Do not run overlapping full-suite `dotnet test` on the same solution from concurrent agents.
+- Prefer `--no-restore` after a single restore. Do not invent a shared coordination lock file.
+
 Report the command and its output. `dotnet test` exits non-zero on failure, and a test run whose output was not read is not evidence.
 
-Good: `IClassFixture` for a shared factory.
-Bad: start Testcontainers in the constructor.
+Good: `IClassFixture` for a shared factory; filtered test while implementing.
+Bad: start Testcontainers in the constructor; full-suite every TDD cycle.

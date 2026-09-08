@@ -53,5 +53,22 @@ If `package.json` already has `build` / `typecheck`, run that script instead:
 
 Target the repo's `tsconfig*.json`. Do not pass `--strict` flags the config already owns. Do not introduce Vite/Next/React as a slot — those are frameworks, reached through this skill when the repo already uses them.
 
-Good: `pnpm run typecheck` when that script exists.
-Bad: pass `--strict` flags the tsconfig already owns.
+### Targeted verify first
+
+Prefer the package that owns the change before a monorepo-wide typecheck/build:
+
+```bash
+<pm> exec tsc --noEmit -p packages/<name>/tsconfig.json
+<pm> run typecheck --filter <name>   # when the monorepo tool supports it
+```
+
+During implement, typecheck the touched package first. Reserve full-workspace scripts for verifier /
+CI-shaped checks. Do not delete `node_modules/` or build caches mid-loop unless diagnosing corruption.
+
+### Contention constraints
+
+- Avoid overlapping full-monorepo installs/builds on the same tree.
+- Prefer one install, then targeted scripts. Do not invent a shared coordination lock file.
+
+Good: `pnpm run typecheck` when that script exists; package-scoped tsc while implementing.
+Bad: pass `--strict` flags the tsconfig already owns; clean install every TDD cycle.
