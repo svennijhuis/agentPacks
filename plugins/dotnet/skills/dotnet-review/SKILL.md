@@ -13,7 +13,7 @@ Internal. Do not run directly — Squad loads by exact Skill name.
 
 When loaded by exact Skill tool name `dotnet-review` during review or build:
 1. Read every file in `references/standards/`.
-2. Standards in force: `csharp.md`, `async-errors.md`, `testing.md`.
+2. Standards in force: `csharp.md`, `async-errors.md`, `testing.md`, `layers.md`.
 3. Cite the document filename on each finding (`csharp.md`, not "the C# standard").
 
 Finding cites: [fire-and-forget](references/examples/fire-and-forget.md), [culture](references/examples/culture.md).

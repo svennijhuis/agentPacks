@@ -4,12 +4,14 @@
   "documents": {
     "csharp": "standards/csharp.md",
     "async-errors": "standards/async-errors.md",
-    "testing": "standards/testing.md"
+    "testing": "standards/testing.md",
+    "layers": "standards/layers.md"
   },
   "consumers": {
     "dotnet-build": [
       "csharp",
-      "async-errors"
+      "async-errors",
+      "layers"
     ],
     "dotnet-test-patterns": [
       "testing"
@@ -17,7 +19,8 @@
     "dotnet-review": [
       "csharp",
       "async-errors",
-      "testing"
+      "testing",
+      "layers"
     ]
   }
 }

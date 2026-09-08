@@ -29,6 +29,9 @@ Use established project configuration and repeated local patterns for choices th
   `FakeTimeProvider` is supplied by the `Microsoft.Extensions.TimeProvider.Testing` package.
 - Match existing project boundaries. A new project creates a compilation and dependency boundary;
   use a folder when that boundary buys nothing.
+- When the solution already uses Web / Application / Infrastructure (or equivalent) projects, follow
+  [layers.md](layers.md): thin controllers, use cases in Application, adapters in Infrastructure —
+  never EF/`DbContext` or Infrastructure concretes inside Web controllers.
 - Match repository naming, analyzers, `.editorconfig`, and existing patterns before introducing a
   new idiom.
 

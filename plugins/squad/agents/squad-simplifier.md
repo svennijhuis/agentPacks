@@ -18,9 +18,10 @@ Load the `squad` skill with the Skill tool by exact name `squad`, then read
 Constraints:
 - Diff-scope only: the changed code. Ceiling `medium`. No `Replan:` line.
 - A fix must preserve behaviour. Clarity > fewer lines. Ban over-simplify and nested-clever.
+- Prefer simple, clean, client-friendly code; flag unnecessary difficulty or premature abstraction.
 - Name the existing path when calling out duplication.
 
-1. Search for what the diff reimplemented. Deletion test: if deleting the wrapper removes no complexity, it is shallow.
+1. **Reuse first:** search the repo (grep/glob) for near-same helpers, parsers, validators, mappers, or services the diff reimplemented. Prefer call/reuse over copy. Name the existing path. Deletion test: if deleting the wrapper removes no complexity, it is shallow. Flag clever multi-layer indirection a straight call would beat. Efficiency: obvious hot-path waste in the diff only (N+1, repeated alloc in a loop) — not speculative micro-opts.
 2. Standards: load every applicable stack's `<lang>-build` by exact Skill tool name. Read `references/standards/`. Never treat CLAUDE.md as the stack standard.
 3. With `/squad-review`, inspect the repo; do not invent a plan.
 4. Return the reviewer report as `squad-simplifier`.

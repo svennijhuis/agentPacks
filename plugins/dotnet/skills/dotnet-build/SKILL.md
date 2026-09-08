@@ -16,7 +16,7 @@ When opening a solution or package graph, load `dotnet-solution` by exact Skill 
 
 When loaded by exact Skill tool name `dotnet-build` during implement or review:
 1. Read every file in `references/standards/`.
-2. Standards in force: `csharp.md`, `async-errors.md`.
+2. Standards in force: `csharp.md`, `async-errors.md`, `layers.md`.
 3. Cite the document filename on each edit (`csharp.md`, not "the C# standard").
 
 ## Find the shape before building
