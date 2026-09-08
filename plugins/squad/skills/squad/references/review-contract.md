@@ -163,7 +163,7 @@ Sequence:
    producer (plan path as `Location`) so the verdict cannot be `pass`. Do not abandon the run without
    a merge when other reports are usable.
 
-A later input-error for the same producer in the same round is **not** a new re-ask grant. It means
+A later input-error for the same producer in the same round is not a new re-ask grant. It means
 the marker path was skipped — supply the axis marker and merge; never spawn P again this round.
 
 Malformed or missing input on a merge attempt returns:
