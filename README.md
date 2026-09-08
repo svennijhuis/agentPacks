@@ -168,7 +168,7 @@ the locked v1 plan; the [`squad` skill](plugins/squad/skills/squad/SKILL.md) car
 3. Small change? → main agent only, spawn nobody → verify → append learnings → hand off uncommitted
 4. Else grill/plan rounds (facts via subagent; decisions = human) → write plan
 5. Gate spins: implementer → verifier → reviewers in parallel (correctness + plan/spec; security ONLY if trust boundary)
-6. Orchestrator merges ≤2 fix rounds; one reviewer re-ask on malformed; optional residual fixup → hand off uncommitted → append learnings
+6. Orchestrator merges ≤2 fix rounds; ≤1 re-ask per producer per review round then blocking marker; optional residual fixup → hand off uncommitted → append learnings
 
 /squad-review
 Pin vs PR / uncommitted / main → same gated dual-axis reviewers (no plan/fix loop) → append learnings → one save-markdown ask

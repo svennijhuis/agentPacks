@@ -17,7 +17,7 @@ The numbered flow below is locked v1 and is copied verbatim into the
 3. Small change? → main agent only, spawn nobody → verify → append learnings → hand off uncommitted
 4. Else grill/plan rounds (facts via subagent; decisions = human) → write plan
 5. Gate spins: implementer → verifier → reviewers in parallel (correctness + plan/spec; security ONLY if trust boundary)
-6. Orchestrator merges ≤2 fix rounds; one reviewer re-ask on malformed; optional residual fixup → hand off uncommitted → append learnings
+6. Orchestrator merges ≤2 fix rounds; ≤1 re-ask per producer per review round then blocking marker; optional residual fixup → hand off uncommitted → append learnings
 
 /squad-review
 Pin vs PR / uncommitted / main → same gated dual-axis reviewers (no plan/fix loop) → append learnings → one save-markdown ask
@@ -73,9 +73,9 @@ For a planned change, the main agent runs correctness and simplification reviewe
 
 `pass` requires adequate evidence for every criterion and no blocking merged finding. `high` or `medium` findings produce `fix`; a plan defect produces `replan`. At most two fix rounds are allowed.
 
-If merge returns an input error for a malformed or missing report, the main agent re-asks that producer once (hard cap: one re-ask per producer per review round), then merges again. Never a second re-ask for the same producer in the same round, and never a "fix the report until it parses" loop. After a failed re-ask, merge with the axis marked `not verified — malformed after re-ask` (blocking). The orchestrator never launches agents, edits product code, or plans.
+If merge returns an input error for a malformed or missing report, the main agent re-asks that producer once (hard cap: one re-ask per producer per review round), then merges again with the same round number. Never a second re-ask for the same producer in the same round, and never a "fix the report until it parses" loop. Do not increment the round for parse repair. After a failed re-ask, merge once with the axis marked `not verified — malformed after re-ask` replacing the bad payload (blocking). If input-error still returns after the marker was already supplied, stop and surface. The orchestrator never launches agents, edits product code, or plans.
 
-After `pass`, or after two fix rounds with only residual `low`/`tiny` notes and known verifier nits, the main agent may run one optional residual fixup limited to those notes (no third full review fan-out; verifier spot-check only if code changed). Still hand off uncommitted.
+After `pass`, or after two fix rounds with only residual `low`/`tiny` notes, at most one residual fixup may run (never a third full review fan-out; verifier spot-check only if code changed; failed spot-check → hand off; residual after code change does not keep a clean `pass`). Still hand off uncommitted.
 
 `/squad-review` uses the same conditional reviewers for a PR, uncommitted work, or a diff versus main, but has no plan, verifier evidence, verdict, or fix round. At the end it asks once: Save report as markdown? Yes writes `docs/reviews/<slug>.md` and still shows the findings in the IDE/CLI. No stays IDE/CLI only. Never `docs/decisions.md`.
 

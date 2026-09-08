@@ -102,6 +102,8 @@ A verified `pass` is the outcome of the evaluator, not a hopeful reading of the 
 | A failure is not classified `this-change` or `pre-existing` | Not a pass. Classification is required whenever a command fails. |
 | Mixed .NET and Rust, but only one suite ran, or the boundary was not checked | Not a pass. |
 | Agent-written tests are happy-path only | Not a pass. Name behavioral and edge coverage. |
+| `Evidence gaps` is not `None` and the gap is not already a merged finding with the same cause | Not a pass. Orchestrator synthesizes a finding attributed to `squad-verifier`. |
+| `Assumptions challenged` is not `None` and the challenge is not already a merged finding with the same cause | Not a pass. Orchestrator synthesizes a finding attributed to `squad-verifier`. |
 
 A `fail` or `not verified` row blocks `pass`. During merge, the orchestrator turns any such row that
 is not already represented by a reviewer finding with the same cause into a finding attributed to
@@ -109,6 +111,7 @@ is not already represented by a reviewer finding with the same cause into a find
 evidence in `Problem` and `Fix`. This preserves the verifier report fields and requires no new search.
 This is the one exception to normal finding identity: a reviewer finding with the same cause covers
 the verifier row even though its source location differs from the synthesized plan-path location.
+The same synthesis applies to non-`None` **Evidence gaps** and **Assumptions challenged**.
 
 ## Implementer report
 
@@ -126,7 +129,9 @@ the verifier row even though its source location differs from the synthesized pl
 ```
 
 Every field after **Files touched** is required; write `None` when empty. The implementer does not
-claim verification.
+claim verification. These handoff fields are not merge-validated as a separate Require list item:
+the main agent forwards them into the merge input as **Handoff concerns** prose. Missing required
+fields on the implementer report itself make that report malformed if it is submitted to merge.
 
 ## Orchestrator report
 
@@ -143,37 +148,49 @@ When the merged list is empty, replace its table with `No findings.`.
 
 ### Malformed input and main-agent re-ask
 
-When a required report is missing or malformed, the orchestrator returns the input-error shape below
-and does not write the plan or assign a verdict.
+When a required report is missing or malformed **and** no replacing axis marker was supplied for that
+producer, the orchestrator returns the input-error shape below and does not write the plan or assign
+a verdict.
 
 **Hard cap (anti-loop):** at most **one** re-ask **per producer per review round**. That is the entire
 budget. Do not coach the producer through rewrite attempts. Do not re-ask a second time for the same
 producer in the same round, even if the replacement is still wrong. Do not start a "fix the report
 until it parses" loop.
 
+**Same round number:** the re-ask and the following merge keep the **same** `round number` as the
+merge that returned the input-error. Do not increment the round for parse repair. Incrementing the
+round resets the re-ask budget and is forbidden for this path.
+
+**Axis marker replaces the bad report:** when the budget is spent, the main agent passes
+`<producer>: not verified — malformed after re-ask` **instead of** the malformed/missing payload —
+not in addition to it. The marker is a conforming stand-in for that producer. The orchestrator must **not** emit input-error for an axis that has a marker; it synthesizes a blocking `high` finding
+(plan path as `Location`) so the verdict cannot be `pass`, then completes the merge.
+
 Sequence:
 
-1. First malformed/missing report for producer P → main agent may re-ask P **once** with the contract
-   shape, then invoke merge again with the replacement (or with the axis marker if P returned nothing
-   usable).
+1. First malformed/missing report for producer P this round → main agent may re-ask P **once** with
+   the contract shape, then invoke merge again with the **same round number** and the replacement
+   (or the axis marker if P returned nothing usable).
 2. If P is still missing/malformed after that single re-ask, or if the re-ask budget for P is already
-   spent → main agent **must not** re-ask again. Invoke merge with an explicit axis marker
-   (for example `squad-reviewer: not verified — malformed after re-ask`).
-3. The orchestrator treats that axis as blocking: synthesize a `high` finding attributed to that
-   producer (plan path as `Location`) so the verdict cannot be `pass`. Do not abandon the run without
-   a merge when other reports are usable.
+   spent → main agent **must not** re-ask again. Invoke merge **once** with the same round number and
+   the axis marker **replacing** P's report.
+3. Orchestrator accepts the marker, synthesizes the blocking `high`, merges other usable reports.
+4. If an input-error is still returned **after** the marker for P was already supplied this round →
+   **stop and surface** that error to the human. No further merge attempts. No further re-ask. End
+   the loop for this review phase.
 
-A later input-error for the same producer in the same round is not a new re-ask grant. It means
-the marker path was skipped — supply the axis marker and merge; never spawn P again this round.
+A later input-error for the same producer in the same round is not a new re-ask grant. If the marker
+was not yet supplied, supply the marker and merge once. If the marker was already supplied, stop —
+never spawn P again this round and never merge-loop.
 
-Malformed or missing input on a merge attempt returns:
+Malformed or missing input on a merge attempt (no replacing marker for that producer) returns:
 
 ```markdown
 ## Orchestrator input error — round <n>
 
 **Missing or malformed:** <report and violated requirement>
-**Re-ask budget:** one per producer per round — if already spent for this producer, do not re-ask; merge with axis marker `not verified — malformed after re-ask`
-**Action:** Main agent: if budget remains, re-ask that producer once then merge; if budget spent, merge with the axis marker (blocking). Never a second re-ask. Never "keep fixing the report". Orchestrator must not retry, launch, or hand off.
+**Re-ask budget:** one per producer per this round number — if this producer was already re-asked this round, do not re-ask; merge once with replacing axis marker `not verified — malformed after re-ask`. If the marker was already supplied, stop and surface — no further merge.
+**Action:** Re-ask only if this producer has not already been re-asked this round number. Otherwise marker merge once (same round number, marker replaces payload) or stop. Do not interpret this line as a new grant. Never a second re-ask. Never "keep fixing the report". Orchestrator must not retry, launch, or hand off.
 ```
 
 ```markdown
@@ -191,8 +208,9 @@ Malformed or missing input on a merge attempt returns:
 ```
 
 When appending to the plan, rewrite `## Fix list` and `## Handoff notes` in place (run scratch).
-Promote handoff concerns that need a fix into the Fix list table; otherwise keep them under
-**Handoff concerns** / plan `## Handoff notes` so the next fix round sees them.
+Do not invent Fix-list severity from handoff prose. Promote a handoff concern into the Fix list
+table only when it already matches a reviewer or verifier finding identity (location + cause).
+Otherwise keep it under **Handoff concerns** / plan `## Handoff notes` only.
 
 ## Standalone merge report
 
