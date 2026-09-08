@@ -22,9 +22,10 @@ The main agent is the thin workflow controller. Specialists own their context.
 7. Directly launch `squad-reviewer`, `squad-simplifier`, and the conditional `squad-security-reviewer` in parallel. Record why the security gate ran or was skipped.
 8. Give the completed reports, verifier evidence, round number, plan path, and security decision to
    `squad-orchestrator` for normalization, merge, and verdict only. If it returns an input error for a
-   missing or malformed report, re-ask that producer **once**, then merge again. After a failed
-   re-ask, merge with that axis marked `not verified — malformed after re-ask` (blocking). The
-   orchestrator itself never retries or launches agents.
+   missing or malformed report, re-ask that producer **once** (hard cap: one re-ask per producer per review round), then merge again. Never a second re-ask for the same producer in the same round.
+   Never "keep fixing the report until it parses". After a failed re-ask, or if the budget is spent,
+   merge with that axis marked `not verified — malformed after re-ask` (blocking) — do not spawn that
+   producer again. The orchestrator itself never retries or launches agents.
 9. Route `fix`, `pass`, or `replan` as defined by the skill. A `fix` uses a fresh implementer
    invocation; the author of the rejected code is not the fixer. Allow at most two fix rounds.
    After `pass`, or after two rounds with only residual `low`/`tiny` notes, one optional residual

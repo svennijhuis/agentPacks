@@ -97,13 +97,16 @@ Read [the review contract](references/review-contract.md). Dual-axis: correctnes
 Security only when gated. Launch `squad-reviewer`, `squad-simplifier`, and conditional
 `squad-security-reviewer` in parallel, then `squad-orchestrator`.
 
-### Malformed report (one re-ask)
+### Malformed report (one re-ask, hard cap)
 
 If the orchestrator returns an input error for a missing or malformed report, the **main agent**
-may re-ask that producer **once** with the contract shape, then merges again. After a failed re-ask,
-merge with that axis marked `not verified — malformed after re-ask` (blocking). Do not hard-stop
-the whole run on the first malformed report when other reports are usable. The orchestrator itself
-never retries or launches agents.
+may re-ask that producer **once** with the contract shape, then merges again. **Hard cap:** at most
+one re-ask **per producer per review round**. Never a second re-ask for the same producer in the same
+round. Never a "fix the report until it parses" loop. After a failed re-ask (or if the budget is
+already spent), merge with that axis marked `not verified — malformed after re-ask` (blocking) —
+do not spawn that producer again. A repeated input-error for the same producer is not a new grant;
+supply the marker. Do not hard-stop the whole run on the first malformed report when other reports
+are usable. The orchestrator itself never retries or launches agents.
 
 `fix` uses a **fresh** implementer; the author of the rejected code is not the fixer. At most two fix rounds.
 

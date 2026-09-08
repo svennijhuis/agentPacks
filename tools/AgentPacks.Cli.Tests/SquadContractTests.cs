@@ -199,6 +199,14 @@ public class SquadContractTests
         Assert.Contains("not verified — malformed after re-ask", skill, StringComparison.Ordinal);
         Assert.Contains("Orchestrator must not retry, launch, or hand off", contract, StringComparison.Ordinal);
         Assert.Contains("Do not launch, retry, or hand work to another agent", orchestrator, StringComparison.Ordinal);
+        Assert.Contains("one re-ask **per producer per review round**", skill, StringComparison.Ordinal);
+        Assert.Contains("one re-ask per producer per review round", command, StringComparison.Ordinal);
+        Assert.Contains("Never a second re-ask", skill, StringComparison.Ordinal);
+        Assert.Contains("Never a second re-ask", command, StringComparison.Ordinal);
+        Assert.Contains("keep fixing the report until it parses", skill, StringComparison.Ordinal);
+        Assert.Contains("keep fixing the report until it parses", command, StringComparison.Ordinal);
+        Assert.Contains("not a new re-ask grant", contract, StringComparison.Ordinal);
+        Assert.Contains("Re-ask budget:", contract, StringComparison.Ordinal);
         Assert.DoesNotContain("obtain the named conforming report", combined, StringComparison.OrdinalIgnoreCase);
     }
 
@@ -674,6 +682,7 @@ public class SquadContractTests
         Assert.Contains("re-ask that producer **once**", skill, StringComparison.Ordinal);
         Assert.Contains("re-ask that producer **once**", command, StringComparison.Ordinal);
         Assert.Contains("not verified — malformed after re-ask", skill, StringComparison.Ordinal);
+        Assert.Contains("Never a second re-ask", skill, StringComparison.Ordinal);
         Assert.Contains("Do not launch, retry, or hand work to another agent", orchestrator, StringComparison.Ordinal);
         Assert.Contains(
             "Orchestrator must not retry, launch, or hand off",

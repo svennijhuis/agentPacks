@@ -73,7 +73,7 @@ For a planned change, the main agent runs correctness and simplification reviewe
 
 `pass` requires adequate evidence for every criterion and no blocking merged finding. `high` or `medium` findings produce `fix`; a plan defect produces `replan`. At most two fix rounds are allowed.
 
-If merge returns an input error for a malformed or missing report, the main agent re-asks that producer once, then merges again. After a failed re-ask, merge with the axis marked `not verified — malformed after re-ask` (blocking). The orchestrator never launches agents, edits product code, or plans.
+If merge returns an input error for a malformed or missing report, the main agent re-asks that producer once (hard cap: one re-ask per producer per review round), then merges again. Never a second re-ask for the same producer in the same round, and never a "fix the report until it parses" loop. After a failed re-ask, merge with the axis marked `not verified — malformed after re-ask` (blocking). The orchestrator never launches agents, edits product code, or plans.
 
 After `pass`, or after two fix rounds with only residual `low`/`tiny` notes and known verifier nits, the main agent may run one optional residual fixup limited to those notes (no third full review fan-out; verifier spot-check only if code changed). Still hand off uncommitted.
 

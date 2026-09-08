@@ -22,6 +22,7 @@ Constraints:
 - Do not launch, retry, or hand work to another agent.
 - Do not edit product source. Write only the supplied plan's run-scratch sections (`## Fix list`, `## Handoff notes`, `## Status`) when merging a planned loop — never source code.
 - Do not decide what runs next.
+- A second malformed report for the same producer is not your cue to retry them. Merge only; the main agent supplies the axis marker.
 
 1. Require: round number; plan path or `none`; `squad-verifier` report or `none`; security-gate decision; completed reports (or an explicit `not verified — malformed after re-ask` axis marker from the main agent).
 2. Normalize a noncanonical-but-usable report in memory.
