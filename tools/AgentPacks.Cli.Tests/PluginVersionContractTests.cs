@@ -16,7 +16,7 @@ public sealed class PluginVersionContractTests
     [Fact]
     public void All_plugins_version_0_1_3()
     {
-        var root = SourceRoot();
+        var root = TestRepository.SourceRoot();
         var plugins = Path.Combine(root, "plugins");
         var names = Directory.GetDirectories(plugins)
             .Select(path => Path.GetFileName(path) ?? path)
@@ -57,19 +57,4 @@ public sealed class PluginVersionContractTests
         }
     }
 
-    private static string SourceRoot()
-    {
-        for (var directory = new DirectoryInfo(AppContext.BaseDirectory);
-             directory is not null;
-             directory = directory.Parent)
-        {
-            if (Directory.Exists(Path.Combine(directory.FullName, "plugins")) &&
-                Directory.Exists(Path.Combine(directory.FullName, "tools", "AgentPacks.Cli")))
-            {
-                return directory.FullName;
-            }
-        }
-
-        throw new DirectoryNotFoundException("Could not locate the agentPacks source root.");
-    }
 }

@@ -64,6 +64,13 @@ The body is the system prompt. One job. Numbered steps. A Good/Bad pair. Require
 A reviewer that can edit files will eventually edit files, so state the boundary and grant only the
 tools it needs. Load skills with the Skill tool by exact name.
 
+Each agent starts with empty context. Repeat the skill-load preamble and the constraints that agent
+must enforce, even when the parent skill or a contract already says the same thing. Do not move those
+lines into a shared file the subagent will not open. Shared wire formats belong in `references/`;
+the agent still has to name the file it reads. Keep the parent command thin: it loads the skill,
+then lists the steps the main agent runs. Restate a procedure in the command only when the main
+agent must follow it as a numbered step.
+
 ## What gets generated
 
 | Path | For |

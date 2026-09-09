@@ -19,6 +19,9 @@ public class LanguagePackContractTests
         }
         """;
 
+    public const string InternalDoNotRunLine =
+        "Internal. Do not run directly — Squad loads by exact Skill name.";
+
     private static TestRepository LanguagePack() =>
         new TestRepository().WithPlugin("dotnet", LanguagePackManifest);
 
@@ -123,7 +126,7 @@ public class LanguagePackContractTests
     [Fact]
     public void Authored_slot_skills_are_loop_audience_not_user_entrypoints()
     {
-        var root = SourceRoot();
+        var root = TestRepository.SourceRoot();
         foreach (var relative in new[]
         {
             Path.Combine("plugins", "dotnet", "skills", "dotnet-build", "SKILL.md"),
@@ -148,7 +151,7 @@ public class LanguagePackContractTests
     [Fact]
     public void Language_slot_skills_name_their_canonical_standards()
     {
-        var root = SourceRoot();
+        var root = TestRepository.SourceRoot();
         foreach (var pack in new[] { "dotnet", "rust", "typescript" })
         {
             var plugin = Path.Combine(root, "plugins", pack);
@@ -170,7 +173,7 @@ public class LanguagePackContractTests
     [Fact]
     public void Typescript_pack_fills_required_slots_with_loop_audience()
     {
-        var root = SourceRoot();
+        var root = TestRepository.SourceRoot();
         var plugin = Path.Combine(root, "plugins", "typescript");
         var manifest = JsonNode.Parse(File.ReadAllText(Path.Combine(plugin, "plugin.json")))!;
         var standards = JsonNode.Parse(File.ReadAllText(Path.Combine(plugin, "standards.source.json")))!;
@@ -198,7 +201,7 @@ public class LanguagePackContractTests
     [Fact]
     public void Authored_rust_pack_fills_all_three_slots_and_maps_its_standards()
     {
-        var root = SourceRoot();
+        var root = TestRepository.SourceRoot();
         var plugin = Path.Combine(root, "plugins", "rust");
         var manifest = JsonNode.Parse(File.ReadAllText(Path.Combine(plugin, "plugin.json")))!;
         var standards = JsonNode.Parse(File.ReadAllText(Path.Combine(plugin, "standards.source.json")))!;
@@ -216,30 +219,11 @@ public class LanguagePackContractTests
             Assert.True(File.Exists(Path.Combine(plugin, "standards", document + ".md")), document);
     }
 
-    private static string SourceRoot()
-    {
-        for (var directory = new DirectoryInfo(AppContext.BaseDirectory);
-             directory is not null;
-             directory = directory.Parent)
-        {
-            if (Directory.Exists(Path.Combine(directory.FullName, "plugins")) &&
-                Directory.Exists(Path.Combine(directory.FullName, "tools", "AgentPacks.Cli")))
-            {
-                return directory.FullName;
-            }
-        }
-
-        throw new DirectoryNotFoundException("Could not locate the agentPacks source root.");
-    }
-
-    public const string InternalDoNotRunLine =
-        "Internal. Do not run directly — Squad loads by exact Skill name.";
-
     /// <summary>Po 31: skill bodies cite generated references, never the authored standards tree.</summary>
     [Fact]
     public void Skill_bodies_point_only_at_references_standards()
     {
-        var root = SourceRoot();
+        var root = TestRepository.SourceRoot();
         foreach (var path in AuthoredSkillFiles(root))
         {
             var body = BodyAfterFrontmatter(File.ReadAllText(path));
@@ -253,7 +237,7 @@ public class LanguagePackContractTests
     [Fact]
     public void Language_test_patterns_ship_references_examples()
     {
-        var root = SourceRoot();
+        var root = TestRepository.SourceRoot();
         foreach (var pack in new[] { "dotnet", "rust", "typescript" })
         {
             var skillDir = Path.Combine(root, "plugins", pack, "skills", $"{pack}-test-patterns");
@@ -275,7 +259,7 @@ public class LanguagePackContractTests
     [Fact]
     public void Dotnet_review_examples_matt_tiny_standards_source_kept()
     {
-        var root = SourceRoot();
+        var root = TestRepository.SourceRoot();
         var skillDir = Path.Combine(root, "plugins", "dotnet", "skills", "dotnet-review");
         var examples = Path.Combine(skillDir, "references", "examples");
         Assert.True(Directory.Exists(examples), examples);
@@ -322,7 +306,7 @@ public class LanguagePackContractTests
     [Fact]
     public void Loop_audience_skills_start_with_internal_do_not_run_directly()
     {
-        var root = SourceRoot();
+        var root = TestRepository.SourceRoot();
         var loopCount = 0;
         foreach (var path in AuthoredSkillFiles(root))
         {

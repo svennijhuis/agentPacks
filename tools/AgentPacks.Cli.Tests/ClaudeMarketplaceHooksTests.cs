@@ -147,7 +147,7 @@ public sealed class ClaudeMarketplaceHooksTests
 
     private static TestRepository HookedCapabilityPacks()
     {
-        var root = SourceRoot();
+        var root = TestRepository.SourceRoot();
         var repo = new TestRepository()
             .WithPlugin("pack-check", File.ReadAllText(Path.Combine(root, "plugins", "pack-check", "plugin.json")))
             .WithSkill("pack-check", plugin: "pack-check")
@@ -164,19 +164,4 @@ public sealed class ClaudeMarketplaceHooksTests
         return repo;
     }
 
-    private static string SourceRoot()
-    {
-        for (var directory = new DirectoryInfo(AppContext.BaseDirectory);
-             directory is not null;
-             directory = directory.Parent)
-        {
-            if (Directory.Exists(Path.Combine(directory.FullName, "plugins")) &&
-                Directory.Exists(Path.Combine(directory.FullName, "tools", "AgentPacks.Cli")))
-            {
-                return directory.FullName;
-            }
-        }
-
-        throw new DirectoryNotFoundException("Could not locate the agentPacks source root.");
-    }
 }

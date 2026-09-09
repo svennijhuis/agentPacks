@@ -14,14 +14,14 @@ public sealed class PluginMcpContractTests
     [Fact]
     public void No_dotnet_solution_mcp_project_and_plugin_mcp_servers_are_empty_scaffolds()
     {
-        var root = SourceRoot();
+        var root = TestRepository.SourceRoot();
         Assert.False(Directory.Exists(Path.Combine(root, "plugins", "dotnet", "mcp")));
         Assert.False(File.Exists(Path.Combine(root, "plugins", "dotnet", "mcp", "DotnetSolutionMcp.csproj")));
         Assert.False(File.Exists(Path.Combine(root, "plugins", "dotnet", "mcp", "Program.cs")));
         Assert.False(File.Exists(Path.Combine(root, "plugins", "dotnet", "mcp", "RoslynLookup.cs")));
 
         var leftovers = Directory.GetFiles(root, "*DotnetSolutionMcp*", SearchOption.AllDirectories)
-            .Where(path => !IsGeneratedPath(path))
+            .Where(path => !TestRepository.IsGeneratedPath(path))
             .Select(path => Path.GetRelativePath(root, path).Replace('\\', '/'))
             .ToArray();
         Assert.False(leftovers.Length > 0, "leftover DotnetSolutionMcp: " + string.Join(", ", leftovers));
@@ -90,7 +90,7 @@ public sealed class PluginMcpContractTests
     public void Dotnet_solution_skill_is_loop_internal_and_names_the_local_tools()
     {
         var skill = File.ReadAllText(Path.Combine(
-            SourceRoot(), "plugins", "dotnet", "skills", "dotnet-solution", "SKILL.md"));
+            TestRepository.SourceRoot(), "plugins", "dotnet", "skills", "dotnet-solution", "SKILL.md"));
 
         Assert.Contains("audience: loop", skill, StringComparison.Ordinal);
         Assert.Contains("not as a user entrypoint", skill, StringComparison.Ordinal);
@@ -111,7 +111,7 @@ public sealed class PluginMcpContractTests
     public void Implementer_loads_optional_solution_skill_by_exact_name()
     {
         var implementer = File.ReadAllText(Path.Combine(
-            SourceRoot(), "plugins", "squad", "agents", "squad-implementer.md"));
+            TestRepository.SourceRoot(), "plugins", "squad", "agents", "squad-implementer.md"));
         Assert.Contains("<lang>-solution", implementer, StringComparison.Ordinal);
         Assert.Contains("Skill tool by exact name", implementer, StringComparison.Ordinal);
     }
@@ -119,7 +119,7 @@ public sealed class PluginMcpContractTests
     [Fact]
     public void Authored_skills_agents_and_commands_share_one_frontmatter_shape()
     {
-        var root = SourceRoot();
+        var root = TestRepository.SourceRoot();
         foreach (var skill in Directory.GetFiles(Path.Combine(root, "plugins"), "SKILL.md",
                      SearchOption.AllDirectories))
         {
@@ -181,7 +181,7 @@ public sealed class PluginMcpContractTests
     [Fact]
     public void Add_mcp_documents_the_swagger_recipe_and_local_test()
     {
-        var docs = File.ReadAllText(Path.Combine(SourceRoot(), "docs", "ADD-MCP.md"));
+        var docs = File.ReadAllText(Path.Combine(TestRepository.SourceRoot(), "docs", "ADD-MCP.md"));
         Assert.Contains("filtered", docs, StringComparison.OrdinalIgnoreCase);
         Assert.Contains("one tool per endpoint", docs, StringComparison.OrdinalIgnoreCase);
         Assert.Contains("dotnet test tools/AgentPacks.slnx", docs, StringComparison.Ordinal);
@@ -198,7 +198,7 @@ public sealed class PluginMcpContractTests
     [Fact]
     public void Squad_mcp_is_empty_scaffold_and_docs_example_is_read_only_http_without_secrets()
     {
-        var root = SourceRoot();
+        var root = TestRepository.SourceRoot();
         var mcp = JsonNode.Parse(File.ReadAllText(Path.Combine(root, "plugins", "squad", "mcp.json")))!;
         Assert.NotNull(mcp["mcpServers"]);
         Assert.Empty(mcp["mcpServers"]!.AsObject());
@@ -228,24 +228,4 @@ public sealed class PluginMcpContractTests
         }
     }
 
-    private static bool IsGeneratedPath(string path) =>
-        path.Contains($"{Path.DirectorySeparatorChar}bin{Path.DirectorySeparatorChar}", StringComparison.Ordinal)
-        || path.Contains($"{Path.DirectorySeparatorChar}obj{Path.DirectorySeparatorChar}", StringComparison.Ordinal)
-        || path.Contains($"{Path.DirectorySeparatorChar}.git{Path.DirectorySeparatorChar}", StringComparison.Ordinal);
-
-    private static string SourceRoot()
-    {
-        for (var directory = new DirectoryInfo(AppContext.BaseDirectory);
-             directory is not null;
-             directory = directory.Parent)
-        {
-            if (Directory.Exists(Path.Combine(directory.FullName, "plugins")) &&
-                Directory.Exists(Path.Combine(directory.FullName, "tools", "AgentPacks.Cli")))
-            {
-                return directory.FullName;
-            }
-        }
-
-        throw new DirectoryNotFoundException("Could not locate the agentPacks source root.");
-    }
 }

@@ -9,7 +9,7 @@ public sealed class ModelCatalogTests
     [Fact]
     public void Built_in_catalog_matches_the_authored_source_file()
     {
-        var root = SourceRoot();
+        var root = TestRepository.SourceRoot();
         var catalog = File.ReadAllText(Path.Combine(root, "models.source.json"));
 
         Assert.Contains("\"default\": \"inherit\"", catalog, StringComparison.Ordinal);
@@ -51,7 +51,7 @@ public sealed class ModelCatalogTests
     [Fact]
     public void Codex_tiers_map_to_real_ids_not_all_inherit()
     {
-        var catalog = File.ReadAllText(Path.Combine(SourceRoot(), "models.source.json"));
+        var catalog = File.ReadAllText(Path.Combine(TestRepository.SourceRoot(), "models.source.json"));
         Assert.Contains("\"codex\": \"gpt-5.6-luna\"", catalog, StringComparison.Ordinal);
         Assert.Contains("\"codex\": \"gpt-5.6-terra\"", catalog, StringComparison.Ordinal);
         Assert.Contains("\"codex\": \"gpt-5.6-sol\"", catalog, StringComparison.Ordinal);
@@ -138,24 +138,9 @@ public sealed class ModelCatalogTests
     public void Authored_squad_skill_is_user_invoked()
     {
         var skill = File.ReadAllText(Path.Combine(
-            SourceRoot(), "plugins", "squad", "skills", "squad", "SKILL.md"));
+            TestRepository.SourceRoot(), "plugins", "squad", "skills", "squad", "SKILL.md"));
 
         Assert.Contains("disable-model-invocation: true", skill, StringComparison.Ordinal);
     }
 
-    private static string SourceRoot()
-    {
-        for (var directory = new DirectoryInfo(AppContext.BaseDirectory);
-             directory is not null;
-             directory = directory.Parent)
-        {
-            if (Directory.Exists(Path.Combine(directory.FullName, "plugins")) &&
-                Directory.Exists(Path.Combine(directory.FullName, "tools", "AgentPacks.Cli")))
-            {
-                return directory.FullName;
-            }
-        }
-
-        throw new DirectoryNotFoundException("Could not locate the agentPacks source root.");
-    }
 }

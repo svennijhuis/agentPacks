@@ -17,7 +17,7 @@ public sealed class PackCheckContractTests
     [Fact]
     public void Pack_check_readme_is_setup_only_squad_already_runs_check()
     {
-        var readme = File.ReadAllText(Path.Combine(SourceRoot(), "plugins", "pack-check", "README.md"));
+        var readme = File.ReadAllText(Path.Combine(TestRepository.SourceRoot(), "plugins", "pack-check", "README.md"));
         Assert.Contains("`/pack-check` is setup-only", readme, StringComparison.Ordinal);
         Assert.Contains("`/squad` already runs this check", readme, StringComparison.Ordinal);
     }
@@ -35,7 +35,7 @@ public sealed class PackCheckContractTests
     public void Every_language_pack_has_exactly_one_registry_row()
     {
         var registered = RegistryPacks(Fixture("packs.md"));
-        var manifests = Directory.GetFiles(Path.Combine(SourceRoot(), "plugins"), "plugin.json", SearchOption.AllDirectories);
+        var manifests = Directory.GetFiles(Path.Combine(TestRepository.SourceRoot(), "plugins"), "plugin.json", SearchOption.AllDirectories);
         var languages = new List<string>();
 
         foreach (var path in manifests)
@@ -208,22 +208,6 @@ public sealed class PackCheckContractTests
     private static int Occurrences(string text, string value) =>
         text.Split(value, StringSplitOptions.None).Length - 1;
 
-    private static string SourceRoot()
-    {
-        for (var directory = new DirectoryInfo(AppContext.BaseDirectory);
-             directory is not null;
-             directory = directory.Parent)
-        {
-            if (Directory.Exists(Path.Combine(directory.FullName, "plugins")) &&
-                Directory.Exists(Path.Combine(directory.FullName, "tools", "AgentPacks.Cli")))
-            {
-                return directory.FullName;
-            }
-        }
-
-        throw new DirectoryNotFoundException("Could not locate the agentPacks source root.");
-    }
-
     private static (int ExitCode, string Output, string Error) RunHook(string workingDirectory)
     {
         var start = new ProcessStartInfo("bash")
@@ -234,7 +218,7 @@ public sealed class PackCheckContractTests
             UseShellExecute = false
         };
         start.ArgumentList.Add(Path.Combine(
-            SourceRoot(), "plugins", "pack-check", "scripts", "pack-check-session.sh"));
+            TestRepository.SourceRoot(), "plugins", "pack-check", "scripts", "pack-check-session.sh"));
 
         using var process = Process.Start(start)!;
         var output = process.StandardOutput.ReadToEnd();

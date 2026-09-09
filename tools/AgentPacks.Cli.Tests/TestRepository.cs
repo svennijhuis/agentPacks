@@ -33,8 +33,50 @@ internal sealed class TestRepository : IDisposable
 
     public string Root { get; }
 
+    /// <summary>
+    /// Walks up from the test output directory to the repository that contains
+    /// <c>plugins/</c> and <c>tools/AgentPacks.Cli</c>.
+    /// </summary>
+    public static string SourceRoot()
+    {
+        for (var directory = new DirectoryInfo(AppContext.BaseDirectory);
+             directory is not null;
+             directory = directory.Parent)
+        {
+            if (Directory.Exists(Path.Combine(directory.FullName, "plugins")) &&
+                Directory.Exists(Path.Combine(directory.FullName, "tools", "AgentPacks.Cli")))
+            {
+                return directory.FullName;
+            }
+        }
+
+        throw new DirectoryNotFoundException("Could not locate the agentPacks source root.");
+    }
+
+    public static bool IsGeneratedPath(string path) =>
+        path.Contains($"{Path.DirectorySeparatorChar}bin{Path.DirectorySeparatorChar}", StringComparison.Ordinal)
+        || path.Contains($"{Path.DirectorySeparatorChar}obj{Path.DirectorySeparatorChar}", StringComparison.Ordinal)
+        || path.Contains($"{Path.DirectorySeparatorChar}.git{Path.DirectorySeparatorChar}", StringComparison.Ordinal);
+
     public string PluginDirectory(string plugin = "engineering") =>
         Path.Combine(Root, "plugins", plugin);
+
+    /// <summary>Copies every matching file from an authored tree into this fixture plugin.</summary>
+    public TestRepository WithCopiedDirectory(
+        string sourceRoot,
+        string relativeDirectory,
+        string searchPattern = "*")
+    {
+        var source = Path.Combine(sourceRoot, relativeDirectory);
+
+        foreach (var path in Directory.GetFiles(source, searchPattern))
+        {
+            var relative = Path.Combine(relativeDirectory, Path.GetFileName(path)).Replace('\\', '/');
+            WithFile(relative, File.ReadAllText(path));
+        }
+
+        return this;
+    }
 
     public TestRepository WithPlugin(string plugin = "engineering", string? manifest = null)
     {

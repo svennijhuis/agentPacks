@@ -13,7 +13,7 @@ public sealed class HttpScenariosContractTests
     [Fact]
     public void Http_scenarios_command_writes_docs_smoke_md_only()
     {
-        var root = SourceRoot();
+        var root = TestRepository.SourceRoot();
         var command = File.ReadAllText(Path.Combine(root, "plugins", "squad", "commands", "scenarios.md"));
         var skill = File.ReadAllText(ScenariosSkillPath(root));
         var review = File.ReadAllText(Path.Combine(root, "plugins", "squad", "commands", "squad-review.md"));
@@ -54,7 +54,7 @@ public sealed class HttpScenariosContractTests
     [Fact]
     public void Http_scenarios_table_has_case_kind_request_status_expected_why()
     {
-        var skill = File.ReadAllText(ScenariosSkillPath(SourceRoot()));
+        var skill = File.ReadAllText(ScenariosSkillPath(TestRepository.SourceRoot()));
 
         Assert.Contains("# · Case · Kind · Request · Status · Expected · Why", skill, StringComparison.Ordinal);
         Assert.Contains("| # | Case | Kind | Request | Status | Expected | Why |", skill, StringComparison.Ordinal);
@@ -73,7 +73,7 @@ public sealed class HttpScenariosContractTests
     [Fact]
     public void Http_scenarios_no_code_edits_no_secrets_seeded_from_smoke_matrix()
     {
-        var root = SourceRoot();
+        var root = TestRepository.SourceRoot();
         var command = File.ReadAllText(Path.Combine(root, "plugins", "squad", "commands", "scenarios.md"));
         var skill = File.ReadAllText(ScenariosSkillPath(root));
         var combined = string.Join('\n', command, skill);
@@ -110,7 +110,7 @@ public sealed class HttpScenariosContractTests
     [Fact]
     public void User_commands_stay_squad_squad_review_pack_check_plus_http_scenarios()
     {
-        var root = SourceRoot();
+        var root = TestRepository.SourceRoot();
         var commands = Directory.GetFiles(Path.Combine(root, "plugins"), "*.md", SearchOption.AllDirectories)
             .Where(path => path.Contains($"{Path.DirectorySeparatorChar}commands{Path.DirectorySeparatorChar}", StringComparison.Ordinal)
                 && !path.Contains($"{Path.DirectorySeparatorChar}com.", StringComparison.Ordinal)
@@ -145,15 +145,11 @@ public sealed class HttpScenariosContractTests
         Assert.Contains("user-invocable: false", skill, StringComparison.Ordinal);
         Assert.DoesNotContain("audience: loop", skill, StringComparison.Ordinal);
 
-        using var repo = new TestRepository().WithPlugin(
-            "squad",
-            File.ReadAllText(Path.Combine(root, "plugins", "squad", "plugin.json")));
-        foreach (var path in Directory.GetFiles(Path.Combine(root, "plugins", "squad", "commands"), "*.md"))
-        {
-            repo.WithFile(
-                $"plugins/squad/commands/{Path.GetFileName(path)}",
-                File.ReadAllText(path));
-        }
+        using var repo = new TestRepository()
+            .WithPlugin(
+                "squad",
+                File.ReadAllText(Path.Combine(root, "plugins", "squad", "plugin.json")))
+            .WithCopiedDirectory(root, "plugins/squad/commands", "*.md");
 
         repo.WithSkill(
             "squad",
@@ -215,7 +211,7 @@ public sealed class HttpScenariosContractTests
     [Fact]
     public void Http_scenarios_env_agnostic_no_required_cloud()
     {
-        var root = SourceRoot();
+        var root = TestRepository.SourceRoot();
         var command = File.ReadAllText(Path.Combine(root, "plugins", "squad", "commands", "scenarios.md"));
         var skill = File.ReadAllText(ScenariosSkillPath(root));
         var readme = File.ReadAllText(Path.Combine(root, "README.md"));
@@ -238,7 +234,7 @@ public sealed class HttpScenariosContractTests
     [Fact]
     public void Http_scenarios_auth_rows_default_skip()
     {
-        var skill = File.ReadAllText(ScenariosSkillPath(SourceRoot()));
+        var skill = File.ReadAllText(ScenariosSkillPath(TestRepository.SourceRoot()));
 
         Assert.Contains("Auth: Bearer TOKEN_VALID (tester supplies)", skill, StringComparison.Ordinal);
         Assert.Contains("Add `auth` / policy rows ONLY when the user ask", skill, StringComparison.Ordinal);
@@ -256,7 +252,7 @@ public sealed class HttpScenariosContractTests
     [Fact]
     public void Http_scenarios_seeds_from_code_first_openapi_optional()
     {
-        var root = SourceRoot();
+        var root = TestRepository.SourceRoot();
         var command = File.ReadAllText(Path.Combine(root, "plugins", "squad", "commands", "scenarios.md"));
         var skill = File.ReadAllText(ScenariosSkillPath(root));
         var combined = string.Join('\n', command, skill);
@@ -282,9 +278,9 @@ public sealed class HttpScenariosContractTests
     [Fact]
     public void Http_scenarios_covers_timer_cron_triggers()
     {
-        var skill = File.ReadAllText(ScenariosSkillPath(SourceRoot()));
+        var skill = File.ReadAllText(ScenariosSkillPath(TestRepository.SourceRoot()));
         var command = File.ReadAllText(Path.Combine(
-            SourceRoot(), "plugins", "squad", "commands", "scenarios.md"));
+            TestRepository.SourceRoot(), "plugins", "squad", "commands", "scenarios.md"));
         var combined = string.Join('\n', command, skill);
 
         Assert.Contains("timer/cron", combined, StringComparison.Ordinal);
@@ -314,7 +310,7 @@ public sealed class HttpScenariosContractTests
     [Fact]
     public void Http_scenarios_defers_local_secrets_to_squad_rule()
     {
-        var root = SourceRoot();
+        var root = TestRepository.SourceRoot();
         var command = File.ReadAllText(Path.Combine(root, "plugins", "squad", "commands", "scenarios.md"));
         var skill = File.ReadAllText(ScenariosSkillPath(root));
         var squad = File.ReadAllText(Path.Combine(root, "plugins", "squad", "skills", "squad", "SKILL.md"));
@@ -339,7 +335,7 @@ public sealed class HttpScenariosContractTests
     [Fact]
     public void User_slash_is_scenarios_not_http_scenarios()
     {
-        var root = SourceRoot();
+        var root = TestRepository.SourceRoot();
         var commandPath = Path.Combine(root, "plugins", "squad", "commands", "scenarios.md");
         var skillPath = ScenariosSkillPath(root);
         var command = File.ReadAllText(commandPath);
@@ -397,7 +393,7 @@ public sealed class HttpScenariosContractTests
     [Fact]
     public void Copilot_http_scenarios_renamed_to_scenarios()
     {
-        var root = SourceRoot();
+        var root = TestRepository.SourceRoot();
         using var repo = SquadCommandRepo(root);
         var run = repo.ValidateAndGenerate();
         Assert.False(run.HasErrors, run.Text);
@@ -435,7 +431,7 @@ public sealed class HttpScenariosContractTests
     [Fact]
     public void All_trees_command_is_scenarios()
     {
-        var root = SourceRoot();
+        var root = TestRepository.SourceRoot();
         using var repo = SquadCommandRepo(root);
         var run = repo.ValidateAndGenerate();
         Assert.False(run.HasErrors, run.Text);
@@ -497,7 +493,7 @@ public sealed class HttpScenariosContractTests
     [Fact]
     public void Copilot_scenarios_command_name_differs_from_skill()
     {
-        var root = SourceRoot();
+        var root = TestRepository.SourceRoot();
         var command = File.ReadAllText(Path.Combine(root, "plugins", "squad", "commands", "scenarios.md"));
         var skill = File.ReadAllText(ScenariosSkillPath(root));
 
@@ -535,7 +531,7 @@ public sealed class HttpScenariosContractTests
     [Fact]
     public void Slash_stays_scenarios_or_squad_scenarios()
     {
-        var root = SourceRoot();
+        var root = TestRepository.SourceRoot();
         var command = File.ReadAllText(Path.Combine(root, "plugins", "squad", "commands", "scenarios.md"));
         var skill = File.ReadAllText(ScenariosSkillPath(root));
         var readme = File.ReadAllText(Path.Combine(root, "README.md"));
@@ -570,16 +566,11 @@ public sealed class HttpScenariosContractTests
 
     private static TestRepository SquadCommandRepo(string root)
     {
-        var repo = new TestRepository().WithPlugin(
-            "squad",
-            File.ReadAllText(Path.Combine(root, "plugins", "squad", "plugin.json")));
-
-        foreach (var path in Directory.GetFiles(Path.Combine(root, "plugins", "squad", "commands"), "*.md"))
-        {
-            repo.WithFile(
-                $"plugins/squad/commands/{Path.GetFileName(path)}",
-                File.ReadAllText(path));
-        }
+        var repo = new TestRepository()
+            .WithPlugin(
+                "squad",
+                File.ReadAllText(Path.Combine(root, "plugins", "squad", "plugin.json")))
+            .WithCopiedDirectory(root, "plugins/squad/commands", "*.md");
 
         repo.WithSkill(
             "squad",
@@ -617,19 +608,4 @@ public sealed class HttpScenariosContractTests
         throw new InvalidOperationException("missing frontmatter name");
     }
 
-    private static string SourceRoot()
-    {
-        for (var directory = new DirectoryInfo(AppContext.BaseDirectory);
-             directory is not null;
-             directory = directory.Parent)
-        {
-            if (Directory.Exists(Path.Combine(directory.FullName, "plugins")) &&
-                Directory.Exists(Path.Combine(directory.FullName, "tools", "AgentPacks.Cli")))
-            {
-                return directory.FullName;
-            }
-        }
-
-        throw new DirectoryNotFoundException("Could not locate the agentPacks source root.");
-    }
 }

@@ -1,5 +1,6 @@
 using System.Text;
 using System.Text.Json.Nodes;
+using AgentPacks.Cli.Io;
 using AgentPacks.Cli.Loading;
 
 namespace AgentPacks.Cli.Generation;
@@ -95,24 +96,12 @@ internal sealed class ClientTreeGenerator(RepositoryContext context, ModelCatalo
 
         foreach (var agent in plugin.Agents)
         {
-            var frontmatter = new List<KeyValuePair<string, string>>
-            {
-                new("name", ComponentWriter.Yaml(agent.Name)),
-                new("description", ComponentWriter.Yaml(agent.Description)),
-                new("model", ComponentWriter.Yaml(ResolveModel(agent, Client.Claude)))
-            };
-
-            var tools = ComponentWriter.Sequence(agent, "tools");
-
-            if (tools.Count > 0)
-            {
-                frontmatter.Add(new("tools", ComponentWriter.YamlList(ClaudeTools(tools))));
-            }
-
-            add(
+            WriteAgentMarkdown(
+                agent,
+                Client.Claude,
                 profile.PluginRelative($"agents/{agent.Name}.md"),
-                ComponentWriter.Markdown(frontmatter, agent.Body),
-                false);
+                add,
+                mapTools: ClaudeTools);
         }
 
         foreach (var command in plugin.Commands)
@@ -133,7 +122,7 @@ internal sealed class ClientTreeGenerator(RepositoryContext context, ModelCatalo
     /// with the validator that rejects anything outside it, so the pass-through below is reached
     /// only by a name validation already refused.
     /// </summary>
-    private static IEnumerable<string> ClaudeTools(IEnumerable<string> tools) =>
+    private static IEnumerable<string> ClaudeTools(IReadOnlyList<string> tools) =>
         tools.Select(tool => NeutralTools.Claude.TryGetValue(tool, out var claude) ? claude : tool);
 
     /// <summary>
@@ -250,41 +239,18 @@ internal sealed class ClientTreeGenerator(RepositoryContext context, ModelCatalo
             ["name"] = plugin.Name ?? plugin.DirectoryName
         };
 
-        foreach (var field in (string[])["version", "description", "author", "license", "keywords"])
-        {
-            if (manifest[field] is { } value)
-            {
-                cursor[field] = value.DeepClone();
-            }
-        }
+        JsonFile.CopyProperties(cursor, manifest, "version", "description", "author", "license", "keywords");
 
         addJson(".cursor-plugin/plugin.json", cursor);
 
         foreach (var agent in plugin.Agents)
         {
-            var frontmatter = new List<KeyValuePair<string, string>>
-            {
-                new("name", ComponentWriter.Yaml(agent.Name)),
-                new("description", ComponentWriter.Yaml(agent.Description)),
-                new("model", ComponentWriter.Yaml(ResolveModel(agent, Client.Cursor)))
-            };
-
-            if (ComponentWriter.Flag(agent, "readonly"))
-            {
-                frontmatter.Add(new("readonly", "true"));
-            }
-
-            var tools = ComponentWriter.Sequence(agent, "tools");
-
-            if (tools.Count > 0)
-            {
-                frontmatter.Add(new("tools", ComponentWriter.YamlList(tools)));
-            }
-
-            add(
+            WriteAgentMarkdown(
+                agent,
+                Client.Cursor,
                 $".cursor-plugin/agents/{agent.Name}.md",
-                ComponentWriter.Markdown(frontmatter, agent.Body),
-                false);
+                add,
+                includeReadonly: true);
         }
     }
 
@@ -308,14 +274,10 @@ internal sealed class ClientTreeGenerator(RepositoryContext context, ModelCatalo
             ["name"] = plugin.Name ?? plugin.DirectoryName
         };
 
-        foreach (var field in (string[])
-                 ["version", "description", "author", "homepage", "repository", "license", "keywords"])
-        {
-            if (manifest[field] is { } value)
-            {
-                codex[field] = value.DeepClone();
-            }
-        }
+        JsonFile.CopyProperties(
+            codex,
+            manifest,
+            "version", "description", "author", "homepage", "repository", "license", "keywords");
 
         if (plugin.HasSkillsDirectory)
         {
@@ -332,7 +294,7 @@ internal sealed class ClientTreeGenerator(RepositoryContext context, ModelCatalo
             codex["hooks"] = $"./{profile.Directory}/hooks/hooks.json";
         }
 
-        var hasMcp = plugin.Mcp?["mcpServers"] is JsonObject servers && servers.Count > 0;
+        var hasMcp = plugin.McpServers is not null;
 
         if (hasMcp)
         {
@@ -430,24 +392,11 @@ internal sealed class ClientTreeGenerator(RepositoryContext context, ModelCatalo
 
         foreach (var agent in plugin.Agents)
         {
-            var frontmatter = new List<KeyValuePair<string, string>>
-            {
-                new("name", ComponentWriter.Yaml(agent.Name)),
-                new("description", ComponentWriter.Yaml(agent.Description)),
-                new("model", ComponentWriter.Yaml(ResolveModel(agent, Client.Copilot)))
-            };
-
-            var tools = ComponentWriter.Sequence(agent, "tools");
-
-            if (tools.Count > 0)
-            {
-                frontmatter.Add(new("tools", ComponentWriter.YamlList(tools)));
-            }
-
-            add(
+            WriteAgentMarkdown(
+                agent,
+                Client.Copilot,
                 profile.PluginRelative($"agents/{agent.Name}.agent.md"),
-                ComponentWriter.Markdown(frontmatter, agent.Body),
-                false);
+                add);
         }
 
         foreach (var command in plugin.Commands)
@@ -486,6 +435,41 @@ internal sealed class ClientTreeGenerator(RepositoryContext context, ModelCatalo
     }
 
     // ---------------------------------------------------------------- Shared
+
+    /// <summary>
+    /// Claude, Cursor and Copilot all emit Markdown agents with the same keys; only the model
+    /// remap, tool spelling, readonly flag, and path differ.
+    /// </summary>
+    private void WriteAgentMarkdown(
+        MarkdownComponent agent,
+        Client client,
+        string pluginRelative,
+        Action<string, string, bool> add,
+        Func<IReadOnlyList<string>, IEnumerable<string>>? mapTools = null,
+        bool includeReadonly = false)
+    {
+        var frontmatter = new List<KeyValuePair<string, string>>
+        {
+            new("name", ComponentWriter.Yaml(agent.Name)),
+            new("description", ComponentWriter.Yaml(agent.Description)),
+            new("model", ComponentWriter.Yaml(ResolveModel(agent, client)))
+        };
+
+        if (includeReadonly && ComponentWriter.Flag(agent, "readonly"))
+        {
+            frontmatter.Add(new("readonly", "true"));
+        }
+
+        var tools = ComponentWriter.Sequence(agent, "tools");
+
+        if (tools.Count > 0)
+        {
+            var listed = mapTools is null ? tools : mapTools(tools);
+            frontmatter.Add(new("tools", ComponentWriter.YamlList(listed)));
+        }
+
+        add(pluginRelative, ComponentWriter.Markdown(frontmatter, agent.Body), false);
+    }
 
     /// <summary>
     /// The two halves that make one extensionless hook command work on both platforms. Claude,

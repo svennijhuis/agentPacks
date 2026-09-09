@@ -82,6 +82,10 @@ internal sealed record PluginPackage
 
     public bool HasSkillsDirectory => System.IO.Directory.Exists(Path.Combine(Directory, "skills"));
 
+    /// <summary>Non-empty authored <c>mcpServers</c> object, or null when absent or empty.</summary>
+    public JsonObject? McpServers =>
+        Mcp?["mcpServers"] is JsonObject servers && servers.Count > 0 ? servers : null;
+
     /// <summary>
     /// Claude marketplace rejects a hooks file-path or array, so <c>pack-check</c> and <c>git</c>
     /// omit that field. Claude then auto-discovers plugin-root <c>hooks/hooks.json</c>, which
