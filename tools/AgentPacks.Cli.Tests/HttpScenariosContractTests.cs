@@ -64,8 +64,6 @@ public sealed class HttpScenariosContractTests
         Assert.Contains("path/operation", skill, StringComparison.Ordinal);
         Assert.Contains("OpenAPI", skill, StringComparison.Ordinal);
         Assert.Contains("Swagger", skill, StringComparison.Ordinal);
-
-        Http_scenarios_example_fills_all_default_kinds();
     }
 
     /// <summary>
@@ -84,12 +82,8 @@ public sealed class HttpScenariosContractTests
         Assert.Contains("| 4 | inactive excluded | biz | GET /pets |", skill, StringComparison.Ordinal);
         Assert.Contains("| 5 | list still works | nothing-breaks | GET /pets |", skill, StringComparison.Ordinal);
 
-        Assert.Contains("Every changed path/operation gets all five default kinds", skill, StringComparison.Ordinal);
-        Assert.Contains("Incomplete fill is not done", skill, StringComparison.Ordinal);
         Assert.Contains("method and path from the changed handler", skill, StringComparison.Ordinal);
-        Assert.Contains("GET /pets", skill, StringComparison.Ordinal);
-        Assert.DoesNotContain("$BASE_URL", skill, StringComparison.Ordinal);
-        Assert.DoesNotContain("GET $BASE_URL", skill, StringComparison.Ordinal);
+        Assert.Contains("Stop when every changed path/operation has the default fill", skill, StringComparison.Ordinal);
         Assert.DoesNotContain("| auth |", skill, StringComparison.Ordinal);
     }
 
@@ -115,10 +109,8 @@ public sealed class HttpScenariosContractTests
             Assert.Contains(token, matrix, StringComparison.Ordinal);
 
         Assert.DoesNotContain("BASE_URL", skill, StringComparison.Ordinal);
-        Assert.DoesNotContain("$BASE_URL", skill, StringComparison.Ordinal);
         Assert.Contains("TOKEN_VALID", skill, StringComparison.Ordinal);
         Assert.Contains("Never a real token", skill, StringComparison.Ordinal);
-        Assert.Contains("Never a host", skill, StringComparison.Ordinal);
         Assert.Contains("Placeholders only", skill, StringComparison.Ordinal);
 
         Assert.DoesNotContain("sk-", combined, StringComparison.Ordinal);
@@ -255,13 +247,11 @@ public sealed class HttpScenariosContractTests
         Assert.Contains("Do not invent a host", combined, StringComparison.Ordinal);
         Assert.Contains("deployed env", combined, StringComparison.Ordinal);
         Assert.DoesNotContain("BASE_URL", combined, StringComparison.Ordinal);
-        Assert.DoesNotContain("$BASE_URL", combined, StringComparison.Ordinal);
         Assert.Contains("Do not require Azure, TST, or AWS", command, StringComparison.Ordinal);
         Assert.Contains("Do not require Azure, TST, or AWS", skill, StringComparison.Ordinal);
         Assert.Contains("Do not require Azure, TST, or AWS", readme, StringComparison.Ordinal);
-        Assert.Contains("method and path from the changed handler", readme, StringComparison.Ordinal);
+        Assert.Contains("Do not invent a host", readme, StringComparison.Ordinal);
         Assert.DoesNotContain("Use `BASE_URL`", readme, StringComparison.Ordinal);
-        Assert.DoesNotContain("$BASE_URL", readme, StringComparison.Ordinal);
         Assert.DoesNotContain("on TST", combined, StringComparison.Ordinal);
         Assert.DoesNotContain("Azure App Service", combined, StringComparison.Ordinal);
         Assert.DoesNotContain("AWS API Gateway", combined, StringComparison.Ordinal);

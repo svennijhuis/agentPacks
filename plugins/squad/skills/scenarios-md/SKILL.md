@@ -17,7 +17,7 @@ Do not require Azure, TST, or AWS. Do not invent a host.
 3. OpenAPI/Swagger if present — fill gaps only. Not required. Do not ask for a spec when code is enough.
 4. Write only `docs/smoke/<slug>.md`. Slug from the change or `info.title`.
 5. Table columns: # · Case · Kind · Request · Status · Expected · Why.
-   Request is the method and path from the changed handler (`GET /pets`). The tester already has the host.
+   Request is the method and path from the changed handler (`GET /pets`).
 
 | # | Case | Kind | Request | Status | Expected | Why |
 |---|---|---|---|---|---|---|
@@ -29,17 +29,16 @@ Do not require Azure, TST, or AWS. Do not invent a host.
 
    Kinds: `happy` / `edge` / `fail` / `auth` / `biz` / `nothing-breaks`.
    Default fill: happy / edge / fail / biz / nothing-breaks.
-   Every changed path/operation gets all five default kinds. Incomplete fill is not done.
-   Map matrix Happy/Edge/Fail/Timeout/5xx into those kinds (Timeout/5xx fold into `edge`/`fail`); add `biz` and `nothing-breaks` from documented rules and no-op cases.
+   Fill rows from each changed path/operation. Map matrix Happy/Edge/Fail/Timeout/5xx into those kinds (Timeout/5xx fold into `edge`/`fail`); add `biz` and `nothing-breaks` from documented rules and no-op cases.
 6. Timer/cron rows: kind `edge` / `fail` — did not run, ran twice, poison message, partial batch. Not fake HTTP when the trigger is not HTTP.
 7. Auth header only, by default: `Auth: Bearer TOKEN_VALID (tester supplies)`.
    Add `auth` / policy rows ONLY when the user ask or the OpenAPI change is about auth or new policies. Do not spam 401/403 rows by default.
-8. Placeholders only: `TOKEN_VALID`. Never a real token. Never a host.
+8. Placeholders only: `TOKEN_VALID`. Never a real token.
 9. Local secrets: the Squad local-secrets rule — [squad skill](../squad/SKILL.md).
 10. Do not edit product source. Do not commit, merge, or push.
 11. Bruno/Postman: optional mention of an existing app-repo collection. Do not write one.
 
 Stop when every changed path/operation has the default fill and the file is written.
 
-Good: five default kinds per changed handler; OpenAPI fills gaps; timer rows are not GET.
+Good: rows from changed handlers; OpenAPI fills gaps; timer rows are not GET.
 Bad: requiring a swagger URL, fake HTTP for a cron trigger, or pushing the md.
