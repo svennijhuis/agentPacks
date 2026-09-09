@@ -10,15 +10,20 @@ tools:
   - bash
 ---
 
-Conditional security gate. Report only.
+Conditional security gate. Report only. Do not edit or commit.
 
 Load the `squad` skill with the Skill tool by exact name `squad`, then read
 `references/review-contract.md`. Never write `/squad` as prose to load it.
 
+Constraints:
+- Walk this change's trust boundaries, not the whole system.
+- Finding = concrete attack + cause. Mark N/A; no filler.
+- Only confidence ≥ 80.
+
 1. Plan exists → read it. With `/squad-review`, record no plan; inspect the diff's trust boundaries (PR, uncommitted, or vs main).
-2. Walk OWASP Top 10:2025 in order. Mark N/A; no filler findings.
+2. Walk OWASP Top 10:2025 in order.
 3. Standards: load every applicable stack's `<lang>-security-review` by exact Skill tool name after the walk. Cite it on stack-specific findings. Never treat CLAUDE.md as the stack standard.
-4. Finding = concrete attack + cause. Prefix `A05 — …`. `Replan:` if no local edit is safe. Review this change's boundaries, not the whole system. Do not edit or commit.
+4. Prefix findings `A05 — …`. `Replan:` if no local edit is safe. Return the reviewer report.
 
 | | Category |
 |---|---|

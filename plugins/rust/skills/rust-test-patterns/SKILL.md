@@ -58,8 +58,26 @@ cargo fmt --all -- --check
 cargo test --workspace --no-fail-fast
 ```
 
+### Targeted verify first
+
+Prefer package or test-target scope before the full workspace suite:
+
+```bash
+cargo test -p <package> --lib
+cargo test -p <package> --test <integration-target>
+cargo test --workspace --no-fail-fast
+```
+
+Implement iterates on the narrow command. Verifier runs the criterion command, then one wider suite.
+Do not `cargo clean` mid-loop unless diagnosing a corrupted target.
+
+### Contention constraints
+
+- Avoid overlapping full-workspace `cargo test` on the same tree.
+- Prefer sequential `-p` runs over inventing a coordination lock file.
+
 Nextest does not replace documentation tests. Do not invent `--all-features` when the manifest
 permits incompatible combinations.
 
 Good: `cargo test -p <package> --test <integration-target>` for a real boundary.
-Bad: a happy-path-only unit test marked as coverage.
+Bad: a happy-path-only unit test marked as coverage; full workspace every TDD cycle.

@@ -19,7 +19,7 @@ Two entrypoints only: `/squad` and `/squad-review`. Type the command.
 3. Small change? → main agent only, spawn nobody → verify → append learnings → hand off uncommitted
 4. Else grill/plan rounds (facts via subagent; decisions = human) → write plan
 5. Gate spins: implementer → verifier → reviewers in parallel (correctness + plan/spec; security ONLY if trust boundary)
-6. Orchestrator merges ≤2 fix rounds → hand off uncommitted → append learnings
+6. Orchestrator merges ≤2 fix rounds; ≤1 re-ask per producer per review round then accept marker (non-blocking); optional residual fixup → hand off uncommitted → append learnings
 
 /squad-review
 Pin vs PR / uncommitted / main → same gated dual-axis reviewers (no plan/fix loop) → append learnings → one save-markdown ask
@@ -36,6 +36,10 @@ tiers. A **failed** skip is a must-run. Fail demotes one tier. Do not rewrite sk
 `docs/learnings.md` is append-only.
 
 No commits, merges, or pushes. `pass` is ready for human review, not permission to land.
+
+Cross-agent API is contracts + plan + learnings only. No shared coordination or lock files between
+agents. `docs/plans/<slug>.md` run-scratch sections (`## Status`, `## Fix list`, `## Handoff notes`)
+are rewritten in place; do not append forever inside the plan.
 
 ## Route
 
@@ -61,6 +65,7 @@ Cost-first: default `inherit`. `squad-implementer` is `standard`. Other squad ag
 | `squad-orchestrator` | merge only | verdict / ≤2 fixes |
 
 Small change: spawn none of these. Do not add a tester agent. Do not split simplifier.
+`squad-orchestrator` never launches agents, edits product code, or plans.
 
 ## Skills
 
@@ -82,8 +87,9 @@ Required slots: `<lang>-build`, `<lang>-test-patterns`.
 ## Plan
 
 Read [the planning contract](references/planning-contract.md). Invoke `squad-planner` once per
-turn. Grill stays here: facts via the planner; decisions = human. Read `docs/decisions.md` when
-it exists; do not write it. After confirmation, write exactly `docs/plans/<slug>.md`.
+turn. Grill stays here: facts via the planner; decisions = human. Prefer constraint-shaped
+recommendations. Read `docs/decisions.md` when it exists; do not write it. After confirmation,
+write exactly `docs/plans/<slug>.md`.
 
 ## Implement, verify, review
 
@@ -91,10 +97,21 @@ Read [the review contract](references/review-contract.md). Dual-axis: correctnes
 Security only when gated. Launch `squad-reviewer`, `squad-simplifier`, and conditional
 `squad-security-reviewer` in parallel, then `squad-orchestrator`.
 
-If the orchestrator returns an input error, surface it unchanged to the human and end the current
-loop. Do not obtain another report, invoke merge again, write the plan, assign a verdict, or start
-a fix. `fix` uses a **fresh** implementer; the author of the rejected code is not the fixer. At
-most two fix rounds.
+### Malformed report (one re-ask, hard cap)
+
+If the orchestrator returns an input error for a missing or malformed report, the **main agent**
+may re-ask that producer **once** with the contract shape, then merges again with the **same round number**. **Hard cap:** at most one re-ask **per producer per review round**. Never a second re-ask for the same producer in the same round. Never "keep fixing the report until it parses". Do not increment the round for parse repair. After a failed re-ask (or if the budget is already spent), merge **once** with that axis marked `accepted — malformed after re-ask` **replacing** the bad payload (**non-blocking**) — do not spawn that producer again. The marker is a conforming stand-in; the orchestrator must not input-error that axis and must not invent a blocking finding from it. If input-error still returns after the marker was already supplied, **stop and surface** — no further merge, no further re-ask. A repeated input-error without a marker yet is not a new grant; supply the marker once. Do not hard-stop the whole run on the first malformed report when other reports are usable. The orchestrator itself never retries or launches agents.
+
+`fix` uses a **fresh** implementer; the author of the rejected code is not the fixer. At most two fix rounds.
+
+### Optional residual fixup
+
+After `pass`, or after two fix rounds when only residual `low`/`tiny` notes remain on the merge
+report: at most **one** residual fixup pass (main agent or a fresh implementer), limited to those
+notes. Never a third full reviewer fan-out. Never another implement/review/re-ask cycle from residual.
+If code changed, run a verifier spot-check only, then hand off. Failed spot-check → hand off with
+notes; do not start another fixup. Residual after code change does not keep a clean `pass` verdict —
+handoff as uncommitted with residual notes. Still do not land the branch.
 
 ## Advisor-lite
 

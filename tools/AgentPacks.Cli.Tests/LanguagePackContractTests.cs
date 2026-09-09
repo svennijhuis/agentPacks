@@ -297,7 +297,7 @@ public class LanguagePackContractTests
         var mapped = catalog["consumers"]!["dotnet-review"]!.AsArray()
             .Select(value => value!.GetValue<string>())
             .ToArray();
-        Assert.Equal(["csharp", "async-errors", "testing"], mapped);
+        Assert.Equal(["csharp", "async-errors", "testing", "layers"], mapped);
         foreach (var document in mapped)
         {
             Assert.Equal(

@@ -16,7 +16,7 @@ When opening a solution or package graph, load `dotnet-solution` by exact Skill 
 
 When loaded by exact Skill tool name `dotnet-build` during implement or review:
 1. Read every file in `references/standards/`.
-2. Standards in force: `csharp.md`, `async-errors.md`.
+2. Standards in force: `csharp.md`, `async-errors.md`, `layers.md`.
 3. Cite the document filename on each edit (`csharp.md`, not "the C# standard").
 
 ## Find the shape before building
@@ -48,6 +48,25 @@ dotnet run --project <project> -- <args>
 ```
 
 Target the solution, not the directory. `dotnet build` with no argument searches the current folder and picks whatever it finds first, which in a repository with a `tools/` solution and a `src/` solution is a coin flip.
+
+### Targeted verify first
+
+Prefer the narrowest command that covers the change before a full solution build:
+
+```bash
+dotnet build <project> -c Release --no-restore
+dotnet build <solution> -c Release
+```
+
+During implement, build the touched project (or its test project) first. Reserve full-solution
+build for verifier / CI-shaped checks. Do not `dotnet clean` mid-loop unless the failure is a
+stale-artifact diagnosis — cleaning under contention forces full rebuilds and thrash.
+
+### Contention constraints
+
+- Do not delete `obj/` / `bin/` while another agent or process may be building the same tree.
+- Avoid parallel full restores on the same solution from one machine; restore once, then `--no-restore`.
+- Shared MSBuild node reuse is fine for sequential targeted builds; do not invent custom lock files for coordination.
 
 ## Adding a package under Central Package Management
 

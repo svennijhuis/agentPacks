@@ -31,6 +31,7 @@ a skill from the log.
 - Skipped: squad-security-reviewer — no trust boundary changed
 - Ran: plan, implement, verify, dual-axis review, merge
 - Result: pass
+- Handoff themes: keep inherit; small rename skipped planner successfully
 - Next tweak: keep inherit; the small rename did not need a planner
 ```
 
@@ -44,7 +45,11 @@ a skill from the log.
 | Skipped | Agent or phase plus the reason, or `None` |
 | Ran | Phases that actually executed |
 | Result | `pass`, `fail`, `stopped`, or `uncommitted hand-off` |
+| Handoff themes | One line summarizing concerns/deviations that carried across phases, or `None` |
 | Next tweak | One concrete adjustment that cites Result — not a vibe — or `None` |
+
+**Handoff themes** is optional prose authored by the main agent or orchestrator from this run's
+reports. It never triggers skill rewrites or a self-improve graph.
 
 A **pass** keeps the recorded tier. A **fail** or **stopped** demotes one tier
 (`frontier` → `standard` → `fast` → `inherit`) on the next same-entrypoint run.
