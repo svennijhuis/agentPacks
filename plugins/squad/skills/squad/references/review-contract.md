@@ -52,6 +52,26 @@ empty result does not state what was examined; or a finding's identity, location
 cannot be recovered. Presentation differences alone are not malformed. The orchestrator may
 normalize formatting, never meaning.
 
+## Product diff
+
+The change under review is the **product diff**: source and product docs that are the work.
+
+**Run files** are Squad artifacts. They stay on the branch, often uncommitted after `/squad` or a
+saved `/squad-review`. Omit those hunks from every reviewer payload. List them under **Not
+examined**. Findings target product paths only. Planned review still *reads* `docs/plans/` as spec.
+
+| Path | Role |
+|---|---|
+| `docs/plans/` | Plan; spec input, not a review target |
+| `docs/reviews/` | Saved `/squad-review` report |
+| `docs/learnings.md` | Append-only run log |
+| `docs/smoke/` | `/scenarios` output |
+
+Pathspec: `':(exclude)docs/plans' ':(exclude)docs/reviews' ':(exclude)docs/learnings.md' ':(exclude)docs/smoke'`.
+If the product diff is empty after omitting run files, stop.
+
+On merge, drop any finding whose location is a run file.
+
 ## Reviewer report
 
 ```markdown

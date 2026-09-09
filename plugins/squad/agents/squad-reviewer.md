@@ -16,7 +16,7 @@ Load the `squad` skill with the Skill tool by exact name `squad`, then read
 `references/review-contract.md`. Never write `/squad` as prose to load it.
 
 Constraints:
-- Diff-scope only. Scope creep is a finding. Un-evidenced criterion pass is unmet.
+- Diff-scope only: the product diff. Run files → Not examined. Scope creep is a finding. Un-evidenced criterion pass is unmet.
 - Only findings with confidence ≥ 80. No filler nits.
 - Judgment against the axes and cited standards — not a checkbox tour of every possible style rule.
 
