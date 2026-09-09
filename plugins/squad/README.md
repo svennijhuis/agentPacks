@@ -47,6 +47,7 @@ Obvious typos, renames, and one-line fixes take the small-change route: the main
 | Contract | `planning-contract` | Turn-based grill inside the orchestrator: frontier rounds, recommended answers, confirmation, plan shape |
 | Contract | `review-contract` | Dual-axis review, severity, report formats, verify-path evaluator gates, and verdict rules |
 | Contract | `learnings` | Append-only run log read on the next `/squad` or `/squad-review` |
+| Contract | `marketplace-feedback` | Append-only local report when a plugin skill, agent, pack, or command fails; people send the file; no server |
 | Rule | `review-checklist` | Source-review checklist scoped by glob; Cursor-only by design |
 | Agent | `squad-planner` | Returns one numbered planning round, or writes the one confirmed plan |
 | Agent | `squad-implementer` | Implements a confirmed plan or merged fix list |
@@ -124,7 +125,8 @@ scope for locked v1:
 - Peer agents coordinating via a shared state or lock file
 - Recursive subplanner trees or eager multi-worker fan-out
 - Continuous autonomous multi-hour runs without human plan confirm
-- Auto-rewriting skills from `docs/learnings.md`
+- Auto-rewriting skills from `docs/learnings.md` or `docs/agentpacks-feedback.md`
+- A remote telemetry server or an ask before writing marketplace feedback
 - Growing `squad-orchestrator` into a global quality gate / integrator
 
 See [ADD-SKILL.md](../../docs/ADD-SKILL.md), [ADD-HOOK.md](../../docs/ADD-HOOK.md), [ADD-AGENT.md](../../docs/ADD-AGENT.md), and [ADD-RULE.md](../../docs/ADD-RULE.md).

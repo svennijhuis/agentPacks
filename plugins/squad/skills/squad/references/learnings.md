@@ -6,6 +6,16 @@ An append-only, human-readable run log for the next `/squad` or `/squad-review`.
 It is not a second brain. It is not eager memory. It does not rewrite skills.
 `docs/decisions.md` is an optional human drop-box, not this log.
 
+## Local gitignore
+
+`docs/learnings.md` and `docs/agentpacks-feedback.md` stay in the working tree.
+They must not appear in `git status` or when switching branches.
+
+On first write, when `.git` exists, append both paths to `.git/info/exclude` if
+they are not already listed. Do not edit the committed `.gitignore` — that is a
+product diff. Do not ask. Skip exclude when there is no `.git` directory.
+Do not `git rm --cached`; a file already tracked is a human untrack.
+
 ## When to read
 
 The orchestrator reads this file first, when it exists, before routing, and **applies** the latest

@@ -17,6 +17,10 @@ public sealed class TonightCriteriaTests
         nameof(ModelCatalogTests.Claude_receives_the_mapped_tier_and_copilot_and_codex_emit_model))]
     [InlineData("5 learnings contract", typeof(SquadContractTests),
         nameof(SquadContractTests.Learnings_log_is_append_only_and_read_first))]
+    [InlineData("52 learnings stay off branch switches", typeof(SquadContractTests),
+        nameof(SquadContractTests.Learnings_stay_off_branch_switches_via_git_exclude))]
+    [InlineData("52 marketplace feedback local no ask no server", typeof(SquadContractTests),
+        nameof(SquadContractTests.Marketplace_feedback_is_local_append_only_no_ask_no_server))]
     [InlineData("6 apply fixture", typeof(LearningsLogTests),
         nameof(LearningsLogTests.A_prior_fail_forces_the_skipped_agent_on_the_next_gate))]
     [InlineData("7 coworker docs", typeof(SquadContractTests),

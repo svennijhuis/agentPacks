@@ -14,3 +14,7 @@ artifacts/
 # OS
 .DS_Store
 Thumbs.db
+
+# Local Squad run logs — keep these off branch switches
+docs/learnings.md
+docs/agentpacks-feedback.md

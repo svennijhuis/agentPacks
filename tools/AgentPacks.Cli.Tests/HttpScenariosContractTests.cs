@@ -35,6 +35,7 @@ public sealed class HttpScenariosContractTests
         Assert.DoesNotContain("docs/plans/", combined, StringComparison.Ordinal);
         Assert.DoesNotContain("docs/decisions.md", combined, StringComparison.Ordinal);
         Assert.DoesNotContain("docs/learnings.md", combined, StringComparison.Ordinal);
+        Assert.DoesNotContain("docs/agentpacks-feedback.md", combined, StringComparison.Ordinal);
 
         Assert.DoesNotContain("http-scenarios", review, StringComparison.Ordinal);
         Assert.DoesNotContain("docs/smoke/", review, StringComparison.Ordinal);

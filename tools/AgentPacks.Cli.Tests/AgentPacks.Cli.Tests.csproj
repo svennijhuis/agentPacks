@@ -44,6 +44,9 @@
     <None Include="../../plugins/squad/skills/squad/references/learnings.md"
           Link="Fixtures/squad/learnings.md"
           CopyToOutputDirectory="PreserveNewest" />
+    <None Include="../../plugins/squad/skills/squad/references/marketplace-feedback.md"
+          Link="Fixtures/squad/marketplace-feedback.md"
+          CopyToOutputDirectory="PreserveNewest" />
     <None Include="../../plugins/squad/agents/squad-orchestrator.md"
           Link="Fixtures/squad/squad-orchestrator.md"
           CopyToOutputDirectory="PreserveNewest" />

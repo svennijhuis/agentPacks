@@ -1272,6 +1272,7 @@ public class SquadContractTests
             Path.Combine(root, "plugins", "squad", "skills", "squad", "SKILL.md"),
             Path.Combine(root, "plugins", "squad", "skills", "learnings-digest", "SKILL.md"),
             Path.Combine(root, "plugins", "squad", "skills", "squad", "references", "learnings.md"),
+            Path.Combine(root, "plugins", "squad", "skills", "squad", "references", "marketplace-feedback.md"),
             Path.Combine(root, "docs", "ADD-SKILL.md"),
             Path.Combine(root, "docs", "PLAN.md"),
             Path.Combine(root, "docs", "CLAUDE-PRIVATE-REPO.md")
@@ -1710,6 +1711,74 @@ public class SquadContractTests
         Assert.Contains("Agents spun:", learnings, StringComparison.Ordinal);
         Assert.Contains("Next tweak:", learnings, StringComparison.Ordinal);
         Assert.Contains("does not rewrite skills", learnings, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains(".git/info/exclude", learnings, StringComparison.Ordinal);
+        Assert.Contains("docs/agentpacks-feedback.md", learnings, StringComparison.Ordinal);
+        Assert.Contains("Do not edit the committed `.gitignore`", learnings, StringComparison.Ordinal);
+        Assert.Contains("switching branches", learnings, StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
+    public void Learnings_stay_off_branch_switches_via_git_exclude()
+    {
+        var skill = Fixture("SKILL.md");
+        var learnings = Fixture("learnings.md");
+        var squad = Fixture("squad.md");
+        var review = Fixture("squad-review.md");
+        var gitignore = File.ReadAllText(Path.Combine(SourceRoot(), ".gitignore"));
+
+        foreach (var text in new[] { skill, learnings, squad, review })
+        {
+            Assert.Contains(".git/info/exclude", text, StringComparison.Ordinal);
+            Assert.Contains("docs/learnings.md", text, StringComparison.Ordinal);
+            Assert.Contains("docs/agentpacks-feedback.md", text, StringComparison.Ordinal);
+        }
+
+        Assert.Contains("Do not edit the committed `.gitignore`", skill, StringComparison.Ordinal);
+        Assert.Contains("Do not ask", skill, StringComparison.Ordinal);
+        Assert.Contains("docs/learnings.md", gitignore, StringComparison.Ordinal);
+        Assert.Contains("docs/agentpacks-feedback.md", gitignore, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void Marketplace_feedback_is_local_append_only_no_ask_no_server()
+    {
+        var skill = Fixture("SKILL.md");
+        var contract = Fixture("marketplace-feedback.md");
+        var squad = Fixture("squad.md");
+        var review = Fixture("squad-review.md");
+        var pluginReadme = File.ReadAllText(Path.Combine(SourceRoot(), "plugins", "squad", "README.md"));
+        var issueTemplate = File.ReadAllText(Path.Combine(
+            SourceRoot(), ".github", "ISSUE_TEMPLATE", "marketplace-feedback.md"));
+
+        Assert.Contains("docs/agentpacks-feedback.md", skill, StringComparison.Ordinal);
+        Assert.Contains("references/marketplace-feedback.md", skill, StringComparison.Ordinal);
+        Assert.Contains("Product", skill, StringComparison.Ordinal);
+        Assert.Contains("are not marketplace feedback", skill, StringComparison.Ordinal);
+        Assert.Contains("No ask. No server.", skill, StringComparison.Ordinal);
+
+        Assert.Contains("does not rewrite skills", contract, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("There is no server and no prompt", contract, StringComparison.Ordinal);
+        Assert.Contains("Never write for a clean `pass`", contract, StringComparison.Ordinal);
+        Assert.Contains("Never write because product tests failed", contract, StringComparison.Ordinal);
+        Assert.Contains("skill-miss", contract, StringComparison.Ordinal);
+        Assert.Contains("agent-unusable", contract, StringComparison.Ordinal);
+        Assert.Contains("pack-missing", contract, StringComparison.Ordinal);
+        Assert.Contains("contract-error", contract, StringComparison.Ordinal);
+        Assert.Contains("command-miss", contract, StringComparison.Ordinal);
+        Assert.Contains("Marketplace tip:", contract, StringComparison.Ordinal);
+        Assert.Contains("svennijhuis/agentPacks/issues", contract, StringComparison.Ordinal);
+        Assert.Contains("Do not include source code, secrets", contract, StringComparison.Ordinal);
+
+        Assert.Contains("marketplace-feedback entry", squad, StringComparison.Ordinal);
+        Assert.Contains("Do not ask about that file", squad, StringComparison.Ordinal);
+        Assert.Contains("marketplace-feedback entry", review, StringComparison.Ordinal);
+        Assert.Contains("Do not ask about that file", review, StringComparison.Ordinal);
+        Assert.DoesNotContain("?", review.Replace("Save report as markdown?", string.Empty, StringComparison.Ordinal));
+
+        Assert.Contains("`marketplace-feedback`", pluginReadme, StringComparison.Ordinal);
+        Assert.Contains("no server", pluginReadme, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("name: Marketplace feedback", issueTemplate, StringComparison.Ordinal);
+        Assert.Contains("docs/agentpacks-feedback.md", issueTemplate, StringComparison.Ordinal);
     }
 
     [Fact]

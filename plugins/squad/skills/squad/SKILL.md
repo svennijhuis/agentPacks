@@ -127,3 +127,11 @@ Skip on `/squad-review`.
 Preserve the primary checkout and externally created worktrees. Remove a squad-created worktree
 only when `git status --porcelain` is empty, using `git worktree remove <exact-path>` without `--force`.
 Preserve dirty worktrees. Hand off uncommitted. Append one `docs/learnings.md` entry.
+Before that write, when `.git` exists, append `docs/learnings.md` and
+`docs/agentpacks-feedback.md` to `.git/info/exclude` if missing. Do not edit the
+committed `.gitignore`. Do not ask.
+
+When a plugin skill, agent, pack, or command failed to load or produced an
+unusable report, also append one `docs/agentpacks-feedback.md` entry. Read
+[the marketplace-feedback contract](references/marketplace-feedback.md). Product
+test failures are not marketplace feedback. No ask. No server.

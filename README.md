@@ -184,6 +184,13 @@ Step 1 **applies** the latest same-entrypoint entry when gating and spinning. Ke
 skip and tier; a failed skip becomes a must-run. After a fail, demote one model tier. Do not
 rewrite skills. That is the whole v1 self-improve half: apply notes, no graphs.
 
+`docs/learnings.md` and `docs/agentpacks-feedback.md` stay local. The main agent
+lists both in `.git/info/exclude` so they do not show in `git status` or when
+switching branches. It does not edit the committed `.gitignore`. When a plugin
+skill, agent, pack, or command failed to load or produced an unusable report,
+it also appends one sendable `docs/agentpacks-feedback.md` entry. No ask. No
+server. Product test failures are not marketplace feedback.
+
 Portable model tiers live in [`models.source.json`](models.source.json) (default `inherit`;
 implementer `standard`; other loop agents `fast`). Test a skill on a feature branch without
 merging to `main`: [docs/ADD-SKILL.md](docs/ADD-SKILL.md#test-a-skill-locally).
