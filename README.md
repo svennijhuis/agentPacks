@@ -205,7 +205,9 @@ merging to `main`: [docs/ADD-SKILL.md](docs/ADD-SKILL.md#test-a-skill-locally).
 
 After the merged list, `/squad-review` asks once: Save report as markdown? Yes writes
 `docs/reviews/<slug>.md` and still shows the findings in the IDE/CLI. No stays IDE/CLI only.
-No verdict, grill, or fix round. Never `docs/decisions.md`.
+No verdict, grill, or fix round. Never `docs/decisions.md`. Reviewers get the product diff
+only: plans, saved review reports, learnings, and scenarios md stay on the branch and are
+Not examined — not a second pass over markdown the loop just wrote.
 
 ### `/scenarios`
 

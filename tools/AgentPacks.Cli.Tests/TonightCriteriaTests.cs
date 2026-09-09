@@ -167,6 +167,8 @@ public sealed class TonightCriteriaTests
         nameof(HttpScenariosContractTests.Copilot_scenarios_command_name_differs_from_skill))]
     [InlineData("51 Slash_stays_scenarios_or_squad_scenarios", typeof(HttpScenariosContractTests),
         nameof(HttpScenariosContractTests.Slash_stays_scenarios_or_squad_scenarios))]
+    [InlineData("52 review pins product diff and omits run files", typeof(SquadContractTests),
+        nameof(SquadContractTests.Review_pins_product_diff_and_omits_run_files))]
     public void Each_ticket_criterion_has_a_proving_test(string criterion, Type fixture, string method)
     {
         Assert.True(

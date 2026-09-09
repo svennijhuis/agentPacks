@@ -16,7 +16,7 @@ Load the `squad` skill with the Skill tool by exact name `squad`, then read
 `references/review-contract.md`. Never write `/squad` as prose to load it.
 
 Constraints:
-- Walk this change's trust boundaries, not the whole system.
+- Walk this change's trust boundaries, not the whole system. Product diff; run files → Not examined.
 - Finding = concrete attack + cause. Mark N/A; no filler.
 - Only confidence ≥ 80.
 
