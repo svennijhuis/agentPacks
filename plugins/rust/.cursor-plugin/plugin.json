@@ -1,0 +1,19 @@
+{
+  "name": "rust",
+  "version": "0.1.3",
+  "description": "The Rust pack: canonical Cargo build, implementation, test and review standards consumed by Squad.",
+  "author": {
+    "name": "agentPacks Maintainers"
+  },
+  "license": "UNLICENSED",
+  "keywords": [
+    "rust",
+    "cargo",
+    "language-pack",
+    "build",
+    "testing",
+    "review",
+    "rustfmt",
+    "clippy"
+  ]
+}

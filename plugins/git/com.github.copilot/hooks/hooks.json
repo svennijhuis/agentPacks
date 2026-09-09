@@ -1,0 +1,14 @@
+{
+  "version": 1,
+  "hooks": {
+    "PreToolUse": [
+      {
+        "type": "command",
+        "bash": "\"${PLUGIN_ROOT}/scripts/git-guard\" -Matcher \"git\"",
+        "powershell": "& \"${PLUGIN_ROOT}/scripts/git-guard.ps1\" -Matcher \"git\"",
+        "cwd": "${PLUGIN_ROOT}",
+        "matcher": "Bash"
+      }
+    ]
+  }
+}

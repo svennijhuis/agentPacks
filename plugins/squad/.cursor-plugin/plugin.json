@@ -1,0 +1,19 @@
+{
+  "name": "squad",
+  "version": "0.1.3",
+  "description": "User-invoked /squad, /squad-review, and /scenarios: the main agent mediates planning, runs plan-bound implementation and verification, fans dual-axis reviewers, and merges at most two fix rounds before an uncommitted hand-off. /scenarios writes docs/smoke/<slug>.md from changed code.",
+  "author": {
+    "name": "agentPacks Maintainers"
+  },
+  "license": "UNLICENSED",
+  "keywords": [
+    "workflow",
+    "planning",
+    "implementation",
+    "testing",
+    "review",
+    "security",
+    "owasp",
+    "agents"
+  ]
+}

@@ -1,0 +1,8 @@
+{
+  "_comment": "Generated from the owning plugin's external-skills.json. Do not edit this directory.",
+  "name": "caveman",
+  "repository": "https://github.com/JuliusBrussee/caveman",
+  "path": "skills/caveman",
+  "commit": "5184b3d11ac6a1acb7d44b9bfaa31698157cff97",
+  "contentHash": "7321a4c1a08e359ed82733a0ff61e847fee77d9caa101656f8a842fa5e7641bd"
+}
