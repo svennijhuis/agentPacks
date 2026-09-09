@@ -67,6 +67,27 @@ public sealed class HttpScenariosContractTests
     }
 
     /// <summary>
+    /// The example table is the few-shot. One happy row trains happy-only output.
+    /// Default fill is happy / edge / fail / biz / nothing-breaks for every
+    /// changed path/operation. Request is the route from the handler.
+    /// </summary>
+    [Fact]
+    public void Http_scenarios_example_fills_all_default_kinds()
+    {
+        var skill = File.ReadAllText(ScenariosSkillPath(SourceRoot()));
+
+        Assert.Contains("| 1 | list | happy | GET /pets |", skill, StringComparison.Ordinal);
+        Assert.Contains("| 2 | empty list | edge | GET /pets |", skill, StringComparison.Ordinal);
+        Assert.Contains("| 3 | unknown id | fail | GET /pets/no-such |", skill, StringComparison.Ordinal);
+        Assert.Contains("| 4 | inactive excluded | biz | GET /pets |", skill, StringComparison.Ordinal);
+        Assert.Contains("| 5 | list still works | nothing-breaks | GET /pets |", skill, StringComparison.Ordinal);
+
+        Assert.Contains("method and path from the changed handler", skill, StringComparison.Ordinal);
+        Assert.Contains("Stop when every changed path/operation has the default fill", skill, StringComparison.Ordinal);
+        Assert.DoesNotContain("| auth |", skill, StringComparison.Ordinal);
+    }
+
+    /// <summary>
     /// Reviewer named proof (item 44). No product-source edits. No hardcoded
     /// tokens — env placeholders only. Seeded from <c>smoke-matrix.md</c>.
     /// </summary>
@@ -87,7 +108,7 @@ public sealed class HttpScenariosContractTests
         foreach (var token in new[] { "Happy", "Edge", "Fail", "Auth", "Timeout", "5xx" })
             Assert.Contains(token, matrix, StringComparison.Ordinal);
 
-        Assert.Contains("BASE_URL", skill, StringComparison.Ordinal);
+        Assert.DoesNotContain("BASE_URL", skill, StringComparison.Ordinal);
         Assert.Contains("TOKEN_VALID", skill, StringComparison.Ordinal);
         Assert.Contains("Never a real token", skill, StringComparison.Ordinal);
         Assert.Contains("Placeholders only", skill, StringComparison.Ordinal);
@@ -209,8 +230,9 @@ public sealed class HttpScenariosContractTests
     }
 
     /// <summary>
-    /// Item 44 lock. Env-agnostic: <c>BASE_URL</c> / deployed env. Azure, TST,
-    /// and AWS are not required targets.
+    /// Item 44 lock. Env-agnostic: path from the changed handler, tester already
+    /// has the deployed host. Azure, TST, and AWS are not required targets.
+    /// Request is not a <c>$BASE_URL</c> placeholder — the route is known.
     /// </summary>
     [Fact]
     public void Http_scenarios_env_agnostic_no_required_cloud()
@@ -221,11 +243,15 @@ public sealed class HttpScenariosContractTests
         var readme = File.ReadAllText(Path.Combine(root, "README.md"));
         var combined = string.Join('\n', command, skill);
 
-        Assert.Contains("BASE_URL", combined, StringComparison.Ordinal);
+        Assert.Contains("method and path from the changed handler", combined, StringComparison.Ordinal);
+        Assert.Contains("Do not invent a host", combined, StringComparison.Ordinal);
         Assert.Contains("deployed env", combined, StringComparison.Ordinal);
+        Assert.DoesNotContain("BASE_URL", combined, StringComparison.Ordinal);
         Assert.Contains("Do not require Azure, TST, or AWS", command, StringComparison.Ordinal);
         Assert.Contains("Do not require Azure, TST, or AWS", skill, StringComparison.Ordinal);
         Assert.Contains("Do not require Azure, TST, or AWS", readme, StringComparison.Ordinal);
+        Assert.Contains("Do not invent a host", readme, StringComparison.Ordinal);
+        Assert.DoesNotContain("Use `BASE_URL`", readme, StringComparison.Ordinal);
         Assert.DoesNotContain("on TST", combined, StringComparison.Ordinal);
         Assert.DoesNotContain("Azure App Service", combined, StringComparison.Ordinal);
         Assert.DoesNotContain("AWS API Gateway", combined, StringComparison.Ordinal);

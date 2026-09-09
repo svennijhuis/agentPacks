@@ -119,6 +119,8 @@ public sealed class TonightCriteriaTests
         nameof(HttpScenariosContractTests.Http_scenarios_command_writes_docs_smoke_md_only))]
     [InlineData("44 /http-scenarios table case kind request status expected why", typeof(HttpScenariosContractTests),
         nameof(HttpScenariosContractTests.Http_scenarios_table_has_case_kind_request_status_expected_why))]
+    [InlineData("44 /http-scenarios example fills all default kinds", typeof(HttpScenariosContractTests),
+        nameof(HttpScenariosContractTests.Http_scenarios_example_fills_all_default_kinds))]
     [InlineData("44 /http-scenarios no code edits no secrets seeded from smoke-matrix", typeof(HttpScenariosContractTests),
         nameof(HttpScenariosContractTests.Http_scenarios_no_code_edits_no_secrets_seeded_from_smoke_matrix))]
     [InlineData("44 user commands stay squad squad-review pack-check plus http-scenarios", typeof(HttpScenariosContractTests),

@@ -11,5 +11,5 @@ app workspace (the repo under test). Seed **changed code first** (controllers, r
 Azure Functions / AWS Lambda HTTP and timer/cron). OpenAPI/Swagger fills gaps only; not required.
 Do not edit product source. Do not commit, merge, or push. `/squad-review` is code/diff; this slash
 is scenarios md for a real tester on a deployed env. `/squad` may read the file later for test
-design; it does not write smoke for push. Use `BASE_URL`. Do not require Azure, TST, or AWS.
+design; it does not write smoke for push. Do not invent a host. Do not require Azure, TST, or AWS.
 Local secrets: the Squad local-secrets rule (skill `squad`).
