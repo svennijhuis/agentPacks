@@ -218,8 +218,7 @@ Writes only `docs/smoke/<slug>.md` in the current app workspace (the repo under 
 scenarios md for a real tester on a deployed env. Seed **changed code first** (controllers,
 routes, handlers, Azure Functions / AWS Lambda HTTP and timer/cron). OpenAPI/Swagger fills
 gaps only; not required. `/squad-review` stays code/diff. `/squad` may read the file later
-for test design; it does not write smoke for push. Request is the method and path from the
-changed handler. Do not invent a host.
+for test design; it does not write smoke for push. Request is the method and path from the changed handler. Do not invent a host.
 Do not require Azure, TST, or AWS.
 Columns: # · Case · Kind · Request · Status · Expected · Why
 (kinds: happy/edge/fail/auth/biz/nothing-breaks). Default fill is all five except `auth`.
