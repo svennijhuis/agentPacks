@@ -30,7 +30,7 @@ Do not require Azure, TST, or AWS. Do not invent a host.
    Kinds: `happy` / `edge` / `fail` / `auth` / `biz` / `nothing-breaks`.
    Default fill: happy / edge / fail / biz / nothing-breaks.
    Every changed path/operation gets all five default kinds. Incomplete fill is not done.
-   Map matrix Happy/Edge/Fail/Timeout/5xx into those kinds; add `biz` and `nothing-breaks` from documented rules and no-op cases.
+   Map matrix Happy/Edge/Fail/Timeout/5xx into those kinds (Timeout/5xx fold into `edge`/`fail`); add `biz` and `nothing-breaks` from documented rules and no-op cases.
 6. Timer/cron rows: kind `edge` / `fail` — did not run, ran twice, poison message, partial batch. Not fake HTTP when the trigger is not HTTP.
 7. Auth header only, by default: `Auth: Bearer TOKEN_VALID (tester supplies)`.
    Add `auth` / policy rows ONLY when the user ask or the OpenAPI change is about auth or new policies. Do not spam 401/403 rows by default.
