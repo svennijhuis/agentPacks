@@ -5,6 +5,11 @@ param([string] $Matcher = '')
 $ErrorActionPreference = 'Stop'
 if ($env:AGENTPACKS_GIT_GUARD -eq 'off') { exit 0 }
 
+# A TTY stdin means the host did not pipe a payload. [Console]::In.ReadToEnd()
+# then waits for EOF that never arrives (Claude Code on Windows with Git Bash).
+# Treat that as an empty payload and allow, matching the no-payload contract.
+if (-not [Console]::IsInputRedirected) { exit 0 }
+
 $payload = [Console]::In.ReadToEnd()
 if ([string]::IsNullOrWhiteSpace($payload)) { exit 0 }
 
@@ -33,7 +38,8 @@ function Block-GitCommand([string] $Rule, [string] $Reason) {
 # `$(git reset --hard)` run the command just as surely as a bare invocation, and leaving `(`
 # attached would stop the Git detection below from ever matching.
 foreach ($segment in ($commandText -split '[;&|(){}\r\n]+')) {
-    if ($segment -notmatch '(?:^|\s)git\s+(.+)') { continue }
+    # git.exe is the Windows spelling; a path prefix is the same binary.
+    if ($segment -notmatch '(?:^|\s|[/\\])git(?:\.exe)?\s+(.+)') { continue }
     $words = @($Matches[1] -split '\s+' | Where-Object { $_ })
     if ($words.Count -eq 0) { continue }
 
@@ -58,7 +64,8 @@ foreach ($segment in ($commandText -split '[;&|(){}\r\n]+')) {
     # Short Git options bundle: `-uf` is the same force as `-f`. No safe short option of the
     # subcommands below carries an 'f', so matching the letter anywhere in a single-dash cluster
     # costs no false positive and closes the bundled spelling.
-    $hasForce = [bool] ($tail | Where-Object { $_ -ceq '--force' -or $_ -cmatch '^-[^-]*f' })
+    # @() + Count: [bool] on a single matching string throws in Windows PowerShell 5.1.
+    $hasForce = @($tail | Where-Object { $_ -ceq '--force' -or $_ -cmatch '^-[^-]*f' }).Count -gt 0
 
     switch -CaseSensitive ($verb) {
         'reset' {
@@ -77,7 +84,7 @@ foreach ($segment in ($commandText -split '[;&|(){}\r\n]+')) {
         'branch' {
             # -D is the bundled spelling of --delete --force, and -df is the same again. Plain -d
             # and --delete stay allowed: Git refuses those on an unmerged branch by itself.
-            $hasDelete = [bool] ($tail | Where-Object { $_ -ceq '--delete' -or $_ -cmatch '^-[^-]*d' })
+            $hasDelete = @($tail | Where-Object { $_ -ceq '--delete' -or $_ -cmatch '^-[^-]*d' }).Count -gt 0
 
             if ((& $has '-D') -or ($hasDelete -and $hasForce)) {
                 Block-GitCommand GIT004 'forced branch deletion can make unmerged commits unreachable.'

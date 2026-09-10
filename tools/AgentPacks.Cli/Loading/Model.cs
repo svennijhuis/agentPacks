@@ -85,7 +85,8 @@ internal sealed record PluginPackage
     /// <summary>
     /// Claude marketplace rejects a hooks file-path or array, so <c>pack-check</c> and <c>git</c>
     /// omit that field. Claude then auto-discovers plugin-root <c>hooks/hooks.json</c>, which
-    /// must be Claude-shaped for those two packs.
+    /// must be Claude-shaped for those two packs. Cursor reads <c>.cursor-plugin/hooks/hooks.json</c>
+    /// via the Cursor plugin manifest instead.
     /// </summary>
     public bool ClaudeAutoDiscoversRootHooks =>
         (Name ?? DirectoryName) is "pack-check" or "git";

@@ -18,8 +18,8 @@ Staged-only restore (`git restore --staged <path>`) is allowed. Ordinary status,
 branch deletion with `-d`, dry-run clean, and branch checkout are also allowed.
 
 The guard recognizes Git after shell separators, inside command groups and substitutions
-(`(git ...)`, `$(git ...)`, `{ git ...; }`), and after common global options such as `git -C <path>`
-and `git -c name=value`. It classifies the Git subcommand and flags rather than relying on one
+(`(git ...)`, `$(git ...)`, `{ git ...; }`), after common global options such as `git -C <path>`
+and `git -c name=value`, and as `git.exe` or a path-prefixed binary on Windows. It classifies the Git subcommand and flags rather than relying on one
 fragile whole-command regex, and it reads bundled short options, so `-uf` is the same force as `-f`.
 
 A bare `git checkout <path>` with no `--` separator is **not** blocked: it is indistinguishable from
@@ -45,7 +45,18 @@ The Bash and PowerShell implementations have the same six stable rule ids, and b
 the unit tests against the same commands so a divergence fails the build rather than waiting for a
 Windows developer to hit it. The tests exercise both provider payload shapes, dangerous and safe
 variants, bundled short options, grouped invocations, global Git options, compound shell commands,
-and the no-secret-output rule. Where `pwsh` is unavailable the parity theory is skipped; CI has it.
+`git.exe` (the Windows spelling), and the no-secret-output rule. Where `pwsh` is unavailable the
+parity theory is skipped; CI has it.
+
+On Windows, Copilot's `powershell` field sets a process-scoped execution policy before invoking the
+script, because stock Windows PowerShell is Restricted and would otherwise refuse `.ps1` files. The
+generated `.cmd` shim forwards PowerShell's exit code. Both halves treat a TTY stdin as an empty
+payload and allow, rather than hanging on `cat` / `[Console]::In.ReadToEnd()` when a host attaches a
+console instead of a pipe.
+
+Cursor cannot read the Claude-shaped `hooks/hooks.json` that `git` emits at the plugin root for
+Claude auto-discovery. Generation writes Cursor-shaped hooks to `.cursor-plugin/hooks/hooks.json`
+and points `.cursor-plugin/plugin.json` at that file.
 
 ## Privacy and failure behavior
 

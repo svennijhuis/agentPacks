@@ -67,8 +67,9 @@ public sealed class ClientManifestTests
     }
 
     /// <summary>
-    /// Cursor has no documented way to be pointed elsewhere, so it keeps the plugin root and only
-    /// needs the manifest that turns an Agent Plugin into a Cursor plugin.
+    /// Cursor keeps the plugin root for most packs and only needs the manifest that turns an
+    /// Agent Plugin into a Cursor plugin. git and pack-check point the manifest at a relocated
+    /// Cursor-shaped hooks file because Claude owns plugin-root hooks/hooks.json.
     /// </summary>
     [Fact]
     public void The_cursor_manifest_carries_the_plugin_identity()
