@@ -90,6 +90,16 @@ ln -s ~/.cursor/agentPacks/plugins/rust ~/.cursor/plugins/local/rust
 ln -s ~/.cursor/agentPacks/plugins/typescript ~/.cursor/plugins/local/typescript
 ```
 
+On Windows PowerShell, junctions work without Developer Mode (`ln -s` does not):
+
+```powershell
+git clone --branch marketplace --single-branch https://github.com/svennijhuis/agentPacks.git $HOME\.cursor\agentPacks
+New-Item -ItemType Directory -Force -Path $HOME\.cursor\plugins\local | Out-Null
+foreach ($name in @('squad', 'pack-check', 'git', 'dotnet', 'rust', 'typescript')) {
+  cmd /c mklink /J "$HOME\.cursor\plugins\local\$name" "$HOME\.cursor\agentPacks\plugins\$name"
+}
+```
+
 Create only the links for the plugins you want, then restart Cursor or run **Developer: Reload Window**. Update later with:
 
 ```shell

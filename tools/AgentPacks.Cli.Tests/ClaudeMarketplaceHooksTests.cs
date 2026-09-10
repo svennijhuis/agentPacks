@@ -1,4 +1,5 @@
 using System.Text.Json.Nodes;
+using AgentPacks.Cli.Generation;
 
 namespace AgentPacks.Cli.Tests;
 
@@ -131,6 +132,55 @@ public sealed class ClaudeMarketplaceHooksTests
 
         Claude_marketplace_omits_hooks_path_and_array();
         new SquadContractTests().Pull_request_ci_stays_one_job_no_matrix();
+    }
+
+    /// <summary>
+    /// Claude owns plugin-root hooks/hooks.json on git and pack-check. Cursor cannot read that
+    /// dialect, and until the Cursor manifest pointed at a Cursor-shaped copy the guard never
+    /// fired on Cursor (including Windows). Folder discovery stays on root hooks/ for other packs.
+    /// </summary>
+    [Fact]
+    public void Cursor_loads_relocated_cursor_shaped_hooks_when_claude_owns_root()
+    {
+        using var repo = HookedCapabilityPacks();
+        var run = repo.ValidateAndGenerate();
+        Assert.False(run.HasErrors, run.Text);
+
+        foreach (var plugin in (string[])["pack-check", "git"])
+        {
+            var cursorPath = $"plugins/{plugin}/{ClientProfile.RelocatedCursorHooks}";
+            var rootPath = $"plugins/{plugin}/hooks/hooks.json";
+            var manifestPath = $"plugins/{plugin}/.cursor-plugin/plugin.json";
+
+            Assert.True(run.HasFile(cursorPath), cursorPath);
+            Assert.True(run.HasFile(rootPath), rootPath);
+            Assert.NotEqual(run.File(rootPath).Text, run.File(cursorPath).Text);
+
+            var cursorDoc = run.File(cursorPath).Content;
+            var rootDoc = run.File(rootPath).Content;
+            var cursorEvents = (JsonObject)cursorDoc["hooks"]!;
+            var rootEvents = (JsonObject)rootDoc["hooks"]!;
+
+            Assert.All(cursorEvents, pair => Assert.Matches("^[a-z]", pair.Key));
+            Assert.All(rootEvents, pair => Assert.Matches("^[A-Z]", pair.Key));
+
+            var cursorEntry = FirstHookEntry(cursorEvents);
+            Assert.Null(cursorEntry["hooks"]);
+            Assert.Equal("command", cursorEntry["type"]!.GetValue<string>());
+            Assert.Contains("scripts/", cursorEntry["command"]!.GetValue<string>(), StringComparison.Ordinal);
+
+            Assert.Equal(
+                $"./{ClientProfile.RelocatedCursorHooks}",
+                run.File(manifestPath).Content["hooks"]!.GetValue<string>());
+        }
+
+        using var other = new TestRepository()
+            .WithValidPlugin()
+            .WithHook("beforeShellExecution");
+        var otherRun = other.ValidateAndGenerate();
+        Assert.True(otherRun.HasFile("plugins/engineering/hooks/hooks.json"));
+        Assert.False(otherRun.HasFile($"plugins/engineering/{ClientProfile.RelocatedCursorHooks}"));
+        Assert.Null(otherRun.File("plugins/engineering/.cursor-plugin/plugin.json").Content["hooks"]);
     }
 
     private static IEnumerable<JsonObject> CopilotHookEntries(JsonObject events)

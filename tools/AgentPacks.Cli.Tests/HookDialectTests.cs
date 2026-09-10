@@ -180,8 +180,10 @@ public sealed class HookDialectTests
         Assert.StartsWith("powershell -NoProfile", codexWindows, StringComparison.Ordinal);
 
         // Already a PowerShell context, so the interpreter is not named a second time.
+        // Process-scoped Bypass is required: stock Windows is Restricted and refuses .ps1.
         Assert.Contains("guard.ps1", copilotWindows, StringComparison.Ordinal);
-        Assert.StartsWith("& ", copilotWindows, StringComparison.Ordinal);
+        Assert.Contains("Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass", copilotWindows, StringComparison.Ordinal);
+        Assert.Contains("& ", copilotWindows, StringComparison.Ordinal);
 
         Assert.Null(claude["commandWindows"]);
         Assert.Null(claude["powershell"]);
