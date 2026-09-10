@@ -255,8 +255,11 @@ internal static class HookGenerator
     {
         var script = $"\"{profile.PluginRootToken}/{pluginRelative}.ps1\"";
 
+        // Copilot's powershell field already runs inside PowerShell. Stock Windows is
+        // Restricted, so & script.ps1 is refused unless this process is allowed to run
+        // scripts. Process scope does not change the machine policy.
         var command = profile.WindowsCommandField == "powershell"
-            ? $"& {script}"
+            ? $"Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass -ErrorAction SilentlyContinue; & {script}"
             : $"powershell -NoProfile -ExecutionPolicy Bypass -File {script}";
 
         // The matcher is emitted verbatim inside double quotes. HookValidator rejects the

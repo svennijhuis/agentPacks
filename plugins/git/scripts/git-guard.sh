@@ -7,6 +7,12 @@ if [ "${AGENTPACKS_GIT_GUARD:-on}" = "off" ]; then
   exit 0
 fi
 
+# A TTY stdin means the host did not pipe a payload (known on Windows when the
+# hook runner attaches a console instead of a pipe). `cat` would hang for EOF.
+if [ -t 0 ]; then
+  exit 0
+fi
+
 matcher=""
 while [ "$#" -gt 0 ]; do
   case "$1" in
@@ -45,13 +51,14 @@ block() {
 # substitution characters are separators too: `(git reset --hard)` and `$(git reset --hard)` run
 # the command just as surely as a bare invocation, and leaving `(` attached would stop the Git
 # detection below from ever matching.
-segments="$(printf '%s' "$command_text" | tr ';|&(){}\n' '\n')"
+segments="$(printf '%s' "$command_text" | tr ';|&(){}\r\n' '\n')"
 while IFS= read -r segment; do
-  if [[ ! "$segment" =~ (^|[[:space:]])git[[:space:]]+(.+) ]]; then
+  # git.exe is the Windows spelling; a path prefix is the same binary.
+  if [[ ! "$segment" =~ (^|[[:space:]]|[/\\])git(\.exe)?[[:space:]]+(.+) ]]; then
     continue
   fi
 
-  args="${BASH_REMATCH[2]}"
+  args="${BASH_REMATCH[3]}"
   read -r -a words <<< "$args"
   [ "${#words[@]}" -eq 0 ] && continue
 

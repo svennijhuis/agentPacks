@@ -13,7 +13,9 @@ Never create `hooks/hooks.json` by hand. Cursor owns that default path on most p
 marketplace and manifest component paths route Claude, Codex and Copilot to their own dialects
 instead. Exception: `pack-check` and `git` omit a Claude marketplace `hooks` path or array (Claude
 rejects those) and emit Claude-shaped `hooks/hooks.json` at the plugin root so Claude auto-discovers
-it. Copilot still reads `com.github.copilot/hooks/hooks.json` in Copilot's dialect.
+it. Cursor cannot read that dialect, so those packs also emit `.cursor-plugin/hooks/hooks.json` and
+set `"hooks"` on `.cursor-plugin/plugin.json`. Copilot still reads `com.github.copilot/hooks/hooks.json`
+in Copilot's dialect.
 
 ## The manifest
 
@@ -91,7 +93,7 @@ Clients disagree on hook payloads and failure behavior. Blocking hooks must have
 fixtures and must be checked against each provider's current primary documentation. Never log the
 raw command payload; shell arguments can contain credentials.
 
-The generated hook command is the **extensionless** path `scripts/<name>`, because Claude and Cursor have no per-OS hook field and one string has to work on both platforms. Nothing authored sits at that path, so the generator writes both halves of it: a POSIX dispatcher `scripts/<name>` that execs your `.sh`, and a `scripts/<name>.cmd` shim that calls your `.ps1`. `cmd.exe` never runs an extensionless file — it appends `PATHEXT` — so each platform picks up its own half. Codex and Copilot both have a real per-OS field and skip the shim, spelled differently: Codex's `commandWindows` takes a full shell invocation, and Copilot's `powershell` is already a PowerShell context and takes `& "<script>.ps1"`.
+The generated hook command is the **extensionless** path `scripts/<name>`, because Claude and Cursor have no per-OS hook field and one string has to work on both platforms. Nothing authored sits at that path, so the generator writes both halves of it: a POSIX dispatcher `scripts/<name>` that execs your `.sh`, and a `scripts/<name>.cmd` shim that calls your `.ps1` and forwards `%ERRORLEVEL%`. `cmd.exe` never runs an extensionless file — it appends `PATHEXT` — so each platform picks up its own half. Codex and Copilot both have a real per-OS field and skip the shim, spelled differently: Codex's `commandWindows` takes a full shell invocation, and Copilot's `powershell` is already a PowerShell context and takes `Set-ExecutionPolicy -Scope Process …; & "<script>.ps1"` so Restricted policy on stock Windows does not refuse the script.
 
 The matcher argument is spelled `-Matcher`, with one dash and a capital. That is the only spelling both parsers accept: PowerShell binds it to `param($Matcher)` and has no double-dash parameter names, so `--matcher` would be swallowed as the parameter's value and the regex behind it would fail to bind at all.
 
@@ -100,6 +102,7 @@ The matcher argument is spelled `-Matcher`, with one dash and a capital. That is
 | Path | For |
 |---|---|
 | `hooks/hooks.json` | Cursor — flat entries, camelCase events. On `pack-check` and `git` this file is Claude-shaped instead so Claude can auto-discover it |
+| `.cursor-plugin/hooks/hooks.json` | Cursor-shaped copy for `pack-check` and `git`, pointed at by `.cursor-plugin/plugin.json` |
 | `com.anthropic.claude-code/hooks/hooks.json` | Claude — nested entries, PascalCase events |
 | `com.openai.codex/hooks/hooks.json` | Codex — nested, plus `commandWindows` |
 | `com.github.copilot/hooks/hooks.json` | Copilot |
