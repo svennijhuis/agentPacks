@@ -74,17 +74,18 @@ For unattended updates, use organization-approved credential management. Do not 
 
 ## Optional: advertise the source from a product repository
 
-A product repository can point Claude at agentPacks automatically:
+A product repository can point Claude at agentPacks automatically. Use the `github` source so Claude clones the repo at the `marketplace` ref; `url` is a direct fetch of a `marketplace.json` file and does not take `ref`. `autoUpdate` refreshes the catalog after startup:
 
 ```json
 {
   "extraKnownMarketplaces": {
     "agentpacks": {
       "source": {
-        "source": "url",
-        "url": "https://github.com/svennijhuis/agentPacks.git",
+        "source": "github",
+        "repo": "svennijhuis/agentPacks",
         "ref": "marketplace"
-      }
+      },
+      "autoUpdate": true
     }
   },
   "enabledPlugins": {

@@ -126,5 +126,7 @@ scope for locked v1:
 - Continuous autonomous multi-hour runs without human plan confirm
 - Auto-rewriting skills from `docs/learnings.md`
 - Growing `squad-orchestrator` into a global quality gate / integrator
+- Superpowers-style sequential per-task two-stage review, isolated checkouts, or skill rewrite (parallel dual-axis review and append-only learnings already cover the useful half)
+- MAO-style architect DAG, reflector agent, or isolated per-task checkouts
 
 See [ADD-SKILL.md](../../docs/ADD-SKILL.md), [ADD-HOOK.md](../../docs/ADD-HOOK.md), [ADD-AGENT.md](../../docs/ADD-AGENT.md), and [ADD-RULE.md](../../docs/ADD-RULE.md).

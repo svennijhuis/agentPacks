@@ -35,12 +35,15 @@ internal sealed class CopilotMarketplaceGenerator(RepositoryContext context)
     private static JsonObject BuildEntry(PluginPackage plugin)
     {
         var manifest = plugin.Manifest!;
+        // Copilot's `strict` is schema validation (default true), not Claude's path-only
+        // discovery switch. Emitting false fought that default for no documented benefit;
+        // GitHub still does not treat it as Claude-style component routing
+        // (github/copilot-cli#1513). Omit the field and keep declaring component paths.
         var entry = new JsonObject
         {
             ["name"] = plugin.Name ?? plugin.DirectoryName,
             ["source"] = $"./plugins/{plugin.DirectoryName}",
-            ["description"] = manifest["description"]?.GetValue<string>() ?? plugin.DirectoryName,
-            ["strict"] = false
+            ["description"] = manifest["description"]?.GetValue<string>() ?? plugin.DirectoryName
         };
 
         foreach (var field in (string[])["author", "homepage", "repository", "license", "keywords"])

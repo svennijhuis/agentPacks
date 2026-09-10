@@ -68,8 +68,8 @@ tools it needs. Load skills with the Skill tool by exact name.
 
 | Path | For |
 |---|---|
-| `agents/<name>.md` | Authored portable tier (source). Cursor's plugin loader still reads this root file |
-| `.cursor-plugin/agents/<name>.md` | Cursor — remapped id (`inherit`, `composer-2`, `grok-4.5`, `claude-opus-5`) |
+| `agents/<name>.md` | Authored portable tier (source). Not what Cursor loads. |
+| `.cursor-plugin/agents/<name>.md` | Cursor — remapped id (`inherit`, `composer-2`, `grok-4.5`, `claude-opus-5`). The generated `.cursor-plugin/plugin.json` sets `"agents": "./.cursor-plugin/agents/"` so default discovery of root `agents/` does not load the portable aliases. |
 | `com.anthropic.claude-code/agents/<name>.md` | Claude — remapped id, tool names in PascalCase |
 | `com.github.copilot/agents/<name>.agent.md` | Copilot — remapped id; `model` is never dropped |
 | `com.openai.codex/agents/<name>.toml` | Codex — `model` is emitted from the catalog (`gpt-5.6-luna` / `gpt-5.6-terra` / `gpt-5.6-sol`) |

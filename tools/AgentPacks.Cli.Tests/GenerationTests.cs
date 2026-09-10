@@ -227,7 +227,9 @@ public class GenerationTests
             repo.ValidateAndGenerate(new CommandOptions { OutputRoot = output });
 
             Assert.True(File.Exists(Path.Combine(output, ".claude-plugin", "marketplace.json")));
+            Assert.True(File.Exists(Path.Combine(output, ".cursor-plugin", "marketplace.json")));
             Assert.False(File.Exists(Path.Combine(repo.Root, ".claude-plugin", "marketplace.json")));
+            Assert.False(File.Exists(Path.Combine(repo.Root, ".cursor-plugin", "marketplace.json")));
         }
         finally
         {

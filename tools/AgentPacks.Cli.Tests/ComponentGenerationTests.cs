@@ -25,16 +25,20 @@ public sealed class ComponentGenerationTests
 
     /// <summary>
     /// Authored agents/*.md stay the portable source. Cursor remapped ids are generated beside
-    /// the Cursor manifest so they do not overwrite that source.
+    /// the Cursor manifest, and the manifest points Cursor at that directory so the portable
+    /// aliases never load.
     /// </summary>
     [Fact]
-    public void Cursor_reads_the_authored_agent_directly()
+    public void Cursor_loads_remapped_agents_from_the_generated_directory()
     {
         using var repo = new TestRepository();
         var run = repo.WithValidPlugin().WithAgent("security-reviewer").ValidateAndGenerate();
 
         Assert.False(run.HasFile($"{Plugin}/agents/security-reviewer.md"));
         Assert.True(run.HasFile($"{Plugin}/.cursor-plugin/agents/security-reviewer.md"));
+        Assert.Equal(
+            "./.cursor-plugin/agents/",
+            run.File($"{Plugin}/.cursor-plugin/plugin.json").Content["agents"]!.GetValue<string>());
         Assert.Contains(
             "model: \"inherit\"",
             run.File($"{Plugin}/.cursor-plugin/agents/security-reviewer.md").Text,

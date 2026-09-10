@@ -32,7 +32,8 @@ internal sealed class CompatibilityValidator(RepositoryContext context)
                 ValidateCodexMarketplace(file);
             }
             else if (string.Equals(relative, context.MarketplaceRelativePath.Replace('\\', '/'), StringComparison.Ordinal)
-                     || string.Equals(relative, context.CopilotMarketplaceRelativePath.Replace('\\', '/'), StringComparison.Ordinal))
+                     || string.Equals(relative, context.CopilotMarketplaceRelativePath.Replace('\\', '/'), StringComparison.Ordinal)
+                     || string.Equals(relative, context.CursorMarketplaceRelativePath.Replace('\\', '/'), StringComparison.Ordinal))
             {
                 ValidateMarketplace(file);
             }

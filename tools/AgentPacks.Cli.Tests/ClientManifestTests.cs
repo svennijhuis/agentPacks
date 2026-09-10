@@ -13,6 +13,7 @@ public sealed class ClientManifestTests
     private const string Marketplace = ".claude-plugin/marketplace.json";
     private const string CodexMarketplace = ".agents/plugins/marketplace.json";
     private const string CopilotMarketplace = ".github/plugin/marketplace.json";
+    private const string CursorMarketplace = ".cursor-plugin/marketplace.json";
 
     /// <summary>
     /// Claude auto-discovers agents/, commands/ and hooks/ at the plugin root unless the
@@ -67,8 +68,9 @@ public sealed class ClientManifestTests
     }
 
     /// <summary>
-    /// Cursor has no documented way to be pointed elsewhere, so it keeps the plugin root and only
-    /// needs the manifest that turns an Agent Plugin into a Cursor plugin.
+    /// Cursor reads rules and commands from the plugin root. Agents are the exception: default
+    /// discovery would load portable <c>fast</c>/<c>standard</c> aliases from root agents/, so the
+    /// generated manifest points at the remapped copies instead.
     /// </summary>
     [Fact]
     public void The_cursor_manifest_carries_the_plugin_identity()
@@ -80,6 +82,41 @@ public sealed class ClientManifestTests
 
         Assert.Equal("engineering", cursor["name"]!.GetValue<string>());
         Assert.Equal("Test plugin.", cursor["description"]!.GetValue<string>());
+        Assert.Null(cursor["agents"]);
+    }
+
+    [Fact]
+    public void The_cursor_manifest_points_agents_at_the_remapped_copies()
+    {
+        using var repo = new TestRepository();
+        var run = repo.WithValidPlugin().WithAgent("reviewer").ValidateAndGenerate();
+
+        var cursor = run.File($"{Plugin}/.cursor-plugin/plugin.json").Content;
+
+        Assert.Equal("./.cursor-plugin/agents/", cursor["agents"]!.GetValue<string>());
+    }
+
+    [Fact]
+    public void The_cursor_marketplace_lists_every_plugin_without_component_paths()
+    {
+        using var repo = new TestRepository();
+        var run = repo.WithValidPlugin()
+            .WithAgent("reviewer")
+            .WithCommand("review-diff")
+            .ValidateAndGenerate();
+
+        var marketplace = run.File(CursorMarketplace).Content;
+        var entry = (JsonObject)marketplace["plugins"]![0]!;
+
+        Assert.Equal("agentpacks", marketplace["name"]!.GetValue<string>());
+        Assert.Equal("agentPacks Maintainers", marketplace["owner"]!["name"]!.GetValue<string>());
+        Assert.Equal("engineering", entry["name"]!.GetValue<string>());
+        Assert.Equal("./plugins/engineering", entry["source"]!.GetValue<string>());
+        Assert.Null(entry["version"]);
+        Assert.Null(entry["agents"]);
+        Assert.Null(entry["commands"]);
+        Assert.Null(entry["hooks"]);
+        Assert.Null(entry["strict"]);
     }
 
     [Fact]
@@ -202,6 +239,7 @@ public sealed class ClientManifestTests
         Assert.Equal("./com.github.copilot/agents/", entry["agents"]!.GetValue<string>());
         Assert.Equal("./com.github.copilot/commands/", entry["commands"]!.GetValue<string>());
         Assert.Equal("./com.github.copilot/hooks/hooks.json", entry["hooks"]!.GetValue<string>());
+        Assert.Null(entry["strict"]);
         Assert.DoesNotContain("anthropic", entry.ToJsonString(), StringComparison.OrdinalIgnoreCase);
     }
 
@@ -310,10 +348,10 @@ public sealed class ClientManifestTests
     }
 
     /// <summary>
-    /// Even the smallest pack produces all three root catalogs and no unrelated component tree.
+    /// Even the smallest pack produces all four root catalogs and no unrelated component tree.
     /// </summary>
     [Fact]
-    public void A_plugin_without_optional_components_generates_only_the_three_catalogs()
+    public void A_plugin_without_optional_components_generates_only_the_four_catalogs()
     {
         using var repo = new TestRepository();
         var run = repo.WithValidPlugin().ValidateAndGenerate();
@@ -323,6 +361,6 @@ public sealed class ClientManifestTests
             .Where(p => p != $"{Plugin}/.cursor-plugin/plugin.json" && p != $"{Plugin}/.codex-plugin/plugin.json")
             .ToList();
 
-        Assert.Equal([CodexMarketplace, Marketplace, CopilotMarketplace], paths);
+        Assert.Equal([CodexMarketplace, Marketplace, CursorMarketplace, CopilotMarketplace], paths);
     }
 }

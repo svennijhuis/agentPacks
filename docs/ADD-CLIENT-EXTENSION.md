@@ -33,13 +33,13 @@ Rules, agents, commands and hooks are not portable components — the specificat
 ```text
 plugins/squad/
 ├── plugin.json                     # declares the namespaces under "extensions"
-├── rules/  agents/  commands/      # authored, and read directly by Cursor
+├── rules/  agents/  commands/      # authored; Cursor reads rules and commands here
 ├── hooks.source.json               # authored, neutral
 ├── com.anthropic.claude-code/      # generated
 ├── com.openai.codex/               # generated
 └── com.github.copilot/             # generated
 ```
 
-Cursor keeps the plugin root because it is the one client with no documented way to be pointed elsewhere. Claude is redirected by component paths in its marketplace entry, and Codex by `.codex-plugin/plugin.json`. See [ADD-HOOK.md](ADD-HOOK.md), [ADD-AGENT.md](ADD-AGENT.md) and [ADD-RULE.md](ADD-RULE.md).
+Cursor keeps the plugin root for rules, commands and hooks because those are also the authored defaults. Agents are redirected: generation writes remapped model ids under `.cursor-plugin/agents/` and points `.cursor-plugin/plugin.json` at that directory. Claude is redirected by component paths in its marketplace entry, Codex by `.codex-plugin/plugin.json`, and Copilot by `.github/plugin/marketplace.json`. The generated `marketplace` branch also ships a repo-root `.cursor-plugin/marketplace.json` so Cursor Team Marketplace import and the public submit flow see every plugin. See [ADD-HOOK.md](ADD-HOOK.md), [ADD-AGENT.md](ADD-AGENT.md) and [ADD-RULE.md](ADD-RULE.md).
 
 Never edit a namespace directory by hand. They are generated, and `drift.yml` fails when they stop matching the source.

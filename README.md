@@ -39,6 +39,28 @@ Update later with:
 copilot plugin marketplace update agentpacks
 ```
 
+A product repository can register the same catalog for Copilot CLI. `extraKnownMarketplaces` in user or managed settings also opts the catalog into session-start auto-update; a repository-level `autoUpdate` flag is ignored:
+
+```json
+{
+  "extraKnownMarketplaces": {
+    "agentpacks": {
+      "source": {
+        "source": "github",
+        "repo": "svennijhuis/agentPacks",
+        "ref": "marketplace"
+      },
+      "autoUpdate": true
+    }
+  },
+  "enabledPlugins": {
+    "squad@agentpacks": true
+  }
+}
+```
+
+Path-sourced plugins from a local marketplace directory load live: after `copilot plugin marketplace add /tmp/agentpacks-marketplace`, edits take effect on `/restart` or a new session with no `copilot plugin update`.
+
 ## Codex
 
 ```shell
@@ -75,9 +97,37 @@ Update later with:
 claude plugin marketplace update agentpacks
 ```
 
+A product repository can register the catalog for the whole team. Claude clones from the `github` source and picks up the `marketplace` ref; `autoUpdate` refreshes the catalog after startup:
+
+```json
+{
+  "extraKnownMarketplaces": {
+    "agentpacks": {
+      "source": {
+        "source": "github",
+        "repo": "svennijhuis/agentPacks",
+        "ref": "marketplace"
+      },
+      "autoUpdate": true
+    }
+  },
+  "enabledPlugins": {
+    "squad@agentpacks": true
+  }
+}
+```
+
 ## Cursor
 
-Cursor supports the Agent Plugins standard. Until this repository is listed in a Cursor marketplace, install the plugins through Cursor's supported local plugin directory:
+The generated `marketplace` branch ships `.cursor-plugin/marketplace.json`, the multi-plugin catalog Cursor's Team Marketplace import and public submit flow read. Install only the plugins you want.
+
+### Teams and Enterprise
+
+Import this repository's `marketplace` branch from **Dashboard → Plugins → Import from Repo**. Auto Refresh re-reads the catalog on each push. Users then install from **Customize**; admins can set each plugin to Default Off, Default On, or Required.
+
+### Local install
+
+Until this repository is listed in the public Cursor Marketplace, clone the generated branch and link the plugins you want:
 
 ```shell
 git clone --branch marketplace --single-branch https://github.com/svennijhuis/agentPacks.git ~/.cursor/agentPacks
@@ -96,7 +146,7 @@ Create only the links for the plugins you want, then restart Cursor or run **Dev
 git -C ~/.cursor/agentPacks pull --ff-only
 ```
 
-Teams and Enterprise administrators can instead import this repository's `marketplace` branch as a team marketplace; users can then install plugins from **Customize**.
+Local links still win for day-to-day development. After a team import, a marketplace plugin with the same name takes precedence over `~/.cursor/plugins/local`.
 
 ## Local development
 
@@ -125,7 +175,7 @@ copilot plugin marketplace add /tmp/agentpacks-marketplace
 copilot plugin install squad@agentpacks
 ```
 
-Reload the client, then smoke `/squad` or `/squad-review` once. The generated tree is what coworkers install; the authored tree is the source. The same loop is in [ADD-SKILL.md — Test a skill locally](docs/ADD-SKILL.md#test-a-skill-locally).
+Reload the client, then smoke `/squad` or `/squad-review` once. The generated tree is what coworkers install; the authored tree is the source. Copilot loads path-sourced plugins live from that directory after `/restart`. The same loop is in [ADD-SKILL.md — Test a skill locally](docs/ADD-SKILL.md#test-a-skill-locally).
 
 ## What each client gets
 

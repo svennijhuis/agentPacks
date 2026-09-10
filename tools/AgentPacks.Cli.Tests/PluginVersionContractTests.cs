@@ -47,7 +47,8 @@ public sealed class PluginVersionContractTests
         foreach (var catalog in new[]
                  {
                      ".claude-plugin/marketplace.json",
-                     ".github/plugin/marketplace.json"
+                     ".github/plugin/marketplace.json",
+                     ".cursor-plugin/marketplace.json"
                  })
         {
             var entry = run.File(catalog).Content["plugins"]!.AsArray()

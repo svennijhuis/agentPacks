@@ -235,8 +235,8 @@ internal sealed class ClientTreeGenerator(RepositoryContext context, ModelCatalo
     /// <summary>
     /// Cursor reads rules/*.mdc and commands/*.md from the plugin root. Authored agents stay the
     /// portable source. Generation writes remapped Cursor ids into <c>.cursor-plugin/agents/</c>
-    /// so Cursor never receives a Claude alias, and Copilot/Codex are not the only clients that
-    /// emit <c>model</c>.
+    /// and points the Cursor manifest at that directory so Cursor never loads the portable
+    /// <c>fast</c>/<c>standard</c> aliases from root <c>agents/</c>.
     /// </summary>
     private void GenerateCursor(
         PluginPackage plugin,
@@ -256,6 +256,13 @@ internal sealed class ClientTreeGenerator(RepositoryContext context, ModelCatalo
             {
                 cursor[field] = value.DeepClone();
             }
+        }
+
+        // Default discovery is plugin-root agents/, which still holds the portable source.
+        // Declaring this path replaces that scan so Cursor loads remapped ids only.
+        if (plugin.Agents.Count > 0)
+        {
+            cursor["agents"] = "./.cursor-plugin/agents/";
         }
 
         addJson(".cursor-plugin/plugin.json", cursor);
