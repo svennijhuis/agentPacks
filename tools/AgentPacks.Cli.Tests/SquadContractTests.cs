@@ -1355,7 +1355,8 @@ public class SquadContractTests
     /// Product-diff lock: reviewers examine source and product docs that are the work.
     /// Squad run files (plans, saved reviews, learnings, smoke) stay on the branch
     /// and are omitted from the reviewer payload — including a second /squad-review
-    /// of uncommitted work after /squad wrote those files.
+    /// of uncommitted work after /squad wrote those files. Absence is not a finding
+    /// and never fix/replan — this is a scope filter, not a docs-must-exist gate.
     /// </summary>
     [Fact]
     public void Review_pins_product_diff_and_omits_run_files()
@@ -1371,18 +1372,24 @@ public class SquadContractTests
         var readme = File.ReadAllText(Path.Combine(SourceRoot(), "README.md"));
         var pluginReadme = File.ReadAllText(Path.Combine(SourceRoot(), "plugins", "squad", "README.md"));
 
-        Assert.Contains("## Product diff", contract, StringComparison.Ordinal);
+        Assert.DoesNotContain("## Product diff", contract, StringComparison.Ordinal);
+        Assert.Contains("A run file that is absent is not a finding", contract, StringComparison.Ordinal);
+        Assert.Contains("never `fix` or `replan`", contract, StringComparison.Ordinal);
         Assert.Contains("`docs/plans/`", contract, StringComparison.Ordinal);
         Assert.Contains("`docs/reviews/`", contract, StringComparison.Ordinal);
         Assert.Contains("`docs/learnings.md`", contract, StringComparison.Ordinal);
         Assert.Contains("`docs/smoke/`", contract, StringComparison.Ordinal);
-        Assert.Contains("Omit those hunks from every reviewer payload", contract, StringComparison.Ordinal);
+        Assert.Contains("omit those hunks from the reviewer payload", contract, StringComparison.Ordinal);
+        Assert.Contains("only when they appear in the diff", contract, StringComparison.Ordinal);
         Assert.Contains("Not examined", contract, StringComparison.Ordinal);
-        Assert.Contains("If the product diff is empty after omitting run files, stop", contract, StringComparison.Ordinal);
+        Assert.Contains("If omitting them leaves nothing to review, stop", contract, StringComparison.Ordinal);
         Assert.Contains("drop any finding whose location is a run file", contract, StringComparison.Ordinal);
+        Assert.Contains("any finding that a run file is missing", contract, StringComparison.Ordinal);
 
         Assert.Contains("Pin the product diff", review, StringComparison.Ordinal);
         Assert.Contains("omit run files from the reviewer payload", review, StringComparison.Ordinal);
+        Assert.Contains("only when they", review, StringComparison.Ordinal);
+        Assert.Contains("A missing run file is not a finding", review, StringComparison.Ordinal);
         Assert.Contains("If the product diff is empty", review, StringComparison.Ordinal);
         Assert.Contains("against the product diff", review, StringComparison.Ordinal);
         Assert.DoesNotContain("docs/smoke/", review, StringComparison.Ordinal);
@@ -1395,12 +1402,12 @@ public class SquadContractTests
         Assert.Contains("the product diff. Run files → Not examined", reviewer, StringComparison.Ordinal);
         Assert.Contains("Run files → Not examined", simplifier, StringComparison.Ordinal);
         Assert.Contains("run files → Not examined", security, StringComparison.Ordinal);
-        Assert.Contains("Drop findings whose location is a run file", orchestrator, StringComparison.Ordinal);
+        Assert.Contains("findings that a run file is missing", orchestrator, StringComparison.Ordinal);
 
         Assert.Contains("Reviewers get the product diff", readme, StringComparison.Ordinal);
         Assert.Contains("Reviewers get the product diff", pluginReadme, StringComparison.Ordinal);
-        Assert.Contains("Not examined", readme, StringComparison.Ordinal);
-        Assert.Contains("Not examined", pluginReadme, StringComparison.Ordinal);
+        Assert.Contains("not a finding and not a blocker", readme, StringComparison.Ordinal);
+        Assert.Contains("not a finding and not a blocker", pluginReadme, StringComparison.Ordinal);
 
         Loop_agent_bodies_stay_tiny();
     }

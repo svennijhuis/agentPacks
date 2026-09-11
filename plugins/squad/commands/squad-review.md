@@ -17,9 +17,9 @@ by the diff. Security only when a trust boundary changed.
    - default / `--uncommitted` — unstaged then staged work;
    - `--pr` — the current pull request against its base;
    - `--base main` or `vs main` — `<base>...HEAD`, defaulting to `main`.
-   Pin the product diff: omit run files from the reviewer payload (review contract) and list them
-   under Not examined. Product docs that are the work stay in. If the product diff is empty, say so
-   and stop.
+   Pin the product diff: omit run files from the reviewer payload (review contract) only when they
+   appear in the diff, and list those under Not examined. Product docs that are the work stay in. A
+   missing run file is not a finding. If the product diff is empty, say so and stop.
 2. Decide whether the security gate applies and record the reason.
 3. The main agent directly launches `squad-reviewer`, `squad-simplifier`, and, when applicable, `squad-security-reviewer` in parallel against the product diff.
 4. After every report completes, pass the reports, security decision, `round number: 1`, `plan path: none`, and `verifier evidence: none` to `squad-orchestrator` for normalization and merge only. If it returns an input error for a missing or malformed report, re-ask that producer **once** (hard cap: one re-ask per producer per review round), then merge again with the **same round number**. Never a second re-ask for the same producer in the same round. Never "keep fixing the report until it parses". Do not increment the round for parse repair. After a failed re-ask, or if the budget is spent, merge **once** with that axis marked `accepted — malformed after re-ask` **replacing** the bad payload (**non-blocking**) — do not spawn that producer again. If input-error still returns after the marker was already supplied, stop and surface — no further merge. The orchestrator itself never retries or launches agents.

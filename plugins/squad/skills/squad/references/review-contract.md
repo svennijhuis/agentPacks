@@ -52,27 +52,11 @@ empty result does not state what was examined; or a finding's identity, location
 cannot be recovered. Presentation differences alone are not malformed. The orchestrator may
 normalize formatting, never meaning.
 
-## Product diff
-
-The change under review is the **product diff**: source and product docs that are the work.
-
-**Run files** are Squad artifacts. They stay on the branch, often uncommitted after `/squad` or a
-saved `/squad-review`. Omit those hunks from every reviewer payload. List them under **Not
-examined**. Findings target product paths only. Planned review still *reads* `docs/plans/` as spec.
-
-| Path | Role |
-|---|---|
-| `docs/plans/` | Plan; spec input, not a review target |
-| `docs/reviews/` | Saved `/squad-review` report |
-| `docs/learnings.md` | Append-only run log |
-| `docs/smoke/` | `/scenarios` output |
-
-Pathspec: `':(exclude)docs/plans' ':(exclude)docs/reviews' ':(exclude)docs/learnings.md' ':(exclude)docs/smoke'`.
-If the product diff is empty after omitting run files, stop.
-
-On merge, drop any finding whose location is a run file.
-
 ## Reviewer report
+
+**Examined** is the product change: source and product docs that are the work. **Not examined**
+lists **run files** only when they appear in the diff. A run file that is absent is not a finding
+and never `fix` or `replan`. `/squad-review` with no plan is expected.
 
 ```markdown
 ## <agent-name> — round <n>
@@ -88,6 +72,21 @@ On merge, drop any finding whose location is a run file.
 
 Order most severe first. Report numbers are local; the orchestrator renumbers after merging.
 When there are no findings, omit the table and write `No findings.` after the scope fields.
+
+When run files appear in the diff, omit those hunks from the reviewer payload. Planned review
+still *reads* `docs/plans/` as spec. Findings target product paths only.
+
+| Path | Role |
+|---|---|
+| `docs/plans/` | Plan; spec input, not a review target |
+| `docs/reviews/` | Saved `/squad-review` report |
+| `docs/learnings.md` | Append-only run log |
+| `docs/smoke/` | `/scenarios` output |
+
+Pathspec when those paths are in the diff: `':(exclude)docs/plans' ':(exclude)docs/reviews' ':(exclude)docs/learnings.md' ':(exclude)docs/smoke'`.
+If omitting them leaves nothing to review, stop.
+
+On merge, drop any finding whose location is a run file, and any finding that a run file is missing.
 
 ## Verifier report
 

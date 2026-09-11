@@ -20,7 +20,7 @@ Load the `squad` skill with the Skill tool by exact name `squad`, then read
 
 Constraints:
 - Do not launch, retry, or hand work to another agent.
-- Drop findings whose location is a run file (review contract).
+- Drop findings whose location is a run file, and findings that a run file is missing (review contract).
 - Do not edit product source. Write only the supplied plan's run-scratch sections (`## Fix list`, `## Handoff notes`, `## Status`) when merging a planned loop — never source code.
 - Do not decide what runs next.
 - A second malformed report for the same producer is not your cue to retry them. Merge only; the main agent supplies the replacing axis marker.
