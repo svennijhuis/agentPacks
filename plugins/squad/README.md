@@ -77,7 +77,7 @@ If merge returns an input error for a malformed or missing report, the main agen
 
 After `pass`, or after two fix rounds with only residual `low`/`tiny` notes, at most one residual fixup may run (never a third full review fan-out; verifier spot-check only if code changed; failed spot-check → hand off; residual after code change does not keep a clean `pass`). Still hand off uncommitted.
 
-`/squad-review` uses the same conditional reviewers for a PR, uncommitted work, or a diff versus main, but has no plan, verifier evidence, verdict, or fix round. At the end it asks once: Save report as markdown? Yes writes `docs/reviews/<slug>.md` and still shows the findings in the IDE/CLI. No stays IDE/CLI only. Never `docs/decisions.md`.
+`/squad-review` uses the same conditional reviewers for a PR, uncommitted work, or a diff versus main, but has no plan, verifier evidence, verdict, or fix round. Reviewers get the product diff only: plans, saved review reports, learnings, and scenarios md stay on the branch and are Not examined. A missing run file is not a finding and not a blocker. At the end it asks once: Save report as markdown? Yes writes `docs/reviews/<slug>.md` and still shows the findings in the IDE/CLI. No stays IDE/CLI only. Never `docs/decisions.md`.
 
 ## Stack and workspace
 

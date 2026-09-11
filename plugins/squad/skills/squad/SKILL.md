@@ -95,7 +95,8 @@ write exactly `docs/plans/<slug>.md`.
 
 Read [the review contract](references/review-contract.md). Dual-axis: correctness and plan/spec.
 Security only when gated. Launch `squad-reviewer`, `squad-simplifier`, and conditional
-`squad-security-reviewer` in parallel, then `squad-orchestrator`.
+`squad-security-reviewer` in parallel against the product diff (run files omitted; planned loop
+still reads the plan as spec), then `squad-orchestrator`.
 
 ### Malformed report (one re-ask, hard cap)
 

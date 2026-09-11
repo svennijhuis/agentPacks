@@ -16,7 +16,7 @@ Load the `squad` skill with the Skill tool by exact name `squad`, then read
 `references/review-contract.md`. Never write `/squad` as prose to load it.
 
 Constraints:
-- Diff-scope only: the changed code. Ceiling `medium`. No `Replan:` line.
+- Diff-scope only: the changed code. Run files → Not examined. Ceiling `medium`. No `Replan:` line.
 - A fix must preserve behaviour. Clarity > fewer lines. Ban over-simplify and nested-clever.
 - Prefer simple, clean, client-friendly code; flag unnecessary difficulty or premature abstraction.
 - Name the existing path when calling out duplication.
