@@ -122,9 +122,12 @@ Do not re-litigate these without a new ADR. Inspired by multi-agent harness rese
 scope for locked v1:
 
 - Peer agents coordinating via a shared state or lock file
-- Recursive subplanner trees or eager multi-worker fan-out
+- Recursive subplanner trees or eager multi-worker fan-out (pstack Orchestrate, Cursor `orchestrate`)
+- Superpowers sequential per-task two-stage review
+- MAO architect DAGs, reflector loops, or isolated per-task checkouts
 - Continuous autonomous multi-hour runs without human plan confirm
 - Auto-rewriting skills from `docs/learnings.md`
 - Growing `squad-orchestrator` into a global quality gate / integrator
+- Thermos / pstack playbook catalogs (22 playbooks). Dual-axis parallel review and the small-change skip are already here; extra playbooks make the pack larger, not simpler.
 
 See [ADD-SKILL.md](../../docs/ADD-SKILL.md), [ADD-HOOK.md](../../docs/ADD-HOOK.md), [ADD-AGENT.md](../../docs/ADD-AGENT.md), and [ADD-RULE.md](../../docs/ADD-RULE.md).

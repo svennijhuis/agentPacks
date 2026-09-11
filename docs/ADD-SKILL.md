@@ -97,9 +97,10 @@ copilot plugin install squad@agentpacks
 
 5. Reload, then smoke `/squad` or `/squad-review` once.
 
-`validate-all --out` writes the marketplace-shaped tree: client namespaces, remapped agent `model`
-fields, and `skills/<name>/agents/openai.yaml` for user-invoked skills. Inspect the fixture plugin
-you added there:
+`validate-all --out` writes the marketplace-shaped tree: four root catalogs (Claude, Codex,
+Copilot, Cursor), client namespaces, remapped agent `model` fields, and
+`skills/<name>/agents/openai.yaml` for user-invoked skills. Inspect the fixture plugin you added
+there:
 
 ```bash
 ls /tmp/agentpacks-marketplace/plugins/<plugin>/skills/<name>

@@ -81,10 +81,11 @@ A product repository can point Claude at agentPacks automatically:
   "extraKnownMarketplaces": {
     "agentpacks": {
       "source": {
-        "source": "url",
-        "url": "https://github.com/svennijhuis/agentPacks.git",
+        "source": "github",
+        "repo": "svennijhuis/agentPacks",
         "ref": "marketplace"
-      }
+      },
+      "autoUpdate": true
     }
   },
   "enabledPlugins": {
@@ -92,5 +93,7 @@ A product repository can point Claude at agentPacks automatically:
   }
 }
 ```
+
+`url` is a direct fetch of `marketplace.json` and does not take `ref`. Use `github` + `repo` + `ref` so Claude clones the generated branch. `autoUpdate: true` refreshes the marketplace clone on startup; plugin cache updates still follow the catalog SHA because entries omit `version`.
 
 Add this only when a team wants it.

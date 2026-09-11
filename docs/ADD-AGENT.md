@@ -68,7 +68,7 @@ tools it needs. Load skills with the Skill tool by exact name.
 
 | Path | For |
 |---|---|
-| `agents/<name>.md` | Authored portable tier (source). Cursor's plugin loader still reads this root file |
+| `agents/<name>.md` | Authored portable tier (source). Not what Cursor loads |
 | `.cursor-plugin/agents/<name>.md` | Cursor — remapped id (`inherit`, `composer-2`, `grok-4.5`, `claude-opus-5`) |
 | `com.anthropic.claude-code/agents/<name>.md` | Claude — remapped id, tool names in PascalCase |
 | `com.github.copilot/agents/<name>.agent.md` | Copilot — remapped id; `model` is never dropped |

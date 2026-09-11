@@ -18,6 +18,8 @@ internal sealed class RepositoryContext
 
     public string CopilotMarketplaceRelativePath => Path.Combine(".github", "plugin", "marketplace.json");
 
+    public string CursorMarketplaceRelativePath => Path.Combine(".cursor-plugin", "marketplace.json");
+
     public DiagnosticCollector Diagnostics { get; } = new();
 
     /// <summary>Filled by source validation so generation does not parse the catalog twice.</summary>

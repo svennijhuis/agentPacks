@@ -33,9 +33,11 @@ internal sealed record ClientProfile(
         HookDocumentVersion: null);
 
     /// <summary>
-    /// Cursor is the only client with no documented way to point at a custom path, so it keeps the
-    /// plugin root — which is also where the neutral source is authored. Its official template uses
-    /// plugin-relative commands, so no root token is substituted.
+    /// Cursor keeps the plugin root for commands, rules and hooks. Remapped agents are generated
+    /// under .cursor-plugin/agents/ and declared on .cursor-plugin/plugin.json. The repo catalog
+    /// lives at .cursor-plugin/marketplace.json for Team Marketplace import; there is still no
+    /// <c>cursor plugin marketplace add</c> CLI. Its official template uses plugin-relative
+    /// commands, so no root token is substituted.
     /// </summary>
     public static readonly ClientProfile Cursor = new(
         Client.Cursor,

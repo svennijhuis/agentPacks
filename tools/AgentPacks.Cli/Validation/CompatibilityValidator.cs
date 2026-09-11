@@ -36,6 +36,10 @@ internal sealed class CompatibilityValidator(RepositoryContext context)
             {
                 ValidateMarketplace(file);
             }
+            else if (string.Equals(relative, context.CursorMarketplaceRelativePath.Replace('\\', '/'), StringComparison.Ordinal))
+            {
+                ValidateCursorMarketplace(file);
+            }
         }
     }
 
@@ -101,6 +105,122 @@ internal sealed class CompatibilityValidator(RepositoryContext context)
         if (!Directory.Exists(Path.Combine(context.Root, source[2..])))
         {
             context.Diagnostics.Policy(path, $"Codex plugin entry '{name}' source '{source}' does not exist.");
+        }
+    }
+
+    private void ValidateCursorMarketplace(GeneratedFile file)
+    {
+        var path = file.RelativePath.Replace('\\', '/');
+
+        if (file.Content is not JsonObject marketplace)
+        {
+            context.Diagnostics.Policy(path, "generated marketplace must be a JSON object.");
+            return;
+        }
+
+        if (string.IsNullOrWhiteSpace(marketplace["name"]?.GetValue<string>()))
+        {
+            context.Diagnostics.Policy(path, "generated marketplace must define 'name'.");
+        }
+
+        if (marketplace["owner"] is not JsonObject)
+        {
+            context.Diagnostics.Policy(path, "generated marketplace must define an 'owner' object.");
+        }
+
+        if (marketplace["plugins"] is not JsonArray plugins)
+        {
+            context.Diagnostics.Policy(path, "generated marketplace must define a 'plugins' array.");
+            return;
+        }
+
+        var seen = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+
+        foreach (var node in plugins.OfType<JsonObject>())
+        {
+            ValidateCursorEntry(node, path, seen);
+        }
+    }
+
+    private void ValidateCursorEntry(JsonObject entry, string path, Dictionary<string, string> seen)
+    {
+        var name = entry["name"]?.GetValue<string>();
+
+        if (string.IsNullOrWhiteSpace(name))
+        {
+            context.Diagnostics.Policy(path, "every generated plugin entry must define 'name'.");
+            return;
+        }
+
+        if (!AgentPluginSpec.MarketplaceSafeName.IsMatch(name))
+        {
+            context.Diagnostics.Policy(
+                path,
+                $"plugin name '{name}' is valid for Agent Plugins but not for the generated provider " +
+                "marketplaces, which require kebab-case names without periods. Rename the plugin.");
+        }
+
+        if (seen.TryGetValue(name, out var existing))
+        {
+            context.Diagnostics.Policy(
+                path, $"plugin names '{existing}' and '{name}' collide after normalization.");
+        }
+        else
+        {
+            seen[name] = name;
+        }
+
+        if (entry["version"] is not null)
+        {
+            context.Diagnostics.Policy(
+                path,
+                $"plugin entry '{name}' declares 'version'. It must be omitted so update detection " +
+                "falls back to the Git commit SHA.");
+        }
+
+        if (entry["author"] is { } author && author is not JsonObject)
+        {
+            context.Diagnostics.Policy(path, $"plugin entry '{name}' must express 'author' as an object.");
+        }
+
+        ValidateCursorSource(entry, name, path);
+    }
+
+    /// <summary>
+    /// Official Cursor catalogs write repo-relative paths without <c>./</c>. Claude and Copilot
+    /// still require the prefix. Keep this catalog in Cursor's shape so Team Marketplace import
+    /// matches cursor/plugins, and so Codex (which prefers .agents/plugins/marketplace.json) does
+    /// not treat a Claude-shaped fourth-fallback file as its own catalog.
+    /// </summary>
+    private void ValidateCursorSource(JsonObject entry, string name, string path)
+    {
+        var source = entry["source"]?.GetValue<string>();
+
+        if (string.IsNullOrWhiteSpace(source))
+        {
+            context.Diagnostics.Policy(path, $"plugin entry '{name}' must define 'source'.");
+            return;
+        }
+
+        if (source.StartsWith("./", StringComparison.Ordinal) || Path.IsPathRooted(source))
+        {
+            context.Diagnostics.Policy(
+                path,
+                $"Cursor plugin entry '{name}' source '{source}' must be a repo-relative path without './'.");
+            return;
+        }
+
+        if (PathUtils.HasTraversalSegment(source))
+        {
+            context.Diagnostics.Policy(
+                path, $"Cursor plugin entry '{name}' source '{source}' must not traverse outside the repository.");
+            return;
+        }
+
+        if (!Directory.Exists(Path.Combine(context.Root, source)))
+        {
+            context.Diagnostics.Policy(
+                path, $"Cursor plugin entry '{name}' source '{source}' does not exist.");
         }
     }
 

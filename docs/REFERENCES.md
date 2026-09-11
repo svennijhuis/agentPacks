@@ -36,6 +36,7 @@ There is no JSON Schema for skills. The normative frontmatter table in the speci
 ## Cursor
 
 - Plugins — https://cursor.com/docs/plugins
+- Plugin reference (`.cursor-plugin/marketplace.json`) — https://cursor.com/docs/reference/plugins
 - Marketplace — https://cursor.com/blog/marketplace
 
 ## OpenAI Codex

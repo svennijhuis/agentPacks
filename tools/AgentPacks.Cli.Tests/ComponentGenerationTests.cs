@@ -25,10 +25,11 @@ public sealed class ComponentGenerationTests
 
     /// <summary>
     /// Authored agents/*.md stay the portable source. Cursor remapped ids are generated beside
-    /// the Cursor manifest so they do not overwrite that source.
+    /// the Cursor manifest so they do not overwrite that source, and plugin.json points at that
+    /// remapped tree instead of the default root agents/ scan.
     /// </summary>
     [Fact]
-    public void Cursor_reads_the_authored_agent_directly()
+    public void Cursor_loads_remapped_agents_from_the_cursor_plugin_tree()
     {
         using var repo = new TestRepository();
         var run = repo.WithValidPlugin().WithAgent("security-reviewer").ValidateAndGenerate();
@@ -39,6 +40,9 @@ public sealed class ComponentGenerationTests
             "model: \"inherit\"",
             run.File($"{Plugin}/.cursor-plugin/agents/security-reviewer.md").Text,
             StringComparison.Ordinal);
+        Assert.Equal(
+            "./.cursor-plugin/agents/",
+            run.File($"{Plugin}/.cursor-plugin/plugin.json").Content["agents"]!.GetValue<string>());
     }
 
     /// <summary>Claude names its tools in PascalCase; the neutral format uses Cursor's lowercase.</summary>
