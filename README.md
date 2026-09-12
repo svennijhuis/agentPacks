@@ -77,7 +77,7 @@ claude plugin marketplace update agentpacks
 
 ## Cursor
 
-Cursor supports the Agent Plugins standard. Until this repository is listed in a Cursor marketplace, install the plugins through Cursor's supported local plugin directory:
+Cursor supports the Agent Plugins standard. There is still no `cursor plugin marketplace add` CLI. Until this repository is listed in the public Cursor Marketplace, install the plugins through Cursor's supported local plugin directory:
 
 ```shell
 git clone --branch marketplace --single-branch https://github.com/svennijhuis/agentPacks.git ~/.cursor/agentPacks
@@ -96,7 +96,7 @@ Create only the links for the plugins you want, then restart Cursor or run **Dev
 git -C ~/.cursor/agentPacks pull --ff-only
 ```
 
-Teams and Enterprise administrators can instead import this repository's `marketplace` branch as a team marketplace; users can then install plugins from **Customize**.
+Teams and Enterprise administrators can import this repository's `marketplace` branch as a team marketplace. The generated `.cursor-plugin/marketplace.json` lists every pack, so **Import from Repo** and Auto Refresh pick them all up. Users then install from **Customize**.
 
 ## Local development
 

@@ -258,6 +258,14 @@ internal sealed class ClientTreeGenerator(RepositoryContext context, ModelCatalo
             }
         }
 
+        // Cursor's default scan is root agents/ (portable tiers). Remapped ids live under
+        // .cursor-plugin/agents/; declaring the path replaces folder discovery so Cursor
+        // loads those copies and does not also scan the authored files.
+        if (plugin.Agents.Count > 0)
+        {
+            cursor["agents"] = "./.cursor-plugin/agents/";
+        }
+
         addJson(".cursor-plugin/plugin.json", cursor);
 
         foreach (var agent in plugin.Agents)
