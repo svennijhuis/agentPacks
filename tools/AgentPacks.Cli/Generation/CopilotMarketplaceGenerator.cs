@@ -6,6 +6,8 @@ namespace AgentPacks.Cli.Generation;
 /// <summary>
 /// Routes Copilot to its generated namespace. Copilot checks .github/plugin/marketplace.json before
 /// the Claude-compatible catalog, so each client receives component paths in its own dialect.
+/// <c>strict</c> is omitted: Copilot's documented default is true, and the flag is schema
+/// validation, not Claude path-only routing. github/copilot-cli#1513 (honouring false) is open.
 /// </summary>
 internal sealed class CopilotMarketplaceGenerator(RepositoryContext context)
 {
@@ -39,8 +41,7 @@ internal sealed class CopilotMarketplaceGenerator(RepositoryContext context)
         {
             ["name"] = plugin.Name ?? plugin.DirectoryName,
             ["source"] = $"./plugins/{plugin.DirectoryName}",
-            ["description"] = manifest["description"]?.GetValue<string>() ?? plugin.DirectoryName,
-            ["strict"] = false
+            ["description"] = manifest["description"]?.GetValue<string>() ?? plugin.DirectoryName
         };
 
         foreach (var field in (string[])["author", "homepage", "repository", "license", "keywords"])

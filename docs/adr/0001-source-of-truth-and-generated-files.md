@@ -12,14 +12,15 @@ The obvious failure mode is duplication: one copy of every skill per client, dri
 
 **The Agent Plugin directory is the only authored content.** `plugins/<plugin>/plugin.json`, `skills/`, `mcp.json` and namespaced client extensions are what developers edit.
 
-**Rules, agents, commands and hooks are authored once in a neutral form and generated per client.** The specification defines none of the four, and the clients collide: Claude, Cursor and Codex all auto-discover `hooks/hooks.json` in three incompatible dialects. The authored form lives at the plugin root in Cursor's dialect — `rules/*.mdc`, `agents/*.md`, `commands/*.md`, plus a neutral `hooks.source.json` that no client discovers — and the tooling generates a tree per client. Cursor keeps the root because it is the one client with no documented path override; Claude is redirected by component paths in its marketplace entry and Codex by `.codex-plugin/plugin.json`. Exception: Claude marketplace rejects a `hooks` path or array, so `pack-check` and `git` omit that field and emit Claude-shaped `hooks/hooks.json` at the plugin root for auto-discovery. Copilot still reads its namespaced dialect.
+**Rules, agents, commands and hooks are authored once in a neutral form and generated per client.** The specification defines none of the four, and the clients collide: Claude, Cursor and Codex all auto-discover `hooks/hooks.json` in three incompatible dialects. The authored form lives at the plugin root in Cursor's dialect — `rules/*.mdc`, `agents/*.md`, `commands/*.md`, plus a neutral `hooks.source.json` that no client discovers — and the tooling generates a tree per client. Cursor keeps the root for commands, rules and hooks; its generated `.cursor-plugin/plugin.json` points `agents` at the remapped copies under `.cursor-plugin/agents/` so Cursor does not scan the authored portable tiers. Claude is redirected by component paths in its marketplace entry and Codex by `.codex-plugin/plugin.json`. Exception: Claude marketplace rejects a `hooks` path or array, so `pack-check` and `git` omit that field and emit Claude-shaped `hooks/hooks.json` at the plugin root for auto-discovery. Copilot still reads its namespaced dialect.
 
 **External skills are authored as plugin-local URL records and materialized by publication.** Each plugin owns `external-skills.json`, so provenance and destination are visible together. GitHub Actions fetches each pin into that plugin's `skills/` tree; contributors never copy upstream Markdown by hand.
 
-**Provider compatibility is generated, not authored.** The .NET tooling emits the Claude, Codex and
-GitHub Copilot root catalogs, provider component trees, client manifests, hook dialects, MCP adapters,
-and skill-standard references. Catalog entries point at the real plugin directory, so portable
-skills exist once.
+**Provider compatibility is generated, not authored.** The .NET tooling emits the Claude, Codex,
+GitHub Copilot and Cursor root catalogs, provider component trees, client manifests, hook dialects,
+MCP adapters, and skill-standard references. Catalog entries point at the real plugin directory, so
+portable skills exist once. The Cursor catalog stays thin (name / source / description) so it
+matches cursor/plugins `marketplace.schema.json`.
 
 **Canonical language standards are authored once.** A language pack keeps Markdown under
 `standards/` and maps document ids to consuming skills in `standards.source.json`. Generation copies

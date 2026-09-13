@@ -31,6 +31,10 @@ internal sealed class CompatibilityValidator(RepositoryContext context)
             {
                 ValidateCodexMarketplace(file);
             }
+            else if (string.Equals(relative, context.CursorMarketplaceRelativePath.Replace('\\', '/'), StringComparison.Ordinal))
+            {
+                ValidateCursorMarketplace(file);
+            }
             else if (string.Equals(relative, context.MarketplaceRelativePath.Replace('\\', '/'), StringComparison.Ordinal)
                      || string.Equals(relative, context.CopilotMarketplaceRelativePath.Replace('\\', '/'), StringComparison.Ordinal))
             {
@@ -101,6 +105,134 @@ internal sealed class CompatibilityValidator(RepositoryContext context)
         if (!Directory.Exists(Path.Combine(context.Root, source[2..])))
         {
             context.Diagnostics.Policy(path, $"Codex plugin entry '{name}' source '{source}' does not exist.");
+        }
+    }
+
+    /// <summary>
+    /// Cursor's published marketplace schema is additionalProperties:false. Entries accept only
+    /// name, source, description, and minClientVersions. Official catalogs write sources without
+    /// a "./" prefix (cursor/plugins uses "teaching" and "third_party/gmail").
+    /// </summary>
+    private void ValidateCursorMarketplace(GeneratedFile file)
+    {
+        var path = file.RelativePath.Replace('\\', '/');
+
+        if (file.Content is not JsonObject marketplace)
+        {
+            context.Diagnostics.Policy(path, "generated Cursor marketplace must be a JSON object.");
+            return;
+        }
+
+        foreach (var key in marketplace.Select(p => p.Key))
+        {
+            if (key is not ("name" or "owner" or "metadata" or "plugins"))
+            {
+                context.Diagnostics.Policy(
+                    path, $"Cursor marketplace field '{key}' is not in the official catalog schema.");
+            }
+        }
+
+        if (string.IsNullOrWhiteSpace(marketplace["name"]?.GetValue<string>()))
+        {
+            context.Diagnostics.Policy(path, "generated Cursor marketplace must define 'name'.");
+        }
+
+        if (marketplace["owner"] is not JsonObject)
+        {
+            context.Diagnostics.Policy(path, "generated Cursor marketplace must define an 'owner' object.");
+        }
+
+        if (marketplace["plugins"] is not JsonArray plugins)
+        {
+            context.Diagnostics.Policy(path, "generated Cursor marketplace must define a 'plugins' array.");
+            return;
+        }
+
+        var seen = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+
+        foreach (var node in plugins)
+        {
+            if (node is JsonObject entry)
+            {
+                ValidateCursorEntry(entry, path, seen);
+            }
+        }
+    }
+
+    private void ValidateCursorEntry(JsonObject entry, string path, Dictionary<string, string> seen)
+    {
+        var name = entry["name"]?.GetValue<string>();
+
+        if (string.IsNullOrWhiteSpace(name))
+        {
+            context.Diagnostics.Policy(path, "every generated Cursor plugin entry must define 'name'.");
+            return;
+        }
+
+        if (!AgentPluginSpec.MarketplaceSafeName.IsMatch(name))
+        {
+            context.Diagnostics.Policy(
+                path,
+                $"plugin name '{name}' is valid for Agent Plugins but not for the generated provider " +
+                "marketplaces, which require kebab-case names without periods. Rename the plugin.");
+        }
+
+        if (seen.TryGetValue(name, out var existing))
+        {
+            context.Diagnostics.Policy(
+                path, $"plugin names '{existing}' and '{name}' collide after normalization.");
+        }
+        else
+        {
+            seen[name] = name;
+        }
+
+        foreach (var key in entry.Select(p => p.Key))
+        {
+            if (key is not ("name" or "source" or "description" or "minClientVersions"))
+            {
+                context.Diagnostics.Policy(
+                    path,
+                    $"Cursor plugin entry '{name}' field '{key}' is not in the official catalog schema. " +
+                    "Put identity and component paths on .cursor-plugin/plugin.json.");
+            }
+        }
+
+        if (entry["version"] is not null)
+        {
+            context.Diagnostics.Policy(
+                path,
+                $"plugin entry '{name}' declares 'version'. It must be omitted so update detection " +
+                "falls back to the Git commit SHA.");
+        }
+
+        var source = entry["source"]?.GetValue<string>();
+
+        if (string.IsNullOrWhiteSpace(source))
+        {
+            context.Diagnostics.Policy(path, $"Cursor plugin entry '{name}' must define a string 'source'.");
+            return;
+        }
+
+        if (source.StartsWith("./", StringComparison.Ordinal))
+        {
+            context.Diagnostics.Policy(
+                path,
+                $"Cursor plugin entry '{name}' source '{source}' must be the official repo-relative " +
+                "shape without './' (for example 'plugins/squad').");
+            return;
+        }
+
+        if (Path.IsPathRooted(source) || PathUtils.HasTraversalSegment(source))
+        {
+            context.Diagnostics.Policy(
+                path, $"Cursor plugin entry '{name}' source '{source}' must stay inside the marketplace root.");
+            return;
+        }
+
+        if (!Directory.Exists(Path.Combine(context.Root, source)))
+        {
+            context.Diagnostics.Policy(path, $"Cursor plugin entry '{name}' source '{source}' does not exist.");
         }
     }
 
