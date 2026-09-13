@@ -1,6 +1,6 @@
 ---
 name: learnings-digest
-description: User-invoked digest of docs/learnings.md. Summarize the append-only log; do not rewrite skills. Type the skill name; do not model-invoke.
+description: When summarizing docs/learnings.md without rewriting skills.
 license: UNLICENSED
 disable-model-invocation: true
 user-invocable: false

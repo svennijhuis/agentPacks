@@ -30,9 +30,10 @@ Skills are the one component every client loads identically, which makes them th
 The names *are* the interface. A skill called `dotnet-testing` instead of `dotnet-test-patterns` is a skill the loop silently never loads — which is why `LanguagePackValidator` fails the build on a near-miss rather than letting it ship.
 
 The orchestrator loads these with the Skill tool by exact name, never slash-prose. Slot skills are
-internals: set `metadata.audience: loop` and say so in the description so they do not look like a
-second user-facing entrypoint. They must stay model-invoked; `disable-model-invocation` would hide
-them from the loop. Copilot: set `user-invocable: false`. The first body line is exactly
+internals: set `metadata.audience: loop` and say they are not a user entrypoint in the body
+(after the Internal line). Keep the description a short when-to-use line. They must stay
+model-invoked; `disable-model-invocation` would hide them from the loop. Copilot: set
+`user-invocable: false`. The first body line is exactly
 `Internal. Do not run directly — Squad loads by exact Skill name.`
 
 ## Framework skills are not slots

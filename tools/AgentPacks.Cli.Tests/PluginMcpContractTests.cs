@@ -1,4 +1,5 @@
 using System.Text.Json.Nodes;
+using AgentPacks.Cli.Io;
 using AgentPacks.Cli.Verification;
 
 namespace AgentPacks.Cli.Tests;
@@ -120,6 +121,7 @@ public sealed class PluginMcpContractTests
     public void Authored_skills_agents_and_commands_share_one_frontmatter_shape()
     {
         var root = SourceRoot();
+        var loopSkills = 0;
         foreach (var skill in Directory.GetFiles(Path.Combine(root, "plugins"), "SKILL.md",
                      SearchOption.AllDirectories))
         {
@@ -129,13 +131,24 @@ public sealed class PluginMcpContractTests
             Assert.Contains("description:", text, StringComparison.Ordinal);
             Assert.Contains("license:", text, StringComparison.Ordinal);
             Assert.DoesNotContain("delivery", text, StringComparison.OrdinalIgnoreCase);
-            if (text.Contains("Internal loop skill", StringComparison.Ordinal))
+            var parsed = Frontmatter.TryParse(text, out _);
+            var metadata = parsed?.StringMap("metadata");
+            var isLoopAudience = metadata is not null
+                && metadata.TryGetValue("audience", out var audience)
+                && audience.Equals("loop", StringComparison.Ordinal);
+            if (isLoopAudience || parsed?.Body.Contains("Loop-only", StringComparison.Ordinal) == true)
             {
+                loopSkills++;
+                Assert.True(isLoopAudience, $"{directoryName} says Loop-only but metadata.audience is not loop.");
                 Assert.Contains("audience: loop", text, StringComparison.Ordinal);
                 Assert.Contains("not as a user entrypoint", text, StringComparison.Ordinal);
+                Assert.Contains("Loop-only", parsed!.Body, StringComparison.Ordinal);
+                Assert.Contains(LanguagePackContractTests.InternalDoNotRunLine, text, StringComparison.Ordinal);
                 Assert.DoesNotContain("disable-model-invocation: true", text, StringComparison.Ordinal);
             }
         }
+
+        Assert.True(loopSkills >= 10, $"loop-audience scan must run; found {loopSkills}.");
 
         foreach (var agent in Directory.GetFiles(Path.Combine(root, "plugins"), "*.md",
                      SearchOption.AllDirectories).Where(path => path.Contains($"{Path.DirectorySeparatorChar}agents{Path.DirectorySeparatorChar}")))
