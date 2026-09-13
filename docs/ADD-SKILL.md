@@ -17,7 +17,7 @@ Agent Skills publishes no JSON Schema, so the validator implements the specifica
 | Field | Required | Rule |
 |---|---|---|
 | `name` | yes | 1–64 characters, lowercase letters, digits and single hyphens. No leading or trailing hyphen, no `--`, **no periods**. Must equal the directory name. |
-| `description` | yes | Non-empty, at most 1024 characters. Say what it does *and* when to use it. |
+| `description` | yes | Non-empty, at most 1024 characters. Short when-to-use line only. |
 | `license` | no | License name or a reference to a bundled license file. |
 | `compatibility` | no | At most 500 characters. Only when the skill has real environment requirements. |
 | `metadata` | no | A mapping of string keys to string values. Contracted `<lang>-*` slots must set `audience: loop`. |
@@ -32,7 +32,7 @@ Authored skills in this repo use that short frontmatter. A loop slot (not a user
 ```markdown
 ---
 name: dotnet-build
-description: Internal loop skill. Loaded by the Squad orchestrator by exact Skill tool name, not as a user entrypoint. How a .NET repository is laid out, restored and built.
+description: When building, restoring, or formatting a .NET repository.
 license: UNLICENSED
 user-invocable: false
 metadata:
@@ -48,15 +48,15 @@ by exact name, never slash-prose.
 
 ## Writing the description
 
-The description is loaded for every skill at startup, and it is the only thing an agent uses to decide whether to open the skill. Write it for that decision.
+The description is loaded for every skill at startup, and it is the only thing an agent uses to decide whether to open the skill. Write a short when-to-use line. Cut essays, marketing, and false-trigger wording.
 
-Good: `Extracts text and tables from PDFs, fills forms, merges files. Use when working with PDF documents.`
+Good: `When working with PDF documents.`
 
-Poor: `Helps with PDFs.`
+Poor: `Helps with PDFs. Extracts text and tables, fills forms, merges files. Do not model-invoke; type the skill.`
 
 ## Writing the body
 
-- Keep `SKILL.md` under roughly 500 lines. Move detail into `references/` and link to it — agents load those files only when needed.
+- Keep `SKILL.md` a thin router. Move operational detail into `references/` and link to it — agents load those files only when needed. The specification allows up to roughly 500 lines; shipped skills stay Matt-tiny.
 - Put runnable code in `scripts/`, static resources in `assets/`.
 - Reference other files with paths relative to the skill root, one level deep.
 - A language-pack slot names its canonical docs under `Standards in force:` and tells the agent to cite the filename during review and build. Load the slot with the Skill tool by exact name.

@@ -1,6 +1,6 @@
 ---
 name: dotnet-solution
-description: Internal loop skill. Loaded by the Squad orchestrator by exact Skill tool name, not as a user entrypoint. Read-only local view of a .NET solution and package graph via `dotnet sln` / `dotnet list` and project files. Never a remote service.
+description: When listing a local .NET solution or package graph.
 license: UNLICENSED
 user-invocable: false
 metadata:
@@ -11,7 +11,7 @@ Internal. Do not run directly — Squad loads by exact Skill name.
 
 # .NET solution (local, read-only)
 
-Local machine only. No shipped MCP server. No credentials.
+Loop-only; not as a user entrypoint. Local machine only. No shipped MCP server. No credentials.
 
 1. `dotnet sln <solution> list`
 2. `dotnet list <csproj> package`

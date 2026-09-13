@@ -167,6 +167,12 @@ public sealed class TonightCriteriaTests
         nameof(HttpScenariosContractTests.Copilot_scenarios_command_name_differs_from_skill))]
     [InlineData("51 Slash_stays_scenarios_or_squad_scenarios", typeof(HttpScenariosContractTests),
         nameof(HttpScenariosContractTests.Slash_stays_scenarios_or_squad_scenarios))]
+    [InlineData("52 Skill_descriptions_are_short_when_to_use", typeof(SkillHygieneContractTests),
+        nameof(SkillHygieneContractTests.Skill_descriptions_are_short_when_to_use))]
+    [InlineData("52 Skill_bodies_progressive_disclosure_to_references", typeof(SkillHygieneContractTests),
+        nameof(SkillHygieneContractTests.Skill_bodies_progressive_disclosure_to_references))]
+    [InlineData("52 No_astra_personality_in_portable_skills", typeof(SkillHygieneContractTests),
+        nameof(SkillHygieneContractTests.No_astra_personality_in_portable_skills))]
     public void Each_ticket_criterion_has_a_proving_test(string criterion, Type fixture, string method)
     {
         Assert.True(
