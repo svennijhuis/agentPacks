@@ -147,6 +147,7 @@ public class SquadContractTests
         Assert.Contains("`pass` additionally requires", contract, StringComparison.OrdinalIgnoreCase);
         Assert.Contains("fail` or `not verified` row blocks `pass", contract, StringComparison.Ordinal);
         Assert.Contains("Use the supplied plan path as `Location`", contract, StringComparison.Ordinal);
+        Assert.Contains("Those synthesized rows are not run-file findings", contract, StringComparison.Ordinal);
         Assert.Contains("## Orchestrator input error", contract, StringComparison.Ordinal);
         Assert.Contains("Round 1 is the initial implementation review", contract, StringComparison.Ordinal);
     }
@@ -1384,6 +1385,9 @@ public class SquadContractTests
         Assert.Contains("If omitting them leaves nothing to review, stop", contract, StringComparison.Ordinal);
         Assert.Contains("drop any finding whose location is a run file", contract, StringComparison.Ordinal);
         Assert.Contains("any finding that a run file is missing", contract, StringComparison.Ordinal);
+        Assert.Contains("Keep synthesized `squad-verifier` rows that use the plan path as `Location`", contract, StringComparison.Ordinal);
+        Assert.Contains("Those synthesized rows are not run-file findings", contract, StringComparison.Ordinal);
+        Assert.Contains("Use the supplied plan path as `Location`", contract, StringComparison.Ordinal);
 
         Assert.Contains("Pin the product diff", review, StringComparison.Ordinal);
         Assert.Contains("omit run files from the reviewer payload", review, StringComparison.Ordinal);
@@ -1401,6 +1405,7 @@ public class SquadContractTests
         Assert.Contains("Run files → Not examined", simplifier, StringComparison.Ordinal);
         Assert.Contains("run files → Not examined", security, StringComparison.Ordinal);
         Assert.Contains("findings that a run file is missing", orchestrator, StringComparison.Ordinal);
+        Assert.Contains("except synthesized verifier rows that use the plan path as Location", orchestrator, StringComparison.Ordinal);
 
         Assert.Contains("Reviewers get the product diff", readme, StringComparison.Ordinal);
         Assert.Contains("Reviewers get the product diff", pluginReadme, StringComparison.Ordinal);

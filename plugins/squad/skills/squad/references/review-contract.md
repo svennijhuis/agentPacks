@@ -87,6 +87,8 @@ Pathspec when those paths are in the diff: `':(exclude)docs/plans' ':(exclude)do
 If omitting them leaves nothing to review, stop.
 
 On merge, drop any finding whose location is a run file, and any finding that a run file is missing.
+Keep synthesized `squad-verifier` rows that use the plan path as `Location` — that path is an
+identifier, not a review target.
 
 ## Verifier report
 
@@ -131,6 +133,7 @@ is not already represented by a reviewer finding with the same cause into a find
 evidence in `Problem` and `Fix`. This preserves the verifier report fields and requires no new search.
 This is the one exception to normal finding identity: a reviewer finding with the same cause covers
 the verifier row even though its source location differs from the synthesized plan-path location.
+Those synthesized rows are not run-file findings; do not drop them on merge.
 The same synthesis applies to non-`None` **Evidence gaps** and **Assumptions challenged**.
 
 ## Implementer report
