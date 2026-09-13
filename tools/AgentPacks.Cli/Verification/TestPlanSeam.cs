@@ -19,57 +19,76 @@ public sealed record TestPlanMatrixRow(
 public static partial class TestPlanSeam
 {
     [GeneratedRegex(
-        @"^\|\s*Criterion\s*\|\s*Happy\s*\|\s*Edge\s*\|\s*Fail\s*\|\s*Kind\s*\|\s*Seam\s*\|",
-        RegexOptions.IgnoreCase | RegexOptions.Multiline)]
-    private static partial Regex SeamHeader { get; }
-
-    [GeneratedRegex(
-        @"^\|\s*(\d+)\s*\|\s*(.*?)\s*\|\s*(.*?)\s*\|\s*(.*?)\s*\|\s*(.*?)\s*\|\s*(.*?)\s*\|",
-        RegexOptions.IgnoreCase | RegexOptions.Multiline)]
+        @"^\|\s*(\d+)\s*\|\s*(.*?)\s*\|\s*(.*?)\s*\|\s*(.*?)\s*\|\s*(.*?)\s*\|\s*(.*?)\s*\|")]
     private static partial Regex SixColumnRow { get; }
 
     [GeneratedRegex(
-        @"^\|\s*(\d+)\s*\|\s*(.*?)\s*\|\s*(.*?)\s*\|\s*(.*?)\s*\|\s*(.*?)\s*\|",
-        RegexOptions.IgnoreCase | RegexOptions.Multiline)]
+        @"^\|\s*(\d+)\s*\|\s*(.*?)\s*\|\s*(.*?)\s*\|\s*(.*?)\s*\|\s*(.*?)\s*\|")]
     private static partial Regex FiveColumnRow { get; }
 
+    [GeneratedRegex(@"^\|\s*(\d+)\s*\|")]
+    private static partial Regex NumberedRow { get; }
+
     /// <summary>
-    /// Reads matrix rows. A header without Seam is fail-closed: every row gets a blank seam.
+    /// Reads matrix rows. Prefer a six-column Seam cell; a numbered row that drops it
+    /// (or a header without Seam) is fail-closed as a blank seam, not omitted.
     /// </summary>
     public static IReadOnlyList<TestPlanMatrixRow> Parse(string markdown)
     {
-        if (SeamHeader.IsMatch(markdown))
+        var rows = new List<TestPlanMatrixRow>();
+
+        foreach (var raw in markdown.Split('\n'))
         {
-            return SixColumnRow.Matches(markdown)
-                .Select(match => new TestPlanMatrixRow(
-                    int.Parse(match.Groups[1].Value),
-                    match.Groups[2].Value.Trim(),
-                    match.Groups[3].Value.Trim(),
-                    match.Groups[4].Value.Trim(),
-                    match.Groups[5].Value.Trim(),
-                    Unwrap(match.Groups[6].Value)))
-                .ToList();
+            var line = raw.TrimEnd('\r');
+            var six = SixColumnRow.Match(line);
+            if (six.Success)
+            {
+                rows.Add(Row(six, Unwrap(six.Groups[6].Value)));
+                continue;
+            }
+
+            var numbered = NumberedRow.Match(line);
+            if (!numbered.Success)
+            {
+                continue;
+            }
+
+            var five = FiveColumnRow.Match(line);
+            rows.Add(five.Success
+                ? Row(five, string.Empty)
+                : new TestPlanMatrixRow(
+                    int.Parse(numbered.Groups[1].Value),
+                    string.Empty,
+                    string.Empty,
+                    string.Empty,
+                    string.Empty,
+                    string.Empty));
         }
 
-        return FiveColumnRow.Matches(markdown)
-            .Select(match => new TestPlanMatrixRow(
-                int.Parse(match.Groups[1].Value),
-                match.Groups[2].Value.Trim(),
-                match.Groups[3].Value.Trim(),
-                match.Groups[4].Value.Trim(),
-                match.Groups[5].Value.Trim(),
-                Seam: string.Empty))
-            .ToList();
+        return rows;
     }
 
-    /// <summary>A named, confirmed test surface — not blank, dash, none, TBD, or unconfirmed.</summary>
+    /// <summary>
+    /// A named, confirmed test surface — not blank, dash, <c>None</c>/<c>N/A</c>, TBD, or unconfirmed.
+    /// Sentinels match ignore-case so the contract empty marker cannot pass.
+    /// </summary>
     public static bool IsConfirmed(string seam)
     {
         var value = Unwrap(seam);
-        return value.Length > 0
-            && value is not ("—" or "-" or "none")
-            && !value.Contains("unconfirmed", StringComparison.OrdinalIgnoreCase)
-            && !value.Equals("tbd", StringComparison.OrdinalIgnoreCase);
+        if (value.Length == 0)
+        {
+            return false;
+        }
+
+        if (value.Contains("unconfirmed", StringComparison.OrdinalIgnoreCase))
+        {
+            return false;
+        }
+
+        return !value.Equals("none", StringComparison.OrdinalIgnoreCase)
+            && !value.Equals("n/a", StringComparison.OrdinalIgnoreCase)
+            && !value.Equals("tbd", StringComparison.OrdinalIgnoreCase)
+            && value is not ("—" or "-" or "–");
     }
 
     /// <summary>Blank or unconfirmed Seam is <c>not verified</c>, never <c>pass</c>.</summary>
@@ -112,6 +131,15 @@ public static partial class TestPlanSeam
 
         return VerificationOutcome.Pass;
     }
+
+    private static TestPlanMatrixRow Row(Match match, string seam) =>
+        new(
+            int.Parse(match.Groups[1].Value),
+            match.Groups[2].Value.Trim(),
+            match.Groups[3].Value.Trim(),
+            match.Groups[4].Value.Trim(),
+            match.Groups[5].Value.Trim(),
+            seam);
 
     private static bool IsInternal(string hit) =>
         hit.Contains("internal", StringComparison.OrdinalIgnoreCase)

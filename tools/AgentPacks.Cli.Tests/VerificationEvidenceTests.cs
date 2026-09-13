@@ -226,13 +226,25 @@ public sealed class VerificationEvidenceTests
             | 1 | create | empty | 400 | unit |
             """;
 
+        const string mixedShortRow = """
+            | Criterion | Happy | Edge | Fail | Kind | Seam |
+            |---|---|---|---|---|---|
+            | 1 | create | empty | 400 | unit | `POST /orders` |
+            | 2 | list | empty | 404 | unit |
+            """;
+
         Assert.Equal(VerificationEvidence.NotVerified, TestPlanSeam.ResultForSeam(""));
         Assert.Equal(VerificationEvidence.NotVerified, TestPlanSeam.ResultForSeam("unconfirmed"));
+        Assert.Equal(VerificationEvidence.NotVerified, TestPlanSeam.ResultForSeam("None"));
+        Assert.Equal(VerificationEvidence.NotVerified, TestPlanSeam.ResultForSeam("none"));
+        Assert.Equal(VerificationEvidence.NotVerified, TestPlanSeam.ResultForSeam("—"));
+        Assert.Equal(VerificationEvidence.NotVerified, TestPlanSeam.ResultForSeam("N/A"));
         Assert.Equal(VerificationEvidence.Pass, TestPlanSeam.ResultForSeam("POST /orders"));
 
         Assert.Equal(VerificationOutcome.NotPass, TestPlanSeam.Evaluate(blank, ["POST /orders"]));
         Assert.Equal(VerificationOutcome.NotPass, TestPlanSeam.Evaluate(unconfirmed, ["POST /orders"]));
         Assert.Equal(VerificationOutcome.NotPass, TestPlanSeam.Evaluate(missingColumn, ["POST /orders"]));
+        Assert.Equal(VerificationOutcome.NotPass, TestPlanSeam.Evaluate(mixedShortRow, ["POST /orders"]));
         Assert.Equal(
             VerificationOutcome.NotPass,
             TestPlanSeam.Evaluate(named, ["Orders.internal.Validate"]));
