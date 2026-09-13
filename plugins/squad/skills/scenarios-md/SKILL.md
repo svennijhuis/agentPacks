@@ -8,7 +8,7 @@ user-invocable: false
 
 # HTTP scenarios
 
-Type /scenarios. One job. Current app workspace (the repo under test). Scenarios md for a real tester on a deployed env.
+Type /scenarios. One job. Write only in the current app workspace (the repo under test). Scenarios md for a real tester on a deployed env.
 `/squad-review` is code/diff. `/squad` may read this file later for test design; it does not write or push smoke.
 Do not require Azure, TST, or AWS. Do not invent a host.
 

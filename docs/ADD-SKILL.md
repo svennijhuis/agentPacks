@@ -40,6 +40,8 @@ metadata:
 ---
 
 Internal. Do not run directly — Squad loads by exact Skill name.
+
+Loop-only; not as a user entrypoint.
 ```
 
 A user-invoked entrypoint (`squad`, `pack-check`, `learnings-digest`, `scenarios-md`) adds
