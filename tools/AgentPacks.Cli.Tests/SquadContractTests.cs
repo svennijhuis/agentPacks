@@ -1729,6 +1729,11 @@ public class SquadContractTests
         Assert.Contains("not a verified pass", verifier, StringComparison.Ordinal);
     }
 
+    /// <summary>
+    /// Reviewer named proof. Lean one-job CI: PR validation is only
+    /// <c>validate.yml</c> / one <c>validate</c> job. No matrix, no extra
+    /// pull_request workflows.
+    /// </summary>
     [Fact]
     public void Pull_request_ci_stays_one_job_no_matrix()
     {

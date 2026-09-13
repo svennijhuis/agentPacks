@@ -167,6 +167,16 @@ public sealed class TonightCriteriaTests
         nameof(HttpScenariosContractTests.Copilot_scenarios_command_name_differs_from_skill))]
     [InlineData("51 Slash_stays_scenarios_or_squad_scenarios", typeof(HttpScenariosContractTests),
         nameof(HttpScenariosContractTests.Slash_stays_scenarios_or_squad_scenarios))]
+    [InlineData("official-schema Cursor catalog ships", typeof(CursorCatalogContractTests),
+        nameof(CursorCatalogContractTests.Official_schema_cursor_catalog_ships))]
+    [InlineData("official-schema Cursor catalog rejects extra fields", typeof(CursorCatalogContractTests),
+        nameof(CursorCatalogContractTests.Official_schema_cursor_catalog_rejects_extra_entry_fields))]
+    [InlineData("remapped squad agents load", typeof(CursorCatalogContractTests),
+        nameof(CursorCatalogContractTests.Remapped_squad_agents_load))]
+    [InlineData("lean one-job CI", typeof(SquadContractTests),
+        nameof(SquadContractTests.Pull_request_ci_stays_one_job_no_matrix))]
+    [InlineData("no twin of closed #27/#29/#30", typeof(CursorCatalogContractTests),
+        nameof(CursorCatalogContractTests.Cursor_catalog_is_the_sole_catalog_track))]
     public void Each_ticket_criterion_has_a_proving_test(string criterion, Type fixture, string method)
     {
         Assert.True(
