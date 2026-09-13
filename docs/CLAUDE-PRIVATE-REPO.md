@@ -81,10 +81,11 @@ A product repository can point Claude at agentPacks automatically:
   "extraKnownMarketplaces": {
     "agentpacks": {
       "source": {
-        "source": "url",
-        "url": "https://github.com/svennijhuis/agentPacks.git",
+        "source": "github",
+        "repo": "svennijhuis/agentPacks",
         "ref": "marketplace"
-      }
+      },
+      "autoUpdate": true
     }
   },
   "enabledPlugins": {
@@ -92,5 +93,7 @@ A product repository can point Claude at agentPacks automatically:
   }
 }
 ```
+
+`url` is a direct `marketplace.json` fetch and does not take `ref`. Use `github` + `repo` + `ref` so Claude clones the `marketplace` branch. `autoUpdate` is optional; third-party marketplaces default to off.
 
 Add this only when a team wants it.

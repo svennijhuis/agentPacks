@@ -118,13 +118,16 @@ Test changes on a feature branch without merging to `main`:
 
 ## Researched, rejected for v1
 
-Do not re-litigate these without a new ADR. Inspired by multi-agent harness research; still out of
-scope for locked v1:
+Do not re-litigate these without a new ADR. Inspired by multi-agent harness research and the
+official Cursor marketplace orchestrators (`thermos`, `pstack`, `orchestrate`, `ralph-loop`)
+plus Superpowers and MAO; still out of scope for locked v1:
 
 - Peer agents coordinating via a shared state or lock file
 - Recursive subplanner trees or eager multi-worker fan-out
+- Sequential per-task two-stage review, isolated per-task checkouts, architect DAGs
 - Continuous autonomous multi-hour runs without human plan confirm
-- Auto-rewriting skills from `docs/learnings.md`
+- Auto-rewriting skills from `docs/learnings.md` (reflector / skill rewrite)
 - Growing `squad-orchestrator` into a global quality gate / integrator
+- Extra playbook catalogs that make the pack larger, not simpler
 
 See [ADD-SKILL.md](../../docs/ADD-SKILL.md), [ADD-HOOK.md](../../docs/ADD-HOOK.md), [ADD-AGENT.md](../../docs/ADD-AGENT.md), and [ADD-RULE.md](../../docs/ADD-RULE.md).
