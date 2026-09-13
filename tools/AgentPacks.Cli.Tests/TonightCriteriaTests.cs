@@ -175,6 +175,8 @@ public sealed class TonightCriteriaTests
         nameof(SkillHygieneContractTests.Skill_bodies_progressive_disclosure_to_references))]
     [InlineData("52 No_astra_personality_in_portable_skills", typeof(SkillHygieneContractTests),
         nameof(SkillHygieneContractTests.No_astra_personality_in_portable_skills))]
+    [InlineData("53 review pins product diff and omits run files", typeof(SquadContractTests),
+        nameof(SquadContractTests.Review_pins_product_diff_and_omits_run_files))]
     public void Each_ticket_criterion_has_a_proving_test(string criterion, Type fixture, string method)
     {
         Assert.True(
