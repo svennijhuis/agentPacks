@@ -60,6 +60,27 @@ public sealed class PackCheckContractTests
     }
 
     [Fact]
+    public void Detect_wording_is_locked_in_detect_reference()
+    {
+        var detect = Fixture("detect.md");
+        var skill = Fixture("SKILL.md");
+
+        Assert.Contains("references/detect.md", skill, StringComparison.Ordinal);
+        Assert.Contains("Stack: none detected", detect, StringComparison.Ordinal);
+        Assert.Contains("<lang>-build", detect, StringComparison.Ordinal);
+        Assert.Contains("<lang>-test-patterns", detect, StringComparison.Ordinal);
+        Assert.Contains(
+            "Never resolve or request installation for a detected stack outside the current change's scope",
+            detect,
+            StringComparison.Ordinal);
+        Assert.DoesNotContain("Stack: none detected", skill, StringComparison.Ordinal);
+        Assert.DoesNotContain(
+            "Never resolve or request installation for a detected stack outside the current change's scope",
+            skill,
+            StringComparison.Ordinal);
+    }
+
+    [Fact]
     public void Install_actions_use_the_built_marketplace_name_and_require_approval_and_reload()
     {
         var skill = Fixture("SKILL.md");

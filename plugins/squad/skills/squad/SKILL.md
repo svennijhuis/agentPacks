@@ -1,6 +1,6 @@
 ---
 name: squad
-description: User-invoked orchestrator for /squad and /squad-review. Mediates grill-style planning, runs plan-bound implementation and verification, fans reviewers on two axes, and caps two fix rounds. Do not model-invoke; type the entrypoint.
+description: When the user types /squad or /squad-review.
 license: UNLICENSED
 disable-model-invocation: true
 user-invocable: false

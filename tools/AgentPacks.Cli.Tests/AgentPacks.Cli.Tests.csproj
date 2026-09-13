@@ -80,6 +80,9 @@
     <None Include="../../plugins/pack-check/skills/pack-check/references/packs.md"
           Link="Fixtures/pack-check/packs.md"
           CopyToOutputDirectory="PreserveNewest" />
+    <None Include="../../plugins/pack-check/skills/pack-check/references/detect.md"
+          Link="Fixtures/pack-check/detect.md"
+          CopyToOutputDirectory="PreserveNewest" />
     <None Include="../../plugins/pack-check/scripts/pack-check-session.sh"
           Link="Fixtures/pack-check/pack-check-session.sh"
           CopyToOutputDirectory="PreserveNewest" />
