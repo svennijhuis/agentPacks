@@ -187,6 +187,18 @@ public sealed class TonightCriteriaTests
         nameof(SquadContractTests.Pull_request_ci_stays_one_job_no_matrix))]
     [InlineData("no twin of closed #27/#29/#30", typeof(CursorCatalogContractTests),
         nameof(CursorCatalogContractTests.Cursor_catalog_is_the_sole_catalog_track))]
+    [InlineData("53 A1 Seam column + blank-seam fail", typeof(SquadContractTests),
+        nameof(SquadContractTests.Test_plan_matrix_seam_column_blank_or_unnamed_internal_is_not_verified))]
+    [InlineData("54 A2 Effort-gate stop + forbid ticket/map/tracker", typeof(SquadContractTests),
+        nameof(SquadContractTests.Effort_over_one_session_says_so_and_stops_without_ticket_map_tracker))]
+    [InlineData("55 B4 Commands fail-closed before spawn", typeof(SquadContractTests),
+        nameof(SquadContractTests.Commands_resolve_pin_and_stop_before_spawn_when_empty_or_bad))]
+    [InlineData("56 B6 Anti-reentry on three agents", typeof(SquadContractTests),
+        nameof(SquadContractTests.Review_agents_have_anti_reentry_on_every_provider_tree))]
+    [InlineData("Still_four_user_commands", typeof(SquadContractTests),
+        nameof(SquadContractTests.Still_four_user_commands))]
+    [InlineData("squad SKILL.md not grown", typeof(SquadContractTests),
+        nameof(SquadContractTests.Squad_skill_body_is_not_grown))]
     public void Each_ticket_criterion_has_a_proving_test(string criterion, Type fixture, string method)
     {
         Assert.True(

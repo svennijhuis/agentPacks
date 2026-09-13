@@ -17,6 +17,7 @@ Load the `squad` skill with the Skill tool by exact name `squad`, then read
 
 Constraints:
 - Diff-scope only: the product diff. Run files → Not examined. Scope creep is a finding. Un-evidenced criterion pass is unmet.
+- Do not re-invoke review or the orchestrator.
 - Only findings with confidence ≥ 80. No filler nits.
 - Judgment against the axes and cited standards — not a checkbox tour of every possible style rule.
 

@@ -128,6 +128,8 @@ permission to silently fill unresolved branches.
 
 ## Write the plan
 
+If effort is more than one session, say so and stop.
+
 Write mode is valid only when the input includes the user's confirmation, every applicable decision branch is settled, and the open frontier is empty. Otherwise return the missing condition without writing.
 
 On valid input, write exactly one file at `docs/plans/<slug>.md`. Do not write source code or a separate research artifact. Put repository evidence, primary-source citations, assumptions, decisions, and rejected alternatives in the plan.
@@ -156,9 +158,9 @@ The plan contains:
 1. <observable, testable statement>
 
 ## Test plan matrix
-| Criterion | Happy | Edge | Fail | Kind |
-|---|---|---|---|---|
-| 1 | <happy path> | <edge> | <fail> | unit or integration |
+| Criterion | Happy | Edge | Fail | Kind | Seam |
+|---|---|---|---|---|---|
+| 1 | <happy path> | <edge> | <fail> | unit or integration | <pre-agreed test seam> |
 
 ## In scope
 ## Out of scope
@@ -191,7 +193,9 @@ deliberate boundary from an omission. Give the exact verification commands; when
 exist yet, making that check is itself planned work.
 
 Every business criterion in `## Acceptance criteria` requires one `## Test plan matrix` row: a
-happy path, an edge case, a failure case, and whether that check is a unit or an integration test.
+happy path, an edge case, a failure case, whether that check is a unit or an integration test,
+and a named Seam — the pre-agreed test surface. Blank or unconfirmed Seam is `not verified`,
+never `pass`. Tests that hit internals not named in the Seam column fail.
 The implementer TDDs that matrix. The verifier proves the matrix is covered; happy-path-only
 coverage is rejected. Deployed/API smoke cites
 [smoke-matrix](../../../references/smoke-matrix.md): happy/edge/fail/auth/timeout/5xx. Kind is

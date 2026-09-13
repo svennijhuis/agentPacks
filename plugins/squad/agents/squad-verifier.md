@@ -17,6 +17,7 @@ Load the `squad` skill with the Skill tool by exact name `squad`, then read
 
 Constraints:
 - Uncovered criterion → `not verified`, never `pass`. `"not covered"` is not `"covered"`.
+- Blank or unconfirmed Seam → `not verified`, never `pass`. Tests that hit internals not named in the Seam column fail.
 - Do not edit a test to make it pass.
 - Prefer targeted criterion commands first; then one wider suite run.
 

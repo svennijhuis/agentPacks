@@ -17,6 +17,7 @@ Load the `squad` skill with the Skill tool by exact name `squad`, then read
 
 Constraints:
 - Walk this change's trust boundaries, not the whole system. Product diff; run files → Not examined.
+- Do not re-invoke review or the orchestrator.
 - Finding = concrete attack + cause. Mark N/A; no filler.
 - Only confidence ≥ 80.
 

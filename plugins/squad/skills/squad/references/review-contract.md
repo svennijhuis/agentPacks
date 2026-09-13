@@ -121,6 +121,7 @@ A verified `pass` is the outcome of the evaluator, not a hopeful reading of the 
 | A failure is not classified `this-change` or `pre-existing` | Not a pass. Classification is required whenever a command fails. |
 | Mixed .NET and Rust, but only one suite ran, or the boundary was not checked | Not a pass. |
 | Agent-written tests are happy-path only | Not a pass. Name behavioral and edge coverage. |
+| Blank or unconfirmed Seam, or tests that hit internals not named in the Seam column | That row is `not verified`. Not a pass. |
 | `Evidence gaps` is not `None` and the gap is not already a merged finding with the same cause | Not a pass. Orchestrator synthesizes a finding attributed to `squad-verifier`. |
 | `Assumptions challenged` is not `None` and the challenge is not already a merged finding with the same cause | Not a pass. Orchestrator synthesizes a finding attributed to `squad-verifier`. |
 

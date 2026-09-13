@@ -1557,7 +1557,7 @@ public class SquadContractTests
     {
         var contract = Fixture("planning-contract.md");
         Assert.Contains("## Test plan matrix", contract, StringComparison.Ordinal);
-        Assert.Contains("| Criterion | Happy | Edge | Fail | Kind |", contract, StringComparison.Ordinal);
+        Assert.Contains("| Criterion | Happy | Edge | Fail | Kind | Seam |", contract, StringComparison.Ordinal);
         Assert.Contains("unit or integration", contract, StringComparison.Ordinal);
         Assert.Contains("business criterion", contract, StringComparison.Ordinal);
         Assert.Contains("TDDs that matrix", contract, StringComparison.Ordinal);
@@ -1821,6 +1821,158 @@ public class SquadContractTests
         Assert.Equal(1, CountToken(validate, "runs-on:"));
         Assert.Contains("dotnet test", validate, StringComparison.Ordinal);
         Assert.Contains("validate-all --out", validate, StringComparison.Ordinal);
+    }
+
+    /// <summary>
+    /// Item 53: test-plan matrix has a Seam column. Blank or unconfirmed Seam is
+    /// <c>not verified</c>. Tests that hit internals not named in the column fail.
+    /// </summary>
+    [Fact]
+    public void Test_plan_matrix_seam_column_blank_or_unnamed_internal_is_not_verified()
+    {
+        var contract = Fixture("planning-contract.md");
+        var verifier = Fixture("squad-verifier.md");
+        var planner = Fixture("squad-planner.md");
+        var review = Fixture("review-contract.md");
+
+        Assert.Contains("| Criterion | Happy | Edge | Fail | Kind | Seam |", contract, StringComparison.Ordinal);
+        Assert.Contains("pre-agreed test seam", contract, StringComparison.Ordinal);
+        Assert.Contains("Blank or unconfirmed Seam", contract, StringComparison.Ordinal);
+        Assert.Contains("`not verified`", contract, StringComparison.Ordinal);
+        Assert.Contains("internals not named in the Seam column", contract, StringComparison.Ordinal);
+
+        Assert.Contains("Blank or unconfirmed Seam", verifier, StringComparison.Ordinal);
+        Assert.Contains("`not verified`", verifier, StringComparison.Ordinal);
+        Assert.Contains("internals not named in the Seam column", verifier, StringComparison.Ordinal);
+        Assert.Contains("named Seam", planner, StringComparison.Ordinal);
+        Assert.Contains("Blank or unconfirmed Seam", review, StringComparison.Ordinal);
+
+        new VerificationEvidenceTests().Blank_or_unconfirmed_seam_and_unnamed_internal_hits_are_not_verified();
+    }
+
+    /// <summary>
+    /// Item 54: one effort-gate sentence in the planning contract and planner.
+    /// More than one session → say so and stop. That line must not say ticket, map, or tracker.
+    /// </summary>
+    [Fact]
+    public void Effort_over_one_session_says_so_and_stops_without_ticket_map_tracker()
+    {
+        const string sentence = "If effort is more than one session, say so and stop.";
+        var contract = Fixture("planning-contract.md");
+        var planner = Fixture("squad-planner.md");
+
+        Assert.Contains(sentence, contract, StringComparison.Ordinal);
+        Assert.Contains(sentence, planner, StringComparison.Ordinal);
+        Assert.Equal(1, CountToken(contract, sentence));
+        Assert.Equal(1, CountToken(planner, sentence));
+
+        foreach (var text in new[] { contract, planner })
+        {
+            var line = text.Split('\n')
+                .Select(candidate => candidate.TrimEnd('\r'))
+                .Single(candidate => candidate.Contains("more than one session", StringComparison.Ordinal));
+            Assert.Contains("stop", line, StringComparison.Ordinal);
+            foreach (var forbidden in new[] { "ticket", "map", "tracker" })
+            {
+                Assert.DoesNotContain(forbidden, line, StringComparison.OrdinalIgnoreCase);
+            }
+        }
+    }
+
+    /// <summary>
+    /// Item 55: <c>/squad</c> and <c>/squad-review</c> resolve the pin and stop on
+    /// empty/bad before any reviewer spawn. Orchestrator skill body stays locked.
+    /// </summary>
+    [Fact]
+    public void Commands_resolve_pin_and_stop_before_spawn_when_empty_or_bad()
+    {
+        var squad = Fixture("squad.md");
+        var review = Fixture("squad-review.md");
+        var skill = Fixture("SKILL.md");
+
+        foreach (var command in new[] { squad, review })
+        {
+            Assert.Contains("Resolve the product-diff pin", command, StringComparison.Ordinal);
+            Assert.Contains("Empty or bad pin", command, StringComparison.Ordinal);
+            Assert.Contains("stop before any reviewer spawn", command, StringComparison.Ordinal);
+
+            var resolveAt = command.IndexOf("Resolve the product-diff pin", StringComparison.Ordinal);
+            var stopAt = command.IndexOf("stop before any reviewer spawn", StringComparison.Ordinal);
+            var spawnAt = command.IndexOf("`squad-reviewer`", stopAt + 1, StringComparison.Ordinal);
+            Assert.True(resolveAt >= 0 && stopAt > resolveAt, "pin resolve must precede the empty/bad stop");
+            Assert.True(spawnAt > stopAt, "empty/bad pin must stop before reviewer spawn");
+        }
+
+        Assert.DoesNotContain("Empty or bad pin", skill, StringComparison.Ordinal);
+        Assert.DoesNotContain("stop before any reviewer spawn", skill, StringComparison.Ordinal);
+        Squad_skill_body_is_not_grown();
+    }
+
+    /// <summary>
+    /// Item 56: reviewer, simplifier, and security-reviewer each carry one anti-reentry
+    /// constraint on every provider tree that ships them. No essay. Orchestrator already
+    /// forbids launching agents — do not duplicate that essay there.
+    /// </summary>
+    [Fact]
+    public void Review_agents_have_anti_reentry_on_every_provider_tree()
+    {
+        const string line = "Do not re-invoke review or the orchestrator.";
+        var agents = new[] { "squad-reviewer", "squad-simplifier", "squad-security-reviewer" };
+
+        foreach (var agent in agents)
+            Assert.Contains(line, Fixture($"{agent}.md"), StringComparison.Ordinal);
+
+        Assert.DoesNotContain(line, Fixture("squad-orchestrator.md"), StringComparison.Ordinal);
+        Assert.Contains(
+            "Do not launch, retry, or hand work to another agent",
+            Fixture("squad-orchestrator.md"),
+            StringComparison.Ordinal);
+
+        using var repo = new TestRepository().WithPlugin("squad", Manifest);
+        foreach (var agent in AgentNames)
+            repo.WithFile($"plugins/squad/agents/{agent}.md", Fixture($"{agent}.md"));
+
+        var run = repo.ValidateAndGenerate();
+        Assert.False(run.HasErrors, run.Text);
+
+        foreach (var agent in agents)
+        {
+            foreach (var generated in new[]
+            {
+                $"plugins/squad/com.anthropic.claude-code/agents/{agent}.md",
+                $"plugins/squad/com.openai.codex/agents/{agent}.toml",
+                $"plugins/squad/com.github.copilot/agents/{agent}.agent.md",
+                $"plugins/squad/.cursor-plugin/agents/{agent}.md"
+            })
+            {
+                Assert.Contains(line, run.File(generated).Text, StringComparison.Ordinal);
+            }
+        }
+
+        Loop_agent_bodies_stay_tiny();
+    }
+
+    /// <summary>Always-fail: still exactly four user slashes. No new commands/.</summary>
+    [Fact]
+    public void Still_four_user_commands()
+    {
+        new HttpScenariosContractTests().User_commands_stay_squad_squad_review_pack_check_plus_http_scenarios();
+        Squad_commands_are_exactly_squad_and_review();
+        Assert.False(Directory.Exists(Path.Combine(SourceRoot(), "plugins", "squad", "commands", "squad-review")));
+        Assert.DoesNotContain(
+            "mattpocock",
+            Fixture("SKILL.md") + Fixture("squad.md") + Fixture("squad-review.md"),
+            StringComparison.OrdinalIgnoreCase);
+    }
+
+    /// <summary>Always-fail: orchestrator <c>squad</c> SKILL.md body stays 87 nonempty lines.</summary>
+    [Fact]
+    public void Squad_skill_body_is_not_grown()
+    {
+        var lines = BodyAfterFrontmatter(Fixture("SKILL.md"))
+            .Split('\n')
+            .Count(line => !string.IsNullOrWhiteSpace(line));
+        Assert.Equal(87, lines);
     }
 
     /// <summary>
