@@ -59,6 +59,8 @@ public sealed class GitGuardTests
     [InlineData("{ git push --force origin main; }", "GIT003")]
     [InlineData("git branch -df old", "GIT004")]
     [InlineData("git branch -d -f old", "GIT004")]
+    [InlineData("git.exe reset --hard", "GIT001")]
+    [InlineData(@"C:\Program Files\Git\cmd\git.exe push -f origin main", "GIT003")]
     public void Bundled_flags_and_grouped_invocations_do_not_bypass_the_guard(string command, string rule)
     {
         var result = Run(command, "nested");
@@ -153,6 +155,8 @@ public sealed class GitGuardTests
     [InlineData("git push -u origin main", 0)]
     [InlineData("git checkout -b feature/new-thing", 0)]
     [InlineData("git restore --staged src/Changed.cs", 0)]
+    [InlineData("git.exe reset --hard", 2)]
+    [InlineData(@"C:\Program Files\Git\cmd\git.exe push -f origin main", 2)]
     public void The_powershell_guard_reaches_the_same_verdict(string command, int expected)
     {
         var payload = JsonSerializer.Serialize(new { tool_input = new { command } });

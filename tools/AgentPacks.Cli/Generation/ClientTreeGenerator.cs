@@ -43,20 +43,18 @@ internal sealed class ClientTreeGenerator(RepositoryContext context, ModelCatalo
         // it against itself.
         //
         // pack-check and git put Claude-shaped hooks at plugin-root hooks/hooks.json so Claude
-        // can auto-discover them (marketplace omits a hooks path). Skip Cursor's write to that
-        // same path — do not leave two dialects at one file, and do not write Claude shape into
-        // Copilot's namespaced tree.
+        // can auto-discover them (marketplace omits a hooks path). Cursor cannot read that
+        // dialect, so those packs write Cursor-shaped hooks under .cursor-plugin/ and point
+        // the Cursor manifest at them. Do not write Claude shape into Copilot's tree.
         foreach (var profile in ClientProfile.All
                      .Where(p => p.Client is not (Client.Claude or Client.Copilot)))
         {
-            if (profile.Client == Client.Cursor && plugin.ClaudeAutoDiscoversRootHooks)
-            {
-                continue;
-            }
-
             if (HookGenerator.Build(plugin, profile) is { } hooks)
             {
-                AddJson(profile.PluginRelative("hooks/hooks.json"), hooks);
+                var relative = profile.Client == Client.Cursor && plugin.ClaudeAutoDiscoversRootHooks
+                    ? ClientProfile.RelocatedCursorHooks
+                    : profile.PluginRelative("hooks/hooks.json");
+                AddJson(relative, hooks);
             }
         }
 
@@ -256,6 +254,12 @@ internal sealed class ClientTreeGenerator(RepositoryContext context, ModelCatalo
             {
                 cursor[field] = value.DeepClone();
             }
+        }
+
+        if (plugin.ClaudeAutoDiscoversRootHooks &&
+            HookGenerator.Build(plugin, ClientProfile.Cursor) is not null)
+        {
+            cursor["hooks"] = $"./{ClientProfile.RelocatedCursorHooks}";
         }
 
         addJson(".cursor-plugin/plugin.json", cursor);
@@ -515,7 +519,8 @@ internal sealed class ClientTreeGenerator(RepositoryContext context, ModelCatalo
     // in CI, where a CRLF file written on Windows would report drift against the Linux runner.
     private static string ShimCommand(string name) =>
         "@echo off\n" +
-        $"powershell -NoProfile -ExecutionPolicy Bypass -File \"%~dp0{name}.ps1\" %*\n";
+        $"powershell -NoProfile -ExecutionPolicy Bypass -File \"%~dp0{name}.ps1\" %*\n" +
+        "exit /b %ERRORLEVEL%\n";
 
     private static List<MarkdownComponent> AlwaysApplyRules(PluginPackage plugin) =>
         plugin.Rules.Where(rule => ComponentWriter.Flag(rule, "alwaysApply")).ToList();

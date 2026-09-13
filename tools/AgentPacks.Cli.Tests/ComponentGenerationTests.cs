@@ -334,6 +334,7 @@ public sealed class ComponentGenerationTests
 
         Assert.Contains("%~dp0guard.ps1", shim, StringComparison.Ordinal);
         Assert.Contains("powershell", shim, StringComparison.Ordinal);
+        Assert.Contains("exit /b %ERRORLEVEL%", shim, StringComparison.Ordinal);
     }
 
     /// <summary>The POSIX script must stay executable: the hook command runs it directly.</summary>

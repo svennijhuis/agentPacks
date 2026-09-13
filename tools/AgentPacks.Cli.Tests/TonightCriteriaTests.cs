@@ -163,6 +163,8 @@ public sealed class TonightCriteriaTests
         nameof(HttpScenariosContractTests.Copilot_ships_scenarios_command))]
     [InlineData("50 Copilot_hooks_set_cwd_plugin_root", typeof(ClaudeMarketplaceHooksTests),
         nameof(ClaudeMarketplaceHooksTests.Copilot_hooks_set_cwd_plugin_root))]
+    [InlineData("Cursor relocated hooks when Claude owns root", typeof(ClaudeMarketplaceHooksTests),
+        nameof(ClaudeMarketplaceHooksTests.Cursor_loads_relocated_cursor_shaped_hooks_when_claude_owns_root))]
     [InlineData("51 Copilot_scenarios_command_name_differs_from_skill", typeof(HttpScenariosContractTests),
         nameof(HttpScenariosContractTests.Copilot_scenarios_command_name_differs_from_skill))]
     [InlineData("51 Slash_stays_scenarios_or_squad_scenarios", typeof(HttpScenariosContractTests),

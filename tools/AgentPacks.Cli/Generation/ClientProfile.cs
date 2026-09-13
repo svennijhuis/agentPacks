@@ -33,9 +33,16 @@ internal sealed record ClientProfile(
         HookDocumentVersion: null);
 
     /// <summary>
-    /// Cursor is the only client with no documented way to point at a custom path, so it keeps the
-    /// plugin root — which is also where the neutral source is authored. Its official template uses
-    /// plugin-relative commands, so no root token is substituted.
+    /// Cursor-shaped hooks for packs whose plugin-root <c>hooks/hooks.json</c> is Claude-shaped
+    /// (Claude marketplace cannot declare a hooks path). Cursor's plugin manifest points here.
+    /// </summary>
+    public const string RelocatedCursorHooks = ".cursor-plugin/hooks/hooks.json";
+
+    /// <summary>
+    /// Cursor keeps the plugin root for most packs — which is also where the neutral source is
+    /// authored. Its official template uses plugin-relative commands, so no root token is
+    /// substituted. When Claude owns the root hooks file, the manifest points at
+    /// <see cref="RelocatedCursorHooks"/> instead.
     /// </summary>
     public static readonly ClientProfile Cursor = new(
         Client.Cursor,
