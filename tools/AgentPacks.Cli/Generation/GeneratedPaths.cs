@@ -4,7 +4,10 @@ namespace AgentPacks.Cli.Generation;
 /// The plugin-relative locations the generators own. Everything matching one of these is derived
 /// from the authored source, so a file found there that the current run does not produce is stale
 /// and gets deleted. Authored content (plugin.json, skills/, rules/, agents/, commands/, mcp.json,
-/// hooks.source.json, standards.source.json, standards/, scripts/*.sh, scripts/*.ps1) never matches.
+/// hooks.source.json, standards.source.json, pack-local standards that are not shared copies,
+/// scripts/*.sh, scripts/*.ps1) never matches. Shared documents copied into
+/// <c>standards/&lt;name&gt;.md</c> are generated when the shared-standard filename set
+/// lists that file.
 /// </summary>
 internal static class GeneratedPaths
 {
@@ -20,7 +23,9 @@ internal static class GeneratedPaths
     ];
 
     /// <summary>True when <paramref name="pluginRelative"/> is generated rather than authored.</summary>
-    public static bool IsGenerated(string pluginRelative)
+    public static bool IsGenerated(
+        string pluginRelative,
+        IReadOnlyCollection<string>? sharedStandardNames = null)
     {
         var path = pluginRelative.Replace('\\', '/');
 
@@ -55,6 +60,14 @@ internal static class GeneratedPaths
             segments[0] == "skills" &&
             segments[2] == "agents" &&
             segments[3] == "openai.yaml")
+        {
+            return true;
+        }
+
+        if (sharedStandardNames is { Count: > 0 } &&
+            segments.Length == 2 &&
+            segments[0] == "standards" &&
+            sharedStandardNames.Contains(segments[1]))
         {
             return true;
         }
