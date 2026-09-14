@@ -116,8 +116,6 @@ internal sealed class Pipeline(RepositoryContext context)
             return;
         }
 
-        var sharedStandardNames = SharedStandardFileNames();
-
         foreach (var pluginDirectory in Directory.GetDirectories(pluginsRoot)
                      .OrderBy(d => d, StringComparer.Ordinal))
         {
@@ -128,7 +126,7 @@ internal sealed class Pipeline(RepositoryContext context)
             {
                 var pluginRelative = Path.GetRelativePath(pluginDirectory, path).Replace('\\', '/');
 
-                if (!GeneratedPaths.IsGenerated(pluginRelative, sharedStandardNames))
+                if (!GeneratedPaths.IsGenerated(pluginRelative))
                 {
                     continue;
                 }
@@ -194,24 +192,6 @@ internal sealed class Pipeline(RepositoryContext context)
             RemoveIfEmpty(Path.Combine(references, "standards"));
             RemoveIfEmpty(references);
         }
-    }
-
-    /// <summary>
-    /// Filenames under <c>shared/standards/</c>. Plugin copies of those names are generated, so a
-    /// leftover in a pack that is not emitted this run is stale.
-    /// </summary>
-    private IReadOnlyCollection<string> SharedStandardFileNames()
-    {
-        var directory = Path.Combine(context.Root, "shared", "standards");
-
-        if (!Directory.Exists(directory))
-        {
-            return [];
-        }
-
-        return Directory.GetFiles(directory, "*.md")
-            .Select(path => Path.GetFileName(path)!)
-            .ToHashSet(StringComparer.Ordinal);
     }
 
     /// <summary>Removes a directory once nothing is left under it, deepest first.</summary>

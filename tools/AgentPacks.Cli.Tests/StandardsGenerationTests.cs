@@ -1,5 +1,4 @@
 using System.Text.Json.Nodes;
-using AgentPacks.Cli.Generation;
 
 namespace AgentPacks.Cli.Tests;
 
@@ -54,62 +53,6 @@ public class StandardsGenerationTests
 
         Assert.Contains("Generated from standards/csharp.md", generated, StringComparison.Ordinal);
         Assert.Contains("Use nullable types.", generated, StringComparison.Ordinal);
-    }
-
-    [Fact]
-    public void Shared_standards_emit_into_present_language_packs_only()
-    {
-        using var repo = new TestRepository()
-            .WithPlugin("dotnet", """
-                {
-                  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
-                  "name": "dotnet",
-                  "description": "Test language pack."
-                }
-                """)
-            .WithSkill("dotnet-review", plugin: "dotnet")
-            .WithPlugin("squad", """
-                {
-                  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
-                  "name": "squad",
-                  "description": "Test squad."
-                }
-                """)
-            .WithSkill("squad", plugin: "squad")
-            .WithFile("shared/standards/http-api.md", "# HTTP API\n\nShared.\n");
-
-        var run = repo.ValidateAndGenerate();
-
-        Assert.False(run.HasErrors, run.Text);
-        Assert.True(run.HasFile("plugins/dotnet/standards/http-api.md"));
-        Assert.Equal("# HTTP API\n\nShared.\n", run.File("plugins/dotnet/standards/http-api.md").Text);
-        Assert.False(run.HasFile("plugins/rust/standards/http-api.md"));
-        Assert.False(run.HasFile("plugins/squad/standards/http-api.md"));
-    }
-
-    [Fact]
-    public void Skill_references_prefer_shared_canonical_when_present()
-    {
-        using var repo = Repository()
-            .WithStandards(Catalog)
-            .WithFile("shared/standards/csharp.md", "# Shared C#\n\nPrefer this.\n");
-
-        var generated = repo.ValidateAndGenerate()
-            .File("plugins/engineering/skills/dotnet-build/references/standards/csharp.md")
-            .Text;
-
-        Assert.Contains("Generated from shared/standards/csharp.md", generated, StringComparison.Ordinal);
-        Assert.Contains("Prefer this.", generated, StringComparison.Ordinal);
-        Assert.DoesNotContain("Use nullable types.", generated, StringComparison.Ordinal);
-    }
-
-    [Fact]
-    public void Shared_standard_pack_copies_are_generated_for_stale_sweep()
-    {
-        Assert.True(GeneratedPaths.IsGenerated("standards/http-api.md", ["http-api.md"]));
-        Assert.False(GeneratedPaths.IsGenerated("standards/csharp.md", ["http-api.md"]));
-        Assert.False(GeneratedPaths.IsGenerated("standards/http-api.md"));
-        Assert.False(GeneratedPaths.IsGenerated("standards/http-api.md", []));
     }
 
     [Fact]
@@ -241,5 +184,114 @@ public class StandardsGenerationTests
         Assert.True(File.Exists(Path.Combine(
             repo.Root,
             "plugins/engineering/skills/dotnet-review/references/notes.md")));
+    }
+
+    [Fact]
+    public void Shared_path_generates_into_consumer_references_without_a_pack_copy()
+    {
+        using var repo = Repository()
+            .WithFile("shared/standards/http-api.md", "# HTTP API\n\nShared envelope.\n")
+            .WithStandards("""
+                {
+                  "$schema": "../../schema/standards.schema.json",
+                  "version": 1,
+                  "documents": {
+                    "http-api": "shared/standards/http-api.md"
+                  },
+                  "consumers": {
+                    "dotnet-review": ["http-api"]
+                  }
+                }
+                """);
+
+        var run = repo.ValidateAndGenerate();
+
+        Assert.False(run.HasErrors, run.Text);
+        Assert.True(run.HasFile("plugins/engineering/skills/dotnet-review/references/standards/http-api.md"));
+        Assert.False(run.HasFile("plugins/engineering/standards/http-api.md"));
+
+        var generated = run.File("plugins/engineering/skills/dotnet-review/references/standards/http-api.md").Text;
+        Assert.Contains("Generated from shared/standards/http-api.md", generated, StringComparison.Ordinal);
+        Assert.Contains("Shared envelope.", generated, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void Pack_document_that_reuses_a_shared_filename_is_rejected()
+    {
+        using var repo = Repository()
+            .WithFile("shared/standards/http-api.md", "# Shared\n")
+            .WithFile("plugins/engineering/standards/http-api.md", "# Pack copy\n")
+            .WithStandards("""
+                {
+                  "$schema": "../../schema/standards.schema.json",
+                  "version": 1,
+                  "documents": {
+                    "http-api": "standards/http-api.md"
+                  },
+                  "consumers": {
+                    "dotnet-review": ["http-api"]
+                  }
+                }
+                """);
+
+        var run = repo.Validate();
+
+        Assert.True(run.HasErrors);
+        Assert.Contains("same filename as shared/standards/http-api.md", run.Text, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void Uncatalogued_pack_file_reusing_a_shared_filename_is_rejected()
+    {
+        using var repo = Repository()
+            .WithFile("shared/standards/http-api.md", "# Shared\n")
+            .WithFile("plugins/engineering/standards/http-api.md", "# Leftover different body\n")
+            .WithFile("plugins/engineering/standards/other.md", "# Pack only\n")
+            .WithStandards("""
+                {
+                  "$schema": "../../schema/standards.schema.json",
+                  "version": 1,
+                  "documents": {
+                    "http-api": "shared/standards/http-api.md",
+                    "other": "standards/other.md"
+                  },
+                  "consumers": {
+                    "dotnet-review": ["http-api", "other"]
+                  }
+                }
+                """);
+
+        var run = repo.Validate();
+
+        Assert.True(run.HasErrors);
+        Assert.Contains("plugins/engineering/standards/http-api.md", run.Text, StringComparison.Ordinal);
+        Assert.Contains("same filename as shared/standards/http-api.md", run.Text, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void Byte_identical_authored_standards_are_rejected()
+    {
+        const string text = "# HTTP API\n\nSame body.\n";
+        using var repo = Repository()
+            .WithFile("shared/standards/http-api.md", text)
+            .WithFile("plugins/engineering/standards/other.md", text)
+            .WithStandards("""
+                {
+                  "$schema": "../../schema/standards.schema.json",
+                  "version": 1,
+                  "documents": {
+                    "other": "standards/other.md"
+                  },
+                  "consumers": {
+                    "dotnet-review": ["other"]
+                  }
+                }
+                """);
+
+        var run = repo.Validate();
+
+        Assert.True(run.HasErrors);
+        Assert.Contains("has the same content as", run.Text, StringComparison.Ordinal);
+        Assert.Contains("shared/standards/", run.Text, StringComparison.Ordinal);
     }
 }

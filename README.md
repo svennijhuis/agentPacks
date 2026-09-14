@@ -287,10 +287,11 @@ Installed skills are selected when relevant to your request.
 
 ## Coding standards
 
-Standards ship entirely inside language plugins. Each pack keeps canonical Markdown under its own
-`standards/` directory and declares which skills consume each document in `standards.source.json`.
-Generation copies those references only to the `marketplace` branch or temporary output; generated
-files do not live on `main`.
+Pack-specific standards live under each language plugin's `standards/` directory. A document that
+is the same in every language lives once under [`shared/standards/`](shared/standards/) and is
+referenced by path from `standards.source.json`. Generation copies only the selected documents into
+each consuming skill's `references/standards/` directory on the `marketplace` branch or in temporary
+output; generated files do not live on `main`.
 
 The planner records those plugin sources under `## Standards in force`. It separately inspects
 project configuration, directory layout, tests, and nearby code, then records concrete evidence

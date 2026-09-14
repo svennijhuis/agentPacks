@@ -6,7 +6,7 @@
     "async-errors": "standards/async-errors.md",
     "testing": "standards/testing.md",
     "layers": "standards/layers.md",
-    "http-api": "standards/http-api.md"
+    "http-api": "shared/standards/http-api.md"
   },
   "consumers": {
     "dotnet-build": [

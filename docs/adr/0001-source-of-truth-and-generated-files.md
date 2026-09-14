@@ -23,8 +23,10 @@ portable skills exist once. The Cursor catalog stays thin (name / source / descr
 matches cursor/plugins `marketplace.schema.json`.
 
 **Canonical language standards are authored once.** A language pack keeps Markdown under
-`standards/` and maps document ids to consuming skills in `standards.source.json`. Generation copies
-only the selected documents into each skill's `references/standards/` directory.
+`standards/` and maps document ids to consuming skills in `standards.source.json`. A document that
+is the same in every language lives once under `shared/standards/` and is referenced by that
+repository-relative path. There is no pack copy. Generation copies only the selected documents into
+each skill's `references/standards/` directory.
 
 **A hook names a script, never a command line.** The generator owns the invocation, so no authored file contains shell syntax, and the validator can require both a `.sh` and a `.ps1` — one generated hooks file is shared by macOS and Windows, and a script with one platform half is a hook that silently does nothing for half the team.
 

@@ -5,7 +5,7 @@
     "rust": "standards/rust.md",
     "errors-concurrency": "standards/errors-concurrency.md",
     "testing": "standards/testing.md",
-    "http-api": "standards/http-api.md"
+    "http-api": "shared/standards/http-api.md"
   },
   "consumers": {
     "rust-build": [

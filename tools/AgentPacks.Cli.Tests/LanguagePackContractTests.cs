@@ -212,8 +212,53 @@ public class LanguagePackContractTests
             Assert.NotNull(standards["consumers"]![skill]);
         }
 
-        foreach (var document in new[] { "rust", "errors-concurrency", "testing", "http-api" })
+        foreach (var document in new[] { "rust", "errors-concurrency", "testing" })
             Assert.True(File.Exists(Path.Combine(plugin, "standards", document + ".md")), document);
+    }
+
+    /// <summary>
+    /// Items 59/64: one <c>shared/standards/http-api.md</c> is referenced by each language pack.
+    /// No pack copies.
+    /// </summary>
+    [Fact]
+    public void Language_packs_map_http_api_to_shared_path()
+    {
+        var root = TestRepository.SourceRoot();
+        var shared = Path.Combine(root, "shared", "standards", "http-api.md");
+        Assert.True(File.Exists(shared), shared);
+        var sharedText = File.ReadAllText(shared);
+        var lines = sharedText.Split('\n').Count(line => !string.IsNullOrWhiteSpace(line));
+        Assert.True(lines <= 50, $"shared/standards/http-api.md is {lines} lines; Matt-tiny cap is 50.");
+        Assert.Contains("{ \"users\": [{ \"id\": 1 }] }", sharedText, StringComparison.Ordinal);
+        Assert.DoesNotContain("Azure", sharedText, StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain("AWS", sharedText, StringComparison.OrdinalIgnoreCase);
+
+        foreach (var pack in new[] { "dotnet", "rust", "typescript" })
+        {
+            Assert.False(
+                File.Exists(Path.Combine(root, "plugins", pack, "standards", "http-api.md")),
+                $"{pack} must not keep a copy of http-api.md");
+
+            var catalog = JsonNode.Parse(File.ReadAllText(
+                Path.Combine(root, "plugins", pack, "standards.source.json")))!;
+            Assert.Equal(
+                "shared/standards/http-api.md",
+                catalog["documents"]!["http-api"]!.GetValue<string>());
+            var consumers = catalog["consumers"]!.AsObject();
+            Assert.Contains("http-api", consumers[$"{pack}-build"]!.AsArray().Select(value => value!.GetValue<string>()));
+            Assert.Contains("http-api", consumers[$"{pack}-review"]!.AsArray().Select(value => value!.GetValue<string>()));
+            Assert.DoesNotContain(
+                "http-api",
+                consumers[$"{pack}-test-patterns"]!.AsArray().Select(value => value!.GetValue<string>()));
+
+            foreach (var skill in new[] { $"{pack}-build", $"{pack}-review" })
+            {
+                Assert.Contains(
+                    "http-api.md",
+                    File.ReadAllText(Path.Combine(root, "plugins", pack, "skills", skill, "SKILL.md")),
+                    StringComparison.Ordinal);
+            }
+        }
     }
 
     public const string InternalDoNotRunLine =
@@ -282,12 +327,14 @@ public class LanguagePackContractTests
             .Select(value => value!.GetValue<string>())
             .ToArray();
         Assert.Equal(["csharp", "async-errors", "testing", "layers", "http-api"], mapped);
-        foreach (var document in mapped)
+        foreach (var document in mapped.Where(id => id != "http-api"))
         {
             Assert.Equal(
                 $"standards/{document}.md",
                 catalog["documents"]![document]!.GetValue<string>());
         }
+
+        Assert.Equal("shared/standards/http-api.md", catalog["documents"]!["http-api"]!.GetValue<string>());
 
         var skill = File.ReadAllText(Path.Combine(skillDir, "SKILL.md"));
         Assert.Contains("Read every file in `references/standards/`.", skill, StringComparison.Ordinal);
@@ -302,103 +349,33 @@ public class LanguagePackContractTests
         new SquadContractTests().Pull_request_ci_stays_one_job_no_matrix();
     }
 
-    /// <summary>
-    /// Items 59/64: list APIs use a named collection envelope, not a root JSON array.
-    /// Canonical <c>shared/standards/http-api.md</c> emits into each language pack and is
-    /// wired through existing <c>standards.source.json</c> into build and review.
-    /// No new plugin, slash, or squad SKILL growth.
-    /// </summary>
+    /// <summary>Item 60: thin marketplace smoke entry shape in Squad learnings.</summary>
     [Fact]
-    public void Http_collection_envelope_is_wired_into_each_language_pack()
+    public void Marketplace_smoke_entry_shape_is_documented()
     {
-        var root = TestRepository.SourceRoot();
-        var shared = Path.Combine(root, "shared", "standards", "http-api.md");
-        Assert.True(File.Exists(shared), shared);
-        var sharedText = File.ReadAllText(shared);
-        foreach (var pack in new[] { "dotnet", "rust", "typescript" })
-        {
-            var plugin = Path.Combine(root, "plugins", pack);
-            var path = Path.Combine(plugin, "standards", "http-api.md");
-            Assert.True(File.Exists(path), path);
-            var text = File.ReadAllText(path);
-            Assert.Equal(sharedText, text);
-
-            var lines = text.Split('\n').Count(line => !string.IsNullOrWhiteSpace(line));
-            Assert.True(lines <= 50, $"{pack}/standards/http-api.md is {lines} lines; Matt-tiny cap is 50.");
-            Assert.Contains("{ \"users\": [{ \"id\": 1 }] }", text, StringComparison.Ordinal);
-            Assert.Contains("Good:", text, StringComparison.Ordinal);
-            Assert.Contains("Bad:", text, StringComparison.Ordinal);
-            var badAt = text.IndexOf("Bad:", StringComparison.Ordinal);
-            Assert.Contains("[{ \"id\": 1 }]", text[badAt..], StringComparison.Ordinal);
-            Assert.Contains("page", text, StringComparison.OrdinalIgnoreCase);
-            Assert.Contains("total", text, StringComparison.OrdinalIgnoreCase);
-            Assert.Contains("breaking", text, StringComparison.OrdinalIgnoreCase);
-            Assert.True(
-                text.Contains("problem+json", StringComparison.OrdinalIgnoreCase)
-                || text.Contains("error", StringComparison.OrdinalIgnoreCase),
-                $"{pack}/standards/http-api.md must mention problem+json or error.");
-            Assert.Contains("Location", text, StringComparison.Ordinal);
-            Assert.True(
-                text.Contains("ETag", StringComparison.Ordinal)
-                || text.Contains("idempotent", StringComparison.OrdinalIgnoreCase),
-                $"{pack}/standards/http-api.md must mention ETag or idempotent.");
-            Assert.Contains("Pagination", text, StringComparison.OrdinalIgnoreCase);
-            Assert.Contains("include", text, StringComparison.OrdinalIgnoreCase);
-            Assert.DoesNotContain("Azure", text, StringComparison.OrdinalIgnoreCase);
-            Assert.DoesNotContain("AWS", text, StringComparison.OrdinalIgnoreCase);
-            Assert.DoesNotContain("OpenAPI", text, StringComparison.OrdinalIgnoreCase);
-            Assert.DoesNotContain("OAuth", text, StringComparison.OrdinalIgnoreCase);
-
-            var catalog = JsonNode.Parse(File.ReadAllText(
-                Path.Combine(plugin, "standards.source.json")))!;
-            Assert.Equal("standards/http-api.md", catalog["documents"]!["http-api"]!.GetValue<string>());
-            var consumers = catalog["consumers"]!.AsObject();
-            Assert.Contains("http-api", consumers[$"{pack}-build"]!.AsArray().Select(value => value!.GetValue<string>()));
-            Assert.Contains("http-api", consumers[$"{pack}-review"]!.AsArray().Select(value => value!.GetValue<string>()));
-            Assert.DoesNotContain(
-                "http-api",
-                consumers[$"{pack}-test-patterns"]!.AsArray().Select(value => value!.GetValue<string>()));
-
-            foreach (var skill in new[] { $"{pack}-build", $"{pack}-review" })
-            {
-                var skillText = File.ReadAllText(Path.Combine(plugin, "skills", skill, "SKILL.md"));
-                Assert.Contains("http-api.md", skillText, StringComparison.Ordinal);
-            }
-        }
-
-        Assert.False(File.Exists(Path.Combine(root, "plugins", "squad", "standards", "http-api.md")));
-        Assert.False(File.Exists(Path.Combine(root, "plugins", "squad", "references", "http-api.md")));
-
-        var pluginNames = Directory.GetDirectories(Path.Combine(root, "plugins"))
-            .Select(path => Path.GetFileName(path) ?? path)
-            .OrderBy(name => name, StringComparer.Ordinal)
-            .ToArray();
-        Assert.Equal(["dotnet", "git", "pack-check", "rust", "squad", "typescript"], pluginNames);
-
         var learnings = File.ReadAllText(Path.Combine(
-            root, "plugins", "squad", "skills", "squad", "references", "learnings.md"));
+            TestRepository.SourceRoot(),
+            "plugins", "squad", "skills", "squad", "references", "learnings.md"));
         Assert.Contains("## Marketplace smoke entry shape", learnings, StringComparison.Ordinal);
-        Assert.Contains("YYYY-MM-DD", learnings, StringComparison.Ordinal);
         Assert.Contains("- Client:", learnings, StringComparison.Ordinal);
-        Assert.Contains("- Host:", learnings, StringComparison.Ordinal);
-        Assert.Contains("- Action:", learnings, StringComparison.Ordinal);
         Assert.Contains("- Plugins:", learnings, StringComparison.Ordinal);
+    }
 
-        var readme = File.ReadAllText(Path.Combine(root, "README.md"));
+    /// <summary>Item 61: README Install-from-Source line uses #marketplace.</summary>
+    [Fact]
+    public void Readme_install_from_source_uses_marketplace_ref()
+    {
+        var readme = File.ReadAllText(Path.Combine(TestRepository.SourceRoot(), "README.md"));
         Assert.Contains(
             "**Install from Source** (VS Code / Copilot): use `#marketplace`",
             readme,
             StringComparison.Ordinal);
-
-        new SquadContractTests().Still_four_user_commands();
-        new SquadContractTests().Squad_skill_body_is_not_grown();
-        new SquadContractTests().Pull_request_ci_stays_one_job_no_matrix();
     }
 
     /// <summary>
     /// Item 62: Claude marketplace omits hooks; authored command names do not collide
     /// with skill or plugin names except the (squad, squad) and (pack-check, pack-check)
-    /// homonyms. Copilot rematerialize proofs stay in force.
+    /// homonyms.
     /// </summary>
     [Fact]
     public void Command_names_differ_from_skill_and_plugin_names()

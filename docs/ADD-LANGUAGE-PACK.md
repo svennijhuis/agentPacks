@@ -87,18 +87,21 @@ Do not repeat the same rule across three skills. Put canonical Markdown document
   "$schema": "../../schema/standards.schema.json",
   "version": 1,
   "documents": {
-    "testing": "standards/testing.md"
+    "testing": "standards/testing.md",
+    "http-api": "shared/standards/http-api.md"
   },
   "consumers": {
     "dotnet-test-patterns": ["testing"],
-    "dotnet-review": ["testing"]
+    "dotnet-review": ["testing", "http-api"]
   }
 }
 ```
 
-Author the documents in `plugins/<lang>/standards/`. That author path belongs in this document, not
-in a skill body. Generation copies the selected files into each consumer's `references/standards/`
-directory on the `marketplace` branch or in temporary output. Source `main` stays authored-only.
+Author pack documents in `plugins/<lang>/standards/`. A cross-language document lives once under
+`shared/standards/` and is referenced by that path; a pack `standards/<name>.md` that reuses a
+shared filename is rejected. That author path belongs in this document, not in a skill body.
+Generation copies the selected files into each consumer's `references/standards/` directory on the
+`marketplace` branch or in temporary output. Source `main` stays authored-only.
 Skill bodies point only at `references/standards/` — never `authored tree: ../../standards/` or
 `../../standards/`. Every consuming skill must name them under `Standards in force:` and tell the
 agent to cite the document filename during review and build.
