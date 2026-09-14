@@ -55,3 +55,17 @@ A **pass** keeps the recorded tier. A **fail** or **stopped** demotes one tier
 (`frontier` → `standard` → `fast` → `inherit`) on the next same-entrypoint run.
 
 Create the file with a one-line title `# Learnings` if it does not exist, then append the entry.
+
+## Marketplace smoke entry shape
+
+```markdown
+## YYYY-MM-DD — marketplace
+
+- Client:
+- Host:
+- Action:
+- Plugins:
+- Result: ok / fail
+- Next:
+```
+

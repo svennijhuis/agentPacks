@@ -1,4 +1,5 @@
 using System.Text.Json.Nodes;
+using AgentPacks.Cli.Generation;
 
 namespace AgentPacks.Cli.Tests;
 
@@ -53,6 +54,62 @@ public class StandardsGenerationTests
 
         Assert.Contains("Generated from standards/csharp.md", generated, StringComparison.Ordinal);
         Assert.Contains("Use nullable types.", generated, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void Shared_standards_emit_into_present_language_packs_only()
+    {
+        using var repo = new TestRepository()
+            .WithPlugin("dotnet", """
+                {
+                  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+                  "name": "dotnet",
+                  "description": "Test language pack."
+                }
+                """)
+            .WithSkill("dotnet-review", plugin: "dotnet")
+            .WithPlugin("squad", """
+                {
+                  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+                  "name": "squad",
+                  "description": "Test squad."
+                }
+                """)
+            .WithSkill("squad", plugin: "squad")
+            .WithFile("shared/standards/http-api.md", "# HTTP API\n\nShared.\n");
+
+        var run = repo.ValidateAndGenerate();
+
+        Assert.False(run.HasErrors, run.Text);
+        Assert.True(run.HasFile("plugins/dotnet/standards/http-api.md"));
+        Assert.Equal("# HTTP API\n\nShared.\n", run.File("plugins/dotnet/standards/http-api.md").Text);
+        Assert.False(run.HasFile("plugins/rust/standards/http-api.md"));
+        Assert.False(run.HasFile("plugins/squad/standards/http-api.md"));
+    }
+
+    [Fact]
+    public void Skill_references_prefer_shared_canonical_when_present()
+    {
+        using var repo = Repository()
+            .WithStandards(Catalog)
+            .WithFile("shared/standards/csharp.md", "# Shared C#\n\nPrefer this.\n");
+
+        var generated = repo.ValidateAndGenerate()
+            .File("plugins/engineering/skills/dotnet-build/references/standards/csharp.md")
+            .Text;
+
+        Assert.Contains("Generated from shared/standards/csharp.md", generated, StringComparison.Ordinal);
+        Assert.Contains("Prefer this.", generated, StringComparison.Ordinal);
+        Assert.DoesNotContain("Use nullable types.", generated, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void Shared_standard_pack_copies_are_generated_for_stale_sweep()
+    {
+        Assert.True(GeneratedPaths.IsGenerated("standards/http-api.md", ["http-api.md"]));
+        Assert.False(GeneratedPaths.IsGenerated("standards/csharp.md", ["http-api.md"]));
+        Assert.False(GeneratedPaths.IsGenerated("standards/http-api.md"));
+        Assert.False(GeneratedPaths.IsGenerated("standards/http-api.md", []));
     }
 
     [Fact]

@@ -303,29 +303,28 @@ public class LanguagePackContractTests
     }
 
     /// <summary>
-    /// Item 59: list APIs use a named collection envelope, not a root JSON array.
-    /// One Matt-tiny <c>http-api.md</c> is authored in each language pack and wired
-    /// through existing <c>standards.source.json</c> into build and review.
+    /// Items 59/64: list APIs use a named collection envelope, not a root JSON array.
+    /// Canonical <c>shared/standards/http-api.md</c> emits into each language pack and is
+    /// wired through existing <c>standards.source.json</c> into build and review.
     /// No new plugin, slash, or squad SKILL growth.
     /// </summary>
     [Fact]
     public void Http_collection_envelope_is_wired_into_each_language_pack()
     {
         var root = TestRepository.SourceRoot();
-        string? canonical = null;
+        var shared = Path.Combine(root, "shared", "standards", "http-api.md");
+        Assert.True(File.Exists(shared), shared);
+        var sharedText = File.ReadAllText(shared);
         foreach (var pack in new[] { "dotnet", "rust", "typescript" })
         {
             var plugin = Path.Combine(root, "plugins", pack);
             var path = Path.Combine(plugin, "standards", "http-api.md");
             Assert.True(File.Exists(path), path);
             var text = File.ReadAllText(path);
-            if (canonical is null)
-                canonical = text;
-            else
-                Assert.Equal(canonical, text);
+            Assert.Equal(sharedText, text);
 
             var lines = text.Split('\n').Count(line => !string.IsNullOrWhiteSpace(line));
-            Assert.True(lines <= 16, $"{pack}/standards/http-api.md is {lines} lines; Matt-tiny cap is 16.");
+            Assert.True(lines <= 50, $"{pack}/standards/http-api.md is {lines} lines; Matt-tiny cap is 50.");
             Assert.Contains("{ \"users\": [{ \"id\": 1 }] }", text, StringComparison.Ordinal);
             Assert.Contains("Good:", text, StringComparison.Ordinal);
             Assert.Contains("Bad:", text, StringComparison.Ordinal);
@@ -334,6 +333,20 @@ public class LanguagePackContractTests
             Assert.Contains("page", text, StringComparison.OrdinalIgnoreCase);
             Assert.Contains("total", text, StringComparison.OrdinalIgnoreCase);
             Assert.Contains("breaking", text, StringComparison.OrdinalIgnoreCase);
+            Assert.True(
+                text.Contains("problem+json", StringComparison.OrdinalIgnoreCase)
+                || text.Contains("error", StringComparison.OrdinalIgnoreCase),
+                $"{pack}/standards/http-api.md must mention problem+json or error.");
+            Assert.Contains("Location", text, StringComparison.Ordinal);
+            Assert.True(
+                text.Contains("ETag", StringComparison.Ordinal)
+                || text.Contains("idempotent", StringComparison.OrdinalIgnoreCase),
+                $"{pack}/standards/http-api.md must mention ETag or idempotent.");
+            Assert.Contains("Pagination", text, StringComparison.OrdinalIgnoreCase);
+            Assert.DoesNotContain("Azure", text, StringComparison.OrdinalIgnoreCase);
+            Assert.DoesNotContain("AWS", text, StringComparison.OrdinalIgnoreCase);
+            Assert.DoesNotContain("OpenAPI", text, StringComparison.OrdinalIgnoreCase);
+            Assert.DoesNotContain("OAuth", text, StringComparison.OrdinalIgnoreCase);
 
             var catalog = JsonNode.Parse(File.ReadAllText(
                 Path.Combine(plugin, "standards.source.json")))!;
@@ -352,15 +365,74 @@ public class LanguagePackContractTests
             }
         }
 
+        Assert.False(File.Exists(Path.Combine(root, "plugins", "squad", "standards", "http-api.md")));
+        Assert.False(File.Exists(Path.Combine(root, "plugins", "squad", "references", "http-api.md")));
+
         var pluginNames = Directory.GetDirectories(Path.Combine(root, "plugins"))
             .Select(path => Path.GetFileName(path) ?? path)
             .OrderBy(name => name, StringComparer.Ordinal)
             .ToArray();
         Assert.Equal(["dotnet", "git", "pack-check", "rust", "squad", "typescript"], pluginNames);
 
+        var learnings = File.ReadAllText(Path.Combine(
+            root, "plugins", "squad", "skills", "squad", "references", "learnings.md"));
+        Assert.Contains("## Marketplace smoke entry shape", learnings, StringComparison.Ordinal);
+        Assert.Contains("YYYY-MM-DD", learnings, StringComparison.Ordinal);
+        Assert.Contains("- Client:", learnings, StringComparison.Ordinal);
+        Assert.Contains("- Host:", learnings, StringComparison.Ordinal);
+        Assert.Contains("- Action:", learnings, StringComparison.Ordinal);
+        Assert.Contains("- Plugins:", learnings, StringComparison.Ordinal);
+
+        var readme = File.ReadAllText(Path.Combine(root, "README.md"));
+        Assert.Contains(
+            "**Install from Source** (VS Code / Copilot): use `#marketplace`",
+            readme,
+            StringComparison.Ordinal);
+
         new SquadContractTests().Still_four_user_commands();
         new SquadContractTests().Squad_skill_body_is_not_grown();
         new SquadContractTests().Pull_request_ci_stays_one_job_no_matrix();
+    }
+
+    /// <summary>
+    /// Item 62: Claude marketplace omits hooks; authored command names do not collide
+    /// with skill or plugin names except the (squad, squad) and (pack-check, pack-check)
+    /// homonyms. Copilot rematerialize proofs stay in force.
+    /// </summary>
+    [Fact]
+    public void Command_names_differ_from_skill_and_plugin_names()
+    {
+        new ClaudeMarketplaceHooksTests().Claude_marketplace_omits_hooks_path_and_array();
+        new HttpScenariosContractTests().Copilot_scenarios_command_name_differs_from_skill();
+        new SquadContractTests().Copilot_factory_command_name_differs_from_plugin_name();
+
+        var root = TestRepository.SourceRoot();
+        var allowed = new HashSet<(string Plugin, string Name)>
+        {
+            ("squad", "squad"),
+            ("pack-check", "pack-check")
+        };
+
+        foreach (var pluginDirectory in Directory.GetDirectories(Path.Combine(root, "plugins"))
+                     .OrderBy(path => path, StringComparer.Ordinal))
+        {
+            var pluginName = JsonNode.Parse(
+                File.ReadAllText(Path.Combine(pluginDirectory, "plugin.json")))!
+                ["name"]!.GetValue<string>();
+
+            var commandNames = AuthoredCommandNames(pluginDirectory);
+            var skillNames = AuthoredSkillNames(pluginDirectory);
+
+            foreach (var command in commandNames)
+            {
+                if (command != pluginName && !skillNames.Contains(command))
+                    continue;
+
+                Assert.True(
+                    allowed.Contains((pluginName, command)),
+                    $"command '{command}' in plugin '{pluginName}' collides with a skill or plugin name.");
+            }
+        }
     }
 
     /// <summary>Po 33: loop-audience skills open with the Internal do-not-run line.</summary>
@@ -420,6 +492,51 @@ public class LanguagePackContractTests
         Assert.Contains("user-invocable: false", generated, StringComparison.Ordinal);
         Assert.True(run.HasFile("plugins/dotnet/com.github.copilot/skills/dotnet-test-patterns/SKILL.md"));
         Assert.False(run.HasFile("plugins/dotnet/com.github.copilot/skills/dotnet-error-handling/SKILL.md"));
+    }
+
+    private static HashSet<string> AuthoredCommandNames(string pluginDirectory)
+    {
+        var directory = Path.Combine(pluginDirectory, "commands");
+        if (!Directory.Exists(directory))
+            return new HashSet<string>(StringComparer.Ordinal);
+
+        return Directory.GetFiles(directory, "*.md")
+            .Select(path => FrontmatterName(File.ReadAllText(path)))
+            .ToHashSet(StringComparer.Ordinal);
+    }
+
+    private static HashSet<string> AuthoredSkillNames(string pluginDirectory)
+    {
+        var directory = Path.Combine(pluginDirectory, "skills");
+        if (!Directory.Exists(directory))
+            return new HashSet<string>(StringComparer.Ordinal);
+
+        return Directory.GetDirectories(directory)
+            .Select(skill => Path.Combine(skill, "SKILL.md"))
+            .Where(File.Exists)
+            .Select(path => FrontmatterName(File.ReadAllText(path)))
+            .ToHashSet(StringComparer.Ordinal);
+    }
+
+    private static string FrontmatterName(string markdown)
+    {
+        var inFrontmatter = false;
+        foreach (var line in markdown.Split('\n'))
+        {
+            var trimmed = line.TrimEnd('\r');
+            if (trimmed == "---")
+            {
+                if (inFrontmatter)
+                    break;
+                inFrontmatter = true;
+                continue;
+            }
+
+            if (inFrontmatter && trimmed.StartsWith("name:", StringComparison.Ordinal))
+                return trimmed["name:".Length..].Trim().Trim('"');
+        }
+
+        throw new InvalidOperationException("missing frontmatter name");
     }
 
     private static IEnumerable<string> AuthoredSkillFiles(string root) =>
