@@ -22,6 +22,7 @@ Constraints:
 - Facts from repo or primary sources only. Never ask a fact. Find facts yourself.
 - Decisions stay with the human. Do not load an external grilling catalog.
 - Prefer constraint-shaped recommendations (`must not…`, `out of scope…`) over do-lists.
+- If effort is more than one session, say so and stop.
 - No source code. Do not implement or verify.
 
 `next-round`:
@@ -30,7 +31,7 @@ Constraints:
 3. Compare two shapes for a consequential seam. Ask architecture fitness when the seam must survive one notch of growth.
 4. Empty frontier → confirmation question only.
 
-`write-plan`: require confirmation and an empty frontier. Write exactly `docs/plans/<slug>.md` with the contract's sections (including Non-goals, Dependency philosophy, Performance/resource bounds, Status, Fix list, Handoff notes). Each business criterion gets a test-plan matrix row: happy / edge / fail + unit vs integration. Deployed/API: cite smoke-matrix.
+`write-plan`: require confirmation and an empty frontier. Write exactly `docs/plans/<slug>.md` with the contract's sections (including Non-goals, Dependency philosophy, Performance/resource bounds, Status, Fix list, Handoff notes). Each business criterion gets a test-plan matrix row: happy / edge / fail + unit vs integration + named Seam. Deployed/API: cite smoke-matrix.
 
 Read `docs/decisions.md` when it exists; never create or edit it.
 

@@ -195,6 +195,62 @@ public sealed class VerificationEvidenceTests
             VerificationEvidence.Evaluate(new VerificationContext(true, ["dotnet"], withEdges)));
     }
 
+    /// <summary>
+    /// Item 53: a matrix with a blank or unconfirmed Seam is not verified.
+    /// Tests that hit internals not named in the Seam column fail.
+    /// </summary>
+    [Fact]
+    public void Blank_or_unconfirmed_seam_and_unnamed_internal_hits_are_not_verified()
+    {
+        const string named = """
+            | Criterion | Happy | Edge | Fail | Kind | Seam |
+            |---|---|---|---|---|---|
+            | 1 | create | empty | 400 | unit | `POST /orders` |
+            """;
+
+        const string blank = """
+            | Criterion | Happy | Edge | Fail | Kind | Seam |
+            |---|---|---|---|---|---|
+            | 1 | create | empty | 400 | unit |  |
+            """;
+
+        const string unconfirmed = """
+            | Criterion | Happy | Edge | Fail | Kind | Seam |
+            |---|---|---|---|---|---|
+            | 1 | create | empty | 400 | unit | unconfirmed |
+            """;
+
+        const string missingColumn = """
+            | Criterion | Happy | Edge | Fail | Kind |
+            |---|---|---|---|---|
+            | 1 | create | empty | 400 | unit |
+            """;
+
+        const string mixedShortRow = """
+            | Criterion | Happy | Edge | Fail | Kind | Seam |
+            |---|---|---|---|---|---|
+            | 1 | create | empty | 400 | unit | `POST /orders` |
+            | 2 | list | empty | 404 | unit |
+            """;
+
+        Assert.Equal(VerificationEvidence.NotVerified, TestPlanSeam.ResultForSeam(""));
+        Assert.Equal(VerificationEvidence.NotVerified, TestPlanSeam.ResultForSeam("unconfirmed"));
+        Assert.Equal(VerificationEvidence.NotVerified, TestPlanSeam.ResultForSeam("None"));
+        Assert.Equal(VerificationEvidence.NotVerified, TestPlanSeam.ResultForSeam("none"));
+        Assert.Equal(VerificationEvidence.NotVerified, TestPlanSeam.ResultForSeam("—"));
+        Assert.Equal(VerificationEvidence.NotVerified, TestPlanSeam.ResultForSeam("N/A"));
+        Assert.Equal(VerificationEvidence.Pass, TestPlanSeam.ResultForSeam("POST /orders"));
+
+        Assert.Equal(VerificationOutcome.NotPass, TestPlanSeam.Evaluate(blank, ["POST /orders"]));
+        Assert.Equal(VerificationOutcome.NotPass, TestPlanSeam.Evaluate(unconfirmed, ["POST /orders"]));
+        Assert.Equal(VerificationOutcome.NotPass, TestPlanSeam.Evaluate(missingColumn, ["POST /orders"]));
+        Assert.Equal(VerificationOutcome.NotPass, TestPlanSeam.Evaluate(mixedShortRow, ["POST /orders"]));
+        Assert.Equal(
+            VerificationOutcome.NotPass,
+            TestPlanSeam.Evaluate(named, ["Orders.internal.Validate"]));
+        Assert.Equal(VerificationOutcome.Pass, TestPlanSeam.Evaluate(named, ["POST /orders"]));
+    }
+
     private static VerificationReport PassingDotnet() =>
         VerificationEvidence.Parse("""
             | Criterion | Result | Command | Evidence |
