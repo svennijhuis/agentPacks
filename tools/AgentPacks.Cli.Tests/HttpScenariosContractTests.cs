@@ -605,6 +605,81 @@ public sealed class HttpScenariosContractTests
         new SquadContractTests().Pull_request_ci_stays_one_job_no_matrix();
     }
 
+    /// <summary>
+    /// Item 59 replan: one Matt-tiny <c>plugins/squad/references/http-api.md</c>.
+    /// Language packs do not duplicate it or wire it through
+    /// <c>standards.source.json</c>. <c>scenarios-md</c> loads it when HTTP
+    /// handlers change. Still four user slashes, one-job CI, no em dash.
+    /// </summary>
+    [Fact]
+    public void Http_collection_envelope_lives_in_squad_not_language_packs()
+    {
+        var root = TestRepository.SourceRoot();
+        var path = Path.Combine(root, "plugins", "squad", "references", "http-api.md");
+        Assert.True(File.Exists(path), path);
+
+        var text = File.ReadAllText(path);
+        var lines = text.Split('\n').Count(line => !string.IsNullOrWhiteSpace(line));
+        Assert.True(lines <= 16, $"squad/references/http-api.md is {lines} lines; Matt-tiny cap is 16.");
+        Assert.Contains("{ \"users\": [{ \"id\": 1 }] }", text, StringComparison.Ordinal);
+        Assert.Contains("Good:", text, StringComparison.Ordinal);
+        Assert.Contains("Bad:", text, StringComparison.Ordinal);
+        var badAt = text.IndexOf("Bad:", StringComparison.Ordinal);
+        Assert.Contains("[{ \"id\": 1 }]", text[badAt..], StringComparison.Ordinal);
+        Assert.Contains("page", text, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("total", text, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("breaking", text, StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain("\u2014", text, StringComparison.Ordinal);
+
+        var copies = Directory.GetFiles(Path.Combine(root, "plugins"), "http-api.md", SearchOption.AllDirectories)
+            .Where(file => !file.Contains($"{Path.DirectorySeparatorChar}com.", StringComparison.Ordinal))
+            .Select(file => Path.GetRelativePath(root, file).Replace('\\', '/'))
+            .OrderBy(relative => relative, StringComparer.Ordinal)
+            .ToArray();
+        Assert.Equal(["plugins/squad/references/http-api.md"], copies);
+
+        var skill = File.ReadAllText(ScenariosSkillPath(root));
+        Assert.Contains("../../references/http-api.md", skill, StringComparison.Ordinal);
+        Assert.Contains("when HTTP handlers change", skill, StringComparison.Ordinal);
+        Assert.Contains("not on every lang build", skill, StringComparison.Ordinal);
+        Assert.Contains("{ \"users\": [\u2026] }", skill, StringComparison.Ordinal);
+        Assert.Contains("{ \"pets\": [{ \"id\": 1 }] }", skill, StringComparison.Ordinal);
+        Assert.Contains("{ \"pets\": [] }", skill, StringComparison.Ordinal);
+        Assert.DoesNotContain("| 200 | JSON array |", skill, StringComparison.Ordinal);
+
+        foreach (var pack in new[] { "dotnet", "rust", "typescript" })
+        {
+            var plugin = Path.Combine(root, "plugins", pack);
+            Assert.False(File.Exists(Path.Combine(plugin, "standards", "http-api.md")));
+
+            var catalog = JsonNode.Parse(File.ReadAllText(
+                Path.Combine(plugin, "standards.source.json")))!;
+            Assert.Null(catalog["documents"]!["http-api"]);
+            foreach (var consumer in catalog["consumers"]!.AsObject())
+            {
+                Assert.DoesNotContain(
+                    "http-api",
+                    consumer.Value!.AsArray().Select(value => value!.GetValue<string>()));
+            }
+
+            foreach (var skillName in new[] { $"{pack}-build", $"{pack}-review" })
+            {
+                var skillText = File.ReadAllText(Path.Combine(plugin, "skills", skillName, "SKILL.md"));
+                Assert.DoesNotContain("http-api.md", skillText, StringComparison.Ordinal);
+            }
+        }
+
+        Assert.Equal(
+            ["dotnet", "git", "pack-check", "rust", "squad", "typescript"],
+            Directory.GetDirectories(Path.Combine(root, "plugins"))
+                .Select(dir => Path.GetFileName(dir) ?? dir)
+                .OrderBy(name => name, StringComparer.Ordinal));
+
+        new SquadContractTests().Still_four_user_commands();
+        new SquadContractTests().Squad_skill_body_is_not_grown();
+        new SquadContractTests().Pull_request_ci_stays_one_job_no_matrix();
+    }
+
     private static TestRepository SquadCommandRepo(string root)
     {
         var repo = new TestRepository()

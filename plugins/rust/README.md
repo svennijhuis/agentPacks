@@ -18,7 +18,6 @@ Canonical standards live once under `standards/`:
 - `rust.md` — ownership, public APIs, types, dependencies, unsafe code, and formatting.
 - `errors-concurrency.md` — recoverable errors, panic boundaries, async work, locks, and cancellation.
 - `testing.md` — unit, integration, documentation, feature, and concurrent tests.
-- `http-api.md` — named collection envelope for list APIs, not a root JSON array.
 
 `standards.source.json` maps each document to the skills that need it. Marketplace generation copies
 only those documents into each consumer's `references/standards/` directory. Generated copies carry

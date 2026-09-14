@@ -13,6 +13,8 @@ Type /scenarios. One job. Write only in the current app workspace (the repo unde
 Do not require a named cloud product or TST. Do not invent a host.
 
 1. Read [the smoke matrix](../../references/smoke-matrix.md). Seed kinds from that shape.
+   Read [HTTP collection envelope](../../references/http-api.md) when HTTP handlers change.
+   Squad loads it then, not on every lang build. List Expected is `{ "users": […] }`, not a root JSON array.
 2. Seed **changed code first**: controllers, routes, handlers, deployed HTTP APIs / cloud hosts (HTTP and timer/cron triggers).
 3. OpenAPI/Swagger if present — fill gaps only. Not required. Do not ask for a spec when code is enough.
 4. Write only `docs/smoke/<slug>.md`. Slug from the change or `info.title`.
@@ -21,8 +23,8 @@ Do not require a named cloud product or TST. Do not invent a host.
 
 | # | Case | Kind | Request | Status | Expected | Why |
 |---|---|---|---|---|---|---|
-| 1 | list | happy | GET /pets | 200 | JSON array | documented list |
-| 2 | empty list | edge | GET /pets | 200 | empty array | empty is valid |
+| 1 | list | happy | GET /pets | 200 | { "pets": [{ "id": 1 }] } | documented list |
+| 2 | empty list | edge | GET /pets | 200 | { "pets": [] } | empty is valid |
 | 3 | unknown id | fail | GET /pets/no-such | 404 | problem+json | missing resource |
 | 4 | inactive excluded | biz | GET /pets | 200 | no inactive | documented rule |
 | 5 | list still works | nothing-breaks | GET /pets | 200 | same shape | no-op on this path |

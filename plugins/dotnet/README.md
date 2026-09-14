@@ -20,7 +20,6 @@ Canonical standards live once under `standards/`:
 - `async-errors.md` — async, cancellation, and exception boundaries.
 - `testing.md` — xUnit, integration tests, time, and verification.
 - `layers.md` — Web / Application / Infrastructure boundaries when the solution already uses them.
-- `http-api.md` — named collection envelope for list APIs, not a root JSON array.
 
 `standards.source.json` maps each document to the skills that need it. Marketplace generation copies
 only those documents into each consumer's `references/standards/` directory. Generated copies carry
