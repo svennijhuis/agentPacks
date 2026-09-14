@@ -79,7 +79,7 @@ Keep these copies. Subagents and separately installed packs start without the pa
 |---|---|
 | Skill-load preamble and the CLAUDE.md rule on every squad agent | Each specialist starts empty |
 | Locked v1 flow in the skill and the READMEs | Agents follow the skill; humans follow the README |
-| Malformed-report re-ask in command numbered steps, the skill, and the review contract | The main agent follows the command |
+| Malformed-report re-ask in command numbered steps, `references/malformed-reask.md` (skill pointer), and the review contract | The main agent follows the command |
 | Language-pack slot boilerplate (`Internal. Do not run directly…`) | Each slot skill is loaded on its own |
 | Parallel language-pack skills | Packs install separately |
 

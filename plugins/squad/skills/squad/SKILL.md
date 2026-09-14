@@ -97,33 +97,14 @@ Read [the review contract](references/review-contract.md). Dual-axis: correctnes
 Security only when gated. Launch `squad-reviewer`, `squad-simplifier`, and conditional
 `squad-security-reviewer` in parallel, then `squad-orchestrator`.
 
-### Malformed report (one re-ask, hard cap)
-
-If the orchestrator returns an input error for a missing or malformed report, the **main agent**
-may re-ask that producer **once** with the contract shape, then merges again with the **same round number**. **Hard cap:** at most one re-ask **per producer per review round**. Never a second re-ask for the same producer in the same round. Never "keep fixing the report until it parses". Do not increment the round for parse repair. After a failed re-ask (or if the budget is already spent), merge **once** with that axis marked `accepted — malformed after re-ask` **replacing** the bad payload (**non-blocking**) — do not spawn that producer again. The marker is a conforming stand-in; the orchestrator must not input-error that axis and must not invent a blocking finding from it. If input-error still returns after the marker was already supplied, **stop and surface** — no further merge, no further re-ask. A repeated input-error without a marker yet is not a new grant; supply the marker once. Do not hard-stop the whole run on the first malformed report when other reports are usable. The orchestrator itself never retries or launches agents.
-
+Malformed report (one re-ask, hard cap): read [malformed re-ask](references/malformed-reask.md).
 `fix` uses a **fresh** implementer; the author of the rejected code is not the fixer. At most two fix rounds.
-
-### Optional residual fixup
-
-After `pass`, or after two fix rounds when only residual `low`/`tiny` notes remain on the merge
-report: at most **one** residual fixup pass (main agent or a fresh implementer), limited to those
-notes. Never a third full reviewer fan-out. Never another implement/review/re-ask cycle from residual.
-If code changed, run a verifier spot-check only, then hand off. Failed spot-check → hand off with
-notes; do not start another fixup. Residual after code change does not keep a clean `pass` verdict —
-handoff as uncommitted with residual notes. Still do not land the branch.
+Optional residual fixup: read [residual fixup](references/residual-fixup.md).
 
 ## Advisor-lite
 
-`/squad` only. Not a slash command. Do not add an advisor command.
-
-At plan-confirm, when stuck, and before handoff: one read-only consult on a stronger
-`models.source.json` tier than the current default. Order: inherit < fast < standard < frontier.
-Default `inherit` consults `standard`. Read-only: no edits, no extra reviewer fan-out, no new loop.
-Skip on `/squad-review`.
+`/squad` only. Skip on `/squad-review`. Read [advisor-lite](references/advisor-lite.md).
 
 ## Worktree
 
-Preserve the primary checkout and externally created worktrees. Remove a squad-created worktree
-only when `git status --porcelain` is empty, using `git worktree remove <exact-path>` without `--force`.
-Preserve dirty worktrees. Hand off uncommitted. Append one `docs/learnings.md` entry.
+Read [worktree](references/worktree.md). Hand off uncommitted. Append one `docs/learnings.md` entry.

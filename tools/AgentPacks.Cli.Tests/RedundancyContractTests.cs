@@ -24,8 +24,9 @@ public sealed class RedundancyContractTests
 
     /// <summary>
     /// Reviewer named proof. KEEP: skill-load preamble and CLAUDE.md on every squad agent;
-    /// locked v1 in the skill and both READMEs; malformed re-ask in both commands, the skill,
-    /// and the review contract; Internal slot line on every language-pack slot skill.
+    /// locked v1 in the skill and both READMEs; malformed re-ask in both commands,
+    /// <c>references/malformed-reask.md</c> (skill pointer only), and the review contract;
+    /// Internal slot line on every language-pack slot skill.
     /// </summary>
     [Fact]
     public void Flow_required_copies_stay_on_every_isolated_reader()
@@ -61,13 +62,18 @@ public sealed class RedundancyContractTests
                  {
                      Path.Combine("plugins", "squad", "commands", "squad.md"),
                      Path.Combine("plugins", "squad", "commands", "squad-review.md"),
-                     Path.Combine("plugins", "squad", "skills", "squad", "SKILL.md")
+                     Path.Combine("plugins", "squad", "skills", "squad", "references", "malformed-reask.md")
                  })
         {
             var text = File.ReadAllText(Path.Combine(root, relative));
             Assert.Contains("re-ask that producer **once**", text, StringComparison.Ordinal);
             Assert.Contains("accepted — malformed after re-ask", text, StringComparison.Ordinal);
         }
+
+        var squadSkill = File.ReadAllText(Path.Combine(
+            root, "plugins", "squad", "skills", "squad", "SKILL.md"));
+        Assert.Contains("references/malformed-reask.md", squadSkill, StringComparison.Ordinal);
+        Assert.DoesNotContain("re-ask that producer **once**", squadSkill, StringComparison.Ordinal);
 
         Assert.Contains(
             "accepted — malformed after re-ask",
