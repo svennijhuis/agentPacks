@@ -218,6 +218,80 @@ public class LanguagePackContractTests
             Assert.True(File.Exists(Path.Combine(plugin, "standards", document + ".md")), document);
     }
 
+    /// <summary>
+    /// Items 59/64: list APIs use a named collection envelope. One file under
+    /// <c>shared/standards/http-api.md</c> is referenced by each language pack; no pack copies.
+    /// </summary>
+    [Fact]
+    public void Language_packs_map_http_api_to_shared_path()
+    {
+        var root = TestRepository.SourceRoot();
+        var shared = Path.Combine(root, "shared", "standards", "http-api.md");
+        Assert.True(File.Exists(shared), shared);
+        var sharedText = File.ReadAllText(shared);
+        var lines = sharedText.Split('\n').Count(line => !string.IsNullOrWhiteSpace(line));
+        Assert.True(lines <= 50, $"shared/standards/http-api.md is {lines} lines; Matt-tiny cap is 50.");
+        Assert.Contains("{ \"users\": [{ \"id\": 1 }] }", sharedText, StringComparison.Ordinal);
+        Assert.Contains("include", sharedText, StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain("Azure", sharedText, StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain("AWS", sharedText, StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain("OpenAPI", sharedText, StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain("OAuth", sharedText, StringComparison.OrdinalIgnoreCase);
+
+        foreach (var pack in new[] { "dotnet", "rust", "typescript" })
+        {
+            Assert.False(
+                File.Exists(Path.Combine(root, "plugins", pack, "standards", "http-api.md")),
+                $"{pack} must not keep a copy of http-api.md");
+
+            var catalog = JsonNode.Parse(File.ReadAllText(
+                Path.Combine(root, "plugins", pack, "standards.source.json")))!;
+            Assert.Equal(
+                "shared/standards/http-api.md",
+                catalog["documents"]!["http-api"]!.GetValue<string>());
+            var consumers = catalog["consumers"]!.AsObject();
+            Assert.Contains("http-api", consumers[$"{pack}-build"]!.AsArray().Select(value => value!.GetValue<string>()));
+            Assert.Contains("http-api", consumers[$"{pack}-review"]!.AsArray().Select(value => value!.GetValue<string>()));
+            Assert.DoesNotContain(
+                "http-api",
+                consumers[$"{pack}-test-patterns"]!.AsArray().Select(value => value!.GetValue<string>()));
+
+            foreach (var skill in new[] { $"{pack}-build", $"{pack}-review" })
+            {
+                Assert.Contains("http-api.md", SourceSkills.Text(pack, skill), StringComparison.Ordinal);
+            }
+        }
+
+        Assert.False(File.Exists(Path.Combine(root, "plugins", "squad", "standards", "http-api.md")));
+        Assert.False(File.Exists(Path.Combine(root, "plugins", "squad", "references", "http-api.md")));
+    }
+
+    /// <summary>Item 60: thin marketplace smoke entry shape in Squad learnings.</summary>
+    [Fact]
+    public void Marketplace_smoke_entry_shape_is_documented()
+    {
+        var learnings = File.ReadAllText(Path.Combine(
+            TestRepository.SourceRoot(),
+            "plugins", "squad", "skills", "squad", "references", "learnings.md"));
+        Assert.Contains("## Marketplace smoke entry shape", learnings, StringComparison.Ordinal);
+        Assert.Contains("YYYY-MM-DD", learnings, StringComparison.Ordinal);
+        Assert.Contains("- Client:", learnings, StringComparison.Ordinal);
+        Assert.Contains("- Host:", learnings, StringComparison.Ordinal);
+        Assert.Contains("- Action:", learnings, StringComparison.Ordinal);
+        Assert.Contains("- Plugins:", learnings, StringComparison.Ordinal);
+    }
+
+    /// <summary>Item 61: README Install-from-Source line uses #marketplace.</summary>
+    [Fact]
+    public void Readme_install_from_source_uses_marketplace_ref()
+    {
+        var readme = File.ReadAllText(Path.Combine(TestRepository.SourceRoot(), "README.md"));
+        Assert.Contains(
+            "**Install from Source** (VS Code / Copilot): use `#marketplace`",
+            readme,
+            StringComparison.Ordinal);
+    }
+
     public const string InternalDoNotRunLine =
         "Internal. Do not run directly — Squad loads by exact Skill name.";
 

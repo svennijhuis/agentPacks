@@ -185,4 +185,110 @@ public class StandardsGenerationTests
             repo.Root,
             "plugins/engineering/skills/dotnet-review/references/notes.md")));
     }
+
+    [Fact]
+    public void Shared_path_generates_into_consumer_references_without_a_pack_copy()
+    {
+        using var repo = Repository()
+            .WithFile("shared/standards/http-api.md", "# HTTP API\n\nShared envelope.\n")
+            .WithStandards("""
+                {
+                  "$schema": "../../schema/standards.schema.json",
+                  "version": 1,
+                  "documents": {
+                    "http-api": "shared/standards/http-api.md"
+                  },
+                  "consumers": {
+                    "dotnet-review": ["http-api"]
+                  }
+                }
+                """);
+
+        var run = repo.ValidateAndGenerate();
+
+        Assert.False(run.HasErrors, run.Text);
+        Assert.True(run.HasFile("plugins/engineering/skills/dotnet-review/references/standards/http-api.md"));
+        Assert.False(run.HasFile("plugins/engineering/standards/http-api.md"));
+        Assert.False(File.Exists(Path.Combine(repo.Root, "plugins/engineering/standards/http-api.md")));
+
+        var generated = run.File("plugins/engineering/skills/dotnet-review/references/standards/http-api.md").Text;
+        Assert.Contains("Generated from shared/standards/http-api.md", generated, StringComparison.Ordinal);
+        Assert.Contains("Shared envelope.", generated, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void Pack_document_that_reuses_a_shared_filename_is_rejected()
+    {
+        using var repo = Repository()
+            .WithFile("shared/standards/http-api.md", "# Shared\n")
+            .WithFile("plugins/engineering/standards/http-api.md", "# Pack copy\n")
+            .WithStandards("""
+                {
+                  "$schema": "../../schema/standards.schema.json",
+                  "version": 1,
+                  "documents": {
+                    "http-api": "standards/http-api.md"
+                  },
+                  "consumers": {
+                    "dotnet-review": ["http-api"]
+                  }
+                }
+                """);
+
+        var run = repo.Validate();
+
+        Assert.True(run.HasErrors);
+        Assert.Contains("same filename as shared/standards/http-api.md", run.Text, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void Byte_identical_authored_standards_are_rejected()
+    {
+        const string text = "# HTTP API\n\nSame body.\n";
+        using var repo = Repository()
+            .WithFile("shared/standards/http-api.md", text)
+            .WithFile("plugins/engineering/standards/other.md", text)
+            .WithStandards("""
+                {
+                  "$schema": "../../schema/standards.schema.json",
+                  "version": 1,
+                  "documents": {
+                    "other": "standards/other.md"
+                  },
+                  "consumers": {
+                    "dotnet-review": ["other"]
+                  }
+                }
+                """);
+
+        var run = repo.Validate();
+
+        Assert.True(run.HasErrors);
+        Assert.Contains("has the same content as", run.Text, StringComparison.Ordinal);
+        Assert.Contains("shared/standards/", run.Text, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void Shared_path_that_escapes_shared_standards_is_rejected()
+    {
+        using var repo = Repository()
+            .WithFile("shared/elsewhere.md", "# Escape\n")
+            .WithStandards("""
+                {
+                  "$schema": "../../schema/standards.schema.json",
+                  "version": 1,
+                  "documents": {
+                    "http-api": "shared/standards/../elsewhere.md"
+                  },
+                  "consumers": {
+                    "dotnet-review": ["http-api"]
+                  }
+                }
+                """);
+
+        var run = repo.Validate();
+
+        Assert.True(run.HasErrors);
+        Assert.Contains("escapes shared/standards/", run.Text, StringComparison.Ordinal);
+    }
 }
