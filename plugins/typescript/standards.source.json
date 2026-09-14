@@ -3,21 +3,18 @@
   "version": 1,
   "documents": {
     "typescript": "standards/typescript.md",
-    "testing": "standards/testing.md",
-    "http-api": "standards/http-api.md"
+    "testing": "standards/testing.md"
   },
   "consumers": {
     "typescript-build": [
-      "typescript",
-      "http-api"
+      "typescript"
     ],
     "typescript-test-patterns": [
       "testing"
     ],
     "typescript-review": [
       "typescript",
-      "testing",
-      "http-api"
+      "testing"
     ]
   }
 }
