@@ -10,10 +10,10 @@ user-invocable: false
 
 Type /scenarios. One job. Write only in the current app workspace (the repo under test). Scenarios md for a real tester on a deployed env.
 `/squad-review` is code/diff. `/squad` may read this file later for test design; it does not write or push smoke.
-Do not require Azure, TST, or AWS. Do not invent a host.
+Do not require a named cloud product or TST. Do not invent a host.
 
 1. Read [the smoke matrix](../../references/smoke-matrix.md). Seed kinds from that shape.
-2. Seed **changed code first**: controllers, routes, handlers, Azure Functions / AWS Lambda (HTTP and timer/cron triggers).
+2. Seed **changed code first**: controllers, routes, handlers, deployed HTTP APIs / cloud hosts (HTTP and timer/cron triggers).
 3. OpenAPI/Swagger if present — fill gaps only. Not required. Do not ask for a spec when code is enough.
 4. Write only `docs/smoke/<slug>.md`. Slug from the change or `info.title`.
 5. Table columns: # · Case · Kind · Request · Status · Expected · Why.

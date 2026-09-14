@@ -226,8 +226,10 @@ public sealed class HttpScenariosContractTests
     }
 
     /// <summary>
-    /// Item 44 lock. Env-agnostic: path from the changed handler, tester already
-    /// has the deployed host. Azure, TST, and AWS are not required targets.
+    /// Item 63 lock. Env-agnostic: path from the changed handler, tester already
+    /// has the deployed host. Named cloud products and TST are not required.
+    /// Azure/AWS product names stay off scenarios surfaces. Rust still greps
+    /// <c>azure-pipelines.yml</c> (CI filename, not product marketing).
     /// Request is not a <c>$BASE_URL</c> placeholder — the route is known.
     /// </summary>
     [Fact]
@@ -237,20 +239,31 @@ public sealed class HttpScenariosContractTests
         var command = File.ReadAllText(Path.Combine(root, "plugins", "squad", "commands", "scenarios.md"));
         var skill = File.ReadAllText(ScenariosSkillPath(root));
         var readme = File.ReadAllText(Path.Combine(root, "README.md"));
-        var combined = string.Join('\n', command, skill);
+        var combined = string.Join('\n', command, skill, readme);
 
         Assert.Contains("method and path from the changed handler", combined, StringComparison.Ordinal);
         Assert.Contains("Do not invent a host", combined, StringComparison.Ordinal);
         Assert.Contains("deployed env", combined, StringComparison.Ordinal);
         Assert.DoesNotContain("BASE_URL", combined, StringComparison.Ordinal);
-        Assert.Contains("Do not require Azure, TST, or AWS", command, StringComparison.Ordinal);
-        Assert.Contains("Do not require Azure, TST, or AWS", skill, StringComparison.Ordinal);
-        Assert.Contains("Do not require Azure, TST, or AWS", readme, StringComparison.Ordinal);
+        Assert.Contains("Do not require a named cloud product or TST", command, StringComparison.Ordinal);
+        Assert.Contains("Do not require a named cloud product or TST", skill, StringComparison.Ordinal);
+        Assert.Contains("Do not require a named cloud product or TST", readme, StringComparison.Ordinal);
         Assert.Contains("Do not invent a host", readme, StringComparison.Ordinal);
         Assert.DoesNotContain("Use `BASE_URL`", readme, StringComparison.Ordinal);
         Assert.DoesNotContain("on TST", combined, StringComparison.Ordinal);
         Assert.DoesNotContain("Azure App Service", combined, StringComparison.Ordinal);
         Assert.DoesNotContain("AWS API Gateway", combined, StringComparison.Ordinal);
+        Assert.DoesNotContain("Azure Functions", combined, StringComparison.Ordinal);
+        Assert.DoesNotContain("AWS Lambda", combined, StringComparison.Ordinal);
+        Assert.DoesNotContain("Azure", combined, StringComparison.Ordinal);
+        Assert.DoesNotContain("AWS", combined, StringComparison.Ordinal);
+
+        var rustBuild = File.ReadAllText(Path.Combine(
+            root, "plugins", "rust", "skills", "rust-build", "references", "commands.md"));
+        var rustTest = File.ReadAllText(Path.Combine(
+            root, "plugins", "rust", "skills", "rust-test-patterns", "references", "commands.md"));
+        Assert.Contains("azure-pipelines.yml", rustBuild, StringComparison.Ordinal);
+        Assert.Contains("azure-pipelines.yml", rustTest, StringComparison.Ordinal);
     }
 
     /// <summary>
@@ -287,8 +300,10 @@ public sealed class HttpScenariosContractTests
         Assert.Contains("controllers", combined, StringComparison.Ordinal);
         Assert.Contains("routes", combined, StringComparison.Ordinal);
         Assert.Contains("handlers", combined, StringComparison.Ordinal);
-        Assert.Contains("Azure Functions", combined, StringComparison.Ordinal);
-        Assert.Contains("AWS Lambda", combined, StringComparison.Ordinal);
+        Assert.Contains("deployed HTTP APIs", combined, StringComparison.Ordinal);
+        Assert.Contains("cloud hosts", combined, StringComparison.Ordinal);
+        Assert.DoesNotContain("Azure Functions", combined, StringComparison.Ordinal);
+        Assert.DoesNotContain("AWS Lambda", combined, StringComparison.Ordinal);
         Assert.Contains("fills gaps only", combined, StringComparison.Ordinal);
         Assert.Contains("Not required", skill, StringComparison.Ordinal);
         Assert.Contains("not required", command, StringComparison.Ordinal);
