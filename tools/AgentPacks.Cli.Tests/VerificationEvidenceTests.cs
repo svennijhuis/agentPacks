@@ -158,6 +158,28 @@ public sealed class VerificationEvidenceTests
             **Coverage:** empty input and duplicate id
             """);
 
+        var benchPathBuild = VerificationEvidence.Parse("""
+            | Criterion | Result | Command | Evidence |
+            |---|---|---|---|
+            | 1 | pass | `dotnet build src/Bench/App.csproj` | `Build succeeded. 0 Warning(s)` |
+
+            **Suite:** pass
+            **Stacks:** dotnet
+            **Boundary:** not covered
+            **Coverage:** empty input and duplicate id
+            """);
+
+        var tscExec = VerificationEvidence.Parse("""
+            | Criterion | Result | Command | Evidence |
+            |---|---|---|---|
+            | 1 | pass | `pnpm exec tsc --noEmit` | `Found 0 errors` |
+
+            **Suite:** pass
+            **Stacks:** dotnet
+            **Boundary:** not covered
+            **Coverage:** empty input and duplicate id
+            """);
+
         Assert.True(VerificationEvidence.IsCompileOnlyCommand("dotnet build App.slnx"));
         Assert.True(VerificationEvidence.IsCompileOnlyCommand("`cargo check --all-targets`"));
         Assert.True(VerificationEvidence.IsCompileOnlyCommand("tsc --noEmit -p tsconfig.json"));
@@ -166,8 +188,14 @@ public sealed class VerificationEvidenceTests
         Assert.True(VerificationEvidence.IsCompileOnlyCommand("dotnet build App.Http.csproj"));
         Assert.True(VerificationEvidence.IsCompileOnlyCommand("dotnet build App.Tests.csproj --no-restore"));
         Assert.True(VerificationEvidence.IsCompileOnlyCommand("dotnet build Bench.csproj"));
+        Assert.True(VerificationEvidence.IsCompileOnlyCommand("dotnet build Start.csproj"));
+        Assert.True(VerificationEvidence.IsCompileOnlyCommand("dotnet build Serve.csproj"));
+        Assert.True(VerificationEvidence.IsCompileOnlyCommand("dotnet build src/Bench/App.csproj"));
         Assert.True(VerificationEvidence.IsCompileOnlyCommand("cargo build -p http"));
+        Assert.True(VerificationEvidence.IsCompileOnlyCommand("cargo build -p bench"));
         Assert.True(VerificationEvidence.IsCompileOnlyCommand("npm run build -- --filter=@scope/http-client"));
+        Assert.True(VerificationEvidence.IsCompileOnlyCommand("pnpm exec tsc --noEmit"));
+        Assert.True(VerificationEvidence.IsCompileOnlyCommand("npm exec tsc --noEmit"));
         Assert.False(VerificationEvidence.IsCompileOnlyCommand("dotnet test App.slnx"));
         Assert.False(VerificationEvidence.IsCompileOnlyCommand("cargo run --bin cli -- --help"));
         Assert.False(VerificationEvidence.IsCompileOnlyCommand("dotnet build App.slnx && dotnet test App.slnx --no-build"));
@@ -184,6 +212,14 @@ public sealed class VerificationEvidenceTests
             VerificationEvidence.Evaluate(new VerificationContext(true, ["dotnet"], httpProjectBuild)));
         Assert.Equal(VerificationOutcome.Pass,
             VerificationEvidence.Evaluate(new VerificationContext(true, ["dotnet"], httpProjectBuild, CompileCriteria: [1])));
+        Assert.Equal(VerificationOutcome.NotPass,
+            VerificationEvidence.Evaluate(new VerificationContext(true, ["dotnet"], benchPathBuild)));
+        Assert.Equal(VerificationOutcome.Pass,
+            VerificationEvidence.Evaluate(new VerificationContext(true, ["dotnet"], benchPathBuild, CompileCriteria: [1])));
+        Assert.Equal(VerificationOutcome.NotPass,
+            VerificationEvidence.Evaluate(new VerificationContext(true, ["dotnet"], tscExec)));
+        Assert.Equal(VerificationOutcome.Pass,
+            VerificationEvidence.Evaluate(new VerificationContext(true, ["dotnet"], tscExec, CompileCriteria: [1])));
     }
 
     /// <summary>

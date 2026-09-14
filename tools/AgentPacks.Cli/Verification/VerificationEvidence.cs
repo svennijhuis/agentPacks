@@ -82,8 +82,9 @@ public static partial class VerificationEvidence
         RegexOptions.IgnoreCase)]
     private static partial Regex CompileVerb { get; }
 
-    // Toolchain verbs and URL calls execute code. Path tokens like Http/Tests/Bench must not match.
-    [GeneratedRegex(@"\b(dotnet|cargo|go)\s+(test|run)\b|\b(npm|pnpm|yarn|bun)\s+test\b|\b(curl|wget|exec|invoke|start|serve)\b|https?://|\bbench\b(?=\s|/|$)",
+    // Toolchain verbs and URL calls execute code. Path tokens (Http, Tests, Bench, Start, Serve)
+    // and `pnpm exec tsc` must not match. curl/wget count only as the command, not a path word.
+    [GeneratedRegex(@"\b(dotnet|cargo|go)\s+(test|run|bench)\b|\b(npm|pnpm|yarn|bun)\s+test\b|(?:^|&&|;|\|)\s*(curl|wget)\b|https?://",
         RegexOptions.IgnoreCase)]
     private static partial Regex ExecutesCode { get; }
 
