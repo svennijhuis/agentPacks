@@ -85,7 +85,7 @@ internal sealed class LanguagePackValidator(RepositoryContext context)
         }
 
         var suffix = skill.DirectoryName[prefix.Length..];
-        var relative = context.Relative(skill.SkillFilePath);
+        var relative = context.Relative(skill.AuthoredPath);
 
         if (LanguagePackContract.Slots.Contains(suffix, StringComparer.Ordinal))
         {

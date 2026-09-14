@@ -27,7 +27,7 @@ internal sealed class SkillValidator(RepositoryContext context)
                 continue;
             }
 
-            var relative = context.Relative(skill.SkillFilePath);
+            var relative = context.Relative(skill.AuthoredPath);
             var name = ValidateName(frontmatter, relative, skill.DirectoryName);
 
             ValidateDescription(frontmatter, relative);

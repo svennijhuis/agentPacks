@@ -68,6 +68,15 @@ internal sealed partial class SkillReferenceValidator(RepositoryContext context)
                      .EnumerateFiles(skill.Directory, "*.md", SearchOption.AllDirectories)
                      .OrderBy(f => f, StringComparer.Ordinal))
         {
+            // A rendered slot skill is checked once, from its rendered text below: SKILL.md on
+            // disk is a previous render and SKILL.source.md holds the same links as the output.
+            if (skill.IsRendered &&
+                (string.Equals(file, skill.SkillFilePath, StringComparison.Ordinal) ||
+                 string.Equals(file, skill.SourceFilePath, StringComparison.Ordinal)))
+            {
+                continue;
+            }
+
             var text = File.ReadAllText(file);
             var relative = context.Relative(file);
             var pluginRelative = Path.GetRelativePath(plugin.Directory, file).Replace('\\', '/');
@@ -80,6 +89,14 @@ internal sealed partial class SkillReferenceValidator(RepositoryContext context)
             }
 
             ValidateLinks(text, relative, file);
+        }
+
+        if (skill.IsRendered)
+        {
+            var relative = context.Relative(skill.SourceFilePath!);
+
+            ValidateSkillReferences(skill.Text, relative, skill, available);
+            ValidateLinks(skill.Text, relative, skill.SkillFilePath);
         }
     }
 

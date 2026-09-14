@@ -35,6 +35,12 @@ internal static class PluginLoader
         var hooksPath = Path.Combine(directory, HooksFileName);
         var standardsPath = Path.Combine(directory, StandardsFileName);
 
+        var standards = File.Exists(standardsPath)
+            ? ReadObject(context, standardsPath, required: false) is { } document
+                ? new StandardsDefinition(standardsPath, document)
+                : null
+            : null;
+
         return new PluginPackage
         {
             Directory = directory,
@@ -42,18 +48,14 @@ internal static class PluginLoader
             Manifest = ReadObject(context, manifestPath, required: true),
             McpPath = File.Exists(mcpPath) ? mcpPath : null,
             Mcp = File.Exists(mcpPath) ? ReadObject(context, mcpPath, required: false) : null,
-            Skills = LoadSkills(context, directory),
+            Skills = LoadSkills(context, directory, standards),
             Agents = LoadMarkdownComponents(context, directory, "agents", "*.md", "agent"),
             Commands = LoadMarkdownComponents(context, directory, "commands", "*.md", "command"),
             Rules = LoadMarkdownComponents(context, directory, "rules", "*.mdc", "rule"),
             HooksPath = File.Exists(hooksPath) ? hooksPath : null,
             Hooks = File.Exists(hooksPath) ? ReadObject(context, hooksPath, required: false) : null,
             Scripts = LoadScripts(directory),
-            Standards = File.Exists(standardsPath)
-                ? ReadObject(context, standardsPath, required: false) is { } standards
-                    ? new StandardsDefinition(standardsPath, standards)
-                    : null
-                : null
+            Standards = standards
         };
     }
 
@@ -105,10 +107,14 @@ internal static class PluginLoader
         return obj;
     }
 
-    private static List<SkillDefinition> LoadSkills(RepositoryContext context, string pluginDirectory)
+    private static List<SkillDefinition> LoadSkills(
+        RepositoryContext context,
+        string pluginDirectory,
+        StandardsDefinition? standards)
     {
         var skillsRoot = Path.Combine(pluginDirectory, "skills");
         var results = new List<SkillDefinition>();
+        var renderer = new SlotSkillRenderer(context);
 
         if (!Directory.Exists(skillsRoot))
         {
@@ -125,6 +131,31 @@ internal static class PluginLoader
         foreach (var directory in Directory.GetDirectories(skillsRoot).OrderBy(d => d, StringComparer.Ordinal))
         {
             var skillFile = Path.Combine(directory, "SKILL.md");
+            var sourceFile = Path.Combine(directory, SlotSkillRenderer.SourceFileName);
+
+            // The source wins over a SKILL.md beside it: on the marketplace branch that file is
+            // the previous render, and re-rendering from the source is what keeps the drift
+            // check idempotent.
+            if (File.Exists(sourceFile))
+            {
+                var rendered = renderer.Render(directory, sourceFile, standards);
+
+                if (rendered is null)
+                {
+                    continue;
+                }
+
+                var frontmatter = Frontmatter.TryParse(rendered, out var error);
+
+                if (frontmatter is null)
+                {
+                    context.Diagnostics.SpecFatal(SlotSkillRenderer.TemplateRelative, $"rendered {context.Relative(sourceFile)} into a skill that {error}");
+                    continue;
+                }
+
+                results.Add(new SkillDefinition(directory, skillFile, frontmatter, rendered, sourceFile));
+                continue;
+            }
 
             if (!File.Exists(skillFile))
             {
@@ -136,10 +167,42 @@ internal static class PluginLoader
                 continue;
             }
 
-            results.Add(new SkillDefinition(directory, skillFile, ReadFrontmatter(context, skillFile)));
+            var text = ReadText(context, skillFile);
+
+            if (text is null)
+            {
+                continue;
+            }
+
+            results.Add(new SkillDefinition(directory, skillFile, ParseFrontmatter(context, skillFile, text), text));
         }
 
         return results;
+    }
+
+    private static string? ReadText(RepositoryContext context, string path)
+    {
+        try
+        {
+            return File.ReadAllText(path);
+        }
+        catch (IOException ex)
+        {
+            context.Diagnostics.SpecFatal(context.Relative(path), $"could not be read: {ex.Message}");
+            return null;
+        }
+    }
+
+    private static Frontmatter? ParseFrontmatter(RepositoryContext context, string path, string text)
+    {
+        var frontmatter = Frontmatter.TryParse(text, out var error);
+
+        if (frontmatter is null)
+        {
+            context.Diagnostics.SpecFatal(context.Relative(path), error!);
+        }
+
+        return frontmatter;
     }
 
     /// <summary>
@@ -240,25 +303,8 @@ internal static class PluginLoader
 
     private static Frontmatter? ReadFrontmatter(RepositoryContext context, string path)
     {
-        string text;
+        var text = ReadText(context, path);
 
-        try
-        {
-            text = File.ReadAllText(path);
-        }
-        catch (IOException ex)
-        {
-            context.Diagnostics.SpecFatal(context.Relative(path), $"could not be read: {ex.Message}");
-            return null;
-        }
-
-        var frontmatter = Frontmatter.TryParse(text, out var error);
-
-        if (frontmatter is null)
-        {
-            context.Diagnostics.SpecFatal(context.Relative(path), error!);
-        }
-
-        return frontmatter;
+        return text is null ? null : ParseFrontmatter(context, path, text);
     }
 }

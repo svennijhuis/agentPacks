@@ -43,10 +43,10 @@ public sealed class SkillHygieneContractTests
     [Fact]
     public void Skill_descriptions_are_short_when_to_use()
     {
-        foreach (var path in AuthoredSkillFiles())
+        foreach (var skill in SourceSkills.All())
         {
-            var text = File.ReadAllText(path);
-            var frontmatter = ParseFrontmatter(path, text);
+            var path = skill.SkillFilePath;
+            var frontmatter = ParseFrontmatter(path, skill.Text);
             var description = frontmatter.Scalar("description") ?? string.Empty;
             var relative = RelativeToPlugins(path);
 
@@ -143,12 +143,12 @@ public sealed class SkillHygieneContractTests
             "`inherit` consults `standard`",
             "stronger");
 
-        foreach (var path in AuthoredSkillFiles())
+        foreach (var skill in SourceSkills.All())
         {
-            var skillDir = Directory.GetParent(path)!.FullName;
-            var skillName = Directory.GetParent(path)!.Name;
-            var text = File.ReadAllText(path);
-            var frontmatter = ParseFrontmatter(path, text);
+            var path = skill.SkillFilePath;
+            var skillDir = skill.Directory;
+            var skillName = skill.DirectoryName;
+            var frontmatter = ParseFrontmatter(path, skill.Text);
             var body = frontmatter.Body;
             var lines = body.Split('\n').Count(line => !string.IsNullOrWhiteSpace(line));
             var relative = RelativeToPlugins(path);
@@ -206,11 +206,6 @@ public sealed class SkillHygieneContractTests
         }
     }
 
-    private static IEnumerable<string> AuthoredSkillFiles() =>
-        Directory.GetFiles(Path.Combine(TestRepository.SourceRoot(), "plugins"), "SKILL.md", SearchOption.AllDirectories)
-            .Where(path => !path.Contains($"{Path.DirectorySeparatorChar}com.", StringComparison.Ordinal))
-            .OrderBy(path => path, StringComparer.Ordinal);
-
     private static IEnumerable<string> AuthoredSkillTreeMarkdown() =>
         Directory.GetFiles(Path.Combine(TestRepository.SourceRoot(), "plugins"), "*.md", SearchOption.AllDirectories)
             .Where(path => path.Contains($"{Path.DirectorySeparatorChar}skills{Path.DirectorySeparatorChar}", StringComparison.Ordinal)
@@ -227,9 +222,10 @@ public sealed class SkillHygieneContractTests
     private static void AssertRouterLinksReference(
         string skillDir, string href, params string[] movedContent)
     {
-        var skillPath = Path.Combine(skillDir, "SKILL.md");
+        var skill = SourceSkills.All().Single(s => s.Directory == skillDir);
+        var skillPath = skill.SkillFilePath;
         var relative = RelativeToPlugins(skillPath);
-        var body = ParseFrontmatter(skillPath, File.ReadAllText(skillPath)).Body;
+        var body = ParseFrontmatter(skillPath, skill.Text).Body;
         Assert.Contains(href, body, StringComparison.Ordinal);
 
         var target = Path.GetFullPath(Path.Combine(skillDir, href));

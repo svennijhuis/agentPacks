@@ -5,6 +5,8 @@ namespace AgentPacks.Cli.Generation;
 /// from the authored source, so a file found there that the current run does not produce is stale
 /// and gets deleted. Authored content (plugin.json, skills/, rules/, agents/, commands/, mcp.json,
 /// hooks.source.json, standards.source.json, standards/, scripts/*.sh, scripts/*.ps1) never matches.
+/// The one exception is <c>skills/&lt;slot&gt;/SKILL.md</c> beside a <c>SKILL.source.md</c>: that
+/// file is rendered from the shared slot template.
 /// </summary>
 internal static class GeneratedPaths
 {
@@ -19,8 +21,12 @@ internal static class GeneratedPaths
         "com.github.copilot"
     ];
 
-    /// <summary>True when <paramref name="pluginRelative"/> is generated rather than authored.</summary>
-    public static bool IsGenerated(string pluginRelative)
+    /// <summary>
+    /// True when <paramref name="pluginRelative"/> is generated rather than authored.
+    /// <paramref name="renderedSkills"/> names the skill directories that carry a
+    /// <c>SKILL.source.md</c>; their <c>SKILL.md</c> is a render, not an authored file.
+    /// </summary>
+    public static bool IsGenerated(string pluginRelative, IReadOnlyCollection<string>? renderedSkills = null)
     {
         var path = pluginRelative.Replace('\\', '/');
 
@@ -45,6 +51,15 @@ internal static class GeneratedPaths
             segments[0] == "skills" &&
             segments[2] == "references" &&
             segments[3] == "standards")
+        {
+            return true;
+        }
+
+        if (renderedSkills is { Count: > 0 } &&
+            segments.Length == 3 &&
+            segments[0] == "skills" &&
+            segments[2] == "SKILL.md" &&
+            renderedSkills.Contains(segments[1]))
         {
             return true;
         }

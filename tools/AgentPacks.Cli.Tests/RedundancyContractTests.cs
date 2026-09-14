@@ -85,8 +85,7 @@ public sealed class RedundancyContractTests
         {
             foreach (var slot in SlotSuffixes)
             {
-                var skill = File.ReadAllText(Path.Combine(
-                    root, "plugins", pack, "skills", $"{pack}-{slot}", "SKILL.md"));
+                var skill = SourceSkills.Text(pack, $"{pack}-{slot}");
                 Assert.Contains(
                     "Internal. Do not run directly — Squad loads by exact Skill name.",
                     skill,

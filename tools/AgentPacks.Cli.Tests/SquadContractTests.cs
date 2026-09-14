@@ -1334,14 +1334,9 @@ public class SquadContractTests
         Assert.Contains("Save report as markdown?", review, StringComparison.Ordinal);
 
         var root = TestRepository.SourceRoot();
-        foreach (var relative in new[]
-                 {
-                     Path.Combine("plugins", "dotnet", "skills", "dotnet-build", "SKILL.md"),
-                     Path.Combine("plugins", "rust", "skills", "rust-build", "SKILL.md"),
-                     Path.Combine("plugins", "typescript", "skills", "typescript-build", "SKILL.md")
-                 })
+        foreach (var pack in new[] { "dotnet", "rust", "typescript" })
         {
-            var text = File.ReadAllText(Path.Combine(root, relative));
+            var text = SourceSkills.Text(pack, $"{pack}-build");
             Assert.Contains("audience: loop", text, StringComparison.Ordinal);
             Assert.Contains("Internal. Do not run directly", text, StringComparison.Ordinal);
             Assert.DoesNotContain("disable-model-invocation: true", text, StringComparison.Ordinal);
@@ -1638,7 +1633,7 @@ public class SquadContractTests
             Assert.Contains("app repo", smoke, StringComparison.Ordinal);
             Assert.Contains("SMOKE_BASE_URL", smoke, StringComparison.Ordinal);
 
-            var skill = File.ReadAllText(Path.Combine(skillDir, "SKILL.md"));
+            var skill = SourceSkills.Text(pack, $"{pack}-test-patterns");
             Assert.Contains("references/examples/deployed-smoke.md", skill, StringComparison.Ordinal);
 
             var examples = Path.Combine(skillDir, "references", "examples");
