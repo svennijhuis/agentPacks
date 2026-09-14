@@ -30,12 +30,12 @@ Skills are the one component every client loads identically, which makes them th
 The names *are* the interface. A skill called `dotnet-testing` instead of `dotnet-test-patterns` is a skill the loop silently never loads — which is why `LanguagePackValidator` fails the build on a near-miss rather than letting it ship.
 
 The orchestrator loads these with the Skill tool by exact name, never slash-prose. Slot skills are
-internals: set `metadata.audience: loop` and say they are not a user entrypoint in the body
-(after the Internal line). Keep the description a short when-to-use line. They must stay
-model-invoked; `disable-model-invocation` would hide them from the loop. Copilot: set
-`user-invocable: false`. The first body line is exactly
-`Internal. Do not run directly — Squad loads by exact Skill name.` Repeat that line on every slot
-skill. Each skill is loaded on its own; do not fold it into a shared file the specialist will not
+internals. Author them as `SKILL.source.md`; the shared template at
+[`shared/templates/slot-skill.sbn`](../shared/templates/slot-skill.sbn) renders `SKILL.md` with
+`metadata.audience: loop`, `user-invocable: false`, the Internal/Loop-only contract lines, and the
+`Standards in force` list taken from `standards.source.json`. Keep the source `description` a short
+when-to-use line. They must stay model-invoked; `disable-model-invocation` would hide them from the
+loop. Each skill is loaded on its own; do not fold it into a shared file the specialist will not
 open.
 
 ## Framework skills are not slots
@@ -47,7 +47,7 @@ That is deliberate. Frameworks churn faster than languages; if the loop's contra
 ## Steps
 
 1. Confirm the pack earns a plugin at all: [PLAN.md](PLAN.md). A framework never does.
-2. Create both `plugins/<lang>/skills/<lang>-build/SKILL.md` and `plugins/<lang>/skills/<lang>-test-patterns/SKILL.md`. Squad must be able to build and verify the stack.
+2. Create both `plugins/<lang>/skills/<lang>-build/SKILL.source.md` and `plugins/<lang>/skills/<lang>-test-patterns/SKILL.source.md`. Squad must be able to build and verify the stack.
 3. Add `"language-pack"` to `keywords` in `plugins/<lang>/plugin.json`. That is what turns the validator's checks on.
 4. Add the marker, stack and pack row to `plugins/pack-check/skills/pack-check/references/packs.md`. That row is what makes the new pack discoverable at session start.
 5. Fill the optional review slots as you have real content for them. A thin `<lang>-security-review` is worse than none — OWASP is already the floor. `<lang>-solution` is an optional loop skill for read-only solution/package facts plus local MCP — not a required slot.
@@ -68,6 +68,14 @@ Frontmatter and body rules are the ordinary skill rules: [ADD-SKILL.md](ADD-SKIL
 
 ## Writing a slot skill
 
+Author `plugins/<lang>/skills/<lang>-<slot>/SKILL.source.md`. The template fills the rest.
+
+The source frontmatter is `name`, `description`, `title`, `language`, and optionally `intro` and
+`commands` (the link text for `references/commands.md` when that file exists). The body is only the
+pack-specific prose: Good/Bad examples and extra facts such as the `dotnet-solution` line. Do not
+repeat the Internal line, Loop-only, `Standards in force`, `license`, `user-invocable`, or
+`metadata.audience` — the template owns those, and the catalog owns the standards list.
+
 The loop reads these under time pressure, in the middle of another task. Write for that.
 
 - **Facts and commands, not philosophy.** *What deserves a test* is cross-language craft and belongs in a role pack. *How you write an integration test in this stack* is the slot.
@@ -79,29 +87,38 @@ The loop reads these under time pressure, in the middle of another task. Write f
 
 ## Canonical pack standards
 
-Do not repeat the same rule across three skills. Put canonical Markdown documents in
-`plugins/<lang>/standards/`, then map them to consumers with `standards.source.json`:
+Do not repeat the same rule across three skills. Put language-specific Markdown in
+`plugins/<lang>/standards/`, and put a document that is the same in every language in
+`shared/standards/`. Map both to consumers with `standards.source.json`:
 
 ```json
 {
   "$schema": "../../schema/standards.schema.json",
   "version": 1,
   "documents": {
-    "testing": "standards/testing.md"
+    "testing": "standards/testing.md",
+    "http-api": "shared/standards/http-api.md"
   },
   "consumers": {
     "dotnet-test-patterns": ["testing"],
-    "dotnet-review": ["testing"]
+    "dotnet-review": ["testing", "http-api"]
   }
 }
 ```
 
-Author the documents in `plugins/<lang>/standards/`. That author path belongs in this document, not
+A `shared/standards/<name>.md` path resolves from the repository root. A pack `standards/<name>.md`
+whose filename matches a shared document is rejected: reference the shared path, or rename the pack
+document. Two authored standards files with the same content anywhere under `plugins/*/standards/`
+and `shared/standards/` are also rejected — move the document to `shared/standards/` and reference
+it.
+
+Author pack documents in `plugins/<lang>/standards/`. That author path belongs in this document, not
 in a skill body. Generation copies the selected files into each consumer's `references/standards/`
-directory on the `marketplace` branch or in temporary output. Source `main` stays authored-only.
-Skill bodies point only at `references/standards/` — never `authored tree: ../../standards/` or
-`../../standards/`. Every consuming skill must name them under `Standards in force:` and tell the
-agent to cite the document filename during review and build.
+directory on the `marketplace` branch or in temporary output. Source `main` stays authored-only:
+no pack copy of a shared document, and no rendered slot `SKILL.md`. Skill bodies point only at
+`references/standards/` — never `authored tree: ../../standards/` or `../../standards/`. The
+rendered slot skill names the catalog documents under `Standards in force:` and tells the agent to
+cite the document filename during review and build.
 
 `<lang>-test-patterns` also ships concrete commands under `references/examples/`. The skill loads
 `references/standards/` first, then `references/examples/`.
@@ -128,3 +145,5 @@ plugin requirement becomes a planning decision; it is never silently converted i
 | Exactly one row in `pack-check`'s bundled registry | `PackCheckContractTests` | An installed pack that cannot be discovered is unreachable onboarding knowledge |
 | Every `<lang>-*` skill is a known slot or matches `[<framework>-]<action>-<object>` | `LanguagePackValidator` | A misspelled slot is a skill the loop never finds, and nothing else would notice |
 | Standards manifest references only existing skills and canonical Markdown files | `StandardsValidator` | Generated references cannot silently disappear or drift from their source |
+| Shared standard filenames are not reused under a pack `standards/` | `StandardsValidator` | A pack copy would silently shadow or duplicate the shared document |
+| Slot skills are authored as `SKILL.source.md` | `SlotSkillRenderer` | The template is the one copy of the Internal/Loop-only/`Standards in force` skeleton |

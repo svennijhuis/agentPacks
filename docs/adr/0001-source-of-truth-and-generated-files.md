@@ -23,16 +23,24 @@ portable skills exist once. The Cursor catalog stays thin (name / source / descr
 matches cursor/plugins `marketplace.schema.json`.
 
 **Canonical language standards are authored once.** A language pack keeps Markdown under
-`standards/` and maps document ids to consuming skills in `standards.source.json`. Generation copies
-only the selected documents into each skill's `references/standards/` directory.
+`standards/` and maps document ids to consuming skills in `standards.source.json`. A document that
+is the same in every language lives once under `shared/standards/` and is referenced by its
+repository-relative path (`shared/standards/http-api.md`). There is no pack copy on any branch.
+Generation copies only the selected documents into each skill's `references/standards/` directory.
+
+**Language-pack slot skills are authored as `SKILL.source.md` and rendered from one template.** The
+source carries only what differs per pack. `shared/templates/slot-skill.sbn` owns the loop-audience
+frontmatter, the Internal/Loop-only contract lines, and the `Standards in force` list (taken from
+the catalog). Generation writes `SKILL.md` on the `marketplace` branch.
 
 **A hook names a script, never a command line.** The generator owns the invocation, so no authored file contains shell syntax, and the validator can require both a `.sh` and a `.ps1` — one generated hooks file is shared by macOS and Windows, and a script with one platform half is a hook that silently does nothing for half the team.
 
 **Client-specific behavior uses the standard extension boundary.** Manifest data lives under `extensions`, keyed by a reverse-domain namespace, and client-owned files live in a matching top-level directory. The namespace owner defines those contents; unrelated clients ignore them.
 
 **Automation owns a separate generated branch.** Pull requests validate `main`, which contains no
-provider catalogs, generated client trees, generated standards references, or materialized external
-skills. A job on `main` publishes the complete installable tree to `marketplace`.
+provider catalogs, generated client trees, generated slot `SKILL.md` files, generated standards
+references, or materialized external skills. A job on `main` publishes the complete installable tree
+to `marketplace`.
 
 **The generated marketplace entry omits `version`,** so update detection falls back to the Git commit SHA.
 
