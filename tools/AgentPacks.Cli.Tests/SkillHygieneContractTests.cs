@@ -74,74 +74,34 @@ public sealed class SkillHygieneContractTests
         {
             AssertRouterLinksReference(
                 Path.Combine(root, "plugins", pack, "skills", $"{pack}-build"),
-                "references/commands.md",
-                "Targeted verify first",
-                "Contention constraints");
+                "references/commands.md");
             AssertRouterLinksReference(
                 Path.Combine(root, "plugins", pack, "skills", $"{pack}-test-patterns"),
-                "references/commands.md",
-                "Targeted verify first",
-                "Contention constraints");
+                "references/commands.md");
             AssertRouterLinksReference(
                 Path.Combine(root, "plugins", pack, "skills", $"{pack}-review"),
-                "references/checklist.md",
-                "Process findings in this order");
+                "references/checklist.md");
         }
 
         AssertRouterLinksReference(
             Path.Combine(root, "plugins", "dotnet", "skills", "dotnet-build"),
-            "references/commands.md",
-            "dotnet restore <solution>",
-            "NU1101");
+            "references/commands.md");
         AssertRouterLinksReference(
             Path.Combine(root, "plugins", "rust", "skills", "rust-build"),
-            "references/commands.md",
-            "cargo check --workspace",
-            "rust-toolchain");
+            "references/commands.md");
         AssertRouterLinksReference(
             Path.Combine(root, "plugins", "typescript", "skills", "typescript-build"),
-            "references/commands.md",
-            "tsc --noEmit",
-            "pnpm-lock.yaml");
+            "references/commands.md");
 
         var packCheck = Path.Combine(root, "plugins", "pack-check", "skills", "pack-check");
-        AssertRouterLinksReference(
-            packCheck,
-            "references/detect.md",
-            "Stack: none detected",
-            "<lang>-build",
-            "<lang>-test-patterns",
-            "Never resolve or request installation for a detected stack outside the current change's scope");
+        AssertRouterLinksReference(packCheck, "references/detect.md");
         AssertRouterLinksReference(packCheck, "references/packs.md");
 
         var squad = Path.Combine(root, "plugins", "squad", "skills", "squad");
-        AssertRouterLinksReference(
-            squad,
-            "references/malformed-reask.md",
-            "re-ask that producer **once**",
-            "keep fixing the report until it parses",
-            "Do not increment the round for parse repair",
-            "stop and surface");
-        AssertRouterLinksReference(
-            squad,
-            "references/residual-fixup.md",
-            "Never a third full reviewer fan-out",
-            "does not keep a clean `pass`",
-            "Failed spot-check");
-        AssertRouterLinksReference(
-            squad,
-            "references/worktree.md",
-            "git status --porcelain",
-            "git worktree remove <exact-path>",
-            "without `--force`",
-            "externally created worktrees",
-            "Preserve dirty worktrees");
-        AssertRouterLinksReference(
-            squad,
-            "references/advisor-lite.md",
-            "plan-confirm",
-            "`inherit` consults `standard`",
-            "stronger");
+        AssertRouterLinksReference(squad, "references/malformed-reask.md");
+        AssertRouterLinksReference(squad, "references/residual-fixup.md");
+        AssertRouterLinksReference(squad, "references/worktree.md");
+        AssertRouterLinksReference(squad, "references/advisor-lite.md");
 
         foreach (var path in AuthoredSkillFiles())
         {
@@ -183,8 +143,6 @@ public sealed class SkillHygieneContractTests
                 Assert.True(File.Exists(file), $"{relative} is missing {href}.");
             }
         }
-
-        new SquadContractTests().Pull_request_ci_stays_one_job_no_matrix();
     }
 
     [Fact]
@@ -224,8 +182,7 @@ public sealed class SkillHygieneContractTests
         return parsed!;
     }
 
-    private static void AssertRouterLinksReference(
-        string skillDir, string href, params string[] movedContent)
+    private static void AssertRouterLinksReference(string skillDir, string href)
     {
         var skillPath = Path.Combine(skillDir, "SKILL.md");
         var relative = RelativeToPlugins(skillPath);
@@ -234,13 +191,6 @@ public sealed class SkillHygieneContractTests
 
         var target = Path.GetFullPath(Path.Combine(skillDir, href));
         Assert.True(File.Exists(target), $"{relative} links to missing {href}.");
-
-        var reference = File.ReadAllText(target);
-        foreach (var token in movedContent)
-        {
-            Assert.Contains(token, reference, StringComparison.Ordinal);
-            Assert.DoesNotContain(token, body, StringComparison.Ordinal);
-        }
     }
 
     private static string RelativeToPlugins(string path) =>

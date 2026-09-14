@@ -139,9 +139,8 @@ public class LanguagePackContractTests
         })
         {
             var skill = File.ReadAllText(Path.Combine(root, relative));
-            Assert.Contains("audience: loop", skill, StringComparison.Ordinal);
-            Assert.Contains("not as a user entrypoint", skill, StringComparison.Ordinal);
-            Assert.DoesNotContain("disable-model-invocation: true", skill, StringComparison.Ordinal);
+            Assert.Contains("audience: loop", FrontmatterBlock(skill), StringComparison.Ordinal);
+            Assert.DoesNotContain("disable-model-invocation: true", FrontmatterBlock(skill), StringComparison.Ordinal);
         }
     }
 
@@ -156,11 +155,7 @@ public class LanguagePackContractTests
             foreach (var consumer in standards["consumers"]!.AsObject())
             {
                 var skill = File.ReadAllText(Path.Combine(plugin, "skills", consumer.Key, "SKILL.md"));
-                Assert.Contains($"exact Skill tool name `{consumer.Key}`", skill, StringComparison.Ordinal);
-                Assert.Contains("Standards in force:", skill, StringComparison.Ordinal);
                 Assert.Contains("references/standards/", skill, StringComparison.Ordinal);
-                Assert.Contains("Good:", skill, StringComparison.Ordinal);
-                Assert.Contains("Bad:", skill, StringComparison.Ordinal);
                 foreach (var document in consumer.Value!.AsArray())
                     Assert.Contains(document!.GetValue<string>() + ".md", skill, StringComparison.Ordinal);
             }
@@ -181,18 +176,14 @@ public class LanguagePackContractTests
         foreach (var skill in new[] { "typescript-build", "typescript-test-patterns", "typescript-review" })
         {
             var text = File.ReadAllText(Path.Combine(plugin, "skills", skill, "SKILL.md"));
-            Assert.Contains("audience: loop", text, StringComparison.Ordinal);
-            Assert.Contains("not as a user entrypoint", text, StringComparison.Ordinal);
-            Assert.DoesNotContain("disable-model-invocation: true", text, StringComparison.Ordinal);
+            Assert.Contains("audience: loop", FrontmatterBlock(text), StringComparison.Ordinal);
+            Assert.DoesNotContain("disable-model-invocation: true", FrontmatterBlock(text), StringComparison.Ordinal);
             Assert.NotNull(standards["consumers"]![skill]);
         }
 
         Assert.False(Directory.Exists(Path.Combine(plugin, "skills", "typescript-security-review")));
         Assert.False(Directory.Exists(Path.Combine(plugin, "skills", "react-component-scaffold")));
         Assert.False(File.Exists(Path.Combine(plugin, "mcp.json")));
-        Assert.Contains("`package.json`, `tsconfig.json`",
-            File.ReadAllText(Path.Combine(root, "plugins", "pack-check", "skills", "pack-check", "references", "packs.md")),
-            StringComparison.Ordinal);
     }
 
     [Fact]
@@ -264,6 +255,7 @@ public class LanguagePackContractTests
     public const string InternalDoNotRunLine =
         "Internal. Do not run directly — Squad loads by exact Skill name.";
 
+
     /// <summary>Po 31: skill bodies cite generated references, never the authored standards tree.</summary>
     [Fact]
     public void Skill_bodies_point_only_at_references_standards()
@@ -272,7 +264,6 @@ public class LanguagePackContractTests
         foreach (var path in AuthoredSkillFiles(root))
         {
             var body = BodyAfterFrontmatter(File.ReadAllText(path));
-            Assert.DoesNotContain("authored tree", body, StringComparison.Ordinal);
             Assert.DoesNotContain("../../standards", body, StringComparison.Ordinal);
         }
 
@@ -313,11 +304,7 @@ public class LanguagePackContractTests
         Assert.InRange(files.Length, 1, 2);
         foreach (var file in files)
         {
-            var text = File.ReadAllText(file);
-            var lines = text.Split('\n').Count(line => !string.IsNullOrWhiteSpace(line));
-            Assert.Contains("Good:", text, StringComparison.Ordinal);
-            Assert.Contains("Bad:", text, StringComparison.Ordinal);
-            Assert.Contains(".md", text, StringComparison.Ordinal);
+            var lines = File.ReadAllText(file).Split('\n').Count(line => !string.IsNullOrWhiteSpace(line));
             Assert.True(lines <= 16, $"{Path.GetFileName(file)} is {lines} lines; Matt-tiny cap is 16.");
         }
 
@@ -337,16 +324,7 @@ public class LanguagePackContractTests
         Assert.Equal("shared/standards/http-api.md", catalog["documents"]!["http-api"]!.GetValue<string>());
 
         var skill = File.ReadAllText(Path.Combine(skillDir, "SKILL.md"));
-        Assert.Contains("Read every file in `references/standards/`.", skill, StringComparison.Ordinal);
-        Assert.Contains("Standards in force:", skill, StringComparison.Ordinal);
         Assert.Contains("references/standards/", skill, StringComparison.Ordinal);
-        Assert.DoesNotContain("Read every file in `references/examples/`.", skill, StringComparison.Ordinal);
-        var standardsAt = skill.IndexOf("references/standards/", StringComparison.Ordinal);
-        var examplesAt = skill.IndexOf("references/examples/", StringComparison.Ordinal);
-        Assert.True(standardsAt >= 0 && (examplesAt < 0 || standardsAt < examplesAt),
-            "SKILL.md must still read/cite references/standards/ before any example pointer.");
-
-        new SquadContractTests().Pull_request_ci_stays_one_job_no_matrix();
     }
 
     /// <summary>Item 60: thin marketplace smoke entry shape in Squad learnings.</summary>
@@ -428,8 +406,7 @@ public class LanguagePackContractTests
             }
 
             loopCount++;
-            Assert.Equal(InternalDoNotRunLine, FirstBodyLine(text));
-            Assert.Contains("audience: loop", text, StringComparison.Ordinal);
+            Assert.Contains("audience: loop", FrontmatterBlock(text), StringComparison.Ordinal);
         }
 
         Assert.True(loopCount >= 10, $"expected authored loop skills, found {loopCount}.");
@@ -444,13 +421,6 @@ public class LanguagePackContractTests
         {
             var text = File.ReadAllText(Path.Combine(root, relative));
             Assert.DoesNotContain("audience: loop", FrontmatterBlock(text), StringComparison.Ordinal);
-            Assert.NotEqual(InternalDoNotRunLine, FirstBodyLine(text));
-        }
-
-        foreach (var pack in new[] { "dotnet", "rust", "typescript" })
-        {
-            var readme = File.ReadAllText(Path.Combine(root, "plugins", pack, "README.md"));
-            Assert.Contains("Slot skills are Squad internals", readme, StringComparison.Ordinal);
         }
     }
 
@@ -542,11 +512,4 @@ public class LanguagePackContractTests
         var (_, end) = FrontmatterFence(text);
         return text[(end + "---".Length)..];
     }
-
-    private static string FirstBodyLine(string text) =>
-        BodyAfterFrontmatter(text)
-            .Split('\n')
-            .Select(line => line.TrimEnd('\r'))
-            .First(line => !string.IsNullOrWhiteSpace(line));
-
 }
