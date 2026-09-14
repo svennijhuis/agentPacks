@@ -212,7 +212,7 @@ public class LanguagePackContractTests
             Assert.NotNull(standards["consumers"]![skill]);
         }
 
-        foreach (var document in new[] { "rust", "errors-concurrency", "testing" })
+        foreach (var document in new[] { "rust", "errors-concurrency", "testing", "http-api" })
             Assert.True(File.Exists(Path.Combine(plugin, "standards", document + ".md")), document);
     }
 
@@ -281,7 +281,7 @@ public class LanguagePackContractTests
         var mapped = catalog["consumers"]!["dotnet-review"]!.AsArray()
             .Select(value => value!.GetValue<string>())
             .ToArray();
-        Assert.Equal(["csharp", "async-errors", "testing", "layers"], mapped);
+        Assert.Equal(["csharp", "async-errors", "testing", "layers", "http-api"], mapped);
         foreach (var document in mapped)
         {
             Assert.Equal(
@@ -299,6 +299,67 @@ public class LanguagePackContractTests
         Assert.True(standardsAt >= 0 && (examplesAt < 0 || standardsAt < examplesAt),
             "SKILL.md must still read/cite references/standards/ before any example pointer.");
 
+        new SquadContractTests().Pull_request_ci_stays_one_job_no_matrix();
+    }
+
+    /// <summary>
+    /// Item 59: list APIs use a named collection envelope, not a root JSON array.
+    /// One Matt-tiny <c>http-api.md</c> is authored in each language pack and wired
+    /// through existing <c>standards.source.json</c> into build and review.
+    /// No new plugin, slash, or squad SKILL growth.
+    /// </summary>
+    [Fact]
+    public void Http_collection_envelope_is_wired_into_each_language_pack()
+    {
+        var root = TestRepository.SourceRoot();
+        string? canonical = null;
+        foreach (var pack in new[] { "dotnet", "rust", "typescript" })
+        {
+            var plugin = Path.Combine(root, "plugins", pack);
+            var path = Path.Combine(plugin, "standards", "http-api.md");
+            Assert.True(File.Exists(path), path);
+            var text = File.ReadAllText(path);
+            if (canonical is null)
+                canonical = text;
+            else
+                Assert.Equal(canonical, text);
+
+            var lines = text.Split('\n').Count(line => !string.IsNullOrWhiteSpace(line));
+            Assert.True(lines <= 16, $"{pack}/standards/http-api.md is {lines} lines; Matt-tiny cap is 16.");
+            Assert.Contains("{ \"users\": [{ \"id\": 1 }] }", text, StringComparison.Ordinal);
+            Assert.Contains("Good:", text, StringComparison.Ordinal);
+            Assert.Contains("Bad:", text, StringComparison.Ordinal);
+            var badAt = text.IndexOf("Bad:", StringComparison.Ordinal);
+            Assert.Contains("[{ \"id\": 1 }]", text[badAt..], StringComparison.Ordinal);
+            Assert.Contains("page", text, StringComparison.OrdinalIgnoreCase);
+            Assert.Contains("total", text, StringComparison.OrdinalIgnoreCase);
+            Assert.Contains("breaking", text, StringComparison.OrdinalIgnoreCase);
+
+            var catalog = JsonNode.Parse(File.ReadAllText(
+                Path.Combine(plugin, "standards.source.json")))!;
+            Assert.Equal("standards/http-api.md", catalog["documents"]!["http-api"]!.GetValue<string>());
+            var consumers = catalog["consumers"]!.AsObject();
+            Assert.Contains("http-api", consumers[$"{pack}-build"]!.AsArray().Select(value => value!.GetValue<string>()));
+            Assert.Contains("http-api", consumers[$"{pack}-review"]!.AsArray().Select(value => value!.GetValue<string>()));
+            Assert.DoesNotContain(
+                "http-api",
+                consumers[$"{pack}-test-patterns"]!.AsArray().Select(value => value!.GetValue<string>()));
+
+            foreach (var skill in new[] { $"{pack}-build", $"{pack}-review" })
+            {
+                var skillText = File.ReadAllText(Path.Combine(plugin, "skills", skill, "SKILL.md"));
+                Assert.Contains("http-api.md", skillText, StringComparison.Ordinal);
+            }
+        }
+
+        var pluginNames = Directory.GetDirectories(Path.Combine(root, "plugins"))
+            .Select(path => Path.GetFileName(path) ?? path)
+            .OrderBy(name => name, StringComparer.Ordinal)
+            .ToArray();
+        Assert.Equal(["dotnet", "git", "pack-check", "rust", "squad", "typescript"], pluginNames);
+
+        new SquadContractTests().Still_four_user_commands();
+        new SquadContractTests().Squad_skill_body_is_not_grown();
         new SquadContractTests().Pull_request_ci_stays_one_job_no_matrix();
     }
 

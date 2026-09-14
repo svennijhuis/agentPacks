@@ -15,7 +15,7 @@ Loop-only; not as a user entrypoint. Facts before editing. Read the repository f
 
 When loaded by exact Skill tool name `typescript-build` during implement or review:
 1. Read every file in `references/standards/`.
-2. Standards in force: `typescript.md`.
+2. Standards in force: `typescript.md`, `http-api.md`.
 3. Cite `typescript.md` on each edit.
 
 Read [shape and commands](references/commands.md).
