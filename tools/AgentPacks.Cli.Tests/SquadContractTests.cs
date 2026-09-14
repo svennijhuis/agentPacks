@@ -188,45 +188,52 @@ public class SquadContractTests
     public void Malformed_report_allows_one_main_agent_reask_then_blocking_merge()
     {
         var skill = Fixture("SKILL.md");
+        var reask = Fixture("malformed-reask.md");
+        var residual = Fixture("residual-fixup.md");
         var command = Fixture("squad.md");
         var standalone = Fixture("squad-review.md");
         var orchestrator = Fixture("squad-orchestrator.md");
         var contract = Fixture("review-contract.md");
-        var combined = string.Join('\n', skill, command, standalone, orchestrator, contract);
+        var combined = string.Join('\n', skill, reask, residual, command, standalone, orchestrator, contract);
 
-        Assert.Contains("re-ask that producer **once**", skill, StringComparison.Ordinal);
+        Assert.Contains("references/malformed-reask.md", skill, StringComparison.Ordinal);
+        Assert.DoesNotContain("re-ask that producer **once**", skill, StringComparison.Ordinal);
+        Assert.Contains("re-ask that producer **once**", reask, StringComparison.Ordinal);
         Assert.Contains("re-ask that producer **once**", command, StringComparison.Ordinal);
-        Assert.Contains("accepted — malformed after re-ask", skill, StringComparison.Ordinal);
+        Assert.Contains("accepted — malformed after re-ask", reask, StringComparison.Ordinal);
         Assert.Contains("Orchestrator must not retry, launch, or hand off", contract, StringComparison.Ordinal);
         Assert.Contains("Do not launch, retry, or hand work to another agent", orchestrator, StringComparison.Ordinal);
-        Assert.Contains("one re-ask **per producer per review round**", skill, StringComparison.Ordinal);
+        Assert.Contains("one re-ask **per producer per review round**", reask, StringComparison.Ordinal);
         Assert.Contains("one re-ask per producer per review round", command, StringComparison.Ordinal);
-        Assert.Contains("Never a second re-ask", skill, StringComparison.Ordinal);
+        Assert.Contains("Never a second re-ask", reask, StringComparison.Ordinal);
         Assert.Contains("Never a second re-ask", command, StringComparison.Ordinal);
-        Assert.Contains("keep fixing the report until it parses", skill, StringComparison.Ordinal);
+        Assert.Contains("keep fixing the report until it parses", reask, StringComparison.Ordinal);
         Assert.Contains("keep fixing the report until it parses", command, StringComparison.Ordinal);
         Assert.Contains("not a new re-ask grant", contract, StringComparison.Ordinal);
         Assert.Contains("Re-ask budget:", contract, StringComparison.Ordinal);
-        Assert.Contains("same round number", skill, StringComparison.Ordinal);
+        Assert.Contains("same round number", reask, StringComparison.Ordinal);
         Assert.Contains("same round number", command, StringComparison.Ordinal);
         Assert.Contains("same round number", standalone, StringComparison.Ordinal);
-        Assert.Contains("Do not increment the round for parse repair", skill, StringComparison.Ordinal);
+        Assert.Contains("Do not increment the round for parse repair", reask, StringComparison.Ordinal);
         Assert.Contains("Do not increment the round for parse repair", command, StringComparison.Ordinal);
         Assert.Contains("Do not increment the round for parse repair", standalone, StringComparison.Ordinal);
-        Assert.Contains("replacing", skill, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("replacing", reask, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("conforming stand-in", reask, StringComparison.Ordinal);
         Assert.Contains("conforming stand-in", contract, StringComparison.Ordinal);
         Assert.Contains("must **not** emit input-error for an axis that has a marker", contract, StringComparison.Ordinal);
         Assert.Contains("non-blocking", skill, StringComparison.Ordinal);
+        Assert.Contains("non-blocking", reask, StringComparison.Ordinal);
         Assert.Contains("non-blocking", contract, StringComparison.Ordinal);
         Assert.Contains("non-blocking", orchestrator, StringComparison.Ordinal);
         Assert.DoesNotContain("blocking `high`", contract, StringComparison.Ordinal);
-        Assert.Contains("stop and surface", skill, StringComparison.Ordinal);
-        Assert.Contains("no further merge", skill, StringComparison.Ordinal);
+        Assert.Contains("stop and surface", reask, StringComparison.Ordinal);
+        Assert.Contains("no further merge", reask, StringComparison.Ordinal);
         Assert.Contains("accept it as conforming", orchestrator, StringComparison.Ordinal);
         Assert.Contains("Do not interpret this line as a new grant", contract, StringComparison.Ordinal);
-        Assert.Contains("Never a third full reviewer fan-out", skill, StringComparison.Ordinal);
-        Assert.Contains("does not keep a clean `pass`", skill, StringComparison.Ordinal);
-        Assert.Contains("Failed spot-check", skill, StringComparison.Ordinal);
+        Assert.Contains("references/residual-fixup.md", skill, StringComparison.Ordinal);
+        Assert.Contains("Never a third full reviewer fan-out", residual, StringComparison.Ordinal);
+        Assert.Contains("does not keep a clean `pass`", residual, StringComparison.Ordinal);
+        Assert.Contains("Failed spot-check", residual, StringComparison.Ordinal);
         Assert.Contains("Evidence gaps` is not `None`", contract, StringComparison.Ordinal);
         Assert.Contains("Assumptions challenged` is not `None`", contract, StringComparison.Ordinal);
         Assert.Contains("only when it already matches a reviewer or verifier finding identity", contract, StringComparison.Ordinal);
@@ -264,12 +271,15 @@ public class SquadContractTests
     public void Worktree_cleanup_preserves_uncommitted_or_externally_owned_work()
     {
         var skill = Fixture("SKILL.md");
+        var worktree = Fixture("worktree.md");
 
-        Assert.Contains("git status --porcelain", skill, StringComparison.Ordinal);
-        Assert.Contains("git worktree remove <exact-path>", skill, StringComparison.Ordinal);
-        Assert.Contains("without `--force`", skill, StringComparison.Ordinal);
-        Assert.Contains("externally created worktrees", skill, StringComparison.Ordinal);
-        Assert.Contains("Preserve dirty worktrees", skill, StringComparison.Ordinal);
+        Assert.Contains("references/worktree.md", skill, StringComparison.Ordinal);
+        Assert.DoesNotContain("git worktree remove <exact-path>", skill, StringComparison.Ordinal);
+        Assert.Contains("git status --porcelain", worktree, StringComparison.Ordinal);
+        Assert.Contains("git worktree remove <exact-path>", worktree, StringComparison.Ordinal);
+        Assert.Contains("without `--force`", worktree, StringComparison.Ordinal);
+        Assert.Contains("externally created worktrees", worktree, StringComparison.Ordinal);
+        Assert.Contains("Preserve dirty worktrees", worktree, StringComparison.Ordinal);
     }
 
     [Fact]
@@ -703,11 +713,14 @@ public class SquadContractTests
         Assert.Contains("most two fix rounds", skill, StringComparison.Ordinal);
         Assert.Contains("at most two fix rounds", command, StringComparison.Ordinal);
 
-        Assert.Contains("re-ask that producer **once**", skill, StringComparison.Ordinal);
+        var reask = Fixture("malformed-reask.md");
+        var residual = Fixture("residual-fixup.md");
+        Assert.Contains("references/malformed-reask.md", skill, StringComparison.Ordinal);
+        Assert.Contains("re-ask that producer **once**", reask, StringComparison.Ordinal);
         Assert.Contains("re-ask that producer **once**", command, StringComparison.Ordinal);
-        Assert.Contains("accepted — malformed after re-ask", skill, StringComparison.Ordinal);
-        Assert.Contains("Never a second re-ask", skill, StringComparison.Ordinal);
-        Assert.Contains("same round number", skill, StringComparison.Ordinal);
+        Assert.Contains("accepted — malformed after re-ask", reask, StringComparison.Ordinal);
+        Assert.Contains("Never a second re-ask", reask, StringComparison.Ordinal);
+        Assert.Contains("same round number", reask, StringComparison.Ordinal);
         Assert.Contains("non-blocking", skill, StringComparison.Ordinal);
         Assert.Contains("Do not launch, retry, or hand work to another agent", orchestrator, StringComparison.Ordinal);
         Assert.Contains(
@@ -716,7 +729,8 @@ public class SquadContractTests
             StringComparison.Ordinal);
         Assert.Contains("no plan/fix loop", skill, StringComparison.Ordinal);
         Assert.Contains("optional residual fixup", skill, StringComparison.Ordinal);
-        Assert.Contains("Never a third full reviewer fan-out", skill, StringComparison.Ordinal);
+        Assert.Contains("references/residual-fixup.md", skill, StringComparison.Ordinal);
+        Assert.Contains("Never a third full reviewer fan-out", residual, StringComparison.Ordinal);
 
         var headings = skill.Split('\n')
             .Where(line => line.StartsWith("## ", StringComparison.Ordinal))
@@ -901,7 +915,7 @@ public class SquadContractTests
         Squad_commands_are_exactly_squad_and_review();
     }
 
-    /// <summary>Po 26 fail bar: worktree lifecycle lives only in the /squad skill.</summary>
+    /// <summary>Po 26 fail bar: worktree lifecycle lives only in the /squad skill pointer + references/worktree.md.</summary>
     [Fact]
     public void Worktree_note_only_in_squad_skill()
     {
@@ -910,7 +924,8 @@ public class SquadContractTests
         var root = TestRepository.SourceRoot();
         var skill = File.ReadAllText(Path.Combine(root, "plugins", "squad", "skills", "squad", "SKILL.md"));
         Assert.Contains("## Worktree", skill, StringComparison.Ordinal);
-        Assert.Contains("git worktree remove <exact-path>", skill, StringComparison.Ordinal);
+        Assert.Contains("references/worktree.md", skill, StringComparison.Ordinal);
+        Assert.DoesNotContain("git worktree remove <exact-path>", skill, StringComparison.Ordinal);
 
         var leftovers = new List<string>();
         var surfaces = new List<string>
@@ -1499,21 +1514,23 @@ public class SquadContractTests
     public void Squad_advisor_lite_at_confirm_stuck_handoff_no_slash()
     {
         var skill = Fixture("SKILL.md");
+        var advisor = Fixture("advisor-lite.md");
         var command = Fixture("squad.md");
         var review = Fixture("squad-review.md");
         var root = TestRepository.SourceRoot();
 
         Assert.Contains("## Advisor-lite", skill, StringComparison.Ordinal);
-        Assert.Contains("plan-confirm", skill, StringComparison.Ordinal);
-        Assert.Contains("stuck", skill, StringComparison.Ordinal);
-        Assert.Contains("before handoff", skill, StringComparison.Ordinal);
-        Assert.Contains("read-only", skill, StringComparison.Ordinal);
+        Assert.Contains("references/advisor-lite.md", skill, StringComparison.Ordinal);
+        Assert.DoesNotContain("plan-confirm", skill, StringComparison.Ordinal);
+        Assert.Contains("plan-confirm", advisor, StringComparison.Ordinal);
+        Assert.Contains("stuck", advisor, StringComparison.Ordinal);
+        Assert.Contains("before handoff", advisor, StringComparison.Ordinal);
+        Assert.Contains("read-only", advisor, StringComparison.Ordinal);
         Assert.Contains("models.source.json", skill, StringComparison.Ordinal);
-        Assert.Contains("stronger", skill, StringComparison.Ordinal);
-        Assert.Contains("`inherit` consults `standard`", skill, StringComparison.Ordinal);
+        Assert.Contains("stronger", advisor, StringComparison.Ordinal);
+        Assert.Contains("`inherit` consults `standard`", advisor, StringComparison.Ordinal);
         Assert.Contains("`/squad` only", skill, StringComparison.Ordinal);
         Assert.Contains("Advisor-lite", command, StringComparison.Ordinal);
-        Assert.Contains("plan-confirm", command + skill, StringComparison.Ordinal);
         Assert.DoesNotContain("Advisor-lite", review, StringComparison.Ordinal);
         Assert.DoesNotContain("name: advisor", command + review, StringComparison.Ordinal);
         Assert.False(File.Exists(Path.Combine(root, "plugins", "squad", "commands", "advisor.md")));
@@ -1954,14 +1971,82 @@ public class SquadContractTests
             StringComparison.OrdinalIgnoreCase);
     }
 
-    /// <summary>Always-fail: orchestrator <c>squad</c> SKILL.md body stays 87 nonempty lines.</summary>
+    /// <summary>
+    /// Item 58: four operational essays live under <c>references/</c> only; SKILL.md
+    /// keeps pointers. Body after frontmatter stays ≤87 nonempty lines. Still four
+    /// user commands and one validate job.
+    /// </summary>
+    [Fact]
+    public void Squad_skill_progressive_disclosure_moves_four_bodies_to_references()
+    {
+        var skill = Fixture("SKILL.md");
+        var body = BodyAfterFrontmatter(skill);
+        var lines = body.Split('\n').Count(line => !string.IsNullOrWhiteSpace(line));
+        Assert.True(lines <= 87, $"squad SKILL.md body is {lines} nonempty lines; cap is 87.");
+
+        (string Href, string Name, string[] Tokens)[] pointers =
+        [
+            ("references/malformed-reask.md", "malformed-reask.md",
+            [
+                "re-ask that producer **once**",
+                "accepted — malformed after re-ask",
+                "keep fixing the report until it parses",
+                "Do not increment the round for parse repair",
+                "stop and surface"
+            ]),
+            ("references/residual-fixup.md", "residual-fixup.md",
+            [
+                "Never a third full reviewer fan-out",
+                "does not keep a clean `pass`",
+                "Failed spot-check"
+            ]),
+            ("references/worktree.md", "worktree.md",
+            [
+                "git status --porcelain",
+                "git worktree remove <exact-path>",
+                "without `--force`",
+                "externally created worktrees",
+                "Preserve dirty worktrees"
+            ]),
+            ("references/advisor-lite.md", "advisor-lite.md",
+            [
+                "plan-confirm",
+                "`inherit` consults `standard`",
+                "stronger"
+            ])
+        ];
+        Assert.Equal(4, pointers.Length);
+
+        foreach (var (href, name, tokens) in pointers)
+        {
+            Assert.Contains(href, body, StringComparison.Ordinal);
+            var reference = Fixture(name);
+            foreach (var token in tokens)
+            {
+                Assert.Contains(token, reference, StringComparison.Ordinal);
+                Assert.DoesNotContain(token, body, StringComparison.Ordinal);
+            }
+        }
+
+        Assert.Contains("## Locked v1 flow", skill, StringComparison.Ordinal);
+        Assert.Contains("## Route", skill, StringComparison.Ordinal);
+        Assert.Contains("## Gated agents", skill, StringComparison.Ordinal);
+        Assert.Contains("## Skills", skill, StringComparison.Ordinal);
+        Assert.Contains("## Stacks", skill, StringComparison.Ordinal);
+
+        Still_four_user_commands();
+        Pull_request_ci_stays_one_job_no_matrix();
+        Squad_skill_body_is_not_grown();
+    }
+
+    /// <summary>Always-fail: orchestrator <c>squad</c> SKILL.md body stays ≤87 nonempty lines.</summary>
     [Fact]
     public void Squad_skill_body_is_not_grown()
     {
         var lines = BodyAfterFrontmatter(Fixture("SKILL.md"))
             .Split('\n')
             .Count(line => !string.IsNullOrWhiteSpace(line));
-        Assert.Equal(87, lines);
+        Assert.True(lines <= 87, $"squad SKILL.md body is {lines} nonempty lines; cap is 87.");
     }
 
     /// <summary>

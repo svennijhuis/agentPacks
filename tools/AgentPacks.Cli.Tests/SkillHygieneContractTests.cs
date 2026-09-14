@@ -114,6 +114,35 @@ public sealed class SkillHygieneContractTests
             "Never resolve or request installation for a detected stack outside the current change's scope");
         AssertRouterLinksReference(packCheck, "references/packs.md");
 
+        var squad = Path.Combine(root, "plugins", "squad", "skills", "squad");
+        AssertRouterLinksReference(
+            squad,
+            "references/malformed-reask.md",
+            "re-ask that producer **once**",
+            "keep fixing the report until it parses",
+            "Do not increment the round for parse repair",
+            "stop and surface");
+        AssertRouterLinksReference(
+            squad,
+            "references/residual-fixup.md",
+            "Never a third full reviewer fan-out",
+            "does not keep a clean `pass`",
+            "Failed spot-check");
+        AssertRouterLinksReference(
+            squad,
+            "references/worktree.md",
+            "git status --porcelain",
+            "git worktree remove <exact-path>",
+            "without `--force`",
+            "externally created worktrees",
+            "Preserve dirty worktrees");
+        AssertRouterLinksReference(
+            squad,
+            "references/advisor-lite.md",
+            "plan-confirm",
+            "`inherit` consults `standard`",
+            "stronger");
+
         foreach (var path in AuthoredSkillFiles())
         {
             var skillDir = Directory.GetParent(path)!.FullName;

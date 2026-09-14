@@ -199,6 +199,8 @@ public sealed class TonightCriteriaTests
         nameof(SquadContractTests.Still_four_user_commands))]
     [InlineData("squad SKILL.md not grown", typeof(SquadContractTests),
         nameof(SquadContractTests.Squad_skill_body_is_not_grown))]
+    [InlineData("58 four bodies in references pointers in SKILL", typeof(SquadContractTests),
+        nameof(SquadContractTests.Squad_skill_progressive_disclosure_moves_four_bodies_to_references))]
     public void Each_ticket_criterion_has_a_proving_test(string criterion, Type fixture, string method)
     {
         Assert.True(
