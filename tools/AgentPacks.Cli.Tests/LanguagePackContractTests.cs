@@ -1,4 +1,5 @@
 using System.Text.Json.Nodes;
+using AgentPacks.Cli.Io;
 using AgentPacks.Cli.Loading;
 using AgentPacks.Cli.Validation;
 
@@ -300,6 +301,60 @@ public class LanguagePackContractTests
             "SKILL.md must still read/cite references/standards/ before any example pointer.");
 
         new SquadContractTests().Pull_request_ci_stays_one_job_no_matrix();
+    }
+
+    /// <summary>
+    /// Item 62: Claude marketplace omits hooks; authored command names do not collide with a
+    /// skill or plugin name except the two homonyms Copilot already hides.
+    /// </summary>
+    [Fact]
+    public void Command_names_differ_from_skill_and_plugin_names()
+    {
+        new ClaudeMarketplaceHooksTests().Claude_marketplace_omits_hooks_path_and_array();
+        new HttpScenariosContractTests().Copilot_scenarios_command_name_differs_from_skill();
+        new SquadContractTests().Copilot_factory_command_name_differs_from_plugin_name();
+
+        var root = TestRepository.SourceRoot();
+        var allowed = new HashSet<(string Plugin, string Name)>
+        {
+            ("squad", "squad"),
+            ("pack-check", "pack-check")
+        };
+
+        foreach (var pluginDirectory in Directory.GetDirectories(Path.Combine(root, "plugins"))
+                     .OrderBy(path => path, StringComparer.Ordinal))
+        {
+            var pluginName = JsonNode.Parse(
+                File.ReadAllText(Path.Combine(pluginDirectory, "plugin.json")))!
+                ["name"]!.GetValue<string>();
+
+            var commandNames = AuthoredCommandNames(pluginDirectory);
+            var skillNames = SourceSkills.All()
+                .Where(skill => skill.Directory.StartsWith(pluginDirectory + Path.DirectorySeparatorChar, StringComparison.Ordinal))
+                .Select(skill => skill.Frontmatter?.Scalar("name") ?? skill.DirectoryName)
+                .ToHashSet(StringComparer.Ordinal);
+
+            foreach (var command in commandNames)
+            {
+                if (command != pluginName && !skillNames.Contains(command))
+                    continue;
+
+                Assert.True(
+                    allowed.Contains((pluginName, command)),
+                    $"command '{command}' in plugin '{pluginName}' collides with a skill or plugin name.");
+            }
+        }
+    }
+
+    private static HashSet<string> AuthoredCommandNames(string pluginDirectory)
+    {
+        var directory = Path.Combine(pluginDirectory, "commands");
+        if (!Directory.Exists(directory))
+            return new HashSet<string>(StringComparer.Ordinal);
+
+        return Directory.GetFiles(directory, "*.md")
+            .Select(path => Frontmatter.TryParse(File.ReadAllText(path), out _)?.Scalar("name") ?? Path.GetFileNameWithoutExtension(path))
+            .ToHashSet(StringComparer.Ordinal);
     }
 
     /// <summary>Po 33: loop-audience skills open with the Internal do-not-run line.</summary>
