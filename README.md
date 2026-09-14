@@ -124,9 +124,24 @@ Create only the links for the plugins you want, then restart Cursor or run **Dev
 git -C ~/.cursor/agentPacks pull --ff-only
 ```
 
+## Beta marketplace
+
+A merge to `main` publishes the generated tree to `marketplace-beta`. The stable `marketplace` branch does not move until a maintainer runs **Actions → Promote beta marketplace to stable**, which copies that exact beta commit. Nothing is regenerated.
+
+Testers add `#marketplace-beta` instead of `#marketplace`. Both catalogs use the name `agentpacks`, so remove the stable marketplace first:
+
+```shell
+copilot plugin marketplace add https://github.com/svennijhuis/agentPacks.git#marketplace-beta
+codex plugin marketplace add svennijhuis/agentPacks --ref marketplace-beta
+claude plugin marketplace add https://github.com/svennijhuis/agentPacks.git#marketplace-beta --scope user
+agent plugin marketplace add https://github.com/svennijhuis/agentPacks --git-ref marketplace-beta
+```
+
+Then install packs as usual (`squad@agentpacks`, …). After the first merge, wait for **Publish generated beta marketplace** to finish so `marketplace-beta` exists. Leave the `commit` input empty to promote the current beta head, or pin the SHA testers installed. Each publish force-pushes a fresh generate commit, so an older tested SHA is not an ancestor of current beta HEAD.
+
 ## Local development
 
-Work on a feature branch. Do not merge to `main` or publish to `marketplace` to try a change.
+Work on a feature branch. Do not merge to `main` (that publishes `marketplace-beta`) or promote to `marketplace` to try a change.
 
 ```bash
 git clone https://github.com/svennijhuis/agentPacks.git
@@ -290,7 +305,7 @@ Installed skills are selected when relevant to your request.
 Pack-specific standards live under each language plugin's `standards/` directory. A document that
 is the same in every language lives once under [`shared/standards/`](shared/standards/) and is
 referenced by path from `standards.source.json`. Generation copies only the selected documents into
-each consuming skill's `references/standards/` directory on the `marketplace` branch or in temporary
+each consuming skill's `references/standards/` directory on the `marketplace` / `marketplace-beta` branch or in temporary
 output; generated files do not live on `main`.
 
 The planner records those plugin sources under `## Standards in force`. It separately inspects

@@ -10,7 +10,6 @@ permissions:
   contents: read
 
 env:
-  MARKETPLACE_BRANCH: marketplace
   SOLUTION: tools/AgentPacks.slnx
   CLI_PROJECT: tools/AgentPacks.Cli
 
@@ -22,34 +21,47 @@ jobs:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          ref: ${{ env.MARKETPLACE_BRANCH }}
+          fetch-depth: 0
 
       - name: Setup .NET
         uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
         with:
           global-json-file: global.json
 
-      - name: Restore
-        run: dotnet restore "$SOLUTION" --locked-mode
+      # Fails when a generated branch's client files no longer match what that commit's portable
+      # source produces, which normally means someone edited a generated file by hand. A missing
+      # beta branch is skipped until the first publish after this workflow landed.
+      - name: Check generated branches
+        shell: bash
+        run: |
+          set -euo pipefail
+          checked=0
+          for branch in marketplace marketplace-beta; do
+            if [[ -z "$(git ls-remote --heads origin "refs/heads/$branch")" ]]; then
+              echo "$branch is not on origin yet; skipping"
+              continue
+            fi
 
-      - name: Build
-        run: dotnet build "$SOLUTION" --configuration Release --no-restore
+            git fetch origin "$branch"
+            git checkout --force --detach "origin/$branch"
 
-      # Fails when the committed client files no longer match what the portable source generates,
-      # which normally means someone edited a generated file by hand.
-      - name: Check generated files
-        run: >
-          dotnet run
-          --project "$CLI_PROJECT"
-          --configuration Release
-          --no-build
-          -- generate --check
+            dotnet restore "$SOLUTION" --locked-mode
+            dotnet build "$SOLUTION" --configuration Release --no-restore
+            dotnet run \
+              --project "$CLI_PROJECT" \
+              --configuration Release \
+              --no-build \
+              -- generate --check
+            dotnet run \
+              --project "$CLI_PROJECT" \
+              --configuration Release \
+              --no-build \
+              -- materialize-external --check
 
-      - name: Check generated external skills
-        if: always()
-        run: >
-          dotnet run
-          --project "$CLI_PROJECT"
-          --configuration Release
-          --no-build
-          -- materialize-external --check
+            checked=$((checked + 1))
+          done
+
+          if [[ "$checked" -eq 0 ]]; then
+            echo "::error::neither generated marketplace branch exists on origin"
+            exit 1
+          fi

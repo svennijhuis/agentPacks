@@ -33,5 +33,5 @@ that session. A full Squad run stops unless `--no-pack` or its small-change gate
 
 Authored: `plugin.json`, `hooks.source.json`, `skills/`, `commands/`, and the paired scripts.
 
-Generated on the marketplace branch or in temporary validation output: `hooks/`, script shims,
+Generated on `marketplace` / `marketplace-beta` or in temporary validation output: `hooks/`, script shims,
 client manifests, and the `com.*` provider trees.

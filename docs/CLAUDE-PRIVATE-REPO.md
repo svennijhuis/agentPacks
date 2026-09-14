@@ -1,12 +1,12 @@
 # Claude Code — generated marketplace branch
 
-Claude clones the repository's generated `marketplace` branch. The authored `main` branch contains no Claude marketplace file.
+Claude clones a generated marketplace branch. The authored `main` branch contains no Claude marketplace file.
 
 The repository is public today. Nothing about the setup changes when it becomes private, except that Claude then needs credentials for it — see [Authentication](#authentication).
 
 ## What is generated
 
-GitHub Actions creates the complete installable tree on `marketplace`. The catalog is always generated; an MCP adapter exists only for a plugin that declares real servers:
+A push to `main` publishes the complete installable tree to `marketplace-beta`. Testers install from that branch. When it looks right, a maintainer runs **Promote beta marketplace to stable**, which copies that exact commit onto `marketplace`. The catalog is always generated; an MCP adapter exists only for a plugin that declares real servers:
 
 ```
 .claude-plugin/marketplace.json          the plugin catalog
@@ -32,7 +32,7 @@ Claude reads MCP configuration from `.mcp.json` in the plugin root. Agent Plugin
 
 ## Why `version` is omitted
 
-Claude resolves plugin updates from an explicit `version` first, and only falls back to the Git commit SHA. A version copied from `plugin.json` and never bumped would leave everyone on cached content after a skill changed. Omitting it makes every merge to `main` visible.
+Claude resolves plugin updates from an explicit `version` first, and only falls back to the Git commit SHA. A version copied from `plugin.json` and never bumped would leave everyone on cached content after a skill changed. Omitting it makes every publication visible: testers see each merge to `main` on `marketplace-beta`, and stable installs move when that commit is promoted.
 
 ## Why `strict: true`
 
@@ -42,9 +42,13 @@ Claude auto-discovers root `commands/` (Cursor's dialect) unless the marketplace
 
 ## Install
 
+Stable catalog:
+
 ```bash
 /plugin marketplace add https://github.com/svennijhuis/agentPacks.git#marketplace
 ```
+
+Testers use `#marketplace-beta` instead (remove the stable marketplace first; both catalogs are named `agentpacks`).
 
 ```bash
 /plugin install squad@agentpacks

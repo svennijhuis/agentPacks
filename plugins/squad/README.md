@@ -108,7 +108,7 @@ cp plugins/squad/com.openai.codex/agents/*.toml .codex/agents/
 
 Authored: `plugin.json`, `mcp.json` (empty scaffold), `skills/`, `rules/`, `agents/`, and `commands/`.
 
-Generated only in validation output or on the marketplace branch: client manifests and `com.*` provider trees.
+Generated only in validation output or on `marketplace` / `marketplace-beta`: client manifests and `com.*` provider trees.
 
 Portable model tiers are authored on each agent and mapped in [`models.source.json`](../../models.source.json).
 Default `inherit`. The implementer is `standard`; other squad agents are `fast`.

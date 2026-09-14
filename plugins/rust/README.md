@@ -46,7 +46,7 @@ and CI use it, with the repository's own targets, features, and lint levels. The
 
 Authored: `plugin.json`, `standards.source.json`, `standards/`, and `skills/`.
 
-Generated on the `marketplace` branch or in temporary validation output, never on `main`:
+Generated on `marketplace` / `marketplace-beta` or in temporary validation output, never on `main`:
 `.cursor-plugin/`, `.codex-plugin/`, `com.anthropic.claude-code/`, `com.openai.codex/`,
 `com.github.copilot/`, and each skill's `references/standards/` directory.
 

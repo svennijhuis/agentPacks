@@ -61,8 +61,8 @@ dotnet run --project tools/AgentPacks.Cli -- validate
 dotnet run --project tools/AgentPacks.Cli -- validate-all --out /tmp/agentpacks-marketplace
 ```
 
-Those commands work on a feature branch. Do not merge to `main` or publish to the marketplace
-branch to test a pack.
+Those commands work on a feature branch. Do not merge to `main` or promote to the stable
+marketplace branch to test a pack.
 
 Frontmatter and body rules are the ordinary skill rules: [ADD-SKILL.md](ADD-SKILL.md).
 
@@ -101,7 +101,7 @@ Author pack documents in `plugins/<lang>/standards/`. A cross-language document 
 `shared/standards/` and is referenced by that path; a pack `standards/<name>.md` that reuses a
 shared filename is rejected. That author path belongs in this document, not in a skill body.
 Generation copies the selected files into each consumer's `references/standards/` directory on the
-`marketplace` branch or in temporary output. Source `main` stays authored-only.
+`marketplace` / `marketplace-beta` branch or in temporary output. Source `main` stays authored-only.
 Skill bodies point only at `references/standards/` — never `authored tree: ../../standards/` or
 `../../standards/`. Every consuming skill must name them under `Standards in force:` and tell the
 agent to cite the document filename during review and build.

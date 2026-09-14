@@ -1,0 +1,109 @@
+name: Promote beta marketplace to stable
+
+# Manual step. Copies the exact tree that testers installed from `marketplace-beta` onto the
+# stable `marketplace` branch. Nothing is regenerated here: what was tested is what ships.
+# Pin the SHA testers installed. Each publish force-pushes a fresh generate commit whose parent
+# is current main, so an older tested SHA is not an ancestor of current beta HEAD.
+on:
+  workflow_dispatch:
+    inputs:
+      commit:
+        description: >-
+          SHA testers installed from marketplace-beta. Leave empty to promote current beta HEAD.
+          Each publish force-pushes a fresh generate commit, so an older tested SHA is not an
+          ancestor of current beta HEAD. Pin the SHA testers installed, not an ancestor of HEAD.
+        required: false
+        default: ""
+        type: string
+
+permissions:
+  contents: write
+
+concurrency:
+  group: promote-plugin-marketplace
+  cancel-in-progress: false
+
+env:
+  BETA_BRANCH: marketplace-beta
+  MARKETPLACE_BRANCH: marketplace
+
+jobs:
+  promote:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout beta marketplace
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ env.BETA_BRANCH }}
+          fetch-depth: 0
+
+      - name: Resolve commit to promote
+        id: resolve
+        shell: bash
+        env:
+          REQUESTED: ${{ inputs.commit }}
+        run: |
+          set -euo pipefail
+
+          beta_head="$(git rev-parse HEAD)"
+
+          if [[ -z "$REQUESTED" ]]; then
+            target="$beta_head"
+          else
+            # Force-pushed beta history: older generate SHAs are not ancestors of HEAD and may
+            # be missing from this checkout. Fetch the exact object testers installed.
+            if ! git cat-file -e "${REQUESTED}^{commit}" 2>/dev/null; then
+              if ! git fetch --no-tags origin "$REQUESTED"; then
+                echo "::error::'$REQUESTED' is not a commit reachable from this repository."
+                exit 1
+              fi
+            fi
+            target="$(git rev-parse --verify "${REQUESTED}^{commit}")"
+          fi
+
+          # Subject prefix proves publish-marketplace.yml produced this commit. Do not require
+          # ancestry of current beta HEAD: each publish force-pushes a fresh generate commit.
+          subject="$(git log -1 --format=%s "$target")"
+          if [[ "$subject" != "chore: generate plugin marketplace from "* ]]; then
+            echo "::error::$target ($subject) was not produced by the publish workflow."
+            exit 1
+          fi
+
+          echo "sha=$target" >> "$GITHUB_OUTPUT"
+          echo "subject=$subject" >> "$GITHUB_OUTPUT"
+
+      - name: Push to stable marketplace branch
+        shell: bash
+        env:
+          TARGET: ${{ steps.resolve.outputs.sha }}
+          SUBJECT: ${{ steps.resolve.outputs.subject }}
+        run: |
+          set -euo pipefail
+
+          remote_sha="$(git ls-remote --heads origin "refs/heads/$MARKETPLACE_BRANCH" | cut -f1)"
+
+          if [[ "$remote_sha" == "$TARGET" ]]; then
+            echo "$MARKETPLACE_BRANCH already points at $TARGET; nothing to promote."
+            echo "Stable marketplace already at \`${TARGET::7}\` — $SUBJECT" >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+
+          # Every publication is a fresh commit on top of main, so the stable branch is never a
+          # fast-forward of the previous one. The lease still refuses to overwrite a stable branch
+          # that moved after this job read it.
+          if [[ -n "$remote_sha" ]]; then
+            git push \
+              --force-with-lease="refs/heads/$MARKETPLACE_BRANCH:$remote_sha" \
+              origin "$TARGET:refs/heads/$MARKETPLACE_BRANCH"
+          else
+            git push origin "$TARGET:refs/heads/$MARKETPLACE_BRANCH"
+          fi
+
+          {
+            echo "Promoted \`${TARGET::7}\` to \`$MARKETPLACE_BRANCH\` — $SUBJECT"
+            if [[ -n "$remote_sha" ]]; then
+              echo ""
+              echo "Previous stable head: \`${remote_sha::7}\`"
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"

@@ -1,5 +1,8 @@
-name: Publish generated plugin marketplace
+name: Publish generated beta marketplace
 
+# Every push to main regenerates the installable tree onto the beta branch. Nothing here touches
+# the stable `marketplace` branch: that is promoted by hand from the beta branch once testers are
+# happy, see promote-marketplace.yml.
 on:
   push:
     branches:
@@ -13,7 +16,7 @@ concurrency:
   cancel-in-progress: false
 
 env:
-  MARKETPLACE_BRANCH: marketplace
+  MARKETPLACE_BRANCH: marketplace-beta
   SOLUTION: tools/AgentPacks.slnx
   CLI_PROJECT: tools/AgentPacks.Cli
 
@@ -78,7 +81,7 @@ jobs:
             --no-build \
             -- materialize-external --check
 
-      - name: Publish marketplace branch
+      - name: Publish beta marketplace branch
         shell: bash
         run: |
           git config user.name "github-actions[bot]"
