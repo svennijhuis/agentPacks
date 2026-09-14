@@ -19,6 +19,7 @@ internal sealed class StandardsValidator(RepositoryContext context)
         }
 
         RejectIdenticalStandards(plugins);
+        RejectSharedFilenameLeftovers(plugins);
     }
 
     /// <summary>
@@ -52,6 +53,43 @@ internal sealed class StandardsValidator(RepositoryContext context)
                     path,
                     $"has the same content as {others}. Author it once under " +
                     $"{SharedStandards.DirectoryRelative}/ and reference that path from each catalog.");
+            }
+        }
+    }
+
+    /// <summary>
+    /// Pack files under <c>plugins/*/standards/</c> whose filename matches a shared document are
+    /// rejected even when they are not listed in the catalog. Catalog-only guards miss leftovers.
+    /// </summary>
+    private void RejectSharedFilenameLeftovers(IReadOnlyList<PluginPackage> plugins)
+    {
+        var sharedNames = SharedStandards.FileNames(context);
+        if (sharedNames.Count == 0)
+        {
+            return;
+        }
+
+        foreach (var plugin in plugins)
+        {
+            var directory = Path.Combine(plugin.Directory, "standards");
+            if (!Directory.Exists(directory))
+            {
+                continue;
+            }
+
+            foreach (var file in Directory.GetFiles(directory, "*.md").OrderBy(p => p, StringComparer.Ordinal))
+            {
+                var name = Path.GetFileName(file);
+                if (!sharedNames.Contains(name))
+                {
+                    continue;
+                }
+
+                var relative = context.Relative(file);
+                context.Diagnostics.Policy(
+                    relative,
+                    $"has the same filename as {SharedStandards.DirectoryRelative}/{name}. " +
+                    "Reference the shared document by that path, or rename the pack document.");
             }
         }
     }

@@ -241,6 +241,34 @@ public class StandardsGenerationTests
     }
 
     [Fact]
+    public void Uncatalogued_pack_file_reusing_a_shared_filename_is_rejected()
+    {
+        using var repo = Repository()
+            .WithFile("shared/standards/http-api.md", "# Shared\n")
+            .WithFile("plugins/engineering/standards/http-api.md", "# Leftover different body\n")
+            .WithFile("plugins/engineering/standards/other.md", "# Pack only\n")
+            .WithStandards("""
+                {
+                  "$schema": "../../schema/standards.schema.json",
+                  "version": 1,
+                  "documents": {
+                    "http-api": "shared/standards/http-api.md",
+                    "other": "standards/other.md"
+                  },
+                  "consumers": {
+                    "dotnet-review": ["http-api", "other"]
+                  }
+                }
+                """);
+
+        var run = repo.Validate();
+
+        Assert.True(run.HasErrors);
+        Assert.Contains("plugins/engineering/standards/http-api.md", run.Text, StringComparison.Ordinal);
+        Assert.Contains("same filename as shared/standards/http-api.md", run.Text, StringComparison.Ordinal);
+    }
+
+    [Fact]
     public void Byte_identical_authored_standards_are_rejected()
     {
         const string text = "# HTTP API\n\nSame body.\n";
