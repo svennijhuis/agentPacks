@@ -64,6 +64,34 @@ The body is the system prompt. One job. Numbered steps. A Good/Bad pair. Require
 A reviewer that can edit files will eventually edit files, so state the boundary and grant only the
 tools it needs. Load skills with the Skill tool by exact name.
 
+Each agent starts with empty context. Repeat the skill-load preamble and the constraints that agent
+must enforce, even when the parent skill or a contract already says the same thing. Do not move those
+lines into a shared file the subagent will not open. Shared wire formats belong in `references/`;
+the agent still has to name the file it reads. Keep the parent command thin: it loads the skill,
+then lists the steps the main agent runs. Restate a procedure in the command only when the main
+agent must follow it as a numbered step.
+
+### Keep versus collapse
+
+Keep these copies. Subagents and separately installed packs start without the parent's context:
+
+| Keep | Why |
+|---|---|
+| Skill-load preamble and the CLAUDE.md rule on every squad agent | Each specialist starts empty |
+| Locked v1 flow in the skill and the READMEs | Agents follow the skill; humans follow the README |
+| Malformed-report re-ask in command numbered steps, the skill, and the review contract | The main agent follows the command |
+| Language-pack slot boilerplate (`Internal. Do not run directly…`) | Each slot skill is loaded on its own |
+| Parallel language-pack skills | Packs install separately |
+
+Collapse these. One reader or the compiler already has the twin:
+
+| Collapse | Into |
+|---|---|
+| Marketplace/client JSON field clone loops | `JsonFile.CopyProperties` |
+| Claude/Cursor/Copilot agent markdown emit | `WriteAgentMarkdown` |
+| Repeated test `SourceRoot` / generated-path skip / command-directory copy | `TestRepository` |
+| Same-file restatements (Confidence table vs section) | One canonical section, table points at it |
+
 ## What gets generated
 
 | Path | For |

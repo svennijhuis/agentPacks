@@ -68,7 +68,7 @@ public sealed class SkillHygieneContractTests
     [Fact]
     public void Skill_bodies_progressive_disclosure_to_references()
     {
-        var root = SourceRoot();
+        var root = TestRepository.SourceRoot();
 
         foreach (var pack in new[] { "dotnet", "rust", "typescript" })
         {
@@ -178,12 +178,12 @@ public sealed class SkillHygieneContractTests
     }
 
     private static IEnumerable<string> AuthoredSkillFiles() =>
-        Directory.GetFiles(Path.Combine(SourceRoot(), "plugins"), "SKILL.md", SearchOption.AllDirectories)
+        Directory.GetFiles(Path.Combine(TestRepository.SourceRoot(), "plugins"), "SKILL.md", SearchOption.AllDirectories)
             .Where(path => !path.Contains($"{Path.DirectorySeparatorChar}com.", StringComparison.Ordinal))
             .OrderBy(path => path, StringComparer.Ordinal);
 
     private static IEnumerable<string> AuthoredSkillTreeMarkdown() =>
-        Directory.GetFiles(Path.Combine(SourceRoot(), "plugins"), "*.md", SearchOption.AllDirectories)
+        Directory.GetFiles(Path.Combine(TestRepository.SourceRoot(), "plugins"), "*.md", SearchOption.AllDirectories)
             .Where(path => path.Contains($"{Path.DirectorySeparatorChar}skills{Path.DirectorySeparatorChar}", StringComparison.Ordinal)
                 && !path.Contains($"{Path.DirectorySeparatorChar}com.", StringComparison.Ordinal))
             .OrderBy(path => path, StringComparer.Ordinal);
@@ -215,21 +215,6 @@ public sealed class SkillHygieneContractTests
     }
 
     private static string RelativeToPlugins(string path) =>
-        Path.GetRelativePath(Path.Combine(SourceRoot(), "plugins"), path);
+        Path.GetRelativePath(Path.Combine(TestRepository.SourceRoot(), "plugins"), path);
 
-    private static string SourceRoot()
-    {
-        for (var directory = new DirectoryInfo(AppContext.BaseDirectory);
-             directory is not null;
-             directory = directory.Parent)
-        {
-            if (Directory.Exists(Path.Combine(directory.FullName, "plugins")) &&
-                Directory.Exists(Path.Combine(directory.FullName, "tools", "AgentPacks.Cli")))
-            {
-                return directory.FullName;
-            }
-        }
-
-        throw new DirectoryNotFoundException("Could not locate the agentPacks source root.");
-    }
 }

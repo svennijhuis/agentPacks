@@ -305,7 +305,7 @@ public class SquadContractTests
     [Fact]
     public void Squad_commands_are_exactly_squad_and_review()
     {
-        var directory = Path.Combine(SourceRoot(), "plugins", "squad", "commands");
+        var directory = Path.Combine(TestRepository.SourceRoot(), "plugins", "squad", "commands");
         var names = Directory.GetFiles(directory, "*.md")
             .Select(path => Path.GetFileName(path) ?? path)
             .OrderBy(name => name, StringComparer.Ordinal)
@@ -455,7 +455,7 @@ public class SquadContractTests
             second skill pack, Matt catalog dump, eager fan-out, self-improve graphs, auto skill rewrite, redoing PR #6.
             """;
 
-        var root = SourceRoot();
+        var root = TestRepository.SourceRoot();
         var readme = File.ReadAllText(Path.Combine(root, "README.md"));
         var pluginReadme = File.ReadAllText(Path.Combine(root, "plugins", "squad", "README.md"));
         var skill = Fixture("SKILL.md");
@@ -478,7 +478,7 @@ public class SquadContractTests
     [Fact]
     public void Coworker_local_dev_docs_name_validate_test_and_three_client_installs()
     {
-        var root = SourceRoot();
+        var root = TestRepository.SourceRoot();
         var readme = File.ReadAllText(Path.Combine(root, "README.md"));
         var docs = File.ReadAllText(Path.Combine(root, "docs", "ADD-SKILL.md"));
         foreach (var text in new[] { readme, docs })
@@ -498,7 +498,7 @@ public class SquadContractTests
     [Fact]
     public void User_facing_surfaces_do_not_say_delivery_loop()
     {
-        var root = SourceRoot();
+        var root = TestRepository.SourceRoot();
         var leftovers = new List<string>();
 
         foreach (var directory in Directory.GetDirectories(Path.Combine(root, "plugins")))
@@ -553,7 +553,7 @@ public class SquadContractTests
     [Fact]
     public void No_user_facing_loop_star_agents_are_squad_star()
     {
-        var root = SourceRoot();
+        var root = TestRepository.SourceRoot();
         var agentsDir = Path.Combine(root, "plugins", "squad", "agents");
         var names = Directory.GetFiles(agentsDir, "*.md")
             .Select(path => Path.GetFileNameWithoutExtension(path) ?? path)
@@ -735,7 +735,7 @@ public class SquadContractTests
             "## Worktree"
         ], headings);
 
-        var packCheck = File.ReadAllText(Path.Combine(SourceRoot(), "plugins", "pack-check", "README.md"));
+        var packCheck = File.ReadAllText(Path.Combine(TestRepository.SourceRoot(), "plugins", "pack-check", "README.md"));
         Assert.Contains("`/pack-check` is setup-only", packCheck, StringComparison.Ordinal);
         Assert.Contains("`/squad` already runs this check", packCheck, StringComparison.Ordinal);
     }
@@ -810,9 +810,9 @@ public class SquadContractTests
 
     private void Plugin_mcp_files_are_empty_scaffolds()
     {
-        var root = SourceRoot();
+        var root = TestRepository.SourceRoot();
         var authored = Directory.GetFiles(root, "mcp.json", SearchOption.AllDirectories)
-            .Where(path => !IsGeneratedPath(path))
+            .Where(path => !TestRepository.IsGeneratedPath(path))
             .Select(path => Path.GetRelativePath(root, path).Replace('\\', '/'))
             .OrderBy(path => path, StringComparer.Ordinal)
             .ToArray();
@@ -827,16 +827,11 @@ public class SquadContractTests
         }
     }
 
-    private static bool IsGeneratedPath(string path) =>
-        path.Contains($"{Path.DirectorySeparatorChar}bin{Path.DirectorySeparatorChar}", StringComparison.Ordinal)
-        || path.Contains($"{Path.DirectorySeparatorChar}obj{Path.DirectorySeparatorChar}", StringComparison.Ordinal)
-        || path.Contains($"{Path.DirectorySeparatorChar}.git{Path.DirectorySeparatorChar}", StringComparison.Ordinal);
-
     /// <summary>Po 24 fail bar: root README documents the Codex agent TOML copy one-liner.</summary>
     [Fact]
     public void Readme_has_codex_agent_toml_copy_one_liner()
     {
-        var readme = File.ReadAllText(Path.Combine(SourceRoot(), "README.md"));
+        var readme = File.ReadAllText(Path.Combine(TestRepository.SourceRoot(), "README.md"));
         Assert.Contains(
             "cp plugins/squad/com.openai.codex/agents/*.toml .codex/agents/",
             readme,
@@ -851,7 +846,7 @@ public class SquadContractTests
     [Fact]
     public void Readme_lists_three_user_commands_plus_pack_check()
     {
-        var root = SourceRoot();
+        var root = TestRepository.SourceRoot();
         var readme = File.ReadAllText(Path.Combine(root, "README.md"));
         var pluginReadme = File.ReadAllText(Path.Combine(root, "plugins", "squad", "README.md"));
 
@@ -885,7 +880,7 @@ public class SquadContractTests
     [Fact]
     public void Learnings_digest_is_user_invoked_matt_tiny_no_rewrite()
     {
-        var root = SourceRoot();
+        var root = TestRepository.SourceRoot();
         var skillPath = Path.Combine(root, "plugins", "squad", "skills", "learnings-digest", "SKILL.md");
         Assert.True(File.Exists(skillPath));
         var skill = File.ReadAllText(skillPath);
@@ -912,7 +907,7 @@ public class SquadContractTests
     {
         Worktree_cleanup_preserves_uncommitted_or_externally_owned_work();
 
-        var root = SourceRoot();
+        var root = TestRepository.SourceRoot();
         var skill = File.ReadAllText(Path.Combine(root, "plugins", "squad", "skills", "squad", "SKILL.md"));
         Assert.Contains("## Worktree", skill, StringComparison.Ordinal);
         Assert.Contains("git worktree remove <exact-path>", skill, StringComparison.Ordinal);
@@ -952,7 +947,7 @@ public class SquadContractTests
     public void Caveman_external_pins_and_squad_invokes_by_exact_name()
     {
         const string sha = "5184b3d11ac6a1acb7d44b9bfaa31698157cff97";
-        var root = SourceRoot();
+        var root = TestRepository.SourceRoot();
         var manifest = JsonNode.Parse(File.ReadAllText(
             Path.Combine(root, "plugins", "squad", "external-skills.json")))!;
         var sources = manifest["sources"]!.AsArray();
@@ -1015,7 +1010,7 @@ public class SquadContractTests
         Assert.Equal(
             "From changed code, write docs/smoke/<slug>.md. No product-code edits.",
             FrontmatterDescription(File.ReadAllText(
-                Path.Combine(SourceRoot(), "plugins", "squad", "commands", "scenarios.md"))));
+                Path.Combine(TestRepository.SourceRoot(), "plugins", "squad", "commands", "scenarios.md"))));
 
         Squad_commands_are_exactly_squad_and_review();
     }
@@ -1028,7 +1023,7 @@ public class SquadContractTests
     [Fact]
     public void Learnings_digest_is_not_user_invocable()
     {
-        var root = SourceRoot();
+        var root = TestRepository.SourceRoot();
         var skillPath = Path.Combine(root, "plugins", "squad", "skills", "learnings-digest", "SKILL.md");
         Assert.True(File.Exists(skillPath), "learnings-digest skill must stay; do not remove it.");
         var skill = File.ReadAllText(skillPath);
@@ -1053,17 +1048,11 @@ public class SquadContractTests
     [Fact]
     public void Claude_package_ships_one_squad_and_one_squad_review_command()
     {
-        var sourceCommands = Path.Combine(SourceRoot(), "plugins", "squad", "commands");
-        using var repo = new TestRepository().WithPlugin(
-            "squad",
-            File.ReadAllText(Path.Combine(SourceRoot(), "plugins", "squad", "plugin.json")));
-
-        foreach (var path in Directory.GetFiles(sourceCommands, "*.md"))
-        {
-            repo.WithFile(
-                $"plugins/squad/commands/{Path.GetFileName(path)}",
-                File.ReadAllText(path));
-        }
+        using var repo = new TestRepository()
+            .WithPlugin(
+                "squad",
+                File.ReadAllText(Path.Combine(TestRepository.SourceRoot(), "plugins", "squad", "plugin.json")))
+            .WithCopiedDirectory(TestRepository.SourceRoot(), "plugins/squad/commands", "*.md");
 
         repo.WithSkill(
             "squad",
@@ -1110,17 +1099,12 @@ public class SquadContractTests
     [Fact]
     public void Copilot_factory_command_name_differs_from_plugin_name()
     {
-        var root = SourceRoot();
-        using var repo = new TestRepository().WithPlugin(
-            "squad",
-            File.ReadAllText(Path.Combine(root, "plugins", "squad", "plugin.json")));
-
-        foreach (var path in Directory.GetFiles(Path.Combine(root, "plugins", "squad", "commands"), "*.md"))
-        {
-            repo.WithFile(
-                $"plugins/squad/commands/{Path.GetFileName(path)}",
-                File.ReadAllText(path));
-        }
+        var root = TestRepository.SourceRoot();
+        using var repo = new TestRepository()
+            .WithPlugin(
+                "squad",
+                File.ReadAllText(Path.Combine(root, "plugins", "squad", "plugin.json")))
+            .WithCopiedDirectory(root, "plugins/squad/commands", "*.md");
 
         repo.WithSkill(
             "squad",
@@ -1187,7 +1171,7 @@ public class SquadContractTests
     [Fact]
     public void Caveman_pins_are_not_user_invocable()
     {
-        var root = SourceRoot();
+        var root = TestRepository.SourceRoot();
         var catalog = File.ReadAllText(Path.Combine(root, "plugins", "squad", "external-skills.json"));
         var names = JsonNode.Parse(catalog)!["sources"]!.AsArray()
             .OfType<JsonObject>()
@@ -1247,7 +1231,7 @@ public class SquadContractTests
     [Fact]
     public void User_facing_surfaces_say_squad_review_not_bare_review()
     {
-        var root = SourceRoot();
+        var root = TestRepository.SourceRoot();
         var commandDir = Path.Combine(root, "plugins", "squad", "commands");
         var commandNames = Directory.GetFiles(commandDir, "*.md")
             .Select(path => Path.GetFileName(path) ?? path)
@@ -1334,7 +1318,7 @@ public class SquadContractTests
         Assert.Contains("name: squad-review", review, StringComparison.Ordinal);
         Assert.Contains("Save report as markdown?", review, StringComparison.Ordinal);
 
-        var root = SourceRoot();
+        var root = TestRepository.SourceRoot();
         foreach (var relative in new[]
                  {
                      Path.Combine("plugins", "dotnet", "skills", "dotnet-build", "SKILL.md"),
@@ -1369,8 +1353,8 @@ public class SquadContractTests
         var simplifier = Fixture("squad-simplifier.md");
         var security = Fixture("squad-security-reviewer.md");
         var orchestrator = Fixture("squad-orchestrator.md");
-        var readme = File.ReadAllText(Path.Combine(SourceRoot(), "README.md"));
-        var pluginReadme = File.ReadAllText(Path.Combine(SourceRoot(), "plugins", "squad", "README.md"));
+        var readme = File.ReadAllText(Path.Combine(TestRepository.SourceRoot(), "README.md"));
+        var pluginReadme = File.ReadAllText(Path.Combine(TestRepository.SourceRoot(), "plugins", "squad", "README.md"));
 
         Assert.DoesNotContain("## Product diff", contract, StringComparison.Ordinal);
         Assert.Contains("A run file that is absent is not a finding", contract, StringComparison.Ordinal);
@@ -1517,7 +1501,7 @@ public class SquadContractTests
         var skill = Fixture("SKILL.md");
         var command = Fixture("squad.md");
         var review = Fixture("squad-review.md");
-        var root = SourceRoot();
+        var root = TestRepository.SourceRoot();
 
         Assert.Contains("## Advisor-lite", skill, StringComparison.Ordinal);
         Assert.Contains("plan-confirm", skill, StringComparison.Ordinal);
@@ -1586,7 +1570,7 @@ public class SquadContractTests
     [Fact]
     public void Squad_smoke_matrix_template_covers_happy_edge_fail_auth_timeout_5xx()
     {
-        var root = SourceRoot();
+        var root = TestRepository.SourceRoot();
         var matrix = File.ReadAllText(Path.Combine(root, "plugins", "squad", "references", "smoke-matrix.md"));
         AssertMattTiny(matrix, "smoke-matrix.md");
         AssertNoSecretsOrFilledCollections(matrix, "smoke-matrix.md");
@@ -1625,7 +1609,7 @@ public class SquadContractTests
     [Fact]
     public void Lang_test_patterns_local_vs_deployed_smoke_examples()
     {
-        var root = SourceRoot();
+        var root = TestRepository.SourceRoot();
         foreach (var pack in new[] { "dotnet", "typescript", "rust" })
         {
             var skillDir = Path.Combine(root, "plugins", pack, "skills", $"{pack}-test-patterns");
@@ -1663,7 +1647,7 @@ public class SquadContractTests
     [Fact]
     public void Smoke_matrix_not_user_slash_no_new_plugin()
     {
-        var root = SourceRoot();
+        var root = TestRepository.SourceRoot();
         Assert.Equal(
             ["dotnet", "git", "pack-check", "rust", "squad", "typescript"],
             Directory.GetDirectories(Path.Combine(root, "plugins"))
@@ -1801,7 +1785,7 @@ public class SquadContractTests
     [Fact]
     public void Pull_request_ci_stays_one_job_no_matrix()
     {
-        var root = SourceRoot();
+        var root = TestRepository.SourceRoot();
         var workflows = Directory.GetFiles(Path.Combine(root, ".github", "workflows"), "*.yml");
         Assert.Equal(
             ["drift.yml", "publish-marketplace.yml", "validate.yml"],
@@ -1963,7 +1947,7 @@ public class SquadContractTests
     {
         new HttpScenariosContractTests().User_commands_stay_squad_squad_review_pack_check_plus_http_scenarios();
         Squad_commands_are_exactly_squad_and_review();
-        Assert.False(Directory.Exists(Path.Combine(SourceRoot(), "plugins", "squad", "commands", "squad-review")));
+        Assert.False(Directory.Exists(Path.Combine(TestRepository.SourceRoot(), "plugins", "squad", "commands", "squad-review")));
         Assert.DoesNotContain(
             "mattpocock",
             Fixture("SKILL.md") + Fixture("squad.md") + Fixture("squad-review.md"),
@@ -2037,19 +2021,4 @@ public class SquadContractTests
         return count;
     }
 
-    private static string SourceRoot()
-    {
-        for (var directory = new DirectoryInfo(AppContext.BaseDirectory);
-             directory is not null;
-             directory = directory.Parent)
-        {
-            if (Directory.Exists(Path.Combine(directory.FullName, "plugins")) &&
-                Directory.Exists(Path.Combine(directory.FullName, "tools", "AgentPacks.Cli")))
-            {
-                return directory.FullName;
-            }
-        }
-
-        throw new DirectoryNotFoundException("Could not locate the agentPacks source root.");
-    }
 }

@@ -34,7 +34,9 @@ internals: set `metadata.audience: loop` and say they are not a user entrypoint 
 (after the Internal line). Keep the description a short when-to-use line. They must stay
 model-invoked; `disable-model-invocation` would hide them from the loop. Copilot: set
 `user-invocable: false`. The first body line is exactly
-`Internal. Do not run directly — Squad loads by exact Skill name.`
+`Internal. Do not run directly — Squad loads by exact Skill name.` Repeat that line on every slot
+skill. Each skill is loaded on its own; do not fold it into a shared file the specialist will not
+open.
 
 ## Framework skills are not slots
 
