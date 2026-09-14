@@ -201,8 +201,8 @@ public sealed class TonightCriteriaTests
         nameof(SquadContractTests.Squad_skill_body_is_not_grown))]
     [InlineData("58 four bodies in references pointers in SKILL", typeof(SquadContractTests),
         nameof(SquadContractTests.Squad_skill_progressive_disclosure_moves_four_bodies_to_references))]
-    [InlineData("59 HTTP collection envelope over root array", typeof(HttpScenariosContractTests),
-        nameof(HttpScenariosContractTests.Http_collection_envelope_lives_in_squad_not_language_packs))]
+    [InlineData("59 HTTP collection envelope over root array", typeof(LanguagePackContractTests),
+        nameof(LanguagePackContractTests.Http_collection_envelope_is_wired_into_each_language_pack))]
     [InlineData("63 vendor-neutral scenarios no Azure AWS product names", typeof(HttpScenariosContractTests),
         nameof(HttpScenariosContractTests.Http_scenarios_env_agnostic_no_required_cloud))]
     public void Each_ticket_criterion_has_a_proving_test(string criterion, Type fixture, string method)

@@ -19,6 +19,7 @@ Canonical standards live once under `standards/`:
 
 - `typescript.md` — strictness, `unknown` vs `any`, modules, exhaustiveness, promises.
 - `testing.md` — runner match, behaviour coverage, isolation.
+- `http-api.md` — named collection envelope for list APIs, not a root JSON array.
 
 `standards.source.json` maps each document to the skills that need it.
 
