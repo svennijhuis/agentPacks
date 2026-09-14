@@ -116,6 +116,33 @@ Default `inherit`. The implementer is `standard`; other squad agents are `fast`.
 Test changes on a feature branch without merging to `main`:
 [ADD-SKILL.md — Test a skill locally](../../docs/ADD-SKILL.md#test-a-skill-locally).
 
+## Adopted from `orchestrate`
+
+Cursor's [`orchestrate`](https://github.com/cursor/plugins/tree/main/orchestrate) (v1.1.0) is a
+cloud fan-out substrate: a planner writes `plan.json`, a `bun` script spawns isolated cloud
+workers, and structured handoffs flow back up. Squad is one local loop with a human at
+plan-confirm, so the substrate stays rejected (below). Five of its rules transferred as
+contract prose, restated in Squad's shape rather than copied:
+
+| Squad item | From `orchestrate` | What Squad does with it |
+|---|---|---|
+| 65 `blocked` verifier result | `verifier-blocked` — env failure is not a thin verification | Fourth Result value next to `pass` / `fail` / `not verified`. Unproven, never a pass; the synthesized Fix is unblock and rerun. Reading the diff is not verification. Ties into the local-secrets ask. |
+| 66 quantitative criteria re-measured | worker `## Measurements` + script re-run with drift flag | Plan writes metric, operator, bound and the measuring command. `squad-verifier` re-measures and quotes `<measured> <op> <bound>`. A green test name is not a measurement. |
+| 67 `## Request` verbatim in the plan | `goal` kept verbatim, `summary` separate; minimal-goal discipline | The ask as typed sits between the outcome title and `## Problem`, so ask-vs-plan drift is visible without the chat transcript. Scope still lives in In scope / Out of scope / Non-goals. |
+| 68 build or type-check is not behavioral evidence | `type-check-only` verification tier — "only type-check / build passes; weak" | A `pass` row whose only command is a build, restore, format, or type-check is `not verified` unless the criterion is about compiling. Compiling proves compiling. `dotnet build && dotnet test` is not compile-only. |
+| 70 name facts, do not dig | planners publish tasks and never do the work themselves; per-task model choice | The main agent (user's model) lists `Facts to check`; the `fast`-tier `squad-planner` answers them under **Facts found** with a source, then grills. Facts never replace the frontier round. Same single invocation per turn. No extra `squad-*` spawn; the planner uses its granted tools. Squad keeps per-role tiers plus learnings demotion instead of a per-task model catalog. |
+
+Each rule is contract prose. Items 65, 66, and 68 are also pinned by the executable
+`VerificationEvidence` gate (parse + pass/fail), not by markdown string matches.
+
+Not transferred, because Squad already has the equivalent: the failure-mode retry ladder (Squad
+caps at two fix rounds and one re-ask per producer per round); upstream handoffs pasted into
+downstream prompts (the plan file and the implementer report are that relay); the
+`finished-no-handoff` sidecar (Squad's malformed re-ask); recursive subplanners (Squad plans
+with the human in the room, so decomposition is a grill round, not a spawned tree); and
+"write the plan as if there is no second chance to steer" (already covered by "an open question
+is never a criterion" plus the existing **Deviations** field).
+
 ## Researched, rejected for v1
 
 Do not re-litigate these without a new ADR. Inspired by multi-agent harness research and the
@@ -129,5 +156,6 @@ plus Superpowers and MAO; still out of scope for locked v1:
 - Auto-rewriting skills from `docs/learnings.md` (reflector / skill rewrite)
 - Growing `squad-orchestrator` into a global quality gate / integrator
 - Extra playbook catalogs that make the pack larger, not simpler
+- The `orchestrate` substrate: SDK-spawned cloud workers, `plan.json` / `state.json`, Slack mirroring, Andon stop signals, failure-mode retry tables. Squad ships no scripts, credentials, or remote service; the human at plan-confirm is its stop signal
 
 See [ADD-SKILL.md](../../docs/ADD-SKILL.md), [ADD-HOOK.md](../../docs/ADD-HOOK.md), [ADD-AGENT.md](../../docs/ADD-AGENT.md), and [ADD-RULE.md](../../docs/ADD-RULE.md).

@@ -129,6 +129,12 @@ public sealed class TonightCriteriaTests
         nameof(LanguagePackContractTests.Command_names_differ_from_skill_and_plugin_names))]
     [InlineData("64 shared http-api emit", typeof(StandardsGenerationTests),
         nameof(StandardsGenerationTests.Shared_path_generates_into_consumer_references_without_a_pack_copy))]
+    [InlineData("65 blocked row parsed distinct from not verified", typeof(VerificationEvidenceTests),
+        nameof(VerificationEvidenceTests.Blocked_row_is_parsed_distinct_from_not_verified_and_is_not_a_pass))]
+    [InlineData("66 measured value against bound gate", typeof(VerificationEvidenceTests),
+        nameof(VerificationEvidenceTests.Quantitative_criterion_needs_a_measured_value_against_the_bound))]
+    [InlineData("68 compile-only command gate", typeof(VerificationEvidenceTests),
+        nameof(VerificationEvidenceTests.Compile_only_command_is_not_evidence_for_a_behavioral_criterion))]
     public void Each_ticket_criterion_has_a_proving_test(string criterion, Type fixture, string method)
     {
         Assert.True(
