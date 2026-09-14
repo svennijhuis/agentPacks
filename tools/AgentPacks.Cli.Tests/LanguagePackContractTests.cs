@@ -349,6 +349,70 @@ public class LanguagePackContractTests
         new SquadContractTests().Pull_request_ci_stays_one_job_no_matrix();
     }
 
+    /// <summary>Item 60: thin marketplace smoke entry shape in Squad learnings.</summary>
+    [Fact]
+    public void Marketplace_smoke_entry_shape_is_documented()
+    {
+        var learnings = File.ReadAllText(Path.Combine(
+            TestRepository.SourceRoot(),
+            "plugins", "squad", "skills", "squad", "references", "learnings.md"));
+        Assert.Contains("## Marketplace smoke entry shape", learnings, StringComparison.Ordinal);
+        Assert.Contains("- Client:", learnings, StringComparison.Ordinal);
+        Assert.Contains("- Plugins:", learnings, StringComparison.Ordinal);
+    }
+
+    /// <summary>Item 61: README Install-from-Source line uses #marketplace.</summary>
+    [Fact]
+    public void Readme_install_from_source_uses_marketplace_ref()
+    {
+        var readme = File.ReadAllText(Path.Combine(TestRepository.SourceRoot(), "README.md"));
+        Assert.Contains(
+            "**Install from Source** (VS Code / Copilot): use `#marketplace`",
+            readme,
+            StringComparison.Ordinal);
+    }
+
+    /// <summary>
+    /// Item 62: Claude marketplace omits hooks; authored command names do not collide
+    /// with skill or plugin names except the (squad, squad) and (pack-check, pack-check)
+    /// homonyms.
+    /// </summary>
+    [Fact]
+    public void Command_names_differ_from_skill_and_plugin_names()
+    {
+        new ClaudeMarketplaceHooksTests().Claude_marketplace_omits_hooks_path_and_array();
+        new HttpScenariosContractTests().Copilot_scenarios_command_name_differs_from_skill();
+        new SquadContractTests().Copilot_factory_command_name_differs_from_plugin_name();
+
+        var root = TestRepository.SourceRoot();
+        var allowed = new HashSet<(string Plugin, string Name)>
+        {
+            ("squad", "squad"),
+            ("pack-check", "pack-check")
+        };
+
+        foreach (var pluginDirectory in Directory.GetDirectories(Path.Combine(root, "plugins"))
+                     .OrderBy(path => path, StringComparer.Ordinal))
+        {
+            var pluginName = JsonNode.Parse(
+                File.ReadAllText(Path.Combine(pluginDirectory, "plugin.json")))!
+                ["name"]!.GetValue<string>();
+
+            var commandNames = AuthoredCommandNames(pluginDirectory);
+            var skillNames = AuthoredSkillNames(pluginDirectory);
+
+            foreach (var command in commandNames)
+            {
+                if (command != pluginName && !skillNames.Contains(command))
+                    continue;
+
+                Assert.True(
+                    allowed.Contains((pluginName, command)),
+                    $"command '{command}' in plugin '{pluginName}' collides with a skill or plugin name.");
+            }
+        }
+    }
+
     /// <summary>Po 33: loop-audience skills open with the Internal do-not-run line.</summary>
     [Fact]
     public void Loop_audience_skills_start_with_internal_do_not_run_directly()
@@ -406,6 +470,51 @@ public class LanguagePackContractTests
         Assert.Contains("user-invocable: false", generated, StringComparison.Ordinal);
         Assert.True(run.HasFile("plugins/dotnet/com.github.copilot/skills/dotnet-test-patterns/SKILL.md"));
         Assert.False(run.HasFile("plugins/dotnet/com.github.copilot/skills/dotnet-error-handling/SKILL.md"));
+    }
+
+    private static HashSet<string> AuthoredCommandNames(string pluginDirectory)
+    {
+        var directory = Path.Combine(pluginDirectory, "commands");
+        if (!Directory.Exists(directory))
+            return new HashSet<string>(StringComparer.Ordinal);
+
+        return Directory.GetFiles(directory, "*.md")
+            .Select(path => FrontmatterName(File.ReadAllText(path)))
+            .ToHashSet(StringComparer.Ordinal);
+    }
+
+    private static HashSet<string> AuthoredSkillNames(string pluginDirectory)
+    {
+        var directory = Path.Combine(pluginDirectory, "skills");
+        if (!Directory.Exists(directory))
+            return new HashSet<string>(StringComparer.Ordinal);
+
+        return Directory.GetDirectories(directory)
+            .Select(skill => Path.Combine(skill, "SKILL.md"))
+            .Where(File.Exists)
+            .Select(path => FrontmatterName(File.ReadAllText(path)))
+            .ToHashSet(StringComparer.Ordinal);
+    }
+
+    private static string FrontmatterName(string markdown)
+    {
+        var inFrontmatter = false;
+        foreach (var line in markdown.Split('\n'))
+        {
+            var trimmed = line.TrimEnd('\r');
+            if (trimmed == "---")
+            {
+                if (inFrontmatter)
+                    break;
+                inFrontmatter = true;
+                continue;
+            }
+
+            if (inFrontmatter && trimmed.StartsWith("name:", StringComparison.Ordinal))
+                return trimmed["name:".Length..].Trim().Trim('"');
+        }
+
+        throw new InvalidOperationException("missing frontmatter name");
     }
 
     private static IEnumerable<string> AuthoredSkillFiles(string root) =>

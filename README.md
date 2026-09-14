@@ -31,6 +31,8 @@ copilot plugin install rust@agentpacks
 copilot plugin install typescript@agentpacks
 ```
 
+**Install from Source** (VS Code / Copilot): use `#marketplace` or a marketplace-branch clone - not default `main`.
+
 Copilot uses namespaced `/squad:…` for run, squad-review, scenarios. After install, pick `/squad:run`. Copilot hides a command named the same as the plugin, so there is no `/squad:squad`. Review is `/squad:squad-review`. Scenarios are `/squad:scenarios` (renamed from http-scenarios). Setup is `/pack-check`.
 
 Update later with:
