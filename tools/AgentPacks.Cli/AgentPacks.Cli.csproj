@@ -12,7 +12,6 @@
 
   <ItemGroup>
     <PackageReference Include="JsonSchema.Net" />
-    <PackageReference Include="Scriban" />
     <PackageReference Include="YamlDotNet" />
   </ItemGroup>
 

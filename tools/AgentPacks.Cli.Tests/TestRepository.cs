@@ -1,4 +1,3 @@
-using System.Text;
 using AgentPacks.Cli.Commands;
 using AgentPacks.Cli.Generation;
 using AgentPacks.Cli.Loading;
@@ -133,47 +132,6 @@ internal sealed class TestRepository : IDisposable
             description: "Internal loop skill. Loaded by the Squad orchestrator by exact Skill tool name, not as a user entrypoint.",
             extraFrontmatter: "license: UNLICENSED\nmetadata:\n  audience: loop",
             plugin: plugin);
-
-    /// <summary>
-    /// A slot skill authored as <c>SKILL.source.md</c>. Copies the shared template from this
-    /// repository so the fixture renders the same way the real packs do.
-    /// </summary>
-    public TestRepository WithSlotSource(
-        string directoryName,
-        string title,
-        string language = "C#",
-        string description = "When building a test repository.",
-        string? intro = null,
-        string? commands = null,
-        string body = "Good: one fact.\nBad: the opposite.",
-        string plugin = "dotnet")
-    {
-        var directory = Path.Combine(PluginDirectory(plugin), "skills", directoryName);
-        Directory.CreateDirectory(directory);
-
-        var frontmatter = new StringBuilder()
-            .Append("name: ").AppendLine(directoryName)
-            .Append("description: ").AppendLine(description)
-            .Append("title: ").AppendLine(title)
-            .Append("language: ").AppendLine(language);
-
-        if (intro is not null)
-        {
-            frontmatter.Append("intro: ").AppendLine(intro);
-        }
-
-        if (commands is not null)
-        {
-            frontmatter.Append("commands: ").AppendLine(commands);
-        }
-
-        File.WriteAllText(
-            Path.Combine(directory, SlotSkillRenderer.SourceFileName),
-            $"---\n{frontmatter}---\n\n{body}\n");
-
-        var template = Path.Combine(SourceRoot(), SlotSkillRenderer.TemplateRelative);
-        return WithFile(SlotSkillRenderer.TemplateRelative, File.ReadAllText(template));
-    }
 
     public TestRepository WithRawSkill(string directoryName, string content, string plugin = "engineering")
     {

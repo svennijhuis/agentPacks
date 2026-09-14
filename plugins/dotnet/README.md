@@ -20,14 +20,11 @@ Canonical standards live once under `standards/`:
 - `async-errors.md` — async, cancellation, and exception boundaries.
 - `testing.md` — xUnit, integration tests, time, and verification.
 - `layers.md` — Web / Application / Infrastructure boundaries when the solution already uses them.
-
-Cross-language standards live once at the repository root and are referenced by path:
-
-- [`shared/standards/http-api.md`](../../shared/standards/http-api.md) — named collection envelope for list APIs, not a root JSON array.
+- [`http-api.md`](../../shared/standards/http-api.md) — named collection envelope for list APIs, not a root JSON array (shared across language packs).
 
 `standards.source.json` maps each document to the skills that need it. Marketplace generation copies
 only those documents into each consumer's `references/standards/` directory. Generated copies carry
-a do-not-edit header; edit the canonical source instead.
+a do-not-edit header; edit the canonical source here instead.
 
 ## Standards and repository conventions
 
@@ -51,14 +48,12 @@ checks the whole solution with `--verify-no-changes`. See the
 ## Editing this pack
 
 Authored: `plugin.json`, `mcp.json` (empty scaffold), `standards.source.json`, `standards/`, and `skills/`.
-Slot skills are authored as `SKILL.source.md`; the shared template at
-[`shared/templates/slot-skill.sbn`](../../shared/templates/slot-skill.sbn) renders their `SKILL.md`.
 
 v1 ships no MCP server. Agents use `dotnet sln list` and `dotnet list <csproj> package` on the machine. See [ADD-MCP.md](../../docs/ADD-MCP.md) to add a server later.
 
 Generated on the `marketplace` branch or in temporary validation output, never on `main`:
 `.cursor-plugin/`, `.codex-plugin/`, `com.anthropic.claude-code/`, `com.openai.codex/`,
-`com.github.copilot/`, each slot skill's `SKILL.md`, and each skill's `references/standards/` directory.
+`com.github.copilot/`, and each skill's `references/standards/` directory.
 
 See [ADD-LANGUAGE-PACK.md](../../docs/ADD-LANGUAGE-PACK.md) and
 [ADD-SKILL.md](../../docs/ADD-SKILL.md).

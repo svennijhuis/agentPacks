@@ -27,8 +27,7 @@ Agent Skills publishes no JSON Schema, so the validator implements the specifica
 
 Plugin names may contain periods (`acme.tools` is valid); skill names may not. This trips people up.
 
-Authored skills in this repo use that short frontmatter. A loop slot (not a user entrypoint) is
-authored as `SKILL.source.md`; the rendered `SKILL.md` looks like this:
+Authored skills in this repo use that short frontmatter. A loop slot (not a user entrypoint):
 
 ```markdown
 ---
@@ -62,10 +61,7 @@ Poor: `Helps with PDFs. Extracts text and tables, fills forms, merges files. Do 
 - Keep `SKILL.md` a thin router. Move operational detail into `references/` and link to it — agents load those files only when needed. The specification allows up to roughly 500 lines; shipped skills stay Matt-tiny.
 - Put runnable code in `scripts/`, static resources in `assets/`.
 - Reference other files with paths relative to the skill root, one level deep.
-A language-pack slot is authored as `SKILL.source.md`. The shared template renders `SKILL.md` with
-the Internal line, Loop-only, and `Standards in force` from `standards.source.json`. The source
-carries only the pack-specific facts. Load the slot with the Skill tool by exact name. See
-[ADD-LANGUAGE-PACK.md](ADD-LANGUAGE-PACK.md).
+- A language-pack slot names its canonical docs under `Standards in force:` and tells the agent to cite the filename during review and build. Load the slot with the Skill tool by exact name.
 
 ## YAML support
 

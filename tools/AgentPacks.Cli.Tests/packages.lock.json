@@ -110,7 +110,6 @@
         "type": "Project",
         "dependencies": {
           "JsonSchema.Net": "[9.4.0, )",
-          "Scriban": "[7.4.0, )",
           "YamlDotNet": "[18.1.0, )"
         }
       },
@@ -122,12 +121,6 @@
         "dependencies": {
           "JsonPointer.Net": "7.0.2"
         }
-      },
-      "Scriban": {
-        "type": "CentralTransitive",
-        "requested": "[7.4.0, )",
-        "resolved": "7.4.0",
-        "contentHash": "h5QYOAKw7F4ajVNxeScBsq0c7en6YWyKDSC4ZnZIlrkeJrl0ekHk1PlpqP5C4peqkt6NoXl9dlwK3pI4oDC5oA=="
       },
       "YamlDotNet": {
         "type": "CentralTransitive",

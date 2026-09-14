@@ -7,7 +7,6 @@
 
   <ItemGroup>
     <PackageVersion Include="JsonSchema.Net" Version="9.4.0" />
-    <PackageVersion Include="Scriban" Version="7.4.0" />
     <PackageVersion Include="YamlDotNet" Version="18.1.0" />
   </ItemGroup>
 

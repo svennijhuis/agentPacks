@@ -52,7 +52,6 @@ internal sealed class Pipeline(RepositoryContext context)
             .Concat(new CursorMarketplaceGenerator(context).Generate(plugins))
             .Concat(new ClientTreeGenerator(context, context.Models).Generate(plugins))
             .Concat(new StandardsGenerator(context).Generate(plugins))
-            .Concat(SlotSkillGenerator.Generate(plugins))
             .Concat(SkillPolicyGenerator.Generate(plugins))
             .OrderBy(f => f.RelativePath, StringComparer.Ordinal)
             .ToList();
@@ -121,14 +120,13 @@ internal sealed class Pipeline(RepositoryContext context)
                      .OrderBy(d => d, StringComparer.Ordinal))
         {
             var pluginName = Path.GetFileName(pluginDirectory);
-            var renderedSkills = RenderedSkillNames(pluginDirectory);
 
             foreach (var path in Directory.GetFiles(pluginDirectory, "*", SearchOption.AllDirectories)
                          .OrderBy(p => p, StringComparer.Ordinal))
             {
                 var pluginRelative = Path.GetRelativePath(pluginDirectory, path).Replace('\\', '/');
 
-                if (!GeneratedPaths.IsGenerated(pluginRelative, renderedSkills))
+                if (!GeneratedPaths.IsGenerated(pluginRelative))
                 {
                     continue;
                 }
@@ -194,25 +192,6 @@ internal sealed class Pipeline(RepositoryContext context)
             RemoveIfEmpty(Path.Combine(references, "standards"));
             RemoveIfEmpty(references);
         }
-    }
-
-    /// <summary>
-    /// Skill directories whose SKILL.md is rendered from a SKILL.source.md beside it, so a
-    /// leftover render in a directory that lost its source is stale.
-    /// </summary>
-    private static IReadOnlyCollection<string> RenderedSkillNames(string pluginDirectory)
-    {
-        var skills = Path.Combine(pluginDirectory, "skills");
-
-        if (!Directory.Exists(skills))
-        {
-            return [];
-        }
-
-        return Directory.GetDirectories(skills)
-            .Where(skill => File.Exists(Path.Combine(skill, SlotSkillRenderer.SourceFileName)))
-            .Select(skill => Path.GetFileName(skill)!)
-            .ToHashSet(StringComparer.Ordinal);
     }
 
     /// <summary>Removes a directory once nothing is left under it, deepest first.</summary>

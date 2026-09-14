@@ -46,7 +46,8 @@ internal static class SkillPolicyGenerator
                         skill.DirectoryName,
                         "SKILL.md");
 
-                    files.Add(new GeneratedFile(relative, WithUserInvocableFalse(skill.Text)));
+                    var source = File.ReadAllText(skill.SkillFilePath);
+                    files.Add(new GeneratedFile(relative, WithUserInvocableFalse(source)));
                 }
             }
         }

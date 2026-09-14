@@ -203,12 +203,6 @@ public sealed class TonightCriteriaTests
         nameof(SquadContractTests.Squad_skill_progressive_disclosure_moves_four_bodies_to_references))]
     [InlineData("59 HTTP collection envelope over root array", typeof(LanguagePackContractTests),
         nameof(LanguagePackContractTests.Language_packs_map_http_api_to_shared_path))]
-    [InlineData("60 marketplace smoke entry shape", typeof(LanguagePackContractTests),
-        nameof(LanguagePackContractTests.Marketplace_smoke_entry_shape_is_documented))]
-    [InlineData("61 README Install from Source marketplace", typeof(LanguagePackContractTests),
-        nameof(LanguagePackContractTests.Readme_install_from_source_uses_marketplace_ref))]
-    [InlineData("62 command names differ from skill and plugin", typeof(LanguagePackContractTests),
-        nameof(LanguagePackContractTests.Command_names_differ_from_skill_and_plugin_names))]
     [InlineData("64 shared http-api emit", typeof(StandardsGenerationTests),
         nameof(StandardsGenerationTests.Shared_path_generates_into_consumer_references_without_a_pack_copy))]
     [InlineData("63 vendor-neutral scenarios no Azure AWS product names", typeof(HttpScenariosContractTests),

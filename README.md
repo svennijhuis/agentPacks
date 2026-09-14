@@ -31,8 +31,6 @@ copilot plugin install rust@agentpacks
 copilot plugin install typescript@agentpacks
 ```
 
-**Install from Source** (VS Code / Copilot): use `#marketplace` or a marketplace-branch clone - not default `main`.
-
 Copilot uses namespaced `/squad:…` for run, squad-review, scenarios. After install, pick `/squad:run`. Copilot hides a command named the same as the plugin, so there is no `/squad:squad`. Review is `/squad:squad-review`. Scenarios are `/squad:scenarios` (renamed from http-scenarios). Setup is `/pack-check`.
 
 Update later with:
@@ -292,10 +290,6 @@ is the same in every language lives once under [`shared/standards/`](shared/stan
 referenced by path from `standards.source.json`. Generation copies only the selected documents into
 each consuming skill's `references/standards/` directory on the `marketplace` branch or in temporary
 output; generated files do not live on `main`.
-
-Language-pack slot skills (`<lang>-build`, `<lang>-review`, `<lang>-test-patterns`) are authored as
-`SKILL.source.md`. One template at [`shared/templates/slot-skill.sbn`](shared/templates/slot-skill.sbn)
-renders their `SKILL.md`, including the `Standards in force` list from the catalog.
 
 The planner records those plugin sources under `## Standards in force`. It separately inspects
 project configuration, directory layout, tests, and nearby code, then records concrete evidence

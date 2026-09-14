@@ -122,10 +122,11 @@ public sealed class PluginMcpContractTests
     {
         var root = TestRepository.SourceRoot();
         var loopSkills = 0;
-        foreach (var skill in SourceSkills.All())
+        foreach (var skill in Directory.GetFiles(Path.Combine(root, "plugins"), "SKILL.md",
+                     SearchOption.AllDirectories))
         {
-            var text = skill.Text;
-            var directoryName = skill.DirectoryName;
+            var text = File.ReadAllText(skill);
+            var directoryName = Directory.GetParent(skill)!.Name;
             Assert.Contains($"name: {directoryName}", text, StringComparison.Ordinal);
             Assert.Contains("description:", text, StringComparison.Ordinal);
             Assert.Contains("license:", text, StringComparison.Ordinal);

@@ -3,25 +3,10 @@ using AgentPacks.Cli.Io;
 
 namespace AgentPacks.Cli.Loading;
 
-/// <summary>
-/// A discovered skill: its directory, its SKILL.md, the parsed frontmatter and the full text.
-/// A slot skill authored as <c>SKILL.source.md</c> is rendered in memory; then
-/// <see cref="Text"/> is the rendered SKILL.md, which may not exist on disk yet.
-/// </summary>
-internal sealed record SkillDefinition(
-    string Directory,
-    string SkillFilePath,
-    Frontmatter? Frontmatter,
-    string Text,
-    string? SourceFilePath = null)
+/// <summary>A discovered skill: its directory, its SKILL.md and the parsed frontmatter.</summary>
+internal sealed record SkillDefinition(string Directory, string SkillFilePath, Frontmatter? Frontmatter)
 {
     public string DirectoryName => Path.GetFileName(Directory);
-
-    /// <summary>True when SKILL.md is generated from a SKILL.source.md beside it.</summary>
-    public bool IsRendered => SourceFilePath is not null;
-
-    /// <summary>The file a contributor edits: the source when rendered, otherwise SKILL.md.</summary>
-    public string AuthoredPath => SourceFilePath ?? SkillFilePath;
 }
 
 /// <summary>
