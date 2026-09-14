@@ -114,9 +114,11 @@ public sealed class CursorCatalogContractTests
         var run = repo.ValidateAndGenerate();
         Assert.False(run.HasErrors, run.Text);
 
+        var cursorManifest = run.File("plugins/squad/.cursor-plugin/plugin.json").Content;
+        Assert.Equal("Squad", cursorManifest["displayName"]!.GetValue<string>());
         Assert.Equal(
             "./.cursor-plugin/agents/",
-            run.File("plugins/squad/.cursor-plugin/plugin.json").Content["agents"]!.GetValue<string>());
+            cursorManifest["agents"]!.GetValue<string>());
 
         var remapped = run.Generated
             .Select(file => file.RelativePath.Replace('\\', '/'))
@@ -193,6 +195,25 @@ public sealed class CursorCatalogContractTests
             ".cursor-plugin/marketplace.json",
             File.ReadAllText(Path.Combine(root, ".github", "workflows", "publish-marketplace.yml")),
             StringComparison.Ordinal);
+    }
+
+    /// <summary>
+    /// Claude and Copilot now take GitHub <c>owner/repo</c> shorthand with a pinned
+    /// marketplace ref. Cursor CLI still wants a git URL plus <c>--git-ref</c>.
+    /// </summary>
+    [Fact]
+    public void Readme_uses_official_github_marketplace_shorthand()
+    {
+        var readme = File.ReadAllText(Path.Combine(SourceRoot(), "README.md"));
+        var claude = File.ReadAllText(Path.Combine(SourceRoot(), "docs", "CLAUDE-PRIVATE-REPO.md"));
+
+        Assert.Contains("copilot plugin marketplace add svennijhuis/agentPacks#marketplace", readme, StringComparison.Ordinal);
+        Assert.Contains("claude plugin marketplace add svennijhuis/agentPacks@marketplace --scope user", readme, StringComparison.Ordinal);
+        Assert.Contains("agent plugin marketplace add https://github.com/svennijhuis/agentPacks --git-ref marketplace", readme, StringComparison.Ordinal);
+        Assert.Contains("/plugin marketplace add svennijhuis/agentPacks@marketplace", claude, StringComparison.Ordinal);
+        Assert.DoesNotContain("agentPacks.git#marketplace", readme, StringComparison.Ordinal);
+        Assert.DoesNotContain("agentPacks.git#marketplace", claude, StringComparison.Ordinal);
+        Assert.Contains("Copilot CLI also reads", claude, StringComparison.Ordinal);
     }
 
     private static TestRepository ShippedPlugins()

@@ -486,6 +486,7 @@ public class SquadContractTests
             Assert.Contains("dotnet test tools/AgentPacks.Cli.Tests", text, StringComparison.Ordinal);
             Assert.DoesNotContain("DotnetSolutionMcp", text, StringComparison.Ordinal);
             Assert.Contains("claude --plugin-dir", text, StringComparison.Ordinal);
+            Assert.Contains("agent --plugin-dir", text, StringComparison.Ordinal);
             Assert.Contains("~/.cursor/plugins/local", text, StringComparison.Ordinal);
             Assert.Contains("copilot plugin marketplace add /tmp/agentpacks-marketplace", text, StringComparison.Ordinal);
             Assert.Contains("/squad", text, StringComparison.Ordinal);

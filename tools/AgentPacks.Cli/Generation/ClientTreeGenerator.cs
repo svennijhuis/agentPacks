@@ -244,9 +244,11 @@ internal sealed class ClientTreeGenerator(RepositoryContext context, ModelCatalo
     {
         var manifest = plugin.Manifest!;
 
+        var name = plugin.Name ?? plugin.DirectoryName;
         var cursor = new JsonObject
         {
-            ["name"] = plugin.Name ?? plugin.DirectoryName
+            ["name"] = name,
+            ["displayName"] = TitleCasePluginName(name)
         };
 
         foreach (var field in (string[])["version", "description", "author", "license", "keywords"])
@@ -354,9 +356,7 @@ internal sealed class ClientTreeGenerator(RepositoryContext context, ModelCatalo
 
         var description = manifest["description"]?.GetValue<string>() ?? plugin.DirectoryName;
         var developer = manifest["author"]?["name"]?.GetValue<string>() ?? "agentPacks Maintainers";
-        var displayName = string.Join(' ', (plugin.Name ?? plugin.DirectoryName)
-            .Split('-', StringSplitOptions.RemoveEmptyEntries)
-            .Select(part => char.ToUpperInvariant(part[0]) + part[1..]));
+        var displayName = TitleCasePluginName(plugin.Name ?? plugin.DirectoryName);
 
         var capabilities = new JsonArray();
 
@@ -543,4 +543,13 @@ internal sealed class ClientTreeGenerator(RepositoryContext context, ModelCatalo
         var authored = agent.Frontmatter?.Scalar("model") ?? ModelCatalog.DefaultTier;
         return models.Resolve(authored, client);
     }
+
+    /// <summary>
+    /// Official Cursor plugin.json and Codex interface.displayName both use a title-cased label
+    /// (thermos → Thermos, pack-check → Pack Check). Catalog entries stay kebab-case.
+    /// </summary>
+    private static string TitleCasePluginName(string name) =>
+        string.Join(' ', name
+            .Split('-', StringSplitOptions.RemoveEmptyEntries)
+            .Select(part => char.ToUpperInvariant(part[0]) + part[1..]));
 }

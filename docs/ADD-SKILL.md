@@ -92,6 +92,7 @@ dotnet run --project tools/AgentPacks.Cli -- validate-all --out /tmp/agentpacks-
 
 ```bash
 claude --plugin-dir /tmp/agentpacks-marketplace/plugins/squad
+agent --plugin-dir /tmp/agentpacks-marketplace/plugins/squad
 ln -sfn /tmp/agentpacks-marketplace/plugins/squad ~/.cursor/plugins/local/squad
 copilot plugin marketplace add /tmp/agentpacks-marketplace
 copilot plugin install squad@agentpacks

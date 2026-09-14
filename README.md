@@ -22,7 +22,7 @@ Adding the marketplace makes all plugins discoverable. Install only the plugins 
 ## GitHub Copilot CLI
 
 ```shell
-copilot plugin marketplace add https://github.com/svennijhuis/agentPacks.git#marketplace
+copilot plugin marketplace add svennijhuis/agentPacks#marketplace
 copilot plugin install squad@agentpacks
 copilot plugin install pack-check@agentpacks
 copilot plugin install git@agentpacks
@@ -60,7 +60,7 @@ codex plugin marketplace upgrade agentpacks
 ## Claude Code
 
 ```shell
-claude plugin marketplace add https://github.com/svennijhuis/agentPacks.git#marketplace --scope user
+claude plugin marketplace add svennijhuis/agentPacks@marketplace --scope user
 claude plugin install squad@agentpacks --scope user
 claude plugin install pack-check@agentpacks --scope user
 claude plugin install git@agentpacks --scope user
@@ -144,6 +144,7 @@ Install the **generated** tree — not the authored `plugins/` folder — withou
 
 ```bash
 claude --plugin-dir /tmp/agentpacks-marketplace/plugins/squad
+agent --plugin-dir /tmp/agentpacks-marketplace/plugins/squad
 ln -sfn /tmp/agentpacks-marketplace/plugins/squad ~/.cursor/plugins/local/squad
 copilot plugin marketplace add /tmp/agentpacks-marketplace
 copilot plugin install squad@agentpacks

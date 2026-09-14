@@ -43,7 +43,7 @@ Claude auto-discovers root `commands/` (Cursor's dialect) unless the marketplace
 ## Install
 
 ```bash
-/plugin marketplace add https://github.com/svennijhuis/agentPacks.git#marketplace
+/plugin marketplace add svennijhuis/agentPacks@marketplace
 ```
 
 ```bash
@@ -95,5 +95,7 @@ A product repository can point Claude at agentPacks automatically:
 ```
 
 `url` is a direct `marketplace.json` fetch and does not take `ref`. Use `github` + `repo` + `ref` so Claude clones the `marketplace` branch. `autoUpdate` is optional; third-party marketplaces default to off.
+
+Copilot CLI also reads `extraKnownMarketplaces` from `.claude/settings.json`. Copilot cloud agent reads the same keys from `.github/copilot/settings.json`. Pin `ref` to `marketplace` in both: the generated catalogs are not on `main`.
 
 Add this only when a team wants it.
