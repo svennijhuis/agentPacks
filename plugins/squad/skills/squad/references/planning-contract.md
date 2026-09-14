@@ -10,7 +10,8 @@ The planner handles one invocation and returns. It never addresses the user dire
 
 Grill-style planning is this contract: frontier rounds with a recommended answer on every question.
 Facts are discovered by the planner (a subagent). Decisions stay with the human. Do not load a
-separate grilling skill or an external skills catalog.
+separate grilling skill or an external skills catalog. The main agent never grills itself — it
+presents the planner's round.
 
 Optional `docs/decisions.md` is a human-readable drop-box, not eager memory. Read it when present
 and treat its entries as settled human decisions. Never create, edit, or append that file. The
@@ -24,6 +25,7 @@ Every invocation supplies:
 Mode: next-round | write-plan
 Request: <user request>
 Repository evidence: <paths, configuration, standards, workspace facts, and cited primary sources>
+Facts to check: <numbered facts the main agent wants found, or None>
 Settled decisions: <numbered decisions and rejected alternatives>
 Human drop-box: <docs/decisions.md contents when that file exists, or None>
 Previous user answers: <latest answers, or None>
@@ -58,6 +60,7 @@ Return exactly one planning round and stop:
 ```markdown
 ## Planning round <n>
 
+**Facts found:** <numbered fact, answer, and source path or citation; or None>
 **Settled:** <compact numbered summary, or None>
 
 ❓ **Q1 — <title>:** <decision, viable options, and material trade-offs>
@@ -112,6 +115,18 @@ Facts outside the repository come from primary sources such as official document
 standards, or specifications, and the plan cites the source beside the decision it settled. Recalled
 facts without evidence remain unresolved.
 
+Name facts, do not dig for them. The main agent runs on the user's model; the planner runs on the
+`fast` tier. When the main agent needs a fact to route, answer the user, or shape the next round,
+it lists that fact under `Facts to check` and lets the planner find it, instead of reading the
+repository itself. The planner answers every listed fact under `**Facts found:**` with its source
+before asking anything, and carries the answers forward as repository evidence. A fact it could not
+find is reported as not found with what was searched, never as a question to the user.
+
+The grill is the product of the round. **Facts found** is a prelude so the main agent does not dig;
+it never replaces the frontier round. After facts, ask the whole current frontier with a
+recommendation each. Only the empty-frontier confirmation round may return no decision questions.
+The planner finds facts with its granted tools this turn. It does not spawn `squad-*` agents.
+
 A fact still being researched is an unsettled prerequisite only for decisions downstream of that
 fact. Ask the rest of the current frontier now rather than blocking the whole round on one lookup.
 
@@ -138,6 +153,9 @@ The plan contains:
 
 ```markdown
 # <outcome as a sentence>
+
+## Request
+<the user's ask, verbatim — not a paraphrase>
 
 ## Problem
 ## Decisions
@@ -185,12 +203,21 @@ planning | implementing | verifying | reviewing | fix-round <n> | fixup | hand-o
 `squad-orchestrator` rewrite those sections in place during the loop. Do not append forever inside
 the plan. Learnings stay append-only elsewhere.
 
+`## Request` is the user's words as typed; the title is the planner's outcome sentence. Do not expand
+or narrow the ask there — scope belongs in `## In scope`, `## Out of scope`, and `## Non-goals`. It is
+there so a later reader, human or `/squad-review` on the same branch, can see drift between the ask
+and the plan without the chat transcript.
+
 An open question is never converted into an assumption or acceptance criterion. Completion means the user confirmed the shared understanding, `## Open questions` is exactly `None.`, and the planner returns the written plan path to the main agent.
 
 Each acceptance criterion is observable and can fail. "Handles errors well" is not a criterion;
 "returns 400 naming the missing field" is. State what is out of scope so review can distinguish a
 deliberate boundary from an omission. Give the exact verification commands; when a check does not
 exist yet, making that check is itself planned work.
+
+A criterion that states a number — a bound, count, size, or latency — is **quantitative**. Write it
+as metric, operator, bound (`p95 ≤ 200 ms`, `bundle ≤ 2.4 MB`) and name the command that measures
+it under `## Verification`. The verifier re-measures and quotes `<measured> <op> <bound>`. A green test name is not a measurement.
 
 Every business criterion in `## Acceptance criteria` requires one `## Test plan matrix` row: a
 happy path, an edge case, a failure case, whether that check is a unit or an integration test,

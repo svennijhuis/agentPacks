@@ -101,6 +101,7 @@ identifier, not a review target.
 | 1 | pass | `dotnet test App.slnx --no-restore` | `10 passed, 0 failed` |
 | 2 | fail | `dotnet test App.slnx --no-restore` | `expected 401, got 200` |
 | 3 | not verified | — | No automated or safe manual check covers this criterion. |
+| 4 | blocked | `dotnet test App.slnx --filter Vault` | `Key Vault 403 on local; the check did not run` |
 
 **Suite:** <wider run; `pass` or `fail` plus `this-change` or `pre-existing` when it failed>
 **Stacks:** <dotnet | rust | both>
@@ -110,9 +111,14 @@ identifier, not a review target.
 **Assumptions challenged:** <plan assumptions that evidence undermines, or `None`>
 ```
 
-No evidence means `not verified`, never `pass`. The suite, stacks, boundary, coverage, evidence-gaps,
-and assumptions-challenged lines after the table are part of the pass gate, not narration.
-Evidence gaps and challenged assumptions are required fields (`None` when empty).
+No evidence means `not verified`, never `pass`. Result is exactly `pass`, `fail`, `not verified`, or
+`blocked`. `not verified` means no check covers the criterion. `blocked` means a check exists but the
+environment or a missing secret stopped it from running: the change is unproven, not failed, and the
+next action is to unblock and rerun, not to write a check. Reading the diff is not verification: a
+result written without running anything is `blocked` or `not verified`, never `pass`. The suite,
+stacks, boundary, coverage, evidence-gaps, and assumptions-challenged lines after the table are part
+of the pass gate, not narration. Evidence gaps and challenged assumptions are required fields (`None`
+when empty).
 
 A verified `pass` is the outcome of the evaluator, not a hopeful reading of the table:
 
@@ -120,15 +126,19 @@ A verified `pass` is the outcome of the evaluator, not a hopeful reading of the 
 |---|---|
 | No confirmed plan | Stop. Do not verify. Not a pass. |
 | A criterion command is `—`, empty, or never covers the criterion | That row is `not verified`. Not a pass, even if the row says `pass`. |
+| A criterion command exists but the environment or a missing secret stopped it | That row is `blocked`. Not a pass. The synthesized finding's Fix is to unblock and rerun that command, never to write a new check. |
+| The only command behind a `pass` row is a build, restore, format, or type-check (`dotnet build`, `cargo check`, `tsc --noEmit`) and the criterion is about behavior | That row is `not verified`. Compiling is evidence that it compiles, nothing more. A build-only pass counts only for a criterion whose stated outcome is that the code compiles. |
 | Plan command passes and the wider suite fails | Not a verified pass. |
 | A failure is not classified `this-change` or `pre-existing` | Not a pass. Classification is required whenever a command fails. |
 | Mixed .NET and Rust, but only one suite ran, or the boundary was not checked | Not a pass. |
 | Agent-written tests are happy-path only | Not a pass. Name behavioral and edge coverage. |
 | Blank or unconfirmed Seam, or tests that hit internals not named in the Seam column | That row is `not verified`. Not a pass. |
+| A quantitative criterion's Evidence does not quote the verifier's own measured value against the bound (`p95 143 ms ≤ 200 ms`) | That row is `not verified`. A green test name is not a measurement. A measured value on the other side of the bound goes under **Assumptions challenged**. |
 | `Evidence gaps` is not `None` and the gap is not already a merged finding with the same cause | Not a pass. Orchestrator synthesizes a finding attributed to `squad-verifier`. |
 | `Assumptions challenged` is not `None` and the challenge is not already a merged finding with the same cause | Not a pass. Orchestrator synthesizes a finding attributed to `squad-verifier`. |
 
-A `fail` or `not verified` row blocks `pass`. During merge, the orchestrator turns any such row that
+A `fail` or `not verified` row blocks `pass`. A `blocked` row blocks `pass` the same way; it is
+unproven, not failed. During merge, the orchestrator turns any such row that
 is not already represented by a reviewer finding with the same cause into a finding attributed to
 `squad-verifier`. Use the supplied plan path as `Location`; name the criterion number and command
 evidence in `Problem` and `Fix`. This preserves the verifier report fields and requires no new search.

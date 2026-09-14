@@ -58,7 +58,7 @@ Cost-first: default `inherit`. `squad-implementer` is `standard`. Other squad ag
 |---|---|---|
 | `squad-planner` | full change only | grill/plan |
 | `squad-implementer` | full change only | build |
-| `squad-verifier` | after implement/fix | evidence; `not verified` is not a pass |
+| `squad-verifier` | after implement/fix | evidence; `not verified` is not a pass; `blocked` is unproven, not a pass |
 | `squad-reviewer` | every review phase | correctness + plan/spec |
 | `squad-simplifier` | every review phase | reuse, quality, efficiency in one spawn |
 | `squad-security-reviewer` | trust boundary only | OWASP gate |
@@ -74,7 +74,7 @@ Load only with the Skill tool by exact name: `squad`, `caveman`, `<lang>-build`,
 Load `caveman` with the Skill tool by exact name `caveman`. Never write `/caveman` as prose to load it.
 Never write slash-prose. Language-pack slots are internals (`metadata.audience: loop`).
 Authored `mcp.json` files are empty scaffolds. No shipped MCP server. No new command. No credentials. No remote service.
-Local-secrets rule: unauthorized Key Vault / secret store on local is often expected — not a product fail. Mention it and ask: continue? (workaround / mock / skip secret path). Do not invent tokens. Do not hard-fail the whole run without ask.
+Local-secrets rule: unauthorized Key Vault / secret store on local is often expected — not a product fail. Mention it and ask: continue? (workaround / mock / skip secret path). Do not invent tokens. Do not hard-fail the whole run without ask. A criterion the skipped secret path leaves unrun is `blocked`, never `pass`.
 
 Grill stays here. Do not load an external grilling catalog.
 
@@ -87,8 +87,9 @@ Required slots: `<lang>-build`, `<lang>-test-patterns`.
 ## Plan
 
 Read [the planning contract](references/planning-contract.md). Invoke `squad-planner` once per
-turn. Grill stays here: facts via the planner; decisions = human. Prefer constraint-shaped
-recommendations. Read `docs/decisions.md` when it exists; do not write it. After confirmation,
+turn. Grill stays here: facts via the planner; decisions = human. The main agent never grills
+itself. Name facts, do not dig: list them under `Facts to check` and let the `fast`-tier planner
+find them. Prefer constraint-shaped recommendations. Read `docs/decisions.md` when it exists; do not write it. After confirmation,
 write exactly `docs/plans/<slug>.md`.
 
 ## Implement, verify, review

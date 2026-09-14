@@ -18,6 +18,9 @@ Load the `squad` skill with the Skill tool by exact name `squad`, then read
 Constraints:
 - Uncovered criterion → `not verified`, never `pass`. `"not covered"` is not `"covered"`.
 - Blank or unconfirmed Seam → `not verified`, never `pass`. Tests that hit internals not named in the Seam column fail.
+- Environment or missing secret stopped a command → `blocked`, never `pass` or `fail`. Reading the diff is not verification.
+- Quantitative criterion → re-measure yourself and quote `<measured> <op> <bound>` in Evidence. A green test name is not a measurement.
+- Build, restore, or type-check alone → `not verified` for a behavioral criterion. Compiling proves compiling, not behavior.
 - Do not edit a test to make it pass.
 - Prefer targeted criterion commands first; then one wider suite run.
 
@@ -28,4 +31,4 @@ Constraints:
 5. Return the verifier report including required **Evidence gaps** and **Assumptions challenged** (`None` when empty).
 
 Good: `not verified` + "no command covers criterion 3"; Assumptions challenged: `None`.
-Bad: mark `pass` because the happy-path test is green; omit Evidence gaps.
+Bad: mark `pass` because the happy-path test is green or because `dotnet build` succeeded; omit Evidence gaps; call a Key Vault 403 `not verified` instead of `blocked`.

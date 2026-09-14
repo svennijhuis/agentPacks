@@ -42,11 +42,18 @@ public sealed record VerificationReport(
     bool BoundaryVerified,
     bool IncludesEdgeCases);
 
-/// <summary>Inputs that are not in the report itself but gate the verdict.</summary>
+/// <summary>
+/// Inputs that are not in the report itself but gate the verdict. <paramref name="QuantitativeCriteria"/>
+/// names the plan criteria that state a bound; their Evidence must quote a measured value against it.
+/// <paramref name="CompileCriteria"/> names the plan criteria whose stated outcome is that the code
+/// compiles; only those may pass on a build-only command.
+/// </summary>
 public sealed record VerificationContext(
     bool HasConfirmedPlan,
     IReadOnlyList<string> ApplicableStacks,
-    VerificationReport? Report);
+    VerificationReport? Report,
+    IReadOnlyList<int>? QuantitativeCriteria = null,
+    IReadOnlyList<int>? CompileCriteria = null);
 
 /// <summary>Parses the review-contract verifier report and applies the pass gates.</summary>
 public static partial class VerificationEvidence
@@ -55,9 +62,31 @@ public static partial class VerificationEvidence
     public const string Fail = "fail";
     public const string NotVerified = "not verified";
 
-    [GeneratedRegex(@"^\|\s*(\d+)\s*\|\s*(pass|fail|not verified)\s*\|\s*(.*?)\s*\|\s*(.*?)\s*\|",
+    /// <summary>
+    /// A check exists but the environment or a missing secret stopped it. Unproven, not failed:
+    /// the remedy is to unblock and rerun, not to write a new check. Never a pass.
+    /// </summary>
+    public const string Blocked = "blocked";
+
+    [GeneratedRegex(@"^\|\s*(\d+)\s*\|\s*(pass|fail|not verified|blocked)\s*\|\s*(.*?)\s*\|\s*(.*?)\s*\|",
         RegexOptions.IgnoreCase | RegexOptions.Multiline)]
     private static partial Regex CriterionRow { get; }
+
+    // Digits glued to a metric name (`p95 ≤ 200`) are not a measurement. Before→after arrows excluded.
+    [GeneratedRegex(@"(?<![A-Za-z0-9.])\d[\d.,]*\s*[A-Za-z%µ/]*\s*(<=|>=|≤|≥|<|>)\s*\d[\d.,]*")]
+    private static partial Regex MeasuredAgainstBound { get; }
+
+    // Commands that only prove the code compiles, restores, formats, or type-checks. Anything that
+    // also runs the code (`test`, `run`, an HTTP call) is not compile-only even if a build precedes it.
+    [GeneratedRegex(@"\b(dotnet\s+(build|restore|format)|cargo\s+(build|check|fmt)|tsc\b|(npm|pnpm|yarn|bun)\s+(run\s+)?(build|typecheck|type-check|lint)|go\s+(build|vet))",
+        RegexOptions.IgnoreCase)]
+    private static partial Regex CompileVerb { get; }
+
+    // Toolchain verbs and URL calls execute code. Path tokens (Http, Tests, Bench, Start, Serve)
+    // and `pnpm exec tsc` must not match. curl/wget count only as the command, not a path word.
+    [GeneratedRegex(@"\b(dotnet|cargo|go)\s+(test|run|bench)\b|\b(npm|pnpm|yarn|bun)\s+test\b|(?:^|&&|;|\|)\s*(curl|wget)\b|https?://",
+        RegexOptions.IgnoreCase)]
+    private static partial Regex ExecutesCode { get; }
 
     [GeneratedRegex(@"\*\*Suite:\*\*\s*(.+)", RegexOptions.IgnoreCase)]
     private static partial Regex SuiteLine { get; }
@@ -129,6 +158,25 @@ public static partial class VerificationEvidence
             {
                 return VerificationOutcome.NotPass;
             }
+
+            // A build or type-check proves the code compiles, nothing about behavior. Only a
+            // criterion whose stated outcome is compilation may pass on such a command.
+            if (IsCompileOnlyCommand(criterion.Command) &&
+                !(context.CompileCriteria ?? []).Contains(criterion.Number))
+            {
+                return VerificationOutcome.NotPass;
+            }
+        }
+
+        foreach (var number in context.QuantitativeCriteria ?? [])
+        {
+            // Only the verifier's own number quoted against the bound is evidence;
+            // `2 passed` says nothing about a bound.
+            var row = report.Criteria.FirstOrDefault(criterion => criterion.Number == number);
+            if (row is null || !IsMeasuredAgainstBound(row.Evidence))
+            {
+                return VerificationOutcome.NotPass;
+            }
         }
 
         if (!report.WiderSuitePassed)
@@ -159,6 +207,24 @@ public static partial class VerificationEvidence
     {
         var value = Unwrap(command);
         return value.Length > 0 && value != "—" && value != "-" && value != "none";
+    }
+
+    /// <summary>
+    /// Evidence for a quantitative criterion: the verifier's measured value compared to the bound
+    /// (`p95 143 ms ≤ 200 ms`). A pass count or a test name is not a measurement.
+    /// </summary>
+    public static bool IsMeasuredAgainstBound(string evidence) =>
+        MeasuredAgainstBound.IsMatch(Unwrap(evidence));
+
+    /// <summary>
+    /// A command that only builds, restores, formats, or type-checks (`dotnet build`, `cargo check`,
+    /// `tsc --noEmit`). Not evidence for a behavioral criterion. A chain that also runs the code
+    /// (`dotnet build &amp;&amp; dotnet test`) is not compile-only.
+    /// </summary>
+    public static bool IsCompileOnlyCommand(string command)
+    {
+        var value = Unwrap(command);
+        return CompileVerb.IsMatch(value) && !ExecutesCode.IsMatch(value);
     }
 
     private static bool CoversEveryStack(IReadOnlyList<string> applicable, IReadOnlyList<string> verified)

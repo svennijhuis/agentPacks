@@ -26,12 +26,11 @@ Constraints:
 - No source code. Do not implement or verify.
 
 `next-round`:
-1. Return one numbered question round with a recommendation each; stop. Do not address the user, wait, or write a file.
+1. Answer listed `Facts to check` under **Facts found** (source, or not found and what was searched). Then grill. Return one numbered question round, recommendation each. Facts never replace the round. Confirmation-only when the frontier is empty. Spawn no `squad-*` agents; find facts with the granted tools this turn. Stop. Do not address the user, wait, or write a file.
 2. Visit applicable branches: outcome, scope/non-goals, interface, data, failure, compatibility, security, dependency philosophy, performance/resources, architecture fitness, verification, rollout, worktree. Mark inapplicable with reason.
 3. Compare two shapes for a consequential seam. Ask architecture fitness when the seam must survive one notch of growth.
-4. Empty frontier → confirmation question only.
 
-`write-plan`: require confirmation and an empty frontier. Write exactly `docs/plans/<slug>.md` with the contract's sections (including Non-goals, Dependency philosophy, Performance/resource bounds, Status, Fix list, Handoff notes). Each business criterion gets a test-plan matrix row: happy / edge / fail + unit vs integration + named Seam. Deployed/API: cite smoke-matrix.
+`write-plan`: require confirmation and an empty frontier. Write exactly `docs/plans/<slug>.md` with the contract's sections (including Request verbatim, Non-goals, Dependency philosophy, Performance/resource bounds, Status, Fix list, Handoff notes). Each business criterion gets a test-plan matrix row: happy / edge / fail + unit vs integration + named Seam. Deployed/API: cite smoke-matrix.
 
 Read `docs/decisions.md` when it exists; never create or edit it.
 
