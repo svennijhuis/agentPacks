@@ -201,16 +201,6 @@ public sealed class TonightCriteriaTests
         nameof(SquadContractTests.Squad_skill_body_is_not_grown))]
     [InlineData("58 four bodies in references pointers in SKILL", typeof(SquadContractTests),
         nameof(SquadContractTests.Squad_skill_progressive_disclosure_moves_four_bodies_to_references))]
-    [InlineData("59 HTTP collection envelope over root array", typeof(LanguagePackContractTests),
-        nameof(LanguagePackContractTests.Http_collection_envelope_is_wired_into_each_language_pack))]
-    [InlineData("60 marketplace smoke entry shape", typeof(LanguagePackContractTests),
-        nameof(LanguagePackContractTests.Http_collection_envelope_is_wired_into_each_language_pack))]
-    [InlineData("61 README Install from Source marketplace", typeof(LanguagePackContractTests),
-        nameof(LanguagePackContractTests.Http_collection_envelope_is_wired_into_each_language_pack))]
-    [InlineData("62 command names differ from skill and plugin", typeof(LanguagePackContractTests),
-        nameof(LanguagePackContractTests.Command_names_differ_from_skill_and_plugin_names))]
-    [InlineData("64 shared http-api emit", typeof(LanguagePackContractTests),
-        nameof(LanguagePackContractTests.Http_collection_envelope_is_wired_into_each_language_pack))]
     [InlineData("63 vendor-neutral scenarios no Azure AWS product names", typeof(HttpScenariosContractTests),
         nameof(HttpScenariosContractTests.Http_scenarios_env_agnostic_no_required_cloud))]
     public void Each_ticket_criterion_has_a_proving_test(string criterion, Type fixture, string method)

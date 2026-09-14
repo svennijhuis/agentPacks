@@ -16,7 +16,7 @@ the common layout is not a guarantee.
 
 When loaded by exact Skill tool name `rust-build` during implement or review:
 1. Read every file in `references/standards/`.
-2. Standards in force: `rust.md`, `errors-concurrency.md`, `http-api.md`.
+2. Standards in force: `rust.md`, `errors-concurrency.md`.
 3. Cite the document filename on each edit (`rust.md`, not "the Rust standard").
 
 Read [shape, commands, and failures](references/commands.md).

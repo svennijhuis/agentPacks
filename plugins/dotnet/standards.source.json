@@ -5,15 +5,13 @@
     "csharp": "standards/csharp.md",
     "async-errors": "standards/async-errors.md",
     "testing": "standards/testing.md",
-    "layers": "standards/layers.md",
-    "http-api": "standards/http-api.md"
+    "layers": "standards/layers.md"
   },
   "consumers": {
     "dotnet-build": [
       "csharp",
       "async-errors",
-      "layers",
-      "http-api"
+      "layers"
     ],
     "dotnet-test-patterns": [
       "testing"
@@ -22,8 +20,7 @@
       "csharp",
       "async-errors",
       "testing",
-      "layers",
-      "http-api"
+      "layers"
     ]
   }
 }

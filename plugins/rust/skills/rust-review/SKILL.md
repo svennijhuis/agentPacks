@@ -15,7 +15,7 @@ Loop-only; not as a user entrypoint.
 
 When loaded by exact Skill tool name `rust-review` during review or build:
 1. Read every file in `references/standards/`.
-2. Standards in force: `rust.md`, `errors-concurrency.md`, `testing.md`, `http-api.md`.
+2. Standards in force: `rust.md`, `errors-concurrency.md`, `testing.md`.
 3. Cite the document filename on each finding (`rust.md`, not "the Rust standard").
 
 Process findings per [the checklist](references/checklist.md).
