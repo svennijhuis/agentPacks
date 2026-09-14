@@ -51,7 +51,7 @@ internal sealed class Pipeline(RepositoryContext context)
             .Concat(new CopilotMarketplaceGenerator(context).Generate(plugins))
             .Concat(new CursorMarketplaceGenerator(context).Generate(plugins))
             .Concat(new ClientTreeGenerator(context, context.Models).Generate(plugins))
-            .Concat(new StandardsGenerator().Generate(plugins))
+            .Concat(new StandardsGenerator(context).Generate(plugins))
             .Concat(SkillPolicyGenerator.Generate(plugins))
             .OrderBy(f => f.RelativePath, StringComparer.Ordinal)
             .ToList();

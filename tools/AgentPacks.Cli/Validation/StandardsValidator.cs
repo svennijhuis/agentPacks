@@ -1,4 +1,5 @@
 using System.Text.Json.Nodes;
+using AgentPacks.Cli.Io;
 using AgentPacks.Cli.Loading;
 
 namespace AgentPacks.Cli.Validation;
@@ -15,6 +16,43 @@ internal sealed class StandardsValidator(RepositoryContext context)
         foreach (var plugin in plugins.Where(p => p.Standards is not null))
         {
             Validate(plugin);
+        }
+
+        RejectIdenticalStandards(plugins);
+    }
+
+    /// <summary>
+    /// Two authored standards documents with the same content are one document that should live
+    /// under <c>shared/standards/</c> and be referenced by path. This is the check that a pack
+    /// copy of a shared document fails.
+    /// </summary>
+    private void RejectIdenticalStandards(IReadOnlyList<PluginPackage> plugins)
+    {
+        var authored = plugins
+            .Select(plugin => Path.Combine(plugin.Directory, "standards"))
+            .Append(SharedStandards.Directory(context))
+            .Where(Directory.Exists)
+            .SelectMany(directory => Directory.GetFiles(directory, "*.md"))
+            .OrderBy(path => path, StringComparer.Ordinal)
+            .ToList();
+
+        var byContent = authored
+            .GroupBy(path => TextFile.ReadNormalized(path), StringComparer.Ordinal)
+            .Where(group => group.Count() > 1);
+
+        foreach (var group in byContent)
+        {
+            var paths = group.Select(context.Relative).ToList();
+
+            foreach (var path in paths)
+            {
+                var others = string.Join(", ", paths.Where(p => p != path));
+
+                context.Diagnostics.Policy(
+                    path,
+                    $"has the same content as {others}. Author it once under " +
+                    $"{SharedStandards.DirectoryRelative}/ and reference that path from each catalog.");
+            }
         }
     }
 
@@ -60,6 +98,8 @@ internal sealed class StandardsValidator(RepositoryContext context)
     {
         var valid = new HashSet<string>(StringComparer.Ordinal);
         var pluginRoot = Path.GetFullPath(plugin.Directory) + Path.DirectorySeparatorChar;
+        var sharedRoot = Path.GetFullPath(SharedStandards.Directory(context)) + Path.DirectorySeparatorChar;
+        var sharedNames = SharedStandards.FileNames(context);
 
         foreach (var (id, node) in documents.OrderBy(p => p.Key, StringComparer.Ordinal))
         {
@@ -83,9 +123,19 @@ internal sealed class StandardsValidator(RepositoryContext context)
                 continue;
             }
 
-            var full = Path.GetFullPath(Path.Combine(plugin.Directory, path));
+            var full = SharedStandards.Resolve(context, plugin, path);
 
-            if (!full.StartsWith(pluginRoot, StringComparison.Ordinal))
+            if (SharedStandards.IsSharedPath(path))
+            {
+                if (!full.StartsWith(sharedRoot, StringComparison.Ordinal))
+                {
+                    context.Diagnostics.SpecFatal(
+                        relative,
+                        $"document '{id}' path '{path}' escapes {SharedStandards.DirectoryRelative}/.");
+                    continue;
+                }
+            }
+            else if (!full.StartsWith(pluginRoot, StringComparison.Ordinal))
             {
                 context.Diagnostics.SpecFatal(relative, $"document '{id}' path '{path}' escapes the plugin directory.");
                 continue;
@@ -94,6 +144,18 @@ internal sealed class StandardsValidator(RepositoryContext context)
             if (!File.Exists(full))
             {
                 context.Diagnostics.SpecFatal(relative, $"document '{id}' path '{path}' does not exist.");
+                continue;
+            }
+
+            // A pack document named like a shared one is either a stale copy or a silent override
+            // waiting to happen. Both are worse than a rename.
+            if (!SharedStandards.IsSharedPath(path) && sharedNames.Contains(Path.GetFileName(full)))
+            {
+                context.Diagnostics.Policy(
+                    relative,
+                    $"document '{id}' path '{path}' has the same filename as " +
+                    $"{SharedStandards.DirectoryRelative}/{Path.GetFileName(full)}. Reference the shared " +
+                    "document by that path, or rename the pack document.");
                 continue;
             }
 

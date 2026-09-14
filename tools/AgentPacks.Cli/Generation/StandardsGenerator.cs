@@ -6,9 +6,11 @@ namespace AgentPacks.Cli.Generation;
 
 /// <summary>
 /// Copies canonical standards into the references directory of each consuming skill. The catalog
-/// is the authored interface; duplicated marketplace files are implementation detail.
+/// is the authored interface; duplicated marketplace files are implementation detail. A document
+/// path under <c>shared/standards/</c> resolves from the repository root, so a cross-language
+/// standard is authored once and still lands inside every consuming skill.
 /// </summary>
-internal sealed class StandardsGenerator
+internal sealed class StandardsGenerator(RepositoryContext context)
 {
     public IReadOnlyList<GeneratedFile> Generate(IReadOnlyList<PluginPackage> plugins)
     {
@@ -49,12 +51,16 @@ internal sealed class StandardsGenerator
                     continue;
                 }
 
-                var source = Path.Combine(plugin.Directory, sourceRelative);
+                var source = SharedStandards.Resolve(context, plugin, sourceRelative);
 
                 if (!File.Exists(source))
                 {
                     continue;
                 }
+
+                var canonical = SharedStandards.IsSharedPath(sourceRelative)
+                    ? context.Relative(source)
+                    : PluginRelative(plugin, source);
 
                 var destination = Path.Combine(
                     "plugins",
@@ -66,7 +72,7 @@ internal sealed class StandardsGenerator
                     $"{id}.md");
 
                 var header =
-                    $"<!-- Generated from {PluginRelative(plugin, source)} via {PluginLoader.StandardsFileName}. " +
+                    $"<!-- Generated from {canonical} via {PluginLoader.StandardsFileName}. " +
                     "Edit the canonical document, not this copy. -->\n\n";
 
                 files.Add(new GeneratedFile(destination, header + TextFile.ReadNormalized(source), false));

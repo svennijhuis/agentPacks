@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://github.com/svennijhuis/agentPacks/schema/standards.schema.json",
   "title": "Language standards source catalog",
-  "description": "Canonical Markdown documents copied into consuming skill references during marketplace generation.",
+  "description": "Canonical Markdown documents copied into consuming skill references during marketplace generation. A document path is plugin-relative (standards/<name>.md), or repository-relative under shared/standards/<name>.md for a cross-language document authored once.",
   "type": "object",
   "required": ["$schema", "version", "documents", "consumers"],
   "additionalProperties": false,

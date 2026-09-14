@@ -4,12 +4,14 @@
   "documents": {
     "rust": "standards/rust.md",
     "errors-concurrency": "standards/errors-concurrency.md",
-    "testing": "standards/testing.md"
+    "testing": "standards/testing.md",
+    "http-api": "shared/standards/http-api.md"
   },
   "consumers": {
     "rust-build": [
       "rust",
-      "errors-concurrency"
+      "errors-concurrency",
+      "http-api"
     ],
     "rust-test-patterns": [
       "testing"
@@ -17,7 +19,8 @@
     "rust-review": [
       "rust",
       "errors-concurrency",
-      "testing"
+      "testing",
+      "http-api"
     ]
   }
 }
