@@ -1,0 +1,41 @@
+{
+  "name": "agentpacks",
+  "owner": {
+    "name": "agentPacks Maintainers"
+  },
+  "metadata": {
+    "description": "agentPacks plugins generated for Cursor Team Marketplace import."
+  },
+  "plugins": [
+    {
+      "name": "dotnet",
+      "source": "plugins/dotnet",
+      "description": "The C# and .NET pack: canonical build, implementation, test and review standards consumed by Squad."
+    },
+    {
+      "name": "git",
+      "source": "plugins/git",
+      "description": "Blocks the git commands that destroy work an agent cannot get back: reset --hard, clean -fd, push --force, branch -D, and checkout or restore over the working tree."
+    },
+    {
+      "name": "pack-check",
+      "source": "plugins/pack-check",
+      "description": "Detects the repository stack at session start and offers to install the language pack that supplies its required build and test skills."
+    },
+    {
+      "name": "rust",
+      "source": "plugins/rust",
+      "description": "The Rust pack: canonical Cargo build, implementation, test and review standards consumed by Squad."
+    },
+    {
+      "name": "squad",
+      "source": "plugins/squad",
+      "description": "User-invoked /squad, /squad-review, and /scenarios: the main agent mediates planning, runs plan-bound implementation and verification, fans dual-axis reviewers, and merges at most two fix rounds before an uncommitted hand-off. /scenarios writes docs/smoke/<slug>.md from changed code."
+    },
+    {
+      "name": "typescript",
+      "source": "plugins/typescript",
+      "description": "The TypeScript pack: canonical tsc build, test and review standards consumed by Squad."
+    }
+  ]
+}

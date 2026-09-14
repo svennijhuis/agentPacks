@@ -1,0 +1,16 @@
+{
+  "name": "typescript",
+  "version": "0.1.3",
+  "description": "The TypeScript pack: canonical tsc build, test and review standards consumed by Squad.",
+  "author": {
+    "name": "agentPacks Maintainers"
+  },
+  "license": "UNLICENSED",
+  "keywords": [
+    "typescript",
+    "language-pack",
+    "build",
+    "testing",
+    "review"
+  ]
+}
