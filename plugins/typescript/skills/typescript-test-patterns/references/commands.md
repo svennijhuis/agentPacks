@@ -23,6 +23,8 @@ A `"test"` script wins when it already encodes the runner. Do not add Vitest to 
 | Lives | `*.test.ts` / `*.spec.ts` beside the module, if the repo does | `tests/` or the repo's existing folder |
 | Touches | One module, collaborators faked | Real I/O, HTTP, or a composed process |
 
+A markdown file containing a phrase is not a unit test. Wording is reviewed.
+
 ## Running
 
 ```bash

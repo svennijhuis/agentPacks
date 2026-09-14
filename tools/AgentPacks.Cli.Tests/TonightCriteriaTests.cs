@@ -1,26 +1,20 @@
 namespace AgentPacks.Cli.Tests;
 
 /// <summary>
-/// Po 1–14 are done only when a named proving test exists. A checked box in the PR is not evidence.
-/// Uses the existing xunit suite — no new framework.
+/// Named proving tests for executable contracts. Docs and skill wording is reviewed,
+/// not ticket-locked with <c>Assert.Contains</c>.
 /// </summary>
 public sealed class TonightCriteriaTests
 {
     [Theory]
     [InlineData("1 /squad+/squad-review flow", typeof(SquadContractTests),
         nameof(SquadContractTests.Two_user_invoked_entrypoints_are_squad_and_review))]
-    [InlineData("2 README flow", typeof(SquadContractTests),
-        nameof(SquadContractTests.Readme_mirrors_the_orchestrator_numbered_flow))]
-    [InlineData("3 /squad-review", typeof(SquadContractTests),
-        nameof(SquadContractTests.Review_is_dual_axis_and_startable_for_pr_uncommitted_and_main))]
+    [InlineData("3 command inventory", typeof(SquadContractTests),
+        nameof(SquadContractTests.Squad_commands_are_exactly_squad_and_review))]
     [InlineData("4 models.source.json", typeof(ModelCatalogTests),
         nameof(ModelCatalogTests.Claude_receives_the_mapped_tier_and_copilot_and_codex_emit_model))]
-    [InlineData("5 learnings contract", typeof(SquadContractTests),
-        nameof(SquadContractTests.Learnings_log_is_append_only_and_read_first))]
     [InlineData("6 apply fixture", typeof(LearningsLogTests),
         nameof(LearningsLogTests.A_prior_fail_forces_the_skipped_agent_on_the_next_gate))]
-    [InlineData("7 coworker docs", typeof(SquadContractTests),
-        nameof(SquadContractTests.Readme_mirrors_the_orchestrator_numbered_flow))]
     [InlineData("8 verify-path / evidence gate", typeof(VerificationEvidenceTests),
         nameof(VerificationEvidenceTests.Criterion_command_that_never_covers_is_not_verified_and_not_a_pass))]
     [InlineData("9 loop-only slots", typeof(LanguagePackContractTests),
@@ -33,66 +27,32 @@ public sealed class TonightCriteriaTests
         nameof(SquadContractTests.Loop_agent_bodies_stay_tiny))]
     [InlineData("13 Squad rename", typeof(SquadContractTests),
         nameof(SquadContractTests.User_facing_surfaces_do_not_say_delivery_loop))]
-    [InlineData("14 docs pass", typeof(SquadContractTests),
-        nameof(SquadContractTests.Readme_mirrors_the_orchestrator_numbered_flow))]
-    [InlineData("15 empty squad mcp + read-only docs", typeof(PluginMcpContractTests),
+    [InlineData("15 empty squad mcp", typeof(PluginMcpContractTests),
         nameof(PluginMcpContractTests.Squad_mcp_is_empty_scaffold_and_docs_example_is_read_only_http_without_secrets))]
     [InlineData("16 no shipped Dotnet MCP / empty scaffolds", typeof(PluginMcpContractTests),
         nameof(PluginMcpContractTests.No_dotnet_solution_mcp_project_and_plugin_mcp_servers_are_empty_scaffolds))]
-    [InlineData("17 no delivery* and no essay agents", typeof(SquadContractTests),
-        nameof(SquadContractTests.No_user_facing_delivery_star_and_no_essay_agents))]
-    [InlineData("cursor ids not Claude aliases", typeof(ModelCatalogTests),
-        nameof(ModelCatalogTests.Claude_receives_the_mapped_tier_and_copilot_and_codex_emit_model))]
-    [InlineData("research decisions drop-box", typeof(SquadContractTests),
-        nameof(SquadContractTests.Optional_decisions_drop_box_is_read_not_eager_memory))]
-    [InlineData("18 coworker local-dev docs", typeof(SquadContractTests),
-        nameof(SquadContractTests.Coworker_local_dev_docs_name_validate_test_and_three_client_installs))]
-    [InlineData("restored operational steps", typeof(SquadContractTests),
-        nameof(SquadContractTests.Loop_agents_restore_operational_steps_not_empty_tiny))]
-    [InlineData("language skills name standards", typeof(LanguagePackContractTests),
-        nameof(LanguagePackContractTests.Language_slot_skills_name_their_canonical_standards))]
-    [InlineData("19 usable gates not essays two commands empty mcp scaffolds", typeof(SquadContractTests),
-        nameof(SquadContractTests.Usable_gates_not_essays_exactly_two_commands_and_empty_mcp_scaffolds))]
-    [InlineData("20 simplifier report-only one agent three axes two commands mcp", typeof(SquadContractTests),
-        nameof(SquadContractTests.Simplifier_is_report_only_one_agent_three_axes))]
     [InlineData("21 no DotnetSolutionMcp empty mcpServers", typeof(PluginMcpContractTests),
         nameof(PluginMcpContractTests.No_dotnet_solution_mcp_project_and_plugin_mcp_servers_are_empty_scaffolds))]
-    [InlineData("22 squad-* agents no user-facing loop-*", typeof(SquadContractTests),
+    [InlineData("22 squad-* agents", typeof(SquadContractTests),
         nameof(SquadContractTests.No_user_facing_loop_star_agents_are_squad_star))]
     [InlineData("23 typescript pack required slots loop audience", typeof(LanguagePackContractTests),
         nameof(LanguagePackContractTests.Typescript_pack_fills_required_slots_with_loop_audience))]
-    [InlineData("24 README Codex agent toml copy one-liner", typeof(SquadContractTests),
-        nameof(SquadContractTests.Readme_has_codex_agent_toml_copy_one_liner))]
-    [InlineData("25 learnings-digest user-invoked Matt-tiny no rewrite", typeof(SquadContractTests),
+    [InlineData("25 learnings-digest user-invoked", typeof(SquadContractTests),
         nameof(SquadContractTests.Learnings_digest_is_user_invoked_matt_tiny_no_rewrite))]
-    [InlineData("26 worktree note only in /squad skill", typeof(SquadContractTests),
-        nameof(SquadContractTests.Worktree_note_only_in_squad_skill))]
-    [InlineData("27 caveman pins and /squad invokes by exact name", typeof(SquadContractTests),
+    [InlineData("27 caveman pins", typeof(SquadContractTests),
         nameof(SquadContractTests.Caveman_external_pins_and_squad_invokes_by_exact_name))]
-    [InlineData("28 review-contract drops findings below 80 confidence", typeof(SquadContractTests),
-        nameof(SquadContractTests.Review_contract_drops_findings_below_80_confidence))]
-    [InlineData("29 advisor-lite at confirm stuck handoff no slash", typeof(SquadContractTests),
-        nameof(SquadContractTests.Squad_advisor_lite_at_confirm_stuck_handoff_no_slash))]
-    [InlineData("30 verifier rejects happy-path-only coverage", typeof(SquadContractTests),
-        nameof(SquadContractTests.Verifier_rejects_happy_path_only_coverage))]
+    [InlineData("30 verifier rejects happy-path-only coverage", typeof(VerificationEvidenceTests),
+        nameof(VerificationEvidenceTests.Happy_path_only_agent_written_tests_are_rejected))]
     [InlineData("31 skill bodies references/standards only", typeof(LanguagePackContractTests),
         nameof(LanguagePackContractTests.Skill_bodies_point_only_at_references_standards))]
-    [InlineData("32 test plan matrix", typeof(SquadContractTests),
-        nameof(SquadContractTests.Planning_contract_requires_the_test_plan_matrix))]
-    [InlineData("33 Internal do-not-run line", typeof(LanguagePackContractTests),
-        nameof(LanguagePackContractTests.Loop_audience_skills_start_with_internal_do_not_run_directly))]
+    [InlineData("32 test plan matrix", typeof(VerificationEvidenceTests),
+        nameof(VerificationEvidenceTests.Blank_or_unconfirmed_seam_and_unnamed_internal_hits_are_not_verified))]
     [InlineData("33 Copilot user-invocable false", typeof(LanguagePackContractTests),
         nameof(LanguagePackContractTests.Copilot_emits_user_invocable_false_for_loop_audience))]
-    [InlineData("33 pack-check README setup-only", typeof(PackCheckContractTests),
-        nameof(PackCheckContractTests.Pack_check_readme_is_setup_only_squad_already_runs_check))]
     [InlineData("34 Codex tiers map to real ids", typeof(ModelCatalogTests),
         nameof(ModelCatalogTests.Codex_tiers_map_to_real_ids_not_all_inherit))]
-    [InlineData("34 empty mcp scaffolds not named dotnet-only", typeof(SquadContractTests),
+    [InlineData("34 empty mcp scaffolds", typeof(SquadContractTests),
         nameof(SquadContractTests.Empty_mcp_scaffolds_test_is_not_named_dotnet_only))]
-    [InlineData("34 anti-loop spawn none two fix rounds", typeof(SquadContractTests),
-        nameof(SquadContractTests.Anti_loop_small_change_spawn_none_and_two_fix_rounds_max))]
-    [InlineData("36 /squad-review save-markdown ask", typeof(SquadContractTests),
-        nameof(SquadContractTests.Review_asks_save_markdown_yes_writes_file_no_stays_ide_only))]
     [InlineData("37 squad skill not user-invocable command is slash", typeof(SquadContractTests),
         nameof(SquadContractTests.Squad_skill_is_not_user_invocable_command_is_the_only_slash))]
     [InlineData("38 Claude package one squad and one squad-review command", typeof(SquadContractTests),
@@ -107,45 +67,19 @@ public sealed class TonightCriteriaTests
         nameof(SquadContractTests.Learnings_digest_is_not_user_invocable))]
     [InlineData("41 Copilot factory command name differs from plugin name", typeof(SquadContractTests),
         nameof(SquadContractTests.Copilot_factory_command_name_differs_from_plugin_name))]
-    [InlineData("42 dotnet-review Matt-tiny examples standards.source kept", typeof(LanguagePackContractTests),
+    [InlineData("42 dotnet-review examples standards.source kept", typeof(LanguagePackContractTests),
         nameof(LanguagePackContractTests.Dotnet_review_examples_matt_tiny_standards_source_kept))]
-    [InlineData("43 squad smoke-matrix template happy edge fail auth timeout 5xx", typeof(SquadContractTests),
-        nameof(SquadContractTests.Squad_smoke_matrix_template_covers_happy_edge_fail_auth_timeout_5xx))]
     [InlineData("43 lang test-patterns local vs deployed smoke examples", typeof(SquadContractTests),
         nameof(SquadContractTests.Lang_test_patterns_local_vs_deployed_smoke_examples))]
     [InlineData("43 smoke-matrix not user slash no new plugin", typeof(SquadContractTests),
         nameof(SquadContractTests.Smoke_matrix_not_user_slash_no_new_plugin))]
-    [InlineData("44 /http-scenarios writes docs/smoke md only", typeof(HttpScenariosContractTests),
-        nameof(HttpScenariosContractTests.Http_scenarios_command_writes_docs_smoke_md_only))]
-    [InlineData("44 /http-scenarios table case kind request status expected why", typeof(HttpScenariosContractTests),
-        nameof(HttpScenariosContractTests.Http_scenarios_table_has_case_kind_request_status_expected_why))]
-    [InlineData("44 /http-scenarios example fills all default kinds", typeof(HttpScenariosContractTests),
-        nameof(HttpScenariosContractTests.Http_scenarios_example_fills_all_default_kinds))]
-    [InlineData("44 /http-scenarios no code edits no secrets seeded from smoke-matrix", typeof(HttpScenariosContractTests),
-        nameof(HttpScenariosContractTests.Http_scenarios_no_code_edits_no_secrets_seeded_from_smoke_matrix))]
-    [InlineData("44 user commands stay squad squad-review pack-check plus http-scenarios", typeof(HttpScenariosContractTests),
+    [InlineData("44 user commands stay squad squad-review pack-check plus scenarios", typeof(HttpScenariosContractTests),
         nameof(HttpScenariosContractTests.User_commands_stay_squad_squad_review_pack_check_plus_http_scenarios))]
-    [InlineData("44 /http-scenarios env-agnostic no required cloud", typeof(HttpScenariosContractTests),
-        nameof(HttpScenariosContractTests.Http_scenarios_env_agnostic_no_required_cloud))]
-    [InlineData("44 /http-scenarios auth rows default skip", typeof(HttpScenariosContractTests),
-        nameof(HttpScenariosContractTests.Http_scenarios_auth_rows_default_skip))]
-    [InlineData("45 /http-scenarios seeds from code first OpenAPI optional", typeof(HttpScenariosContractTests),
-        nameof(HttpScenariosContractTests.Http_scenarios_seeds_from_code_first_openapi_optional))]
-    [InlineData("45 /http-scenarios covers timer cron triggers", typeof(HttpScenariosContractTests),
-        nameof(HttpScenariosContractTests.Http_scenarios_covers_timer_cron_triggers))]
-    [InlineData("16 /http-scenarios local unauth kv ask continue", typeof(SquadContractTests),
-        nameof(SquadContractTests.Http_scenarios_local_unauth_kv_ask_continue))]
-    [InlineData("16 squad local secrets unauth ask continue", typeof(SquadContractTests),
-        nameof(SquadContractTests.Squad_local_secrets_unauth_ask_continue))]
-    [InlineData("16 /http-scenarios defers local secrets to squad rule", typeof(HttpScenariosContractTests),
-        nameof(HttpScenariosContractTests.Http_scenarios_defers_local_secrets_to_squad_rule))]
-    [InlineData("46 README command map three user commands plus pack-check", typeof(SquadContractTests),
-        nameof(SquadContractTests.Readme_lists_three_user_commands_plus_pack_check))]
     [InlineData("47 Claude marketplace omits hooks path and array", typeof(ClaudeMarketplaceHooksTests),
         nameof(ClaudeMarketplaceHooksTests.Claude_marketplace_omits_hooks_path_and_array))]
     [InlineData("47 Claude plugin root hooks json is Claude shaped", typeof(ClaudeMarketplaceHooksTests),
         nameof(ClaudeMarketplaceHooksTests.Claude_plugin_root_hooks_json_is_claude_shaped))]
-    [InlineData("47 Copilot ships http-scenarios command", typeof(HttpScenariosContractTests),
+    [InlineData("47 Copilot ships scenarios command", typeof(HttpScenariosContractTests),
         nameof(HttpScenariosContractTests.Copilot_ships_http_scenarios_command))]
     [InlineData("48 all plugins version 0.1.3", typeof(PluginVersionContractTests),
         nameof(PluginVersionContractTests.All_plugins_version_0_1_3))]
@@ -153,14 +87,8 @@ public sealed class TonightCriteriaTests
         nameof(HttpScenariosContractTests.Copilot_http_scenarios_renamed_to_scenarios))]
     [InlineData("49 All_trees_command_is_scenarios", typeof(HttpScenariosContractTests),
         nameof(HttpScenariosContractTests.All_trees_command_is_scenarios))]
-    [InlineData("49 All_plugins_version_0_1_3", typeof(PluginVersionContractTests),
-        nameof(PluginVersionContractTests.All_plugins_version_0_1_3))]
-    [InlineData("50+51 All_plugins_version_0_1_3", typeof(PluginVersionContractTests),
-        nameof(PluginVersionContractTests.All_plugins_version_0_1_3))]
     [InlineData("49 User_slash_is_scenarios_not_http_scenarios", typeof(HttpScenariosContractTests),
         nameof(HttpScenariosContractTests.User_slash_is_scenarios_not_http_scenarios))]
-    [InlineData("49 Copilot_ships_scenarios_command", typeof(HttpScenariosContractTests),
-        nameof(HttpScenariosContractTests.Copilot_ships_scenarios_command))]
     [InlineData("50 Copilot_hooks_set_cwd_plugin_root", typeof(ClaudeMarketplaceHooksTests),
         nameof(ClaudeMarketplaceHooksTests.Copilot_hooks_set_cwd_plugin_root))]
     [InlineData("Cursor relocated hooks when Claude owns root", typeof(ClaudeMarketplaceHooksTests),
@@ -175,8 +103,6 @@ public sealed class TonightCriteriaTests
         nameof(SkillHygieneContractTests.Skill_bodies_progressive_disclosure_to_references))]
     [InlineData("52 No_astra_personality_in_portable_skills", typeof(SkillHygieneContractTests),
         nameof(SkillHygieneContractTests.No_astra_personality_in_portable_skills))]
-    [InlineData("53 review pins product diff and omits run files", typeof(SquadContractTests),
-        nameof(SquadContractTests.Review_pins_product_diff_and_omits_run_files))]
     [InlineData("official-schema Cursor catalog ships", typeof(CursorCatalogContractTests),
         nameof(CursorCatalogContractTests.Official_schema_cursor_catalog_ships))]
     [InlineData("official-schema Cursor catalog rejects extra fields", typeof(CursorCatalogContractTests),
@@ -189,10 +115,6 @@ public sealed class TonightCriteriaTests
         nameof(CursorCatalogContractTests.Cursor_catalog_is_the_sole_catalog_track))]
     [InlineData("53 A1 Seam column + blank-seam fail", typeof(SquadContractTests),
         nameof(SquadContractTests.Test_plan_matrix_seam_column_blank_or_unnamed_internal_is_not_verified))]
-    [InlineData("54 A2 Effort-gate stop + forbid ticket/map/tracker", typeof(SquadContractTests),
-        nameof(SquadContractTests.Effort_over_one_session_says_so_and_stops_without_ticket_map_tracker))]
-    [InlineData("55 B4 Commands fail-closed before spawn", typeof(SquadContractTests),
-        nameof(SquadContractTests.Commands_resolve_pin_and_stop_before_spawn_when_empty_or_bad))]
     [InlineData("56 B6 Anti-reentry on three agents", typeof(SquadContractTests),
         nameof(SquadContractTests.Review_agents_have_anti_reentry_on_every_provider_tree))]
     [InlineData("Still_four_user_commands", typeof(SquadContractTests),
@@ -203,16 +125,10 @@ public sealed class TonightCriteriaTests
         nameof(SquadContractTests.Squad_skill_progressive_disclosure_moves_four_bodies_to_references))]
     [InlineData("59 HTTP collection envelope over root array", typeof(LanguagePackContractTests),
         nameof(LanguagePackContractTests.Language_packs_map_http_api_to_shared_path))]
-    [InlineData("60 marketplace smoke entry shape", typeof(LanguagePackContractTests),
-        nameof(LanguagePackContractTests.Marketplace_smoke_entry_shape_is_documented))]
-    [InlineData("61 README Install from Source marketplace", typeof(LanguagePackContractTests),
-        nameof(LanguagePackContractTests.Readme_install_from_source_uses_marketplace_ref))]
     [InlineData("62 command names differ from skill and plugin", typeof(LanguagePackContractTests),
         nameof(LanguagePackContractTests.Command_names_differ_from_skill_and_plugin_names))]
     [InlineData("64 shared http-api emit", typeof(StandardsGenerationTests),
         nameof(StandardsGenerationTests.Shared_path_generates_into_consumer_references_without_a_pack_copy))]
-    [InlineData("63 vendor-neutral scenarios no Azure AWS product names", typeof(HttpScenariosContractTests),
-        nameof(HttpScenariosContractTests.Http_scenarios_env_agnostic_no_required_cloud))]
     public void Each_ticket_criterion_has_a_proving_test(string criterion, Type fixture, string method)
     {
         Assert.True(

@@ -5,6 +5,7 @@ Use the repository's runner, async runtime, feature matrix, and repeated test pa
 - Keep focused unit tests beside private implementation when they need private access; put public cross-crate behavior
   in `tests/` integration targets and executable documentation examples in doc tests.
 - Test observable behavior and failure contracts. A behavior change includes a test that fails without the change.
+- Do not unit-test that a markdown, skill, README, or docs file contains a phrase. Wording is reviewed. Parsers that consume markdown as structured input (tables, frontmatter, logs) get fixture tests of parse and evaluate behavior. Generators and validators are tested as code.
 - Use `Result`-returning tests when setup or the exercised path is fallible; assert an expected error rather than
   using `?` when the error itself is the behavior under test.
 - Match the installed async runtime and its test attribute. Do not add Tokio, async-std, or another executor solely

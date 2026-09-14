@@ -127,21 +127,4 @@ public sealed class LearningsLogTests
         Assert.Equal("inherit", LearningsLog.DemoteTier("fast"));
         Assert.Equal("inherit", LearningsLog.DemoteTier("inherit"));
     }
-
-    [Fact]
-    public void Authored_contract_requires_apply_not_acknowledge()
-    {
-        var skill = File.ReadAllText(Path.Combine(
-            AppContext.BaseDirectory, "Fixtures", "squad", "SKILL.md"));
-        var learnings = File.ReadAllText(Path.Combine(
-            AppContext.BaseDirectory, "Fixtures", "squad", "learnings.md"));
-
-        Assert.Contains(
-            "Read and apply learnings.md (append-only): prefer passed skips/tiers; avoid what failed",
-            skill,
-            StringComparison.Ordinal);
-        Assert.Contains("Apply the latest same-entrypoint entry", skill, StringComparison.Ordinal);
-        Assert.Contains("must-run", skill, StringComparison.OrdinalIgnoreCase);
-        Assert.Contains("do not rewrite skills", learnings, StringComparison.OrdinalIgnoreCase);
-    }
 }

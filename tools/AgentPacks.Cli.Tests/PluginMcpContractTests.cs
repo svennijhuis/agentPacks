@@ -36,13 +36,6 @@ public sealed class PluginMcpContractTests
             Assert.NotNull(mcp["mcpServers"]);
             Assert.Empty(mcp["mcpServers"]!.AsObject());
         }
-
-        foreach (var relative in new[] { "README.md", Path.Combine("docs", "ADD-SKILL.md") })
-        {
-            var text = File.ReadAllText(Path.Combine(root, relative));
-            Assert.DoesNotContain("DotnetSolutionMcp", text, StringComparison.Ordinal);
-            Assert.DoesNotContain("--list-tools", text, StringComparison.Ordinal);
-        }
     }
 
     [Fact]
@@ -92,29 +85,10 @@ public sealed class PluginMcpContractTests
     {
         var skill = File.ReadAllText(Path.Combine(
             TestRepository.SourceRoot(), "plugins", "dotnet", "skills", "dotnet-solution", "SKILL.md"));
-
-        Assert.Contains("audience: loop", skill, StringComparison.Ordinal);
-        Assert.Contains("not as a user entrypoint", skill, StringComparison.Ordinal);
-        Assert.Contains("No write tools", skill, StringComparison.Ordinal);
-        Assert.Contains("No codegen", skill, StringComparison.Ordinal);
-        Assert.DoesNotContain("disable-model-invocation: true", skill, StringComparison.Ordinal);
-        Assert.Contains("dotnet sln", skill, StringComparison.Ordinal);
-        Assert.Contains("dotnet list", skill, StringComparison.Ordinal);
-        Assert.Contains("Local machine only", skill, StringComparison.Ordinal);
-        Assert.DoesNotContain("DotnetSolutionMcp", skill, StringComparison.Ordinal);
-        Assert.DoesNotContain("list_symbols", skill, StringComparison.Ordinal);
-        Assert.DoesNotContain("https://", skill, StringComparison.OrdinalIgnoreCase);
-        Assert.DoesNotContain("127.0.0.1", skill, StringComparison.Ordinal);
-        Assert.DoesNotContain("Load `/dotnet-solution`", skill, StringComparison.Ordinal);
-    }
-
-    [Fact]
-    public void Implementer_loads_optional_solution_skill_by_exact_name()
-    {
-        var implementer = File.ReadAllText(Path.Combine(
-            TestRepository.SourceRoot(), "plugins", "squad", "agents", "squad-implementer.md"));
-        Assert.Contains("<lang>-solution", implementer, StringComparison.Ordinal);
-        Assert.Contains("Skill tool by exact name", implementer, StringComparison.Ordinal);
+        var frontmatter = Frontmatter.TryParse(skill, out var error);
+        Assert.True(frontmatter is not null, error);
+        Assert.Equal("loop", frontmatter!.StringMap("metadata")?["audience"]);
+        Assert.Null(frontmatter.Scalar("disable-model-invocation"));
     }
 
     [Fact]
@@ -123,89 +97,58 @@ public sealed class PluginMcpContractTests
         var root = TestRepository.SourceRoot();
         var loopSkills = 0;
         foreach (var skill in Directory.GetFiles(Path.Combine(root, "plugins"), "SKILL.md",
-                     SearchOption.AllDirectories))
+                     SearchOption.AllDirectories)
+                     .Where(path => !path.Contains($"{Path.DirectorySeparatorChar}com.", StringComparison.Ordinal)
+                         && !path.Contains(".cursor-plugin", StringComparison.Ordinal)))
         {
             var text = File.ReadAllText(skill);
             var directoryName = Directory.GetParent(skill)!.Name;
-            Assert.Contains($"name: {directoryName}", text, StringComparison.Ordinal);
-            Assert.Contains("description:", text, StringComparison.Ordinal);
-            Assert.Contains("license:", text, StringComparison.Ordinal);
-            Assert.DoesNotContain("delivery", text, StringComparison.OrdinalIgnoreCase);
-            var parsed = Frontmatter.TryParse(text, out _);
-            var metadata = parsed?.StringMap("metadata");
+            var parsed = Frontmatter.TryParse(text, out var error);
+            Assert.True(parsed is not null, $"{directoryName} frontmatter: {error}");
+            Assert.Equal(directoryName, parsed!.Scalar("name"));
+            Assert.False(string.IsNullOrWhiteSpace(parsed.Scalar("description")));
+            Assert.False(string.IsNullOrWhiteSpace(parsed.Scalar("license")));
+            var metadata = parsed.StringMap("metadata");
             var isLoopAudience = metadata is not null
                 && metadata.TryGetValue("audience", out var audience)
                 && audience.Equals("loop", StringComparison.Ordinal);
-            if (isLoopAudience || parsed?.Body.Contains("Loop-only", StringComparison.Ordinal) == true)
+            if (isLoopAudience)
             {
                 loopSkills++;
-                Assert.True(isLoopAudience, $"{directoryName} says Loop-only but metadata.audience is not loop.");
-                Assert.Contains("audience: loop", text, StringComparison.Ordinal);
-                Assert.Contains("not as a user entrypoint", text, StringComparison.Ordinal);
-                Assert.Contains("Loop-only", parsed!.Body, StringComparison.Ordinal);
-                Assert.Contains(LanguagePackContractTests.InternalDoNotRunLine, text, StringComparison.Ordinal);
-                Assert.DoesNotContain("disable-model-invocation: true", text, StringComparison.Ordinal);
+                Assert.Null(parsed.Scalar("disable-model-invocation"));
             }
         }
 
         Assert.True(loopSkills >= 10, $"loop-audience scan must run; found {loopSkills}.");
 
         foreach (var agent in Directory.GetFiles(Path.Combine(root, "plugins"), "*.md",
-                     SearchOption.AllDirectories).Where(path => path.Contains($"{Path.DirectorySeparatorChar}agents{Path.DirectorySeparatorChar}")))
+                     SearchOption.AllDirectories).Where(path =>
+                         path.Contains($"{Path.DirectorySeparatorChar}agents{Path.DirectorySeparatorChar}", StringComparison.Ordinal)
+                         && !path.Contains($"{Path.DirectorySeparatorChar}com.", StringComparison.Ordinal)
+                         && !path.Contains(".cursor-plugin", StringComparison.Ordinal)))
         {
-            var text = File.ReadAllText(agent);
+            var parsed = Frontmatter.TryParse(File.ReadAllText(agent), out var error);
             var name = Path.GetFileNameWithoutExtension(agent);
-            Assert.Contains($"name: {name}", text, StringComparison.Ordinal);
-            Assert.Contains("model:", text, StringComparison.Ordinal);
-            Assert.Contains("readonly:", text, StringComparison.Ordinal);
-            Assert.Contains("tools:", text, StringComparison.Ordinal);
-            Assert.Contains("Skill tool by exact name", text, StringComparison.Ordinal);
-            Assert.DoesNotContain("delivery", text, StringComparison.OrdinalIgnoreCase);
-            Assert.DoesNotContain("loop-tester", text, StringComparison.Ordinal);
+            Assert.True(parsed is not null, $"{name} frontmatter: {error}");
+            Assert.Equal(name, parsed!.Scalar("name"));
+            Assert.False(string.IsNullOrWhiteSpace(parsed.Scalar("model")));
+            Assert.False(string.IsNullOrWhiteSpace(parsed.Scalar("readonly")));
+            Assert.True(parsed.Has("tools"));
         }
 
         foreach (var command in Directory.GetFiles(Path.Combine(root, "plugins"), "*.md",
-                     SearchOption.AllDirectories).Where(path => path.Contains($"{Path.DirectorySeparatorChar}commands{Path.DirectorySeparatorChar}")))
+                     SearchOption.AllDirectories).Where(path =>
+                         path.Contains($"{Path.DirectorySeparatorChar}commands{Path.DirectorySeparatorChar}", StringComparison.Ordinal)
+                         && !path.Contains($"{Path.DirectorySeparatorChar}com.", StringComparison.Ordinal)
+                         && !path.Contains(".cursor-plugin", StringComparison.Ordinal)))
         {
-            var text = File.ReadAllText(command);
-            Assert.Contains("name:", text, StringComparison.Ordinal);
-            Assert.Contains("Skill tool by exact name", text, StringComparison.Ordinal);
-            Assert.DoesNotContain("delivery", text, StringComparison.OrdinalIgnoreCase);
+            var parsed = Frontmatter.TryParse(File.ReadAllText(command), out var error);
+            Assert.True(parsed is not null, $"{command} frontmatter: {error}");
+            Assert.False(string.IsNullOrWhiteSpace(parsed!.Scalar("name")));
         }
-
-        var addAgent = File.ReadAllText(Path.Combine(root, "docs", "ADD-AGENT.md"));
-        Assert.Contains("name: squad-reviewer", addAgent, StringComparison.Ordinal);
-        Assert.Contains("model: fast", addAgent, StringComparison.Ordinal);
-        Assert.Contains("Skill tool by exact name", addAgent, StringComparison.Ordinal);
-        Assert.DoesNotContain("name: security-reviewer", addAgent, StringComparison.Ordinal);
-        Assert.DoesNotContain("delivery", addAgent, StringComparison.OrdinalIgnoreCase);
-
-        var addSkill = File.ReadAllText(Path.Combine(root, "docs", "ADD-SKILL.md"));
-        Assert.Contains("audience: loop", addSkill, StringComparison.Ordinal);
-        Assert.Contains("not as a user entrypoint", addSkill, StringComparison.Ordinal);
-        Assert.Contains("license: UNLICENSED", addSkill, StringComparison.Ordinal);
-        Assert.Contains("Skill tool by exact name", addSkill, StringComparison.Ordinal);
-        Assert.DoesNotContain("delivery", addSkill, StringComparison.OrdinalIgnoreCase);
 
         Assert.False(Directory.Exists(Path.Combine(root, "examples")),
             "Do not add a second examples tree; docs/ADD-*.md plus plugins/ are the examples.");
-    }
-
-    [Fact]
-    public void Add_mcp_documents_the_swagger_recipe_and_local_test()
-    {
-        var docs = File.ReadAllText(Path.Combine(TestRepository.SourceRoot(), "docs", "ADD-MCP.md"));
-        Assert.Contains("filtered", docs, StringComparison.OrdinalIgnoreCase);
-        Assert.Contains("one tool per endpoint", docs, StringComparison.OrdinalIgnoreCase);
-        Assert.Contains("dotnet test tools/AgentPacks.slnx", docs, StringComparison.Ordinal);
-        Assert.DoesNotContain("one tool per path", docs, StringComparison.OrdinalIgnoreCase);
-        Assert.Contains("local stdio process", docs, StringComparison.OrdinalIgnoreCase);
-        Assert.Contains("dotnet sln list", docs, StringComparison.Ordinal);
-        Assert.Contains("read-only", docs, StringComparison.OrdinalIgnoreCase);
-        Assert.Contains("never a hosted URL", docs, StringComparison.Ordinal);
-        Assert.Contains("streamable-http", docs, StringComparison.Ordinal);
-        Assert.Contains("empty scaffold", docs, StringComparison.OrdinalIgnoreCase);
-        Assert.DoesNotContain("127.0.0.1:8765", docs, StringComparison.Ordinal);
     }
 
     [Fact]
@@ -224,12 +167,6 @@ public sealed class PluginMcpContractTests
         var run = repo.ValidateAndGenerate();
         Assert.False(run.HasErrors, run.Text);
         Assert.False(run.HasFile("plugins/squad/.mcp.json"));
-
-        var docs = File.ReadAllText(Path.Combine(root, "docs", "ADD-MCP.md"));
-        Assert.Contains("\"type\": \"streamable-http\"", docs, StringComparison.Ordinal);
-        Assert.Contains("https://mcp.example.com/architecture", docs, StringComparison.Ordinal);
-        Assert.DoesNotContain("\"Authorization\"", docs, StringComparison.Ordinal);
-        Assert.DoesNotContain("Bearer ", docs, StringComparison.Ordinal);
 
         foreach (var path in Directory.GetFiles(Path.Combine(root, "plugins"), "mcp.json",
                      SearchOption.AllDirectories))

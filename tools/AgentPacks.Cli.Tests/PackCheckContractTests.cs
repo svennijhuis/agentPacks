@@ -1,6 +1,5 @@
 using System.Diagnostics;
 using System.Text.Json.Nodes;
-using AgentPacks.Cli.Generation;
 using AgentPacks.Cli.Validation;
 
 namespace AgentPacks.Cli.Tests;
@@ -12,15 +11,6 @@ public sealed class PackCheckContractTests
         Path.Combine(AppContext.BaseDirectory, "Fixtures", "pack-check");
 
     private static string Fixture(string name) => File.ReadAllText(Path.Combine(FixtureRoot, name));
-
-    /// <summary>Po 33: /pack-check is setup-only; /squad already runs the check.</summary>
-    [Fact]
-    public void Pack_check_readme_is_setup_only_squad_already_runs_check()
-    {
-        var readme = File.ReadAllText(Path.Combine(TestRepository.SourceRoot(), "plugins", "pack-check", "README.md"));
-        Assert.Contains("`/pack-check` is setup-only", readme, StringComparison.Ordinal);
-        Assert.Contains("`/squad` already runs this check", readme, StringComparison.Ordinal);
-    }
 
     [Fact]
     public void Pack_check_does_not_opt_into_the_language_pack_contract()
@@ -57,43 +47,6 @@ public sealed class PackCheckContractTests
         Assert.Equal(
             languages.Order(StringComparer.Ordinal),
             registered.Order(StringComparer.Ordinal));
-    }
-
-    [Fact]
-    public void Detect_wording_is_locked_in_detect_reference()
-    {
-        var detect = Fixture("detect.md");
-        var skill = Fixture("SKILL.md");
-
-        Assert.Contains("references/detect.md", skill, StringComparison.Ordinal);
-        Assert.Contains("Stack: none detected", detect, StringComparison.Ordinal);
-        Assert.Contains("<lang>-build", detect, StringComparison.Ordinal);
-        Assert.Contains("<lang>-test-patterns", detect, StringComparison.Ordinal);
-        Assert.Contains(
-            "Never resolve or request installation for a detected stack outside the current change's scope",
-            detect,
-            StringComparison.Ordinal);
-        Assert.DoesNotContain("Stack: none detected", skill, StringComparison.Ordinal);
-        Assert.DoesNotContain(
-            "Never resolve or request installation for a detected stack outside the current change's scope",
-            skill,
-            StringComparison.Ordinal);
-    }
-
-    [Fact]
-    public void Install_actions_use_the_built_marketplace_name_and_require_approval_and_reload()
-    {
-        var skill = Fixture("SKILL.md");
-        var selector = $"<pack>@{ClaudeCompatGenerator.MarketplaceName}";
-
-        Assert.Contains($"claude plugin install {selector} --scope user", skill, StringComparison.Ordinal);
-        Assert.Contains($"codex plugin add {selector}", skill, StringComparison.Ordinal);
-        Assert.Contains($"copilot plugin install {selector}", skill, StringComparison.Ordinal);
-        Assert.Contains("Customize → agentpacks → &lt;pack&gt; → Install", skill, StringComparison.Ordinal);
-        Assert.Contains("explicit approval", skill, StringComparison.OrdinalIgnoreCase);
-        Assert.Contains("reload or start a new session", skill, StringComparison.OrdinalIgnoreCase);
-        Assert.DoesNotContain("~/.agent" + "packs/packs", skill, StringComparison.Ordinal);
-        Assert.DoesNotContain("https://", skill, StringComparison.OrdinalIgnoreCase);
     }
 
     [Fact]
@@ -202,20 +155,6 @@ public sealed class PackCheckContractTests
             Assert.Contains(fragment, bash, StringComparison.OrdinalIgnoreCase);
             Assert.Contains(fragment, powerShell, StringComparison.OrdinalIgnoreCase);
         }
-    }
-
-    [Fact]
-    public void Squad_honors_install_refusal_bypass_and_small_change_gate()
-    {
-        var skill = Fixture("SKILL.md");
-        var squad = File.ReadAllText(
-            Path.Combine(AppContext.BaseDirectory, "Fixtures", "squad", "squad.md"));
-
-        Assert.Contains("do not ask again in that session", skill, StringComparison.OrdinalIgnoreCase);
-        Assert.Contains("continue an ordinary", skill, StringComparison.OrdinalIgnoreCase);
-        Assert.Contains("--no-pack", squad, StringComparison.Ordinal);
-        Assert.Contains("Small work may continue", squad, StringComparison.Ordinal);
-        Assert.Contains("stop for a reload before creating `docs/plans/`", squad, StringComparison.Ordinal);
     }
 
     private static IReadOnlyList<string> RegistryPacks(string registry) =>

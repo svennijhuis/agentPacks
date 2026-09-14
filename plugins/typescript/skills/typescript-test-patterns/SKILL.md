@@ -24,4 +24,4 @@ Read [shape, boundary, and commands](references/commands.md).
 Concrete cases: [unit](references/examples/unit.md), [integration](references/examples/integration.md), [deployed-smoke](references/examples/deployed-smoke.md).
 
 Good: the repo's `test` script plus an edge case; filtered file while implementing.
-Bad: a happy-path-only file marked as coverage; full suite every TDD cycle.
+Bad: a happy-path-only file marked as coverage; full suite every TDD cycle; `expect(readme).toContain` on a markdown file.
