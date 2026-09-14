@@ -14,3 +14,5 @@ it("rejects empty input", () => {
 <pm> exec jest
 node --test
 ```
+
+Bad: `expect(fs.readFileSync("README.md", "utf8")).toContain("rejects empty input")` — docs wording is reviewed, not unit-tested.

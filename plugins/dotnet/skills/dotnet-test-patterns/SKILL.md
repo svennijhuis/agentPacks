@@ -26,4 +26,4 @@ Concrete fixtures and commands: [xunit-unit](references/examples/xunit-unit.md),
 [deployed-smoke](references/examples/deployed-smoke.md).
 
 Good: `IClassFixture` for a shared factory; filtered test while implementing.
-Bad: start Testcontainers in the constructor; full-suite every TDD cycle.
+Bad: start Testcontainers in the constructor; full-suite every TDD cycle; `Assert.Contains` on a markdown file.

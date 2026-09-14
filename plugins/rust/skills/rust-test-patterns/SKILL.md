@@ -26,4 +26,4 @@ Concrete commands:
 [unit](references/examples/unit.md), [integration](references/examples/integration.md), [deployed-smoke](references/examples/deployed-smoke.md).
 
 Good: `cargo test -p <package> --test <integration-target>` for a real boundary.
-Bad: a happy-path-only unit test marked as coverage; full workspace every TDD cycle.
+Bad: a happy-path-only unit test marked as coverage; full workspace every TDD cycle; `assert!(readme.contains("…"))` on a markdown file.

@@ -18,6 +18,8 @@ and a crate using async-std does not want its first Tokio test because an exampl
 | Unit | `#[cfg(test)] mod tests` beside the module | Private logic, invariants, focused branches |
 | Integration | `<crate>/tests/*.rs` | The crate's public API and composed dependencies |
 | Documentation | Rustdoc code blocks on public items | A public example that must keep compiling and behaving as documented |
+
+A markdown file containing a phrase is not a unit test. Wording is reviewed. Doc tests run the fenced example; they do not grep README text.
 | System/end-to-end | Repository-specific harness | Processes, services, real protocols, migrations, or native boundaries |
 
 Integration tests are separate crates and cannot access private items.
