@@ -54,6 +54,18 @@ internal static class JsonFile
     /// <summary>Canonical serialization: indented, trailing newline. Used for writing and for --check.</summary>
     public static string Serialize(JsonNode node) => node.ToJsonString(WriteOptions) + Environment.NewLine;
 
+    /// <summary>Copies named properties when present, so marketplace and client manifests share one loop.</summary>
+    public static void CopyProperties(JsonObject target, JsonObject source, params string[] names)
+    {
+        foreach (var name in names)
+        {
+            if (source[name] is { } value)
+            {
+                target[name] = value.DeepClone();
+            }
+        }
+    }
+
     public static void Write(string path, JsonNode node)
     {
         var directory = Path.GetDirectoryName(path);

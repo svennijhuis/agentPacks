@@ -31,12 +31,13 @@ and name every source.
 | Problem | One sentence stating the defect and its cause when needed to identify it |
 | Fix | Imperative and specific enough to execute without another question |
 | Empty | Write `No findings.` and state what was examined; never add filler findings |
-| Confidence | Score 0–100. Only report findings with confidence ≥ 80. Drop low-confidence noise. Do not emit a confidence column |
+| Confidence | Score 0–100. Do not emit a confidence column; the bar is in Confidence below |
 
 ## Confidence
 
-Only report findings with confidence ≥ 80. Drop low-confidence noise. A guess, style nit without
-a standard, or an unevidenced "looks wrong" is below the bar and is omitted, not listed as `tiny`.
+Only report findings with confidence ≥ 80. Drop low-confidence noise. Do not emit a confidence column.
+A guess, style nit without a standard, or an unevidenced "looks wrong" is below the bar and is
+omitted, not listed as `tiny`.
 
 ## Input normalization
 

@@ -1,4 +1,5 @@
 using System.Text.Json.Nodes;
+using AgentPacks.Cli.Io;
 using AgentPacks.Cli.Loading;
 
 namespace AgentPacks.Cli.Generation;
@@ -44,13 +45,7 @@ internal sealed class CopilotMarketplaceGenerator(RepositoryContext context)
             ["description"] = manifest["description"]?.GetValue<string>() ?? plugin.DirectoryName
         };
 
-        foreach (var field in (string[])["author", "homepage", "repository", "license", "keywords"])
-        {
-            if (manifest[field] is { } value)
-            {
-                entry[field] = value.DeepClone();
-            }
-        }
+        JsonFile.CopyProperties(entry, manifest, "author", "homepage", "repository", "license", "keywords");
 
         var profile = ClientProfile.Copilot;
 
@@ -85,7 +80,7 @@ internal sealed class CopilotMarketplaceGenerator(RepositoryContext context)
         // ClaudeValueConverter rewrites out of it. Declaring the source file here would hand
         // Copilot unexpanded ${PLUGIN_ROOT} values and the portable transport name, and would
         // declare servers for a plugin whose mcpServers object is empty.
-        if (plugin.Mcp?["mcpServers"] is JsonObject servers && servers.Count > 0)
+        if (plugin.McpServers is not null)
         {
             entry["mcpServers"] = "./.mcp.json";
         }

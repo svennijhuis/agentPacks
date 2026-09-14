@@ -99,17 +99,12 @@ public sealed class CursorCatalogContractTests
     [Fact]
     public void Remapped_squad_agents_load()
     {
-        var root = SourceRoot();
-        using var repo = new TestRepository().WithPlugin(
-            "squad",
-            File.ReadAllText(Path.Combine(root, "plugins", "squad", "plugin.json")));
-
-        foreach (var path in Directory.GetFiles(Path.Combine(root, "plugins", "squad", "agents"), "*.md"))
-        {
-            repo.WithFile(
-                $"plugins/squad/agents/{Path.GetFileName(path)}",
-                File.ReadAllText(path));
-        }
+        var root = TestRepository.SourceRoot();
+        using var repo = new TestRepository()
+            .WithPlugin(
+                "squad",
+                File.ReadAllText(Path.Combine(root, "plugins", "squad", "plugin.json")))
+            .WithCopiedDirectory(root, "plugins/squad/agents", "*.md");
 
         var run = repo.ValidateAndGenerate();
         Assert.False(run.HasErrors, run.Text);
@@ -175,14 +170,14 @@ public sealed class CursorCatalogContractTests
             run.Generated,
             file => file.RelativePath.Replace('\\', '/').Contains("/.cursor-plugin/marketplace.json", StringComparison.Ordinal));
 
-        var root = SourceRoot();
+        var root = TestRepository.SourceRoot();
         Assert.DoesNotContain(
             Directory.GetFiles(root, "marketplace.json", SearchOption.AllDirectories),
-            path => !IsBuildOutput(path));
+            path => !TestRepository.IsGeneratedPath(path));
         Assert.Equal(
             ["CursorMarketplaceGenerator.cs"],
             Directory.GetFiles(Path.Combine(root, "tools"), "*CursorMarketplace*", SearchOption.AllDirectories)
-                .Where(path => !IsBuildOutput(path))
+                .Where(path => !TestRepository.IsGeneratedPath(path))
                 .Select(path => Path.GetFileName(path) ?? path)
                 .OrderBy(name => name, StringComparer.Ordinal)
                 .ToArray());
@@ -197,7 +192,7 @@ public sealed class CursorCatalogContractTests
 
     private static TestRepository ShippedPlugins()
     {
-        var root = SourceRoot();
+        var root = TestRepository.SourceRoot();
         var repo = new TestRepository();
 
         foreach (var name in PluginNames)
@@ -224,11 +219,6 @@ public sealed class CursorCatalogContractTests
         return repo;
     }
 
-    private static bool IsBuildOutput(string path) =>
-        path.Contains($"{Path.DirectorySeparatorChar}bin{Path.DirectorySeparatorChar}", StringComparison.Ordinal)
-        || path.Contains($"{Path.DirectorySeparatorChar}obj{Path.DirectorySeparatorChar}", StringComparison.Ordinal)
-        || path.Contains($"{Path.DirectorySeparatorChar}.git{Path.DirectorySeparatorChar}", StringComparison.Ordinal);
-
     private static int CountToken(string text, string token)
     {
         var count = 0;
@@ -237,19 +227,4 @@ public sealed class CursorCatalogContractTests
         return count;
     }
 
-    private static string SourceRoot()
-    {
-        for (var directory = new DirectoryInfo(AppContext.BaseDirectory);
-             directory is not null;
-             directory = directory.Parent)
-        {
-            if (Directory.Exists(Path.Combine(directory.FullName, "plugins")) &&
-                Directory.Exists(Path.Combine(directory.FullName, "tools", "AgentPacks.Cli")))
-            {
-                return directory.FullName;
-            }
-        }
-
-        throw new DirectoryNotFoundException("Could not locate the agentPacks source root.");
-    }
 }

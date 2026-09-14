@@ -1,4 +1,5 @@
 using System.Text.Json.Nodes;
+using AgentPacks.Cli.Io;
 using AgentPacks.Cli.Loading;
 
 namespace AgentPacks.Cli.Generation;
@@ -59,13 +60,7 @@ internal sealed class ClaudeCompatGenerator(RepositoryContext context)
         // "version" is deliberately not copied. Claude resolves updates from an explicit version
         // before falling back to the Git commit SHA, so a version that is never bumped would keep
         // installs pinned to cached content even after skills change.
-        foreach (var field in (string[])["author", "homepage", "repository", "license", "keywords"])
-        {
-            if (manifest[field] is { } value)
-            {
-                entry[field] = value.DeepClone();
-            }
-        }
+        JsonFile.CopyProperties(entry, manifest, "author", "homepage", "repository", "license", "keywords");
 
         if (plugin.HasSkillsDirectory)
         {
@@ -112,7 +107,7 @@ internal sealed class ClaudeCompatGenerator(RepositoryContext context)
             entry["hooks"] = $"./{claude.Directory}/hooks/hooks.json";
         }
 
-        if (plugin.Mcp?["mcpServers"] is JsonObject servers && servers.Count > 0)
+        if (plugin.McpServers is { } servers)
         {
             var mcpFile = new JsonObject
             {
