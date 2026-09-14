@@ -343,6 +343,7 @@ public class LanguagePackContractTests
                 || text.Contains("idempotent", StringComparison.OrdinalIgnoreCase),
                 $"{pack}/standards/http-api.md must mention ETag or idempotent.");
             Assert.Contains("Pagination", text, StringComparison.OrdinalIgnoreCase);
+            Assert.Contains("include", text, StringComparison.OrdinalIgnoreCase);
             Assert.DoesNotContain("Azure", text, StringComparison.OrdinalIgnoreCase);
             Assert.DoesNotContain("AWS", text, StringComparison.OrdinalIgnoreCase);
             Assert.DoesNotContain("OpenAPI", text, StringComparison.OrdinalIgnoreCase);

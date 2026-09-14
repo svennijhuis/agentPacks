@@ -38,6 +38,10 @@ One JSON error object. Prefer RFC 7807 `application/problem+json` (`type`, `titl
 
 Plan for pages early. Put page metadata beside the collection (`next`, `nextLink`, or `page`/`total`), not a bare array. Keep filter/sort stable across pages. Treat continuation tokens/URLs as opaque.
 
+## Related resources
+
+Need related records without a second client request? Add `included` (or embed on the item) on the envelope. Opt in with `?include=`. Do not invent `/getUserWithOrders`. Keep the collection key stable.
+
 ## Idempotency and concurrency
 
 GET/PUT/DELETE safe to retry. POST create: make retry-safe (idempotency key or natural key) or document duplicate risk. Prefer `ETag` / `If-Match` for concurrent updates when resources race.
