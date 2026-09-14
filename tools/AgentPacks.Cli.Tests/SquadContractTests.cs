@@ -425,6 +425,18 @@ public class SquadContractTests
     [Fact]
     public void Review_agents_have_anti_reentry_on_every_provider_tree()
     {
+        const string line = "Do not re-invoke review or the orchestrator.";
+        var agents = new[] { "squad-reviewer", "squad-simplifier", "squad-security-reviewer" };
+
+        foreach (var agent in agents)
+            Assert.Contains(line, Fixture($"{agent}.md"), StringComparison.Ordinal);
+
+        Assert.DoesNotContain(line, Fixture("squad-orchestrator.md"), StringComparison.Ordinal);
+        Assert.Contains(
+            "Do not launch, retry, or hand work to another agent",
+            Fixture("squad-orchestrator.md"),
+            StringComparison.Ordinal);
+
         using var repo = new TestRepository().WithPlugin("squad", Manifest);
         foreach (var agent in AgentNames)
             repo.WithFile($"plugins/squad/agents/{agent}.md", Fixture($"{agent}.md"));
@@ -432,7 +444,7 @@ public class SquadContractTests
         var run = repo.ValidateAndGenerate();
         Assert.False(run.HasErrors, run.Text);
 
-        foreach (var agent in new[] { "squad-reviewer", "squad-simplifier", "squad-security-reviewer" })
+        foreach (var agent in agents)
         {
             foreach (var generated in new[]
             {
@@ -442,9 +454,11 @@ public class SquadContractTests
                 $"plugins/squad/.cursor-plugin/agents/{agent}.md"
             })
             {
-                Assert.False(string.IsNullOrWhiteSpace(run.File(generated).Text), generated);
+                Assert.Contains(line, run.File(generated).Text, StringComparison.Ordinal);
             }
         }
+
+        Loop_agent_bodies_stay_tiny();
     }
 
     [Fact]
