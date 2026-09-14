@@ -220,6 +220,38 @@ public class ExternalSourceTests
     }
 
     [Fact]
+    public void Generated_standard_copies_do_not_treat_rest_paths_as_skills()
+    {
+        using var repo = new TestRepository().WithPlugin();
+
+        repo.WithRawSkill(
+            "dotnet-build",
+            "---\nname: dotnet-build\ndescription: Builds the project.\n---\n\nRead the standards.\n");
+        repo.WithFile(
+            "plugins/engineering/skills/dotnet-build/references/standards/http-api.md",
+            "Nouns in paths (`/users`, `/users/{id}`).\n");
+
+        var run = repo.Validate();
+
+        Assert.DoesNotContain(run.Diagnostics, d => d.Message.Contains("invokes `/users`"));
+        Assert.Empty(run.Diagnostics);
+    }
+
+    [Fact]
+    public void Authored_skill_bodies_still_report_unknown_rest_looking_invokes()
+    {
+        using var repo = new TestRepository().WithPlugin();
+
+        repo.WithRawSkill(
+            "dotnet-build",
+            "---\nname: dotnet-build\ndescription: Builds the project.\n---\n\nCall `/users` next.\n");
+
+        var run = repo.Validate();
+
+        Assert.Contains(run.Diagnostics, d => d.Message.Contains("invokes `/users`"));
+    }
+
+    [Fact]
     public void A_broken_relative_link_in_an_authored_skill_is_reported()
     {
         using var repo = new TestRepository().WithPlugin();

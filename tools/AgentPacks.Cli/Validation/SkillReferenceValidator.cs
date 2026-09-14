@@ -1,6 +1,7 @@
 using System.Text.RegularExpressions;
-using AgentPacks.Cli.Loading;
+using AgentPacks.Cli.Generation;
 using AgentPacks.Cli.Importing;
+using AgentPacks.Cli.Loading;
 
 namespace AgentPacks.Cli.Validation;
 
@@ -56,12 +57,12 @@ internal sealed partial class SkillReferenceValidator(RepositoryContext context)
                     continue;
                 }
 
-                ValidateSkill(skill, available);
+                ValidateSkill(plugin, skill, available);
             }
         }
     }
 
-    private void ValidateSkill(SkillDefinition skill, IReadOnlySet<string> available)
+    private void ValidateSkill(PluginPackage plugin, SkillDefinition skill, IReadOnlySet<string> available)
     {
         foreach (var file in Directory
                      .EnumerateFiles(skill.Directory, "*.md", SearchOption.AllDirectories)
@@ -69,8 +70,15 @@ internal sealed partial class SkillReferenceValidator(RepositoryContext context)
         {
             var text = File.ReadAllText(file);
             var relative = context.Relative(file);
+            var pluginRelative = Path.GetRelativePath(plugin.Directory, file).Replace('\\', '/');
 
-            ValidateSkillReferences(text, relative, skill, available);
+            // Publication generates standards copies into the skill tree, then re-validates
+            // in place. REST examples such as `/users` are not slash-command invokes.
+            if (!GeneratedPaths.IsGenerated(pluginRelative))
+            {
+                ValidateSkillReferences(text, relative, skill, available);
+            }
+
             ValidateLinks(text, relative, file);
         }
     }

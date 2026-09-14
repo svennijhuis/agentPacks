@@ -194,6 +194,36 @@ public class StandardsGenerationTests
     }
 
     [Fact]
+    public void Generate_then_revalidate_does_not_treat_http_api_rest_paths_as_skills()
+    {
+        using var repo = Repository()
+            .WithFile(
+                "plugins/engineering/standards/http-api.md",
+                "Nouns in paths (`/users`, `/users/{id}`).\n")
+            .WithStandards("""
+                {
+                  "$schema": "../../schema/standards.schema.json",
+                  "version": 1,
+                  "documents": {
+                    "http-api": "standards/http-api.md"
+                  },
+                  "consumers": {
+                    "dotnet-build": ["http-api"]
+                  }
+                }
+                """);
+
+        var generated = repo.ValidateAndGenerate();
+        Assert.False(generated.HasErrors, generated.Text);
+        Assert.True(generated.HasFile(
+            "plugins/engineering/skills/dotnet-build/references/standards/http-api.md"));
+
+        var again = repo.Validate();
+        Assert.DoesNotContain(again.Diagnostics, d => d.Message.Contains("invokes `/users`"));
+        Assert.False(again.HasErrors, again.Text);
+    }
+
+    [Fact]
     public void Removing_a_mapping_removes_only_generated_standard_references()
     {
         using var repo = Repository().WithStandards(Catalog);
