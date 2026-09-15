@@ -5,6 +5,7 @@ An append-only, human-readable run log for the next `/squad` or `/squad-review`.
 
 It is not a second brain. It is not eager memory. It does not rewrite skills.
 `docs/decisions.md` is an optional human drop-box, not this log.
+Pack/skill/contract change proposals go in [suggestions](suggestions.md), not here.
 
 ## When to read
 
@@ -49,7 +50,8 @@ a skill from the log.
 | Next tweak | One concrete adjustment that cites Result — not a vibe — or `None` |
 
 **Handoff themes** is optional prose authored by the main agent or orchestrator from this run's
-reports. It never triggers skill rewrites or a self-improve graph.
+reports. It never triggers skill rewrites or a self-improve graph. A pack/skill/contract edit
+belongs in `docs/suggestions.md`, not in Next tweak.
 
 A **pass** keeps the recorded tier. A **fail** or **stopped** demotes one tier
 (`frontier` → `standard` → `fast` → `inherit`) on the next same-entrypoint run.
