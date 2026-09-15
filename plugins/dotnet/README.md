@@ -51,7 +51,7 @@ Authored: `plugin.json`, `mcp.json` (empty scaffold), `standards.source.json`, `
 
 v1 ships no MCP server. Agents use `dotnet sln list` and `dotnet list <csproj> package` on the machine. See [ADD-MCP.md](../../docs/ADD-MCP.md) to add a server later.
 
-Generated on the `marketplace` branch or in temporary validation output, never on `main`:
+Generated on `marketplace` / `marketplace-beta` or in temporary validation output, never on `main`:
 `.cursor-plugin/`, `.codex-plugin/`, `com.anthropic.claude-code/`, `com.openai.codex/`,
 `com.github.copilot/`, and each skill's `references/standards/` directory.
 

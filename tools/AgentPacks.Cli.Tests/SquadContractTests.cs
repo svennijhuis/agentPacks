@@ -395,7 +395,7 @@ public class SquadContractTests
         var root = TestRepository.SourceRoot();
         var workflows = Directory.GetFiles(Path.Combine(root, ".github", "workflows"), "*.yml");
         Assert.Equal(
-            ["drift.yml", "publish-marketplace.yml", "validate.yml"],
+            ["drift.yml", "promote-marketplace.yml", "publish-marketplace.yml", "validate.yml"],
             workflows.Select(path => Path.GetFileName(path) ?? path)
                 .OrderBy(name => name, StringComparer.Ordinal));
 
@@ -414,6 +414,48 @@ public class SquadContractTests
         Assert.Equal(1, CountToken(validate, "runs-on:"));
         Assert.Contains("dotnet test", validate, StringComparison.Ordinal);
         Assert.Contains("validate-all --out", validate, StringComparison.Ordinal);
+    }
+
+    /// <summary>
+    /// A push to main publishes <c>marketplace-beta</c>. Stable <c>marketplace</c> moves only
+    /// when a maintainer copies that exact generated commit; the promote job does not regenerate.
+    /// Pin the SHA testers installed. Force-push publish history is not ancestor-checked.
+    /// </summary>
+    [Fact]
+    public void Main_publishes_beta_marketplace_and_promote_copies_it()
+    {
+        var root = TestRepository.SourceRoot();
+        var publish = File.ReadAllText(Path.Combine(root, ".github", "workflows", "publish-marketplace.yml"));
+        var promote = File.ReadAllText(Path.Combine(root, ".github", "workflows", "promote-marketplace.yml"));
+        var drift = File.ReadAllText(Path.Combine(root, ".github", "workflows", "drift.yml"));
+        var readme = File.ReadAllText(Path.Combine(root, "README.md"));
+
+        Assert.Contains("MARKETPLACE_BRANCH: marketplace-beta", publish, StringComparison.Ordinal);
+        Assert.DoesNotContain(
+            "MARKETPLACE_BRANCH: marketplace\n",
+            publish.Replace("\r\n", "\n"),
+            StringComparison.Ordinal);
+        Assert.Contains("branches:\n      - main", publish.Replace("\r\n", "\n"), StringComparison.Ordinal);
+
+        Assert.Contains("workflow_dispatch:", promote, StringComparison.Ordinal);
+        Assert.Contains("BETA_BRANCH: marketplace-beta", promote, StringComparison.Ordinal);
+        Assert.Contains(
+            "MARKETPLACE_BRANCH: marketplace\n",
+            promote.Replace("\r\n", "\n"),
+            StringComparison.Ordinal);
+        Assert.DoesNotContain("MARKETPLACE_BRANCH: marketplace-beta", promote, StringComparison.Ordinal);
+        Assert.Contains("chore: generate plugin marketplace from", publish, StringComparison.Ordinal);
+        Assert.Contains("chore: generate plugin marketplace from", promote, StringComparison.Ordinal);
+        Assert.Contains("git fetch --no-tags origin \"$REQUESTED\"", promote, StringComparison.Ordinal);
+        Assert.DoesNotContain("merge-base --is-ancestor", promote, StringComparison.Ordinal);
+        Assert.DoesNotContain("dotnet ", promote, StringComparison.Ordinal);
+
+        Assert.Contains("marketplace marketplace-beta", drift, StringComparison.Ordinal);
+        Assert.Contains("#marketplace-beta", readme, StringComparison.Ordinal);
+        Assert.Contains("Promote beta marketplace to stable", readme, StringComparison.Ordinal);
+        Assert.Contains("git#marketplace", readme, StringComparison.Ordinal);
+        Assert.Contains("pin the SHA testers installed", readme, StringComparison.Ordinal);
+        Assert.Contains("not an ancestor of current beta HEAD", readme, StringComparison.Ordinal);
     }
 
     [Fact]
