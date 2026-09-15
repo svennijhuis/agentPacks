@@ -1,0 +1,22 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "security",
+  "version": "0.1.3",
+  "description": "User-invoked /security-audit: recon, parallel hunting, and adversarial validation of exploitable trust-boundary failures. Per-change OWASP stays in Squad.",
+  "author": {
+    "name": "agentPacks Maintainers"
+  },
+  "license": "UNLICENSED",
+  "keywords": [
+    "security",
+    "audit",
+    "threat-model",
+    "vulnerability",
+    "agents"
+  ],
+  "extensions": {
+    "com.anthropic.claude-code": {},
+    "com.openai.codex": {},
+    "com.github.copilot": {}
+  }
+}

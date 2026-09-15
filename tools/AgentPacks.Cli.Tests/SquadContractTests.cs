@@ -504,7 +504,7 @@ public class SquadContractTests
     }
 
     [Fact]
-    public void Still_four_user_commands()
+    public void Still_five_user_commands()
     {
         new HttpScenariosContractTests().User_commands_stay_squad_squad_review_pack_check_plus_http_scenarios();
         Squad_commands_are_exactly_squad_and_review();
@@ -572,7 +572,7 @@ public class SquadContractTests
     {
         var root = TestRepository.SourceRoot();
         Assert.Equal(
-            ["dotnet", "git", "pack-check", "rust", "squad", "typescript"],
+            ["dotnet", "git", "pack-check", "rust", "security", "squad", "typescript"],
             Directory.GetDirectories(Path.Combine(root, "plugins"))
                 .Select(path => Path.GetFileName(path) ?? path)
                 .OrderBy(name => name, StringComparer.Ordinal));

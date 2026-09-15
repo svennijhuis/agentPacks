@@ -375,8 +375,8 @@ public class LanguagePackContractTests
 
     /// <summary>
     /// Item 62: Claude marketplace omits hooks; authored command names do not collide
-    /// with skill or plugin names except the (squad, squad) and (pack-check, pack-check)
-    /// homonyms.
+    /// with skill or plugin names except the (squad, squad), (pack-check, pack-check),
+    /// and (security, security-audit) homonyms.
     /// </summary>
     [Fact]
     public void Command_names_differ_from_skill_and_plugin_names()
@@ -389,7 +389,8 @@ public class LanguagePackContractTests
         var allowed = new HashSet<(string Plugin, string Name)>
         {
             ("squad", "squad"),
-            ("pack-check", "pack-check")
+            ("pack-check", "pack-check"),
+            ("security", "security-audit")
         };
 
         foreach (var pluginDirectory in Directory.GetDirectories(Path.Combine(root, "plugins"))
