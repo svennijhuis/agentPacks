@@ -20,5 +20,5 @@ When loaded by exact Skill tool name `typescript-review` during review or build:
 
 Process findings per [the checklist](references/checklist.md).
 
-Good: cite `typescript.md` on an unchecked `as`.
-Bad: "looks fine" with no location or standard.
+Good: cite `typescript.md` on an unchecked `as`; Fix names `tsc` or the repo linter when that check already catches it.
+Bad: "looks fine" with no location or standard; a new prose rule for a pattern ESLint already flags.

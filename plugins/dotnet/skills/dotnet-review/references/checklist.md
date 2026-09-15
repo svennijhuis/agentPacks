@@ -1,6 +1,16 @@
 # .NET review checklist
 
-Inspect project configuration and repeated nearby patterns for choices the standards intentionally leave to the repository. Review every changed path; do not stop after the first category.
+Inspect project configuration, `.editorconfig`, analyzer / `Directory.Build.props` settings,
+repeated nearby patterns, and the repo's own check: `dotnet format`, build analyzers, test command,
+pre-commit hook, CI job. Review every changed path; do not stop after the first category.
+
+Classify each defect before writing Fix (squad review contract: Mechanical vs judgment):
+
+- **Mechanical** — banned API, nullability suppression, missing `ConfigureAwait` where the repo
+  analyzer already flags it, import shape, file location. If an existing analyzer, `dotnet format`,
+  or CI job would have caught it, Fix names that check. Do not invent a new prose rule.
+- **Judgment call** — layering, public-contract intent, surrounding style, test-boundary choice.
+  Cite `csharp.md` / `async-errors.md` / `testing.md` / `layers.md` / `http-api.md`.
 
 Process findings in this order:
 

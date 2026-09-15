@@ -29,9 +29,25 @@ and name every source.
 | Location | `path:line`, or `path` for a whole-file finding |
 | Severity | Exactly `high`, `medium`, `low`, or `tiny` |
 | Problem | One sentence stating the defect and its cause when needed to identify it |
-| Fix | Imperative and specific enough to execute without another question |
+| Fix | Imperative and specific enough to execute without another question. Classify first (Mechanical vs judgment): a mechanical defect names the repo's existing check when one would have caught it |
 | Empty | Write `No findings.` and state what was examined; never add filler findings |
 | Confidence | Score 0–100. Do not emit a confidence column; the bar is in Confidence below |
+
+## Mechanical vs judgment
+
+Classify each defect before writing Fix. Read the repo's own check first: lint / typecheck / test
+scripts, analyzer or compiler config, pre-commit hook, CI job.
+
+- **Mechanical** — a fixed syntactic pattern, banned API, import shape, or file-location rule. If
+  an existing check would have caught this, Fix names that check: run it, wire it, or stop silencing
+  it. Do not invent a new prose standard for the next reviewer to re-derive. A `high` or `medium`
+  instance still needs a code fix in this diff. Do not invent a new lint rule or CI job as the Fix
+  unless that check already lives in the repo and was not run.
+- **Judgment call** — cross-file consistency, surrounding style, or anything that needs intent.
+  Cite the plugin standard or repository convention. Fix is the code change.
+
+Default to the existing check over a new rule. A missing guardrail (no lint, typecheck, or test job)
+is not a finding in this review.
 
 ## Confidence
 
