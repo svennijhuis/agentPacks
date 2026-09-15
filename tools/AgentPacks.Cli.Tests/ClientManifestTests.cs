@@ -82,6 +82,7 @@ public sealed class ClientManifestTests
         var cursor = run.File($"{Plugin}/.cursor-plugin/plugin.json").Content;
 
         Assert.Equal("engineering", cursor["name"]!.GetValue<string>());
+        Assert.Equal("Engineering", cursor["displayName"]!.GetValue<string>());
         Assert.Equal("Test plugin.", cursor["description"]!.GetValue<string>());
         Assert.Null(cursor["agents"]);
     }

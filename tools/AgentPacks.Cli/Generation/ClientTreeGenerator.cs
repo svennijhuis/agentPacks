@@ -223,7 +223,8 @@ internal sealed class ClientTreeGenerator(RepositoryContext context, ModelCatalo
     /// Cursor reads rules/*.mdc and commands/*.md from the plugin root. Authored agents stay the
     /// portable source. Generation writes remapped Cursor ids into <c>.cursor-plugin/agents/</c>
     /// and points <c>.cursor-plugin/plugin.json</c> at that directory so Cursor never scans the
-    /// authored portable tiers. When Claude owns plugin-root hooks, the manifest also points at
+    /// authored portable tiers. <c>displayName</c> is the official-schema title (squad → Squad).
+    /// When Claude owns plugin-root hooks, the manifest also points at
     /// <see cref="ClientProfile.RelocatedCursorHooks"/>.
     /// </summary>
     private void GenerateCursor(
@@ -235,7 +236,8 @@ internal sealed class ClientTreeGenerator(RepositoryContext context, ModelCatalo
 
         var cursor = new JsonObject
         {
-            ["name"] = plugin.Name ?? plugin.DirectoryName
+            ["name"] = plugin.Name ?? plugin.DirectoryName,
+            ["displayName"] = PluginDisplayName.From(plugin)
         };
 
         JsonFile.CopyProperties(cursor, manifest, "version", "description", "author", "license", "keywords");
@@ -316,9 +318,7 @@ internal sealed class ClientTreeGenerator(RepositoryContext context, ModelCatalo
 
         var description = manifest["description"]?.GetValue<string>() ?? plugin.DirectoryName;
         var developer = manifest["author"]?["name"]?.GetValue<string>() ?? "agentPacks Maintainers";
-        var displayName = string.Join(' ', (plugin.Name ?? plugin.DirectoryName)
-            .Split('-', StringSplitOptions.RemoveEmptyEntries)
-            .Select(part => char.ToUpperInvariant(part[0]) + part[1..]));
+        var displayName = PluginDisplayName.From(plugin);
 
         var capabilities = new JsonArray();
 

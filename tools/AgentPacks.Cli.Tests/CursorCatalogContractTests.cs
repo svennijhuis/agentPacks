@@ -142,6 +142,46 @@ public sealed class CursorCatalogContractTests
     }
 
     /// <summary>
+    /// Official Cursor packs set <c>displayName</c> on <c>.cursor-plugin/plugin.json</c>
+    /// (schemas/plugin.schema.json). Catalog entries stay kebab-case; the per-plugin
+    /// manifest is the title Customize shows.
+    /// </summary>
+    [Fact]
+    public void Cursor_plugin_manifests_set_title_case_display_name()
+    {
+        using var repo = ShippedPlugins();
+        var run = repo.ValidateAndGenerate();
+        Assert.False(run.HasErrors, run.Text);
+
+        var expected = new Dictionary<string, string>(StringComparer.Ordinal)
+        {
+            ["dotnet"] = ".NET",
+            ["git"] = "Git",
+            ["pack-check"] = "Pack Check",
+            ["rust"] = "Rust",
+            ["squad"] = "Squad",
+            ["typescript"] = "TypeScript"
+        };
+
+        foreach (var (name, displayName) in expected)
+        {
+            Assert.Equal(
+                displayName,
+                run.File($"plugins/{name}/.cursor-plugin/plugin.json")
+                    .Content["displayName"]!.GetValue<string>());
+            Assert.Equal(
+                displayName,
+                run.File($"plugins/{name}/.codex-plugin/plugin.json")
+                    .Content["interface"]!["displayName"]!.GetValue<string>());
+        }
+
+        Assert.Equal("Pack Check", PluginDisplayName.From("pack-check"));
+        Assert.Equal("Squad", PluginDisplayName.From("squad"));
+        Assert.Equal(".NET", PluginDisplayName.From("dotnet"));
+        Assert.Equal("TypeScript", PluginDisplayName.From("typescript"));
+    }
+
+    /// <summary>
     /// Reviewer named proof. No twin of closed #27 / #29 / #30: this is the sole
     /// Cursor catalog track. Generation emits one root catalog; no plugin-local
     /// or extra <c>marketplace.json</c>; one <c>CursorMarketplaceGenerator</c>.
