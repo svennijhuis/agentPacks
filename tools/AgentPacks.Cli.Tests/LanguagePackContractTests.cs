@@ -268,6 +268,29 @@ public class LanguagePackContractTests
         }
 
         Language_test_patterns_ship_references_examples();
+        Language_build_skills_ship_central_version_examples();
+    }
+
+    [Fact]
+    public void Language_build_skills_ship_central_version_examples()
+    {
+        var root = TestRepository.SourceRoot();
+
+        var dotnetDir = Path.Combine(root, "plugins", "dotnet", "skills", "dotnet-build");
+        foreach (var name in new[] { "central-packages.md", "toolchain-version.md" })
+            Assert.True(File.Exists(Path.Combine(dotnetDir, "references", "examples", name)), name);
+        Assert.Contains(
+            "references/examples/",
+            File.ReadAllText(Path.Combine(dotnetDir, "SKILL.md")),
+            StringComparison.Ordinal);
+
+        var rustDir = Path.Combine(root, "plugins", "rust", "skills", "rust-build");
+        foreach (var name in new[] { "workspace-crates.md", "toolchain-version.md" })
+            Assert.True(File.Exists(Path.Combine(rustDir, "references", "examples", name)), name);
+        Assert.Contains(
+            "references/examples/",
+            File.ReadAllText(Path.Combine(rustDir, "SKILL.md")),
+            StringComparison.Ordinal);
     }
 
     [Fact]

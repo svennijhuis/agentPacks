@@ -22,8 +22,17 @@ Use established workspace configuration and repeated local patterns for choices 
 - Prefer standard-library and ecosystem types over wrappers that only rename their complete interface.
 - Let RAII own cleanup. Keep guards and handles in the narrowest scope that matches the resource lifetime; use
   explicit cleanup only when failure must be observed before drop.
-- Match workspace dependency inheritance, feature declarations, lint configuration, edition, MSRV, and lock-file
-  policy before changing a member manifest.
+
+## Workspace versions
+
+- Pin the compiler in `rust-toolchain.toml` (channel, components, targets). Pin edition and MSRV
+  (`rust-version`) in `[workspace.package]` so members inherit them.
+- Crate versions and shared features live in `[workspace.dependencies]`. Members declare
+  `{ workspace = true }`.
+- A new member inherits those pins. Do not restate crate versions, edition, or `rust-version` in a
+  member manifest.
+- Match feature declarations, lint configuration, and lock-file policy before changing a member
+  manifest.
 
 ## Unsafe and formatting
 

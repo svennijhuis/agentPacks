@@ -5,8 +5,8 @@
 | File | What it means |
 |---|---|
 | `global.json` | The SDK version is pinned. A different installed SDK fails at restore, not at build |
-| `Directory.Packages.props` | Central Package Management is on. **Versions live here, not in the `.csproj`** |
-| `Directory.Build.props` | Settings applied to every project — nullable context, analyzers, target framework |
+| `Directory.Packages.props` | Central Package Management is on. **Package versions live here, not in the `.csproj`** |
+| `Directory.Build.props` | Settings every project inherits — `TargetFramework`, `LangVersion`, nullable, analyzers |
 | `*.slnx` | The XML solution format. Newer than `.sln`, and what `dotnet` commands should target |
 | `packages.lock.json` | Restore is locked. A new package needs the lock file regenerated, or CI fails |
 
@@ -58,11 +58,36 @@ dotnet restore <solution> --force-evaluate
 
 A change that adds a package and does not touch the lock file passes locally and fails in CI, where restore runs locked.
 
+When the repo has more than one project and no `Directory.Packages.props` yet, add that file at the
+repo root rather than copying `Version` into each `.csproj`. Do not introduce CPM into a
+single-project repo that has never used it.
+
+See [central-packages](examples/central-packages.md).
+
+## Pinning the SDK and C# language
+
+Two files, both inherited:
+
+1. `global.json` pins the SDK (`sdk.version`, `rollForward`). Restore fails with `NETSDK1045` when
+   that SDK is not installed.
+2. `Directory.Build.props` pins `TargetFramework` and `LangVersion` (and nullable, analyzers) for
+   every project.
+
+A `.csproj` that copies `TargetFramework` or `LangVersion` is a project that drifts. Inherit unless
+the project genuinely targets a different framework.
+
+When adding a second project to a repo that has neither file, add them at the repo root rather than
+copying versions into both csproj files.
+
+See [toolchain-version](examples/toolchain-version.md).
+
 ## Adding a project
 
 1. Create it under the same root as its siblings, matching their naming.
 2. Add it to the solution: `dotnet sln <solution> add <project>`. In `.slnx`, this is a one-line `<Project Path="..." />` element and hand-editing is fine.
-3. Inherit from `Directory.Build.props` rather than repeating nullable, analyzer or target-framework settings in the new `.csproj`. A project that sets its own is a project that drifts.
+3. Inherit from `Directory.Build.props` and `Directory.Packages.props` rather than repeating
+   nullable, analyzer, `TargetFramework`, `LangVersion`, or package-version settings in the new
+   `.csproj`. A project that sets its own is a project that drifts.
 
 ## Formatting
 

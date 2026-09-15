@@ -9,14 +9,14 @@ Slot skills are Squad internals. Do not run them directly — Squad loads each b
 
 | Skill | Used by | Purpose |
 |---|---|---|
-| `dotnet-build` | implementer, simplifier | Internal loop skill. Inspect the solution, restore, build, implement, and format once at the end |
+| `dotnet-build` | implementer, simplifier | Internal loop skill. Inspect the solution, restore, build, implement, and format once at the end. Central package versions in `Directory.Packages.props`; SDK in `global.json`; TFM and `LangVersion` in `Directory.Build.props` |
 | `dotnet-test-patterns` | implementer, verifier | Internal loop skill. Choose the right test boundary, fixtures, packages, and commands |
 | `dotnet-review` | correctness reviewer | Internal loop skill. Review C# correctness, API shape, async/error handling, resources, and testability |
 | `dotnet-solution` | implementer | Internal loop skill. Read-only `.sln` / `.slnx` / package graph via `dotnet sln` / `dotnet list` |
 
 Canonical standards live once under `standards/`:
 
-- `csharp.md` — type and API design, nullability, resources, and formatting.
+- `csharp.md` — type and API design, nullability, resources, formatting, and central SDK / C# / package version pins.
 - `async-errors.md` — async, cancellation, and exception boundaries.
 - `testing.md` — xUnit, integration tests, time, and verification.
 - `layers.md` — Web / Application / Infrastructure boundaries when the solution already uses them.
