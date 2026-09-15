@@ -110,7 +110,8 @@ Skill bodies point only at `references/standards/` — never `authored tree: ../
 `../../standards/`. Every consuming skill must name them under `Standards in force:` and tell the
 agent to cite the document filename during review and build.
 
-`<lang>-test-patterns` also ships concrete commands under `references/examples/`. The skill loads
+`<lang>-test-patterns` ships concrete commands under `references/examples/`. `<lang>-build` ships
+central package, crate, and toolchain pins under `references/examples/`. The skill loads
 `references/standards/` first, then `references/examples/`.
 
 The validator rejects unknown keys, paths outside the plugin, missing Markdown files, unknown skills,

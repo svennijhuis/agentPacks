@@ -1,8 +1,9 @@
 # Rust review checklist
 
-Inspect the workspace manifests, toolchain and Cargo config, CI commands, feature declarations,
-Clippy / rustfmt config, and repeated nearby patterns for choices the standards intentionally leave
-to the repository. Review every changed Rust and Cargo path; do not stop after the first category.
+Inspect the workspace manifests, `[workspace.dependencies]`, `[workspace.package]`,
+`rust-toolchain.toml`, Cargo config, CI commands, feature declarations, Clippy / rustfmt config, and
+repeated nearby patterns for choices the standards intentionally leave to the repository. Review
+every changed Rust and Cargo path; do not stop after the first category.
 
 Classify each defect before writing Fix (squad review contract: Mechanical vs judgment):
 

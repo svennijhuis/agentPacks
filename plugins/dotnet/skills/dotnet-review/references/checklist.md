@@ -1,8 +1,9 @@
 # .NET review checklist
 
-Inspect project configuration, `.editorconfig`, analyzer / `Directory.Build.props` settings,
-repeated nearby patterns, and the repo's own check: `dotnet format`, build analyzers, test command,
-pre-commit hook, CI job. Review every changed path; do not stop after the first category.
+Inspect project configuration, `.editorconfig`, analyzer / `Directory.Build.props` /
+`Directory.Packages.props` / `global.json` settings, repeated nearby patterns, and the repo's own
+check: `dotnet format`, build analyzers, test command, pre-commit hook, CI job. Review every changed
+path; do not stop after the first category.
 
 Classify each defect before writing Fix (squad review contract: Mechanical vs judgment):
 

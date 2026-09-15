@@ -11,7 +11,9 @@ rg -n 'cargo (check|build|test|nextest|clippy|fmt)' .github .gitlab-ci.yml azure
 | File | What it means |
 |---|---|
 | Root `Cargo.toml` with `[workspace]` | Commands must respect members, default members, inherited dependencies, features, and lints |
-| `rust-toolchain.toml` / `rust-toolchain` | The channel, targets, and components are pinned; use that toolchain rather than the host default |
+| `[workspace.dependencies]` | **Crate versions live here.** Members use `{ workspace = true }` |
+| `[workspace.package]` | Shared `edition`, `rust-version` (MSRV), license, and similar metadata members inherit |
+| `rust-toolchain.toml` / `rust-toolchain` | The compiler this repo builds with (channel, targets, rustfmt, Clippy); use it rather than the host default |
 | `.cargo/config.toml` | Aliases, target, linker, registries, and build settings can change the meaning of ordinary Cargo commands |
 | `Cargo.lock` | The resolved dependency graph; follow the repository's tracked-lockfile policy and keep intentional updates narrow |
 | CI / `justfile` / Makefile | The real target, feature matrix, runner, lint level, and wrapper commands |
@@ -47,21 +49,53 @@ under contention forces full rebuilds and disk thrash.
 - Do not delete `target/` while another agent may be compiling.
 - Do not invent a shared coordination lock file; sequential targeted `-p` checks are enough.
 
-## Dependencies and workspace members
+## Workspace crate versions
 
-Prefer the repository's existing edit path. When `cargo add` is available:
+When the root `Cargo.toml` has `[workspace.dependencies]`:
+
+1. Add or bump the version and shared features there.
+2. The member lists `foo = { workspace = true }` — **no version of its own.**
+3. Inspect the `Cargo.lock` diff and reject unrelated upgrades.
+
+A version in the member when the workspace already inherits is a second source of truth, not an
+override you want. Preserve registry, git, path, default-feature, and target-specific choices
+already made nearby.
+
+Prefer the repository's existing edit path. When `cargo add` writes the workspace form the repo
+already uses:
 
 ```bash
 cargo add -p <package> <dependency>
 ```
 
-If dependencies are inherited from `[workspace.dependencies]`, add the version and features at the
-workspace root and use `{ workspace = true }` in the member. Preserve registry, git, path, default
-feature, and target-specific choices already made nearby. Inspect the `Cargo.lock` diff and reject
-unrelated upgrades.
+When adding a second crate to a repo that is not yet a workspace, introduce `[workspace]`,
+`[workspace.dependencies]`, and `[workspace.package]` at the root rather than copying versions
+into both manifests. Do not convert a single-crate repo that has never used a workspace.
 
-Add a new member through the root `[workspace].members` shape. Match its edition, `rust-version`,
-workspace-inherited metadata, lints, and directory naming rather than restating root configuration.
+See [workspace-crates](examples/workspace-crates.md).
+
+## Pinning the Rust version
+
+Two pins, both at the workspace root:
+
+| File | What it pins |
+|---|---|
+| `rust-toolchain.toml` | The compiler this repo builds with (channel, rustfmt, Clippy, targets) |
+| `[workspace.package] rust-version` | MSRV members inherit |
+
+Use that toolchain rather than the host default. Members set `rust-version.workspace = true` and
+`edition.workspace = true`. Do not `rustup override` or restate `rust-version` in a member.
+
+When adding a workspace that has no toolchain file yet, add `rust-toolchain.toml` at the root.
+MSRV and the toolchain channel may differ (MSRV older than the pin); match both files the repo
+already has.
+
+See [toolchain-version](examples/toolchain-version.md).
+
+## Adding a workspace member
+
+Add a new member through the root `[workspace].members` shape. Inherit edition, `rust-version`,
+crate versions, lints, and directory naming rather than restating root configuration.
 
 ## Formatting and Clippy
 
@@ -92,6 +126,7 @@ lifetimes or cloning data blindly.
 | Symptom | Usually |
 |---|---|
 | Package or feature not found | Wrong registry/source, member selection, inherited dependency, or feature name |
+| Member crate carries its own version | Workspace inherits; the version belongs in `[workspace.dependencies]` |
 | Lock file needs update under `--locked` | Manifest changed without the intended lock-file update |
 | Toolchain/component unavailable | The pinned channel, target, rustfmt, or Clippy component is not installed |
 | Linker error after `cargo check` passes | Native dependency, target, linker, or feature configuration differs at build time |

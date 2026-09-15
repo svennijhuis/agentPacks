@@ -35,6 +35,16 @@ Use established project configuration and repeated local patterns for choices th
 - Match repository naming, analyzers, `.editorconfig`, and existing patterns before introducing a
   new idiom.
 
+## Toolchain and package versions
+
+- Pin the SDK in `global.json`. Pin `TargetFramework` and `LangVersion` in `Directory.Build.props`;
+  projects inherit them instead of copying them.
+- When `Directory.Packages.props` is present, that file is the package-version home. A `.csproj`
+  `PackageReference` has no `Version` attribute.
+- A new project in a multi-project repo inherits those files. Do not restate SDK, language,
+  target-framework, or package versions in the `.csproj` unless the project genuinely targets a
+  different framework.
+
 ## Culture-sensitive values
 
 - Use an explicit culture for parsing, formatting, casing, and comparison when the value crosses a

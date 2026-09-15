@@ -16,10 +16,14 @@ When opening a solution or package graph, load `dotnet-solution` by exact Skill 
 
 When loaded by exact Skill tool name `dotnet-build` during implement or review:
 1. Read every file in `references/standards/`.
-2. Standards in force: `csharp.md`, `async-errors.md`, `layers.md`, `http-api.md`.
-3. Cite the document filename on each edit (`csharp.md`, not "the C# standard").
+2. Read every file in `references/examples/`.
+3. Standards in force: `csharp.md`, `async-errors.md`, `layers.md`, `http-api.md`.
+4. Cite the document filename on each edit (`csharp.md`, not "the C# standard").
 
 Read [commands, packages, and failures](references/commands.md).
 
-Good: version in `Directory.Packages.props`, Version-less `PackageReference`.
-Bad: put `Version` on the csproj under CPM.
+Concrete pins: [central-packages](references/examples/central-packages.md),
+[toolchain-version](references/examples/toolchain-version.md).
+
+Good: versions in `Directory.Packages.props`; SDK in `global.json`; TFM and `LangVersion` in `Directory.Build.props`.
+Bad: `Version` on a `PackageReference` under CPM; copy `LangVersion` or `TargetFramework` into each csproj.

@@ -9,7 +9,7 @@ Slot skills are Squad internals. Do not run them directly — Squad loads each b
 
 | Skill | Used by | Purpose |
 |---|---|---|
-| `rust-build` | implementer, simplifier | Internal loop skill. Inspect the Cargo workspace and toolchain, build, implement, lint, and format once at the end |
+| `rust-build` | implementer, simplifier | Internal loop skill. Inspect the Cargo workspace and toolchain, build, implement, lint, and format once at the end. Crate versions in `[workspace.dependencies]`; compiler in `rust-toolchain.toml` |
 | `rust-test-patterns` | implementer, verifier | Internal loop skill. Choose the right unit, integration, documentation, async, and feature test boundary |
 | `rust-review` | correctness reviewer | Internal loop skill. Review Rust correctness, ownership, API shape, errors, concurrency, unsafe code, and testability |
 
@@ -21,7 +21,7 @@ Framework skills are reached through the slot skills, not by the Loop's contract
 
 Canonical standards live once under `standards/`:
 
-- `rust.md` — ownership, public APIs, types, dependencies, unsafe code, and formatting.
+- `rust.md` — ownership, public APIs, types, dependencies, unsafe code, formatting, and central crate / toolchain pins.
 - `errors-concurrency.md` — recoverable errors, panic boundaries, async work, locks, and cancellation.
 - `testing.md` — unit, integration, documentation, feature, and concurrent tests.
 - [`http-api.md`](../../shared/standards/http-api.md) — named collection envelope for list APIs, not a root JSON array (shared across language packs).

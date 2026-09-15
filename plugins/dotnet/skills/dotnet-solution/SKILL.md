@@ -15,7 +15,7 @@ Loop-only; not as a user entrypoint. Local machine only. No shipped MCP server. 
 
 1. `dotnet sln <solution> list`
 2. `dotnet list <csproj> package`
-3. Or read `*.sln`, `*.slnx`, `*.csproj`, `Directory.Packages.props`, `packages.lock.json`
+3. Or read `*.sln`, `*.slnx`, `*.csproj`, `Directory.Packages.props`, `Directory.Build.props`, `global.json`, `packages.lock.json`
 
 No write tools. No codegen. No rename or refactor. Never write `/dotnet-solution` as prose to load this skill.
 
