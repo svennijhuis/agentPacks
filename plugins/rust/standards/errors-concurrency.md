@@ -19,7 +19,8 @@ Use established workspace dependencies and repeated local patterns for choices t
 ## Async and concurrency
 
 - Do not call blocking filesystem, network, process, or synchronization APIs on an async executor thread when the
-  runtime provides a blocking boundary. Match the runtime already used by the workspace.
+  runtime provides a blocking boundary. Match the runtime already used by the workspace. For Tokio schedule latency,
+  fairness, and `spawn_blocking` rates, load `tokio-tune-runtime`. The default remains: do not block the executor.
 - Do not hold a synchronous mutex or read/write guard across `.await`. Narrow the guard scope, move owned data out,
   or use the runtime's async primitive when the lock must span suspension.
 - Treat cancellation as a drop at any await point. Do not leave shared state half-updated when a future is cancelled.

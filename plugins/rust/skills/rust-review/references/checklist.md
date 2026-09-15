@@ -7,7 +7,7 @@ every changed Rust and Cargo path; do not stop after the first category.
 Process findings in this order:
 
 1. reachable correctness defects, ownership mistakes, boundary conditions, and partial-state failures;
-2. `Result`, panic, error-source, async, cancellation, task, lock, and resource behavior;
+2. `Result`, panic, error-source, async, cancellation, task, lock, and resource behavior — when the change uses Tokio, `spawn_blocking`, runtime workers, or a lock on an async hot path, load `tokio-tune-runtime` by exact Skill name first; a performance finding needs a metric or a stall pattern, and a long poll alone is not a finding;
 3. unsafe invariants, public contracts, enum evolution, borrowing, trait seams, and compatibility;
 4. unnecessary cloning, allocation, bounds, wrappers, and hand-written standard-library behavior;
 5. missing unit, integration, documentation, feature, and concurrency coverage;

@@ -18,6 +18,7 @@ When loaded by exact Skill tool name `rust-build` during implement or review:
 1. Read every file in `references/standards/`.
 2. Standards in force: `rust.md`, `errors-concurrency.md`, `http-api.md`.
 3. Cite the document filename on each edit (`rust.md`, not "the Rust standard").
+4. When the change uses Tokio or runtime work (`spawn_blocking`, worker threads, locks on an async hot path), load `tokio-tune-runtime` by exact Skill name.
 
 Read [shape, commands, and failures](references/commands.md).
 
