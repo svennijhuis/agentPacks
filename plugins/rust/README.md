@@ -13,6 +13,12 @@ Slot skills are Squad internals. Do not run them directly — Squad loads each b
 | `rust-test-patterns` | implementer, verifier | Internal loop skill. Choose the right unit, integration, documentation, async, and feature test boundary |
 | `rust-review` | correctness reviewer | Internal loop skill. Review Rust correctness, ownership, API shape, errors, concurrency, unsafe code, and testability |
 
+Framework skills are reached through the slot skills, not by the Loop's contracted names:
+
+| Skill | Used by | Purpose |
+|---|---|---|
+| `tokio-tune-runtime` | rust-build, rust-review | Internal loop skill. Tokio schedule latency, fairness versus batching, `spawn_blocking`, mutex stalls, and worker isolation. No command |
+
 Canonical standards live once under `standards/`:
 
 - `rust.md` — ownership, public APIs, types, dependencies, unsafe code, and formatting.
