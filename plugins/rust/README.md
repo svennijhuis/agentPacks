@@ -17,7 +17,7 @@ Framework skills are reached through the slot skills, not by the Loop's contract
 
 | Skill | Used by | Purpose |
 |---|---|---|
-| `tokio-tune-runtime` | rust-build, rust-review, model-invoked | Tokio schedule latency, fairness versus batching, `spawn_blocking`, mutex stalls, and worker isolation |
+| `tokio-tune-runtime` | rust-build, rust-review | Internal loop skill. Tokio schedule latency, fairness versus batching, `spawn_blocking`, mutex stalls, and worker isolation. No command |
 
 Canonical standards live once under `standards/`:
 

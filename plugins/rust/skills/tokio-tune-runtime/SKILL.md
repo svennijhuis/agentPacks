@@ -1,10 +1,17 @@
 ---
 name: tokio-tune-runtime
-description: When tuning Tokio schedule latency, long polls, spawn_blocking, mutex stalls, or P99 fairness.
+description: When rust-build or rust-review hits Tokio runtime, spawn_blocking, or mutex stalls.
 license: UNLICENSED
+user-invocable: false
+metadata:
+  audience: loop
 ---
 
+Internal. Do not run directly — Squad loads by exact Skill name.
+
 # Tokio runtime tuning
+
+Loop-only; not as a user entrypoint. rust-build and rust-review load this by exact Skill name.
 
 Performance overlay for Tokio. The correctness floor stays in `errors-concurrency.md`. Summarized from [Principles for fast Tokio applications](https://dial9-rs.github.io/blog/principles-for-fast-tokio-applications/).
 
