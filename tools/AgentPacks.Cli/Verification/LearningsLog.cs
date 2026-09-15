@@ -26,6 +26,7 @@ public sealed record LearningsAdvice(
 /// <summary>
 /// Parses the human-readable learnings log and turns the latest same-entrypoint entry into
 /// a gate change. This is the v1 self-improve half: apply notes, do not rewrite skills.
+/// Pack/skill proposals live in <c>docs/suggestions.md</c> and are human-apply only.
 /// </summary>
 public static partial class LearningsLog
 {

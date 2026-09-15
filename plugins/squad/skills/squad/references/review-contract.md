@@ -98,9 +98,10 @@ still *reads* `docs/plans/` as spec. Findings target product paths only.
 | `docs/plans/` | Plan; spec input, not a review target |
 | `docs/reviews/` | Saved `/squad-review` report |
 | `docs/learnings.md` | Append-only run log |
+| `docs/suggestions.md` | Append-only human-apply pack/skill proposals |
 | `docs/smoke/` | `/scenarios` output |
 
-Pathspec when those paths are in the diff: `':(exclude)docs/plans' ':(exclude)docs/reviews' ':(exclude)docs/learnings.md' ':(exclude)docs/smoke'`.
+Pathspec when those paths are in the diff: `':(exclude)docs/plans' ':(exclude)docs/reviews' ':(exclude)docs/learnings.md' ':(exclude)docs/suggestions.md' ':(exclude)docs/smoke'`.
 If omitting them leaves nothing to review, stop.
 
 On merge, drop any finding whose location is a run file, and any finding that a run file is missing.

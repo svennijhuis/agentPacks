@@ -67,7 +67,7 @@ Capability packs — installed because of a workflow you want wired into the age
 
 | Plugin | Who installs it | Holds |
 | --- | --- | --- |
-| `squad` | anyone who wants a change planned before it is built and checked after | the user-invoked orchestrator (`/squad` and `/squad-review`), planning, review and learnings contracts, seven Loop agents, and per-role model tiers |
+| `squad` | anyone who wants a change planned before it is built and checked after | the user-invoked orchestrator (`/squad` and `/squad-review`), planning, review, learnings and suggestions contracts, seven Loop agents, and per-role model tiers |
 | `git` | anyone letting an agent run git | one `beforeShellExecution` hook that blocks the commands which destroy work: `reset --hard`, `clean -f`, `push --force`, `branch -D`, `checkout .`, `restore .` |
 
 A capability pack is the exception to "a role is a role pack", and it earns the exception only by shipping components a skill cannot express: rules that apply without being invoked, subagents, commands, or hooks. A pack that would hold nothing but skills is a role pack, not a capability pack.
