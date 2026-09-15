@@ -21,9 +21,9 @@ public sealed class HttpScenariosContractTests
             .OrderBy(name => name, StringComparer.Ordinal)
             .ToArray();
 
-        Assert.Equal(["pack-check", "scenarios", "squad", "squad-review"], commands);
+        Assert.Equal(["pack-check", "scenarios", "security-audit", "squad", "squad-review"], commands);
         Assert.Equal(
-            ["dotnet", "git", "pack-check", "rust", "squad", "typescript"],
+            ["dotnet", "git", "pack-check", "rust", "security", "squad", "typescript"],
             Directory.GetDirectories(Path.Combine(root, "plugins"))
                 .Select(path => Path.GetFileName(path) ?? path)
                 .OrderBy(name => name, StringComparer.Ordinal));

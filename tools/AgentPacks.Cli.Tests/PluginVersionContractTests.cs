@@ -11,7 +11,7 @@ namespace AgentPacks.Cli.Tests;
 public sealed class PluginVersionContractTests
 {
     private static readonly string[] PluginNames =
-        ["dotnet", "git", "pack-check", "rust", "squad", "typescript"];
+        ["dotnet", "git", "pack-check", "rust", "security", "squad", "typescript"];
 
     [Fact]
     public void All_plugins_version_0_1_3()
