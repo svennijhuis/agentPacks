@@ -21,5 +21,5 @@ When loaded by exact Skill tool name `rust-review` during review or build:
 
 Process findings per [the checklist](references/checklist.md).
 
-Good: cite `errors-concurrency.md` on a dropped `Result`.
-Bad: "clippy is clean" with no location or standard.
+Good: cite `errors-concurrency.md` on a dropped `Result`; Fix names `cargo clippy` when that lint already catches it.
+Bad: "clippy is clean" with no location or standard; a new prose rule for a Clippy deny the workspace already has.

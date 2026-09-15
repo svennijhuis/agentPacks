@@ -1,8 +1,16 @@
 # Rust review checklist
 
-Inspect the workspace manifests, toolchain and Cargo config, CI commands, feature declarations, and
-repeated nearby patterns for choices the standards intentionally leave to the repository. Review
-every changed Rust and Cargo path; do not stop after the first category.
+Inspect the workspace manifests, toolchain and Cargo config, CI commands, feature declarations,
+Clippy / rustfmt config, and repeated nearby patterns for choices the standards intentionally leave
+to the repository. Review every changed Rust and Cargo path; do not stop after the first category.
+
+Classify each defect before writing Fix (squad review contract: Mechanical vs judgment):
+
+- **Mechanical** — rustfmt, Clippy, denied lints, import shape, file location, a compiler warning
+  the workspace already treats as fail. If `cargo fmt`, `cargo clippy`, or CI would have caught it,
+  Fix names that existing check. Do not invent a new prose rule.
+- **Judgment call** — ownership, error-source intent, trait seams, surrounding style, coverage
+  choice. Cite `rust.md` / `errors-concurrency.md` / `testing.md` / `http-api.md`.
 
 Process findings in this order:
 

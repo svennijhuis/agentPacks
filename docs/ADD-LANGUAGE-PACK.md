@@ -76,6 +76,10 @@ The loop reads these under time pressure, in the middle of another task. Write f
 - **Name the failure.** A slot skill earns its place by covering what an agent gets wrong unprompted — a container started per test instead of per collection, a `Version` attribute under Central Package Management.
 - **Inspect the repository.** State which project files, dependencies, directory layout, and repeated
   local patterns select among the variants the pack supports. One isolated example is not a convention.
+- **Review slots classify mechanical vs judgment.** A mechanical pattern names the repo's existing
+  check (lint, analyzer, Clippy, CI) when one would have caught it. A judgment call cites the plugin
+  standard. Do not invent a new prose rule for a fixed syntactic pattern. The squad review contract
+  owns the shared wording.
 
 ## Canonical pack standards
 
