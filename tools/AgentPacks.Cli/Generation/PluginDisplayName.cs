@@ -3,10 +3,12 @@ using AgentPacks.Cli.Loading;
 namespace AgentPacks.Cli.Generation;
 
 /// <summary>
-/// Human-readable plugin titles for Cursor <c>plugin.json</c> and Codex
-/// <c>interface.displayName</c>. Kebab-case becomes title case (squad → Squad,
-/// pack-check → Pack Check); <c>dotnet</c> and <c>typescript</c> keep their
-/// product spelling so Customize does not show "Dotnet" / "Typescript".
+/// Human-readable plugin titles for Cursor <c>plugin.json</c>, Codex
+/// <c>interface.displayName</c>, and Claude marketplace entries
+/// (<c>displayName</c>, Claude Code v2.1.143+). Kebab-case becomes title case
+/// (squad → Squad, pack-check → Pack Check); <c>dotnet</c> and <c>typescript</c>
+/// keep their product spelling so pickers do not show "Dotnet" / "Typescript".
+/// Copilot's marketplace schema has no display-name field, so it stays kebab-case.
 /// </summary>
 internal static class PluginDisplayName
 {

@@ -45,6 +45,7 @@ public class GenerationTests
         var entry = FirstEntry(repo.ValidateAndGenerate());
 
         Assert.Null(entry["version"]);
+        Assert.Equal("Engineering", entry["displayName"]!.GetValue<string>());
         Assert.Equal("./plugins/engineering", entry["source"]!.GetValue<string>());
         Assert.True(entry["strict"]!.GetValue<bool>());
     }

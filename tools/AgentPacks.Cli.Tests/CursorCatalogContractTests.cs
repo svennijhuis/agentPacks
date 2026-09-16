@@ -143,8 +143,10 @@ public sealed class CursorCatalogContractTests
 
     /// <summary>
     /// Official Cursor packs set <c>displayName</c> on <c>.cursor-plugin/plugin.json</c>
-    /// (schemas/plugin.schema.json). Catalog entries stay kebab-case; the per-plugin
-    /// manifest is the title Customize shows.
+    /// (schemas/plugin.schema.json). Claude marketplace entries use the same titles
+    /// (v2.1.143+). Copilot's catalog schema has no display-name field.
+    /// Cursor catalog entries stay kebab-case; the per-plugin manifest is the title
+    /// Customize shows.
     /// </summary>
     [Fact]
     public void Cursor_plugin_manifests_set_title_case_display_name()
@@ -159,9 +161,17 @@ public sealed class CursorCatalogContractTests
             ["git"] = "Git",
             ["pack-check"] = "Pack Check",
             ["rust"] = "Rust",
+            ["security"] = "Security",
             ["squad"] = "Squad",
             ["typescript"] = "TypeScript"
         };
+
+        var claudeEntries = run.File(".claude-plugin/marketplace.json").Content["plugins"]!.AsArray()
+            .OfType<JsonObject>()
+            .ToDictionary(entry => entry["name"]!.GetValue<string>(), StringComparer.Ordinal);
+        var copilotEntries = run.File(".github/plugin/marketplace.json").Content["plugins"]!.AsArray()
+            .OfType<JsonObject>()
+            .ToDictionary(entry => entry["name"]!.GetValue<string>(), StringComparer.Ordinal);
 
         foreach (var (name, displayName) in expected)
         {
@@ -173,12 +183,15 @@ public sealed class CursorCatalogContractTests
                 displayName,
                 run.File($"plugins/{name}/.codex-plugin/plugin.json")
                     .Content["interface"]!["displayName"]!.GetValue<string>());
+            Assert.Equal(displayName, claudeEntries[name]["displayName"]!.GetValue<string>());
+            Assert.Null(copilotEntries[name]["displayName"]);
         }
 
         Assert.Equal("Pack Check", PluginDisplayName.From("pack-check"));
         Assert.Equal("Squad", PluginDisplayName.From("squad"));
         Assert.Equal(".NET", PluginDisplayName.From("dotnet"));
         Assert.Equal("TypeScript", PluginDisplayName.From("typescript"));
+        Assert.Equal("Security", PluginDisplayName.From("security"));
     }
 
     /// <summary>
