@@ -26,6 +26,7 @@ Pin vs PR / uncommitted / main → same gated dual-axis reviewers (no plan/fix l
 
 Always
 models.source.json tiers (default inherit); load only contracted <lang>-* by Skill name; coworker docs = real dotnet test/validate on a fixture.
+suggestions.md is optional, human-apply only; never auto-rewrite.
 
 Not in v1
 second skill pack, Matt catalog dump, eager fan-out, self-improve graphs, auto skill rewrite, redoing PR #6.
@@ -33,7 +34,7 @@ second skill pack, Matt catalog dump, eager fan-out, self-improve graphs, auto s
 
 Step 1 is **Read and apply**. Apply the latest same-entrypoint entry. Prefer passed skips and
 tiers. A **failed** skip is a must-run. Fail demotes one tier. Do not rewrite skills. No graph.
-`docs/learnings.md` is append-only.
+`docs/learnings.md` is append-only. `docs/suggestions.md` is optional and human-apply only.
 
 No commits, merges, or pushes. `pass` is ready for human review, not permission to land.
 
@@ -109,3 +110,5 @@ Optional residual fixup: read [residual fixup](references/residual-fixup.md).
 ## Worktree
 
 Read [worktree](references/worktree.md). Hand off uncommitted. Append one `docs/learnings.md` entry.
+If this run evidenced a pack/skill/agent/command/contract change, append one
+`docs/suggestions.md` entry as defined by [suggestions](references/suggestions.md). Do not apply it.

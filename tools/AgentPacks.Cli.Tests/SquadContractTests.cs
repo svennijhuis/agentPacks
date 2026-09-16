@@ -181,6 +181,32 @@ public class SquadContractTests
     }
 
     [Fact]
+    public void Suggestions_contract_is_human_apply_only_and_excluded_from_review()
+    {
+        var root = TestRepository.SourceRoot();
+        var suggestions = File.ReadAllText(Path.Combine(
+            root, "plugins", "squad", "skills", "squad", "references", "suggestions.md"));
+        var skill = File.ReadAllText(Path.Combine(
+            root, "plugins", "squad", "skills", "squad", "SKILL.md"));
+        var review = File.ReadAllText(Path.Combine(
+            root, "plugins", "squad", "skills", "squad", "references", "review-contract.md"));
+        var learnings = File.ReadAllText(Path.Combine(
+            root, "plugins", "squad", "skills", "squad", "references", "learnings.md"));
+
+        Assert.Contains("docs/suggestions.md", suggestions, StringComparison.Ordinal);
+        Assert.Contains("- Apply: human", suggestions, StringComparison.Ordinal);
+        Assert.Contains("Do not read it to gate", suggestions, StringComparison.Ordinal);
+        Assert.Contains("Never open a skill and apply the suggestion", suggestions, StringComparison.Ordinal);
+        Assert.Contains("references/suggestions.md", skill, StringComparison.Ordinal);
+        Assert.Contains("human-apply only; never auto-rewrite", skill, StringComparison.Ordinal);
+        Assert.Contains(":(exclude)docs/suggestions.md", review, StringComparison.Ordinal);
+        Assert.Contains("[suggestions](suggestions.md)", learnings, StringComparison.Ordinal);
+        Assert.False(
+            File.Exists(Path.Combine(root, "plugins", "squad", "commands", "suggestions.md")),
+            "suggestions is a contract, not a slash command");
+    }
+
+    [Fact]
     public void Squad_skill_is_not_user_invocable_command_is_the_only_slash()
     {
         Two_user_invoked_entrypoints_are_squad_and_review();

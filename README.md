@@ -224,6 +224,7 @@ Pin vs PR / uncommitted / main → same gated dual-axis reviewers (no plan/fix l
 
 Always
 models.source.json tiers (default inherit); load only contracted <lang>-* by Skill name; coworker docs = real dotnet test/validate on a fixture.
+suggestions.md is optional, human-apply only; never auto-rewrite.
 
 Not in v1
 second skill pack, Matt catalog dump, eager fan-out, self-improve graphs, auto skill rewrite, redoing PR #6.
@@ -231,7 +232,8 @@ second skill pack, Matt catalog dump, eager fan-out, self-improve graphs, auto s
 
 Step 1 **applies** the latest same-entrypoint entry when gating and spinning. Keep a passed
 skip and tier; a failed skip becomes a must-run. After a fail, demote one model tier. Do not
-rewrite skills. That is the whole v1 self-improve half: apply notes, no graphs.
+rewrite skills. Learnings apply notes. Suggestions propose pack edits for a human. Neither
+rewrites skills.
 
 Portable model tiers live in [`models.source.json`](models.source.json) (default `inherit`;
 implementer `standard`; other loop agents `fast`). Test a skill on a feature branch without
@@ -255,7 +257,7 @@ merging to `main`: [docs/ADD-SKILL.md](docs/ADD-SKILL.md#test-a-skill-locally).
 After the merged list, `/squad-review` asks once: Save report as markdown? Yes writes
 `docs/reviews/<slug>.md` and still shows the findings in the IDE/CLI. No stays IDE/CLI only.
 No verdict, grill, or fix round. Never `docs/decisions.md`. Reviewers get the product diff
-only: plans, saved review reports, learnings, and scenarios md stay on the branch and are
+only: plans, saved review reports, learnings, suggestions, and scenarios md stay on the branch and are
 Not examined — not a second pass over markdown the loop just wrote. A missing run file is
 not a finding and not a blocker.
 

@@ -24,6 +24,7 @@ Pin vs PR / uncommitted / main → same gated dual-axis reviewers (no plan/fix l
 
 Always
 models.source.json tiers (default inherit); load only contracted <lang>-* by Skill name; coworker docs = real dotnet test/validate on a fixture.
+suggestions.md is optional, human-apply only; never auto-rewrite.
 
 Not in v1
 second skill pack, Matt catalog dump, eager fan-out, self-improve graphs, auto skill rewrite, redoing PR #6.
@@ -32,6 +33,7 @@ second skill pack, Matt catalog dump, eager fan-out, self-improve graphs, auto s
 Step 1 applies the latest learnings entry when gating and spinning; it does not only
 acknowledge the file. Prefer passed skips and tiers. A failed skip is a must-run. After a
 fail, demote one model tier. Do not rewrite skills, and do not grow a graph from the log.
+`docs/suggestions.md` is optional: write a proposal, do not apply it.
 
 The main agent owns user interaction, invokes `squad-planner` once per question round, launches applicable reviewers in parallel, and routes the merged verdict. `squad-orchestrator` only merges completed reports and verifier evidence. No phase commits, merges, or pushes.
 
@@ -47,6 +49,7 @@ Obvious typos, renames, and one-line fixes take the small-change route: the main
 | Contract | `planning-contract` | Turn-based grill inside the orchestrator: frontier rounds, recommended answers, confirmation, plan shape |
 | Contract | `review-contract` | Dual-axis review, severity, report formats, verify-path evaluator gates, and verdict rules |
 | Contract | `learnings` | Append-only run log read on the next `/squad` or `/squad-review` |
+| Contract | `suggestions` | Append-only pack/skill proposals; human applies; never auto-rewrite |
 | Rule | `review-checklist` | Source-review checklist scoped by glob; Cursor-only by design |
 | Agent | `squad-planner` | Returns one numbered planning round, or writes the one confirmed plan |
 | Agent | `squad-implementer` | Implements a confirmed plan or merged fix list |
@@ -77,7 +80,7 @@ If merge returns an input error for a malformed or missing report, the main agen
 
 After `pass`, or after two fix rounds with only residual `low`/`tiny` notes, at most one residual fixup may run (never a third full review fan-out; verifier spot-check only if code changed; failed spot-check → hand off; residual after code change does not keep a clean `pass`). Still hand off uncommitted.
 
-`/squad-review` uses the same conditional reviewers for a PR, uncommitted work, or a diff versus main, but has no plan, verifier evidence, verdict, or fix round. Reviewers get the product diff only: plans, saved review reports, learnings, and scenarios md stay on the branch and are Not examined. A missing run file is not a finding and not a blocker. At the end it asks once: Save report as markdown? Yes writes `docs/reviews/<slug>.md` and still shows the findings in the IDE/CLI. No stays IDE/CLI only. Never `docs/decisions.md`.
+`/squad-review` uses the same conditional reviewers for a PR, uncommitted work, or a diff versus main, but has no plan, verifier evidence, verdict, or fix round. Reviewers get the product diff only: plans, saved review reports, learnings, suggestions, and scenarios md stay on the branch and are Not examined. A missing run file is not a finding and not a blocker. At the end it asks once: Save report as markdown? Yes writes `docs/reviews/<slug>.md` and still shows the findings in the IDE/CLI. No stays IDE/CLI only. Never `docs/decisions.md`.
 
 ## Stack and workspace
 
@@ -153,7 +156,7 @@ plus Superpowers and MAO; still out of scope for locked v1:
 - Recursive subplanner trees or eager multi-worker fan-out
 - Sequential per-task two-stage review, isolated per-task checkouts, architect DAGs
 - Continuous autonomous multi-hour runs without human plan confirm
-- Auto-rewriting skills from `docs/learnings.md` (reflector / skill rewrite)
+- Auto-rewriting skills from `docs/learnings.md` or `docs/suggestions.md` (reflector / skill rewrite)
 - Growing `squad-orchestrator` into a global quality gate / integrator
 - Extra playbook catalogs that make the pack larger, not simpler
 - The `orchestrate` substrate: SDK-spawned cloud workers, `plan.json` / `state.json`, Slack mirroring, Andon stop signals, failure-mode retry tables. Squad ships no scripts, credentials, or remote service; the human at plan-confirm is its stop signal
