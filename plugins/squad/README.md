@@ -52,7 +52,7 @@ Obvious typos, renames, and one-line fixes take the small-change route: the main
 | Agent | `squad-implementer` | Implements a confirmed plan or merged fix list |
 | Agent | `squad-verifier` | Reports independent evidence per plan criterion |
 | Agent | `squad-reviewer` | Reviews correctness and plan compliance |
-| Agent | `squad-security-reviewer` | Reviews trust-boundary changes against [OWASP Top 10:2025](https://owasp.org/Top10/) |
+| Agent | `squad-security-reviewer` | Reviews trust-boundary diffs against [OWASP Top 10:2025](https://owasp.org/Top10/) using the review contract's Security gate. Full-repo audits are `/security-audit` on the `security` pack |
 | Agent | `squad-simplifier` | Finds unnecessary implementation complexity |
 | Agent | `squad-orchestrator` | Deduplicates completed reports, assigns the verdict, and appends the fix list |
 | Command | `squad` | Runs a new change through the proportional workflow. Copilot picker: `/squad:run` |

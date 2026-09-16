@@ -12,7 +12,7 @@ namespace AgentPacks.Cli.Tests;
 public sealed class CursorCatalogContractTests
 {
     private static readonly string[] PluginNames =
-        ["dotnet", "git", "pack-check", "rust", "squad", "typescript"];
+        ["dotnet", "git", "pack-check", "rust", "security", "squad", "typescript"];
 
     private static readonly string[] SquadAgents =
     [

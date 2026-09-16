@@ -44,7 +44,7 @@ Internal. Do not run directly — Squad loads by exact Skill name.
 Loop-only; not as a user entrypoint.
 ```
 
-A user-invoked entrypoint (`squad`, `pack-check`, `learnings-digest`, `scenarios-md`) adds
+A user-invoked entrypoint (`squad`, `pack-check`, `learnings-digest`, `scenarios-md`, `security-audit-md`) adds
 `disable-model-invocation: true` and omits `audience: loop`. Load either kind with the Skill tool
 by exact name, never slash-prose.
 

@@ -97,6 +97,12 @@ public sealed class SkillHygieneContractTests
         AssertRouterLinksReference(packCheck, "references/detect.md");
         AssertRouterLinksReference(packCheck, "references/packs.md");
 
+        var securityAudit = Path.Combine(root, "plugins", "security", "skills", "security-audit-md");
+        AssertRouterLinksReference(securityAudit, "references/principles.md");
+        AssertRouterLinksReference(securityAudit, "references/workflow.md");
+        AssertRouterLinksReference(securityAudit, "references/attack-classes.md");
+        AssertRouterLinksReference(securityAudit, "references/report.md");
+
         var squad = Path.Combine(root, "plugins", "squad", "skills", "squad");
         AssertRouterLinksReference(squad, "references/malformed-reask.md");
         AssertRouterLinksReference(squad, "references/residual-fixup.md");

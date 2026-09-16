@@ -73,7 +73,7 @@ public sealed class TonightCriteriaTests
         nameof(SquadContractTests.Lang_test_patterns_local_vs_deployed_smoke_examples))]
     [InlineData("43 smoke-matrix not user slash no new plugin", typeof(SquadContractTests),
         nameof(SquadContractTests.Smoke_matrix_not_user_slash_no_new_plugin))]
-    [InlineData("44 user commands stay squad squad-review pack-check plus scenarios", typeof(HttpScenariosContractTests),
+    [InlineData("44 user commands stay squad squad-review pack-check scenarios security-audit", typeof(HttpScenariosContractTests),
         nameof(HttpScenariosContractTests.User_commands_stay_squad_squad_review_pack_check_plus_http_scenarios))]
     [InlineData("47 Claude marketplace omits hooks path and array", typeof(ClaudeMarketplaceHooksTests),
         nameof(ClaudeMarketplaceHooksTests.Claude_marketplace_omits_hooks_path_and_array))]
@@ -117,8 +117,8 @@ public sealed class TonightCriteriaTests
         nameof(SquadContractTests.Test_plan_matrix_seam_column_blank_or_unnamed_internal_is_not_verified))]
     [InlineData("56 B6 Anti-reentry on three agents", typeof(SquadContractTests),
         nameof(SquadContractTests.Review_agents_have_anti_reentry_on_every_provider_tree))]
-    [InlineData("Still_four_user_commands", typeof(SquadContractTests),
-        nameof(SquadContractTests.Still_four_user_commands))]
+    [InlineData("Still_five_user_commands", typeof(SquadContractTests),
+        nameof(SquadContractTests.Still_five_user_commands))]
     [InlineData("squad SKILL.md not grown", typeof(SquadContractTests),
         nameof(SquadContractTests.Squad_skill_body_is_not_grown))]
     [InlineData("58 four bodies in references pointers in SKILL", typeof(SquadContractTests),

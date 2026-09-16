@@ -59,11 +59,13 @@ There is no JSON Schema for skills. The normative frontmatter table in the speci
 
 ## Security
 
-The `squad-security-reviewer` subagent works from these, and links each category from its own checklist.
+The `squad-security-reviewer` subagent walks the OWASP table in the review contract, and links each category from that checklist.
 
 - OWASP Top 10:2025 — https://owasp.org/Top10/
 - Cheat Sheet Series, the reference for what a good control looks like — https://cheatsheetseries.owasp.org/
 - Application Security Verification Standard, the reference for what "verified" means — https://owasp.org/www-project-application-security-verification-standard/
+
+`/security-audit` (the `security` pack) is a full-repo hunt, not the Squad gate. Its recon → isolated hunters → independent validators flow is adapted from Cloudflare's [security-audit-skill](https://github.com/cloudflare/security-audit-skill) (MIT) and rewritten in this repository's skill/agent shape. See [`plugins/security/NOTICE.md`](../plugins/security/NOTICE.md).
 
 The security reviewer follows the current 2025 category identifiers and links. Category changes are
 contract changes and are covered by source tests so an older numbered checklist cannot remain mixed
