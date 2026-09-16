@@ -228,6 +228,7 @@ public class SquadContractTests
 
         Assert.True(entry["strict"]!.GetValue<bool>());
         Assert.Null(entry["version"]);
+        Assert.Equal("Squad", entry["displayName"]!.GetValue<string>());
         Assert.Equal("./com.anthropic.claude-code/commands/", entry["commands"]![0]!.GetValue<string>());
 
         var pluginDirectory = repo.PluginDirectory("squad");

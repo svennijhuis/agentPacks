@@ -53,6 +53,9 @@ internal sealed class ClaudeCompatGenerator(RepositoryContext context)
         var entry = new JsonObject
         {
             ["name"] = name,
+            // Claude Code v2.1.143+ shows this in the plugin picker. Install still uses kebab-case
+            // name (squad@agentpacks). Copilot's catalog schema has no display-name field.
+            ["displayName"] = PluginDisplayName.From(plugin),
             ["source"] = $"./plugins/{plugin.DirectoryName}",
             ["description"] = manifest["description"]?.GetValue<string>() ?? name
         };
