@@ -55,6 +55,36 @@ Only report findings with confidence ≥ 80. Drop low-confidence noise. Do not e
 A guess, style nit without a standard, or an unevidenced "looks wrong" is below the bar and is
 omitted, not listed as `tiny`.
 
+## Security gate
+
+`squad-security-reviewer` only. The main agent records `ran` or `skipped` before spawn. This is a
+diff walk, not a full-repo audit — do not launch the security pack from `/squad` or `/squad-review`.
+
+**Run** when the product diff touches authn/z, untrusted input, files, shell/commands, crypto,
+dependencies, credentials, or exceptional conditions. Record that reason. **Skip** only when none
+apply.
+
+**Finding bar.** Name the actor, intended control, crossed boundary, concrete attack, and observed
+result. Severity cannot exceed demonstrated impact. A defense-in-depth gap with no reachable attack
+is not a finding. Source-first: do not probe live or shared systems. A control that exists only in
+deployment, IdP, or proxy config and is absent from the repo is omitted (not a finding); name it
+under **Examined**. Prefix `A01`–`A10`. Mark N/A; no filler.
+
+Walk this table in order. Trace each changed surface from entry to the last trusted decision.
+
+| | Category |
+|---|---|
+| [A01](https://owasp.org/Top10/2025/A01_2025-Broken_Access_Control/) | A01_2025-Broken_Access_Control — deny-by-default, path traversal, SSRF |
+| [A02](https://owasp.org/Top10/2025/A02_2025-Security_Misconfiguration/) | A02_2025-Security_Misconfiguration |
+| [A03](https://owasp.org/Top10/2025/A03_2025-Software_Supply_Chain_Failures/) | A03_2025-Software_Supply_Chain_Failures |
+| [A04](https://owasp.org/Top10/2025/A04_2025-Cryptographic_Failures/) | A04_2025-Cryptographic_Failures |
+| [A05](https://owasp.org/Top10/2025/A05_2025-Injection/) | A05_2025-Injection |
+| [A06](https://owasp.org/Top10/2025/A06_2025-Insecure_Design/) | A06_2025-Insecure_Design |
+| [A07](https://owasp.org/Top10/2025/A07_2025-Authentication_Failures/) | A07_2025-Authentication_Failures |
+| [A08](https://owasp.org/Top10/2025/A08_2025-Software_or_Data_Integrity_Failures/) | A08_2025-Software_or_Data_Integrity_Failures |
+| [A09](https://owasp.org/Top10/2025/A09_2025-Security_Logging_and_Alerting_Failures/) | A09_2025-Security_Logging_and_Alerting_Failures |
+| [A10](https://owasp.org/Top10/2025/A10_2025-Mishandling_of_Exceptional_Conditions/) | A10_2025-Mishandling_of_Exceptional_Conditions |
+
 ## Input normalization
 
 A completed report is noncanonical but usable when every required semantic field is present and
@@ -100,8 +130,9 @@ still *reads* `docs/plans/` as spec. Findings target product paths only.
 | `docs/learnings.md` | Append-only run log |
 | `docs/suggestions.md` | Append-only human-apply pack/skill proposals |
 | `docs/smoke/` | `/scenarios` output |
+| `docs/security-audit/` | Full-repo audit report |
 
-Pathspec when those paths are in the diff: `':(exclude)docs/plans' ':(exclude)docs/reviews' ':(exclude)docs/learnings.md' ':(exclude)docs/suggestions.md' ':(exclude)docs/smoke'`.
+Pathspec when those paths are in the diff: `':(exclude)docs/plans' ':(exclude)docs/reviews' ':(exclude)docs/learnings.md' ':(exclude)docs/suggestions.md' ':(exclude)docs/smoke' ':(exclude)docs/security-audit'`.
 If omitting them leaves nothing to review, stop.
 
 On merge, drop any finding whose location is a run file, and any finding that a run file is missing.

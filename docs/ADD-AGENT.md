@@ -28,7 +28,7 @@ One job. Load skills with the Skill tool by exact name. Never write slash-prose.
 ```
 
 That is the production shape: short frontmatter, portable tier, `readonly`, closed tool list, one
-job, exact Skill-tool names. Squad agents are `squad-*`. The implementer is `standard`; other squad
+job, exact Skill-tool names. Squad agents are `squad-*`. Security pack agents are `security-*`. The implementer is `standard`; other squad
 agents are `fast`. Bodies stay operational-but-short (28 non-empty lines after frontmatter;
 security reviewer 40). Numbered steps, required outputs, one Good/Bad pair — not essay soup.
 Copy from [`plugins/squad/agents/`](../plugins/squad/agents/); do not invent a public command

@@ -43,8 +43,8 @@ Both give a Rust shop a way to avoid installing .NET skills. Only one stays read
 
 ## What ships today
 
-The repository currently ships **three capability packs and three language packs**: `squad`,
-`pack-check`, `git`, `dotnet`, `rust`, and `typescript`. Authored `mcp.json` files are empty scaffolds.
+The repository currently ships **four capability packs and three language packs**: `squad`,
+`pack-check`, `git`, `security`, `dotnet`, `rust`, and `typescript`. Authored `mcp.json` files are empty scaffolds.
 v1 ships no MCP server. `dotnet` still has the `dotnet-solution` skill (`dotnet sln` / `dotnet list`).
 
 The earlier catalog carried five role packs and three language packs, six of which held nothing but a `plugin.json`. An empty pack is not a placeholder — it is an install that appears in the marketplace, resolves, and does nothing, which is worse than not being listed. They were removed in the same branch that added Squad; the pinned external-skill imports and the two authored skills (`engineering/testing`, `dotnet/dotnet-review`) are in history at `007f609` and can be restored when there is a pack around them worth installing.
@@ -61,7 +61,6 @@ Role packs — installed because of how you work, not what you compile:
 | `product` | product owners and managers | user stories, requirements, notes to spec *(empty for now)* |
 | `migrations` | platform teams | Azure DevOps to GitHub and similar moves *(empty for now)* |
 | `engineering` | any builder | **only** cross-language craft: `domain-modeling`, `codebase-design`, `diagnosing-bugs`, `improve-codebase-architecture`, `code-review`, `to-tickets`, `triage`, `wayfinder`, `research`, `grill-with-docs`, `setup-matt-pocock-skills`, `grilling`, `testing` |
-| `security` | anyone shipping software | threat modeling and general checklists *(empty for now)* |
 
 Capability packs — installed because of a workflow you want wired into the agent loop, not just knowledge you want available:
 
@@ -69,19 +68,22 @@ Capability packs — installed because of a workflow you want wired into the age
 | --- | --- | --- |
 | `squad` | anyone who wants a change planned before it is built and checked after | the user-invoked orchestrator (`/squad` and `/squad-review`), planning, review, learnings and suggestions contracts, seven Loop agents, and per-role model tiers |
 | `git` | anyone letting an agent run git | one `beforeShellExecution` hook that blocks the commands which destroy work: `reset --hard`, `clean -f`, `push --force`, `branch -D`, `checkout .`, `restore .` |
+| `security` | anyone who wants a full-repo audit, not a per-change gate | user-invoked `/security-audit`, recon/hunter/validator agents, and a confirmed vs needs-validation report |
 
 A capability pack is the exception to "a role is a role pack", and it earns the exception only by shipping components a skill cannot express: rules that apply without being invoked, subagents, commands, or hooks. A pack that would hold nothing but skills is a role pack, not a capability pack.
 
 There was briefly a second one. `code-review` shipped a review skill, review standards, a security subagent, a diff subagent and a review command; Squad then shipped a review phase with its own security gate and its own diff reviewer. Two packs, one subject, and the only real difference was whether a finding cost a fix round or was merely printed. Review folded into the loop as a phase, and the pack was removed.
 
-The rule that falls out of it: **a capability pack is a workflow, and a phase of an existing workflow is not a new pack.** A third has to clear both bars — components a skill cannot express, and a loop that is not already someone else's phase.
+The rule that falls out of it: **a capability pack is a workflow, and a phase of an existing workflow is not a new pack.** A later pack has to clear both bars — components a skill cannot express, and a loop that is not already someone else's phase.
 
-`git` is the second one and is deliberately separate from the Loop. You want destructive-command
+`security` clears both. It ships a command and subagents, and `/security-audit` is a full-repo hunt with adversarial validation — not Squad's per-change OWASP gate. Two packs share the security *subject*; they do not share a command or a phase. The methodology is adapted from Cloudflare's `security-audit-skill` and rewritten in this repository's skill/agent shape.
+
+`git` is separate from the Loop. You want destructive-command
 protection whether or not a Squad run is in progress. The Loop states its no-commit hand-off in
 its prompts; it does not install a global advisory hook for ordinary `commit`, `merge`, or `push`.
 The `git` pack owns the only shell guard and blocks commands that can destroy local or remote work.
 
-The general rule, then: **two packs may share an event, but not a command.** Overlapping subjects is what folded `code-review` into the loop; overlapping *events* with disjoint matchers is fine, and is what keeps a data-loss guard from being welded to a workflow nobody is obliged to use.
+The general rule, then: **two packs may share an event, but not a command.** Sharing a *phase* is what folded `code-review` into the loop. Sharing a subject with a different command is how `security` and Squad coexist. Overlapping *events* with disjoint matchers is fine, and is what keeps a data-loss guard from being welded to a workflow nobody is obliged to use.
 
 Language packs — installed because of the ecosystem you live in, one per language family. A language pack has a second job the role packs do not: it fills Squad's **contracted slots**, so the loop knows how this ecosystem builds, tests and reviews. The names are the interface and [`ADD-LANGUAGE-PACK.md`](ADD-LANGUAGE-PACK.md) is the contract; a near miss is a skill the loop silently never loads, so the validator fails the build on one.
 
@@ -156,7 +158,7 @@ unasked.
 | How we review a C# pull request | `dotnet` → `dotnet-review` |
 | How we review a TypeScript pull request | `typescript` → `typescript-review` |
 | Two-axis review of any diff | `engineering` → `code-review` |
-| Threat-model any system | `security` |
+| Full-repo audit / threat-model | `security` → `/security-audit` |
 | Per-change OWASP Top 10 review | `squad` → `squad-security-reviewer` |
 | .NET crypto and auth footguns | `dotnet` → `dotnet-security-review` |
 | What deserves a test, as philosophy | `engineering` → `testing` |
@@ -191,7 +193,7 @@ This is why `engineering` was sized at thirteen skills rather than the three or 
 
 ## No empty packs
 
-An earlier version of this plan reserved names: `product`, `migrations`, `security`, `typescript` and `rust` shipped a `plugin.json` and no skills, so the first skill would be a one-file pull request rather than a catalog debate.
+An earlier version of this plan reserved names: `product`, `migrations`, `security`, `typescript` and `rust` shipped a `plugin.json` and no skills, so the first skill would be a one-file pull request rather than a catalog debate. `security` later earned a pack by shipping `/security-audit`.
 
 That was the wrong trade. A reserved name still appears in the generated marketplace, still resolves, and still installs — it just does nothing afterwards, and the person who installed it has no way to tell the difference between an empty pack and a broken one. The name costs nothing to claim later; the empty install costs trust now. **A pack enters the catalog when it has content, not before.**
 

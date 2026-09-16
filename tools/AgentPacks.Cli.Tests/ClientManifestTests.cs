@@ -34,6 +34,7 @@ public sealed class ClientManifestTests
         var entry = (JsonObject)run.File(Marketplace).Content["plugins"]![0]!;
 
         Assert.True(entry["strict"]!.GetValue<bool>());
+        Assert.Equal("Engineering", entry["displayName"]!.GetValue<string>());
         Assert.Equal(
             "./com.anthropic.claude-code/agents/reviewer.md",
             entry["agents"]![0]!.GetValue<string>());
@@ -250,6 +251,7 @@ public sealed class ClientManifestTests
         Assert.Equal("./com.github.copilot/commands/", entry["commands"]!.GetValue<string>());
         Assert.Equal("./com.github.copilot/hooks/hooks.json", entry["hooks"]!.GetValue<string>());
         Assert.Null(entry["strict"]);
+        Assert.Null(entry["displayName"]);
         Assert.DoesNotContain("anthropic", entry.ToJsonString(), StringComparison.OrdinalIgnoreCase);
     }
 

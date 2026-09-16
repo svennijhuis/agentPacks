@@ -96,8 +96,8 @@ write exactly `docs/plans/<slug>.md`.
 ## Implement, verify, review
 
 Read [the review contract](references/review-contract.md). Dual-axis: correctness and plan/spec.
-Security only when gated. Launch `squad-reviewer`, `squad-simplifier`, and conditional
-`squad-security-reviewer` in parallel, then `squad-orchestrator`.
+Security only on a trust-boundary diff (Security gate). Launch `squad-reviewer`, `squad-simplifier`, and conditional
+`squad-security-reviewer` in parallel, then `squad-orchestrator`. Do not launch a full-repo audit.
 
 Malformed report (one re-ask, hard cap): read [malformed re-ask](references/malformed-reask.md).
 `fix` uses a **fresh** implementer; the author of the rejected code is not the fixer. At most two fix rounds.

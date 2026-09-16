@@ -18,11 +18,14 @@ The catalog entry points at the completed plugin directory on that same branch:
 ```json
 {
   "name": "squad",
+  "displayName": "Squad",
   "source": "./plugins/squad",
   "skills": "./skills/",
   "strict": true
 }
 ```
+
+`displayName` is the Claude Code v2.1.143+ picker title. Install still uses kebab-case `name` (`squad@agentpacks`). Copilot's catalog has no display-name field, so it stays kebab-case.
 
 ## Why `.mcp.json` exists
 
