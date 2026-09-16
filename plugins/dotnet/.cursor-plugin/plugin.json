@@ -1,0 +1,19 @@
+{
+  "name": "dotnet",
+  "displayName": ".NET",
+  "version": "0.1.3",
+  "description": "The C# and .NET pack: canonical build, implementation, test and review standards consumed by Squad.",
+  "author": {
+    "name": "agentPacks Maintainers"
+  },
+  "license": "UNLICENSED",
+  "keywords": [
+    "dotnet",
+    "csharp",
+    "language-pack",
+    "build",
+    "testing",
+    "review",
+    "editorconfig"
+  ]
+}
