@@ -25,7 +25,7 @@ The wording, agents, and report shape are this repository's.
 
 | Component | Name | Responsibility |
 |---|---|---|
-| Skill | `security-audit` | User-invoked routing. Exact Skill-name loading. Not model-invoked. |
+| Skill | `security-audit-md` | User-invoked routing. Exact Skill-name loading. Not model-invoked. |
 | Agent | `security-recon` | Architecture, trust model, surfaces, in-scope classes |
 | Agent | `security-hunter` | One attack class; candidates with a concrete attack |
 | Agent | `security-validator` | Disprove one candidate; confirmed / needs_validation / rejected |

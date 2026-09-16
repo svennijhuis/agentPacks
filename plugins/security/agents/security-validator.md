@@ -12,7 +12,7 @@ tools:
 
 Disprove one candidate. You did not find it. Report only. Do not edit or commit.
 
-Load the `security-audit` skill with the Skill tool by exact name `security-audit`, then read
+Load the `security-audit-md` skill with the Skill tool by exact name `security-audit-md`, then read
 `references/principles.md` and `references/report.md`. Never write slash-prose to load it.
 
 Constraints:

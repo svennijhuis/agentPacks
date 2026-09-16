@@ -1,5 +1,5 @@
 ---
-name: security-audit
+name: security-audit-md
 description: When the user types /security-audit or asks to audit a codebase for vulnerabilities.
 license: MIT
 disable-model-invocation: true
@@ -10,7 +10,7 @@ user-invocable: false
 
 User-invoked. The command is the slash. Report only. Do not edit product code or commit.
 
-Load with the Skill tool by exact name `security-audit`. Never write `/security-audit` as prose to load it.
+Load with the Skill tool by exact name `security-audit-md`. Never write `/security-audit` as prose to load it.
 
 Read [principles](references/principles.md), then [the workflow](references/workflow.md). Hunt from [attack classes](references/attack-classes.md). Emit [the report](references/report.md).
 

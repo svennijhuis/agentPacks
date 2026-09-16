@@ -12,7 +12,7 @@ tools:
 
 Hunt the assigned class only. Report only. Do not edit, commit, or validate your own candidates.
 
-Load the `security-audit` skill with the Skill tool by exact name `security-audit`, then read
+Load the `security-audit-md` skill with the Skill tool by exact name `security-audit-md`, then read
 `references/principles.md` and `references/attack-classes.md`. Never write slash-prose to load it.
 
 Constraints:

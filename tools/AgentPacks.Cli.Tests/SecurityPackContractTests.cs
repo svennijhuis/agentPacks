@@ -32,8 +32,8 @@ public sealed class SecurityPackContractTests
     public void Security_audit_is_user_invoked_slash_not_model_invoked()
     {
         var skill = ParseFrontmatter(File.ReadAllText(
-            Path.Combine(PackRoot(), "skills", "security-audit", "SKILL.md")));
-        Assert.Equal("security-audit", skill.Scalar("name"));
+            Path.Combine(PackRoot(), "skills", "security-audit-md", "SKILL.md")));
+        Assert.Equal("security-audit-md", skill.Scalar("name"));
         Assert.Equal("true", skill.Scalar("disable-model-invocation"));
         Assert.Equal("false", skill.Scalar("user-invocable"));
         Assert.Equal("MIT", skill.Scalar("license"));
@@ -42,6 +42,9 @@ public sealed class SecurityPackContractTests
         var command = ParseFrontmatter(File.ReadAllText(
             Path.Combine(PackRoot(), "commands", "security-audit.md")));
         Assert.Equal("security-audit", command.Scalar("name"));
+        Assert.NotEqual(command.Scalar("name"), skill.Scalar("name"));
+        Assert.True(Directory.Exists(Path.Combine(PackRoot(), "skills", "security-audit-md")));
+        Assert.False(Directory.Exists(Path.Combine(PackRoot(), "skills", "security-audit")));
     }
 
     [Fact]
@@ -76,15 +79,15 @@ public sealed class SecurityPackContractTests
             "plugins/security/commands/security-audit.md",
             File.ReadAllText(Path.Combine(PackRoot(), "commands", "security-audit.md")));
         repo.WithRawSkill(
-            "security-audit",
-            File.ReadAllText(Path.Combine(PackRoot(), "skills", "security-audit", "SKILL.md")),
+            "security-audit-md",
+            File.ReadAllText(Path.Combine(PackRoot(), "skills", "security-audit-md", "SKILL.md")),
             plugin: "security");
 
         foreach (var reference in Directory.GetFiles(
-                     Path.Combine(PackRoot(), "skills", "security-audit", "references"), "*.md"))
+                     Path.Combine(PackRoot(), "skills", "security-audit-md", "references"), "*.md"))
         {
             repo.WithFile(
-                $"plugins/security/skills/security-audit/references/{Path.GetFileName(reference)}",
+                $"plugins/security/skills/security-audit-md/references/{Path.GetFileName(reference)}",
                 File.ReadAllText(reference));
         }
 
@@ -109,7 +112,7 @@ public sealed class SecurityPackContractTests
     [Fact]
     public void Audit_does_not_load_squad_and_gate_does_not_invoke_the_audit_slash()
     {
-        var skill = File.ReadAllText(Path.Combine(PackRoot(), "skills", "security-audit", "SKILL.md"));
+        var skill = File.ReadAllText(Path.Combine(PackRoot(), "skills", "security-audit-md", "SKILL.md"));
         Assert.DoesNotContain("`squad`", skill, StringComparison.Ordinal);
         Assert.Contains("Do not spawn squad reviewers.", skill, StringComparison.Ordinal);
 
@@ -131,7 +134,7 @@ public sealed class SecurityPackContractTests
     public void Principles_require_adversarial_validation_and_a_reachable_attack()
     {
         var principles = File.ReadAllText(
-            Path.Combine(PackRoot(), "skills", "security-audit", "references", "principles.md"));
+            Path.Combine(PackRoot(), "skills", "security-audit-md", "references", "principles.md"));
         Assert.Contains("never the agent that found it", principles, StringComparison.Ordinal);
         Assert.Contains("not a finding", principles, StringComparison.Ordinal);
         Assert.Contains("needs_validation", principles, StringComparison.Ordinal);
