@@ -465,6 +465,48 @@ public class SquadContractTests
     }
 
     [Fact]
+    public void Owasp_2025_categories_live_in_the_review_contract()
+    {
+        var contract = File.ReadAllText(Path.Combine(
+            TestRepository.SourceRoot(),
+            "plugins", "squad", "skills", "squad", "references", "review-contract.md"));
+        var agent = Fixture("squad-security-reviewer.md");
+
+        Assert.Contains("## Security gate", contract, StringComparison.Ordinal);
+        Assert.DoesNotContain("A01_2025-Broken_Access_Control", agent, StringComparison.Ordinal);
+        Assert.Contains("Security gate", agent, StringComparison.Ordinal);
+
+        string[] ids =
+        [
+            "A01_2025-Broken_Access_Control",
+            "A02_2025-Security_Misconfiguration",
+            "A03_2025-Software_Supply_Chain_Failures",
+            "A04_2025-Cryptographic_Failures",
+            "A05_2025-Injection",
+            "A06_2025-Insecure_Design",
+            "A07_2025-Authentication_Failures",
+            "A08_2025-Software_or_Data_Integrity_Failures",
+            "A09_2025-Security_Logging_and_Alerting_Failures",
+            "A10_2025-Mishandling_of_Exceptional_Conditions"
+        ];
+        foreach (var id in ids)
+        {
+            Assert.Contains(id, contract, StringComparison.Ordinal);
+            Assert.Contains($"https://owasp.org/Top10/2025/{id}/", contract, StringComparison.Ordinal);
+        }
+
+        var squad = File.ReadAllText(Path.Combine(
+            TestRepository.SourceRoot(), "plugins", "squad", "commands", "squad.md"));
+        var review = File.ReadAllText(Path.Combine(
+            TestRepository.SourceRoot(), "plugins", "squad", "commands", "squad-review.md"));
+        foreach (var command in new[] { squad, review })
+        {
+            Assert.Contains("auth, untrusted input, files, shell, crypto, dependencies, credentials, or exceptional conditions", command, StringComparison.Ordinal);
+            Assert.Contains("Do not launch a full-repo audit from this review.", command, StringComparison.Ordinal);
+        }
+    }
+
+    [Fact]
     public void Review_agents_have_anti_reentry_on_every_provider_tree()
     {
         const string line = "Do not re-invoke review or the orchestrator.";

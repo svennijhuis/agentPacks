@@ -93,7 +93,7 @@ rather than silently skipping it.
 | Data | Persistence or schema | Migration / compatibility bound |
 | Failure | User-visible or trust-boundary paths | Exact error contract |
 | Compatibility | Existing clients or formats | Must not change wire without a version story |
-| Security | Trust boundary | Deny-by-default; must not widen auth surface without a decision |
+| Security | Trust boundary | Deny-by-default; name the actor and control; must not widen auth surface without a decision |
 | Dependency philosophy | New package, scaffold, or "from scratch" work | Allowed libs; forbidden shortcuts; implement vs reuse |
 | Performance / resources | Latency, throughput, memory, or timeouts matter | Concrete bounds; "fast enough" is not a bound |
 | Architecture fitness | New subsystem or consequential seam | Shape must still work if scope grows one notch |

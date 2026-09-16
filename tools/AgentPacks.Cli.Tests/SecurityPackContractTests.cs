@@ -121,6 +121,7 @@ public sealed class SecurityPackContractTests
             "A defense-in-depth gap with no reachable attack is not a finding.",
             gate,
             StringComparison.Ordinal);
+        Assert.DoesNotContain("A01_2025-Broken_Access_Control", gate, StringComparison.Ordinal);
         Assert.True(
             NonEmptyBodyLines(gate) <= 44,
             "squad-security-reviewer body exceeded its Matt-tiny cap.");
