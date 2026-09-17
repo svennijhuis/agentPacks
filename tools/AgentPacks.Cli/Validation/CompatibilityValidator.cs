@@ -256,6 +256,15 @@ internal sealed class CompatibilityValidator(RepositoryContext context)
             context.Diagnostics.Policy(path, "generated marketplace must define an 'owner' object.");
         }
 
+        if (string.Equals(path, context.MarketplaceRelativePath.Replace('\\', '/'), StringComparison.Ordinal)
+            && string.IsNullOrWhiteSpace(marketplace["description"]?.GetValue<string>()))
+        {
+            context.Diagnostics.Policy(
+                path,
+                "generated Claude marketplace must define a top-level description. " +
+                "metadata.description is a legacy fallback; claude plugin validate warns when the top-level field is missing.");
+        }
+
         if (marketplace["plugins"] is not JsonArray plugins)
         {
             context.Diagnostics.Policy(path, "generated marketplace must define a 'plugins' array.");

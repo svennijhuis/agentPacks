@@ -1,5 +1,8 @@
 using System.Text.Json.Nodes;
 using AgentPacks.Cli.Commands;
+using AgentPacks.Cli.Generation;
+using AgentPacks.Cli.Loading;
+using AgentPacks.Cli.Validation;
 
 namespace AgentPacks.Cli.Tests;
 
@@ -14,6 +17,53 @@ public sealed class ClientManifestTests
     private const string CodexMarketplace = ".agents/plugins/marketplace.json";
     private const string CopilotMarketplace = ".github/plugin/marketplace.json";
     private const string CursorMarketplace = ".cursor-plugin/marketplace.json";
+
+    /// <summary>
+    /// Claude's catalog description is top-level. Official claude-plugins-official uses the
+    /// same shape. <c>metadata.description</c> still parses as a compatibility fallback, but
+    /// <c>claude plugin validate</c> warns when the top-level field is missing. Cursor and
+    /// Copilot keep description under <c>metadata</c> because that is their schema.
+    /// </summary>
+    [Fact]
+    public void The_claude_marketplace_uses_top_level_description()
+    {
+        using var repo = new TestRepository();
+        var run = repo.WithValidPlugin().ValidateAndGenerate();
+
+        var marketplace = run.File(Marketplace).Content;
+        Assert.Equal(
+            ["name", "owner", "description", "plugins"],
+            marketplace.AsObject().Select(property => property.Key).ToArray());
+        Assert.False(string.IsNullOrWhiteSpace(marketplace["description"]!.GetValue<string>()));
+        Assert.Null(marketplace["metadata"]);
+
+        var copilot = run.File(CopilotMarketplace).Content;
+        Assert.Null(copilot["description"]);
+        Assert.False(string.IsNullOrWhiteSpace(copilot["metadata"]!["description"]!.GetValue<string>()));
+    }
+
+    [Fact]
+    public void Claude_marketplace_without_top_level_description_fails_compatibility()
+    {
+        using var repo = new TestRepository().WithValidPlugin();
+        var run = repo.ValidateAndGenerate();
+        Assert.False(run.HasErrors, run.Text);
+
+        var marketplace = (JsonObject)run.File(Marketplace).Content.DeepClone()!;
+        marketplace["metadata"] = new JsonObject
+        {
+            ["description"] = marketplace["description"]!.GetValue<string>()
+        };
+        marketplace.Remove("description");
+
+        var context = new RepositoryContext { Root = repo.Root };
+        new CompatibilityValidator(context).Validate(
+            [GeneratedFile.FromJson(Marketplace, marketplace)]);
+
+        var text = context.Diagnostics.Render();
+        Assert.True(context.Diagnostics.HasErrors, text);
+        Assert.Contains("top-level description", text, StringComparison.Ordinal);
+    }
 
     /// <summary>
     /// Claude auto-discovers agents/, commands/ and hooks/ at the plugin root unless the
