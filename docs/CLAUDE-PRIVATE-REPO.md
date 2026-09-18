@@ -13,6 +13,8 @@ A push to `main` publishes the complete installable tree to `marketplace-beta`. 
 plugins/<plugin>/.mcp.json               only when that plugin has MCP servers
 ```
 
+The catalog root uses a top-level `description`. `metadata.description` still parses as a Claude compatibility fallback, but `claude plugin validate` warns when the top-level field is missing. Cursor and Copilot keep description under `metadata` because that is their schema.
+
 The catalog entry points at the completed plugin directory on that same branch:
 
 ```json
