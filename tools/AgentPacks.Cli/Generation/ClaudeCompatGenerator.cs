@@ -27,14 +27,15 @@ internal sealed class ClaudeCompatGenerator(RepositoryContext context)
             entries.Add(BuildEntry(plugin, files));
         }
 
+        // Claude's catalog description is top-level. metadata.description still parses as a
+        // compatibility fallback, but `claude plugin validate` warns "No marketplace
+        // description provided" when the top-level field is missing. Official
+        // claude-plugins-official uses the same shape. Cursor/Copilot keep metadata.description.
         var marketplace = new JsonObject
         {
             ["name"] = MarketplaceName,
             ["owner"] = new JsonObject { ["name"] = "agentPacks Maintainers" },
-            ["metadata"] = new JsonObject
-            {
-                ["description"] = "Private agentPacks plugins. Generated from the portable Agent Plugins source."
-            },
+            ["description"] = "Private agentPacks plugins. Generated from the portable Agent Plugins source.",
             ["plugins"] = entries
         };
 
