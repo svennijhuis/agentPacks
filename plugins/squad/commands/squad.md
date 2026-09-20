@@ -30,4 +30,4 @@ The main agent is the thin workflow controller. Specialists own their context.
    invocation; the author of the rejected code is not the fixer. Allow at most two fix rounds.
    After `pass`, or after two rounds with only residual `low`/`tiny` notes, at most one residual
    fixup may run as defined by the skill (never a third fan-out; failed spot-check → hand off).
-10. Before handoff, one Advisor-lite consult as defined by the skill. Then hand off the plan path, files touched, criterion evidence, verdict, rounds, notes, pack status, workspace, and cleanup status. State that nothing was committed, merged, or pushed. Append one learnings entry.
+10. Before handoff, one Advisor-lite consult as defined by the skill. Then hand off the plan path, files touched, criterion evidence, verdict, rounds, notes, pack status, workspace, and cleanup status. State that nothing was committed, merged, or pushed. Append one learnings entry. If this run evidenced a pack/skill/agent/command/contract change, append one suggestions entry. Do not apply it.

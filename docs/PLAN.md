@@ -66,7 +66,7 @@ Capability packs — installed because of a workflow you want wired into the age
 
 | Plugin | Who installs it | Holds |
 | --- | --- | --- |
-| `squad` | anyone who wants a change planned before it is built and checked after | the user-invoked orchestrator (`/squad` and `/squad-review`), planning, review and learnings contracts, seven Loop agents, and per-role model tiers |
+| `squad` | anyone who wants a change planned before it is built and checked after | the user-invoked orchestrator (`/squad` and `/squad-review`), planning, review, learnings and suggestions contracts, seven Loop agents, and per-role model tiers |
 | `git` | anyone letting an agent run git | one `beforeShellExecution` hook that blocks the commands which destroy work: `reset --hard`, `clean -f`, `push --force`, `branch -D`, `checkout .`, `restore .` |
 | `security` | anyone who wants a full-repo audit, not a per-change gate | user-invoked `/security-audit`, recon/hunter/validator agents, and a confirmed vs needs-validation report |
 

@@ -16,16 +16,17 @@ Two entrypoints only: `/squad` and `/squad-review`. Type the command.
 /squad (user-invoked orchestrator)
 1. Read and apply learnings.md (append-only): prefer passed skips/tiers; avoid what failed
 2. Orient codebase (applicable stacks only)
-3. Small change? → main agent only, spawn nobody → verify → append learnings → hand off uncommitted
+3. Small change? → main agent only, spawn nobody → verify → append learnings (+ suggestions if pack/skill/agent/command/contract evidenced) → hand off uncommitted
 4. Else grill/plan rounds (facts via subagent; decisions = human) → write plan
 5. Gate spins: implementer → verifier → reviewers in parallel (correctness + plan/spec; security ONLY if trust boundary)
-6. Orchestrator merges ≤2 fix rounds; ≤1 re-ask per producer per review round then accept marker (non-blocking); optional residual fixup → hand off uncommitted → append learnings
+6. Orchestrator merges ≤2 fix rounds; ≤1 re-ask per producer per review round then accept marker (non-blocking); optional residual fixup → hand off uncommitted → append learnings (+ suggestions if pack/skill/agent/command/contract evidenced)
 
 /squad-review
-Pin vs PR / uncommitted / main → same gated dual-axis reviewers (no plan/fix loop) → append learnings → one save-markdown ask
+Pin vs PR / uncommitted / main → same gated dual-axis reviewers (no plan/fix loop) → append learnings (+ suggestions if pack/skill/agent/command/contract evidenced) → one save-markdown ask
 
 Always
 models.source.json tiers (default inherit); load only contracted <lang>-* by Skill name; coworker docs = real dotnet test/validate on a fixture.
+suggestions.md is optional, human-apply only; never auto-rewrite.
 
 Not in v1
 second skill pack, Matt catalog dump, eager fan-out, self-improve graphs, auto skill rewrite, redoing PR #6.
@@ -33,7 +34,7 @@ second skill pack, Matt catalog dump, eager fan-out, self-improve graphs, auto s
 
 Step 1 is **Read and apply**. Apply the latest same-entrypoint entry. Prefer passed skips and
 tiers. A **failed** skip is a must-run. Fail demotes one tier. Do not rewrite skills. No graph.
-`docs/learnings.md` is append-only.
+`docs/learnings.md` is append-only. `docs/suggestions.md` is optional and human-apply only.
 
 No commits, merges, or pushes. `pass` is ready for human review, not permission to land.
 
@@ -109,3 +110,5 @@ Optional residual fixup: read [residual fixup](references/residual-fixup.md).
 ## Worktree
 
 Read [worktree](references/worktree.md). Hand off uncommitted. Append one `docs/learnings.md` entry.
+If this run evidenced a pack/skill/agent/command/contract change, append one
+`docs/suggestions.md` entry as defined by [suggestions](references/suggestions.md). Do not apply it.
