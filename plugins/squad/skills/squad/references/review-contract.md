@@ -128,7 +128,7 @@ still *reads* `docs/plans/` as spec. Findings target product paths only.
 | `docs/plans/` | Plan; spec input, not a review target |
 | `docs/reviews/` | Saved `/squad-review` report |
 | `docs/learnings.md` | Append-only run log |
-| `docs/suggestions.md` | Append-only human-apply pack/skill proposals |
+| `docs/suggestions.md` | Append-only human-apply pack/skill/agent/command/contract proposals |
 | `docs/smoke/` | `/scenarios` output |
 | `docs/security-audit/` | Full-repo audit report |
 

@@ -49,7 +49,7 @@ Obvious typos, renames, and one-line fixes take the small-change route: the main
 | Contract | `planning-contract` | Turn-based grill inside the orchestrator: frontier rounds, recommended answers, confirmation, plan shape |
 | Contract | `review-contract` | Dual-axis review, severity, report formats, verify-path evaluator gates, and verdict rules |
 | Contract | `learnings` | Append-only run log read on the next `/squad` or `/squad-review` |
-| Contract | `suggestions` | Append-only pack/skill proposals; human applies; never auto-rewrite |
+| Contract | `suggestions` | Append-only pack/skill/agent/command/contract proposals; human applies; never auto-rewrite |
 | Rule | `review-checklist` | Source-review checklist scoped by glob; Cursor-only by design |
 | Agent | `squad-planner` | Returns one numbered planning round, or writes the one confirmed plan |
 | Agent | `squad-implementer` | Implements a confirmed plan or merged fix list |
