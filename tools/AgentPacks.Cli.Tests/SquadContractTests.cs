@@ -184,26 +184,39 @@ public class SquadContractTests
     public void Suggestions_contract_is_human_apply_only_and_excluded_from_review()
     {
         var root = TestRepository.SourceRoot();
-        var suggestions = File.ReadAllText(Path.Combine(
-            root, "plugins", "squad", "skills", "squad", "references", "suggestions.md"));
+        var suggestionsPath = Path.Combine(
+            root, "plugins", "squad", "skills", "squad", "references", "suggestions.md");
         var skill = File.ReadAllText(Path.Combine(
             root, "plugins", "squad", "skills", "squad", "SKILL.md"));
         var review = File.ReadAllText(Path.Combine(
             root, "plugins", "squad", "skills", "squad", "references", "review-contract.md"));
         var learnings = File.ReadAllText(Path.Combine(
             root, "plugins", "squad", "skills", "squad", "references", "learnings.md"));
+        var squad = File.ReadAllText(Path.Combine(root, "plugins", "squad", "commands", "squad.md"));
+        var squadReview = File.ReadAllText(Path.Combine(
+            root, "plugins", "squad", "commands", "squad-review.md"));
+        var worktree = File.ReadAllText(Path.Combine(
+            root, "plugins", "squad", "skills", "squad", "references", "worktree.md"));
+        var suggestions = File.ReadAllText(suggestionsPath);
 
-        Assert.Contains("docs/suggestions.md", suggestions, StringComparison.Ordinal);
-        Assert.Contains("- Apply: human", suggestions, StringComparison.Ordinal);
-        Assert.Contains("Do not read it to gate", suggestions, StringComparison.Ordinal);
-        Assert.Contains("Never open a skill and apply the suggestion", suggestions, StringComparison.Ordinal);
+        // Inventory: reference exists, skill href, no suggestions slash, pathspec excludes.
+        Assert.True(File.Exists(suggestionsPath));
         Assert.Contains("references/suggestions.md", skill, StringComparison.Ordinal);
-        Assert.Contains("human-apply only; never auto-rewrite", skill, StringComparison.Ordinal);
-        Assert.Contains(":(exclude)docs/suggestions.md", review, StringComparison.Ordinal);
         Assert.Contains("[suggestions](suggestions.md)", learnings, StringComparison.Ordinal);
+        Assert.Contains(":(exclude)docs/suggestions.md", review, StringComparison.Ordinal);
+        Assert.Contains(":(exclude)docs/security-audit", review, StringComparison.Ordinal);
         Assert.False(
             File.Exists(Path.Combine(root, "plugins", "squad", "commands", "suggestions.md")),
             "suggestions is a contract, not a slash command");
+
+        // Shared write-gate noun set across slash · worktree · SKILL · contract (no drift).
+        const string Gate = "pack/skill/agent/command/contract";
+        Assert.Contains(Gate, squad, StringComparison.Ordinal);
+        Assert.Contains(Gate, squadReview, StringComparison.Ordinal);
+        Assert.Contains(Gate, worktree, StringComparison.Ordinal);
+        Assert.Contains(Gate, skill, StringComparison.Ordinal);
+        Assert.Contains(Gate, suggestions, StringComparison.Ordinal);
+        Assert.Contains("`pack` / `skill` / `agent` / `command` / `contract`", suggestions, StringComparison.Ordinal);
     }
 
     [Fact]

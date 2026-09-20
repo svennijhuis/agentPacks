@@ -1,6 +1,6 @@
 # Suggestions log
 
-An append-only list of **human-reviewed** pack/skill/contract change proposals. It lives at
+An append-only list of **human-reviewed** pack/skill/agent/command/contract change proposals. It lives at
 `docs/suggestions.md` in the repository being changed, next to `docs/learnings.md`.
 
 It is not a second brain. It is not applied on the next `/squad`. It does not rewrite skills.
@@ -39,7 +39,7 @@ do not append.
 | Heading | Date (`YYYY-MM-DD`) and the entrypoint (`/squad` or `/squad-review`) |
 | Entrypoint | `squad` or `squad-review` |
 | Target | One repo path that would change, or `None` |
-| Kind | `skill` / `contract` / `agent` / `command` / `pack-doc` |
+| Kind | `pack` / `skill` / `agent` / `command` / `contract` |
 | Evidence | What this run showed — a report line, criterion, or command — not a vibe |
 | Suggestion | One concrete edit, imperative, small enough for a later `/squad` |
 | Expected effect | What the next run should do differently if a human applies it |
