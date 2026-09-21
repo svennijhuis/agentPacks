@@ -1,6 +1,5 @@
 using System.Text.Json.Nodes;
 using AgentPacks.Cli.Importing;
-using AgentPacks.Cli.Io;
 using AgentPacks.Cli.Loading;
 
 namespace AgentPacks.Cli.Tests;
@@ -47,7 +46,7 @@ public class SquadContractTests
         Assert.Equal(7, AgentNames.Length);
         foreach (var agent in AgentNames)
         {
-            Assert.Equal(agent, ParseFrontmatter(Fixture($"{agent}.md")).Scalar("name"));
+            Assert.Equal(agent, TestRepository.ParseFrontmatter(Fixture($"{agent}.md")).Scalar("name"));
             Assert.False(string.IsNullOrWhiteSpace(run.File($"plugins/squad/com.anthropic.claude-code/agents/{agent}.md").Text));
             Assert.False(string.IsNullOrWhiteSpace(run.File($"plugins/squad/com.openai.codex/agents/{agent}.toml").Text));
             Assert.False(string.IsNullOrWhiteSpace(run.File($"plugins/squad/com.github.copilot/agents/{agent}.agent.md").Text));
@@ -64,9 +63,9 @@ public class SquadContractTests
             .ToArray();
 
         Assert.Equal(["scenarios.md", "squad-review.md", "squad.md"], names);
-        Assert.Equal("squad-review", ParseFrontmatter(File.ReadAllText(Path.Combine(directory, "squad-review.md"))).Scalar("name"));
-        Assert.Equal("squad", ParseFrontmatter(File.ReadAllText(Path.Combine(directory, "squad.md"))).Scalar("name"));
-        Assert.Equal("scenarios", ParseFrontmatter(File.ReadAllText(Path.Combine(directory, "scenarios.md"))).Scalar("name"));
+        Assert.Equal("squad-review", TestRepository.ParseFrontmatter(File.ReadAllText(Path.Combine(directory, "squad-review.md"))).Scalar("name"));
+        Assert.Equal("squad", TestRepository.ParseFrontmatter(File.ReadAllText(Path.Combine(directory, "squad.md"))).Scalar("name"));
+        Assert.Equal("scenarios", TestRepository.ParseFrontmatter(File.ReadAllText(Path.Combine(directory, "scenarios.md"))).Scalar("name"));
         Assert.False(File.Exists(Path.Combine(directory, "review.md")));
         Assert.False(File.Exists(Path.Combine(directory, "http-scenarios.md")));
     }
@@ -74,7 +73,7 @@ public class SquadContractTests
     [Fact]
     public void Two_user_invoked_entrypoints_are_squad_and_review()
     {
-        var skill = ParseFrontmatter(Fixture("SKILL.md"));
+        var skill = TestRepository.ParseFrontmatter(Fixture("SKILL.md"));
         Assert.Equal("true", skill.Scalar("disable-model-invocation"));
         Assert.Equal("false", skill.Scalar("user-invocable"));
         Assert.Equal("squad", skill.Scalar("name"));
@@ -122,7 +121,7 @@ public class SquadContractTests
         foreach (var name in names)
         {
             Assert.StartsWith("squad-", name, StringComparison.Ordinal);
-            Assert.Equal(name, ParseFrontmatter(File.ReadAllText(Path.Combine(agentsDir, $"{name}.md"))).Scalar("name"));
+            Assert.Equal(name, TestRepository.ParseFrontmatter(File.ReadAllText(Path.Combine(agentsDir, $"{name}.md"))).Scalar("name"));
         }
 
         Assert.False(File.Exists(Path.Combine(agentsDir, "loop-planner.md")));
@@ -134,7 +133,7 @@ public class SquadContractTests
     {
         foreach (var agent in AgentNames)
         {
-            var lines = NonEmptyBodyLines(Fixture($"{agent}.md"));
+            var lines = TestRepository.NonEmptyBodyLines(Fixture($"{agent}.md"));
             var cap = agent == "squad-security-reviewer" ? 44 : 32;
             Assert.True(lines <= cap, $"{agent} body is {lines} lines; cap is {cap}.");
         }
@@ -143,10 +142,10 @@ public class SquadContractTests
     [Fact]
     public void Loop_agents_use_per_role_tiers_implementer_standard_others_fast()
     {
-        Assert.Equal("standard", ParseFrontmatter(Fixture("squad-implementer.md")).Scalar("model"));
-        Assert.Equal("true", ParseFrontmatter(Fixture("squad-simplifier.md")).Scalar("readonly"));
+        Assert.Equal("standard", TestRepository.ParseFrontmatter(Fixture("squad-implementer.md")).Scalar("model"));
+        Assert.Equal("true", TestRepository.ParseFrontmatter(Fixture("squad-simplifier.md")).Scalar("readonly"));
         foreach (var agent in AgentNames.Where(name => name != "squad-implementer"))
-            Assert.Equal("fast", ParseFrontmatter(Fixture($"{agent}.md")).Scalar("model"));
+            Assert.Equal("fast", TestRepository.ParseFrontmatter(Fixture($"{agent}.md")).Scalar("model"));
     }
 
     [Fact]
@@ -161,7 +160,7 @@ public class SquadContractTests
         var root = TestRepository.SourceRoot();
         var skillPath = Path.Combine(root, "plugins", "squad", "skills", "learnings-digest", "SKILL.md");
         Assert.True(File.Exists(skillPath), "learnings-digest skill must stay; do not remove it.");
-        var skill = ParseFrontmatter(File.ReadAllText(skillPath));
+        var skill = TestRepository.ParseFrontmatter(File.ReadAllText(skillPath));
         Assert.Equal("learnings-digest", skill.Scalar("name"));
         Assert.Equal("false", skill.Scalar("user-invocable"));
         Assert.Equal("true", skill.Scalar("disable-model-invocation"));
@@ -175,7 +174,7 @@ public class SquadContractTests
         var skillPath = Path.Combine(
             TestRepository.SourceRoot(), "plugins", "squad", "skills", "learnings-digest", "SKILL.md");
         Assert.True(File.Exists(skillPath));
-        var lines = NonEmptyBodyLines(File.ReadAllText(skillPath));
+        var lines = TestRepository.NonEmptyBodyLines(File.ReadAllText(skillPath));
         Assert.True(lines <= 16, $"learnings-digest body is {lines} lines; Matt-tiny cap is 16.");
         Learnings_digest_is_not_user_invocable();
     }
@@ -232,13 +231,13 @@ public class SquadContractTests
     {
         Assert.Equal(
             "Plan → build → verify → review (gated). Uncommitted hand-off.",
-            ParseFrontmatter(Fixture("squad.md")).Scalar("description"));
+            TestRepository.ParseFrontmatter(Fixture("squad.md")).Scalar("description"));
         Assert.Equal(
             "Report-only review of a PR / uncommitted / vs main.",
-            ParseFrontmatter(Fixture("squad-review.md")).Scalar("description"));
+            TestRepository.ParseFrontmatter(Fixture("squad-review.md")).Scalar("description"));
         Assert.Equal(
             "From changed code, write docs/smoke/<slug>.md. No product-code edits.",
-            ParseFrontmatter(File.ReadAllText(
+            TestRepository.ParseFrontmatter(File.ReadAllText(
                 Path.Combine(TestRepository.SourceRoot(), "plugins", "squad", "commands", "scenarios.md")))
                 .Scalar("description"));
         Squad_commands_are_exactly_squad_and_review();
@@ -418,7 +417,7 @@ public class SquadContractTests
                         PluginDirectory = Path.Combine(root, "plugins", "squad")
                     });
 
-                var skill = ParseFrontmatter(File.ReadAllText(Path.Combine(target, "SKILL.md")));
+                var skill = TestRepository.ParseFrontmatter(File.ReadAllText(Path.Combine(target, "SKILL.md")));
                 Assert.Equal("false", skill.Scalar("user-invocable"));
             }
             finally
@@ -451,7 +450,7 @@ public class SquadContractTests
 
         var validate = File.ReadAllText(Path.Combine(root, ".github", "workflows", "validate.yml"));
         Assert.Contains("pull_request:", validate, StringComparison.Ordinal);
-        Assert.Equal(1, CountToken(validate, "runs-on:"));
+        Assert.Equal(1, TestRepository.CountOccurrences(validate, "runs-on:"));
         Assert.Contains("dotnet test", validate, StringComparison.Ordinal);
         Assert.Contains("validate-all --out", validate, StringComparison.Ordinal);
     }
@@ -598,7 +597,7 @@ public class SquadContractTests
     public void Squad_skill_progressive_disclosure_moves_four_bodies_to_references()
     {
         var skill = Fixture("SKILL.md");
-        var body = ParseFrontmatter(skill).Body;
+        var body = TestRepository.ParseFrontmatter(skill).Body;
         foreach (var href in new[]
                  {
                      "references/malformed-reask.md",
@@ -619,7 +618,7 @@ public class SquadContractTests
     [Fact]
     public void Squad_skill_body_is_not_grown()
     {
-        var lines = NonEmptyBodyLines(Fixture("SKILL.md"));
+        var lines = TestRepository.NonEmptyBodyLines(Fixture("SKILL.md"));
         Assert.True(lines <= 87, $"squad SKILL.md body is {lines} nonempty lines; cap is 87.");
     }
 
@@ -631,7 +630,7 @@ public class SquadContractTests
         {
             var skillDir = Path.Combine(root, "plugins", pack, "skills", $"{pack}-test-patterns");
             Assert.True(File.Exists(Path.Combine(skillDir, "references", "examples", "deployed-smoke.md")));
-            var skill = ParseFrontmatter(File.ReadAllText(Path.Combine(skillDir, "SKILL.md")));
+            var skill = TestRepository.ParseFrontmatter(File.ReadAllText(Path.Combine(skillDir, "SKILL.md")));
             Assert.Contains("references/examples/deployed-smoke.md", skill.Body, StringComparison.Ordinal);
 
             var examples = Path.Combine(skillDir, "references", "examples");
@@ -675,7 +674,7 @@ public class SquadContractTests
         Assert.False(File.Exists(Path.Combine(commandDir, "code-review.md")));
         Assert.Equal(
             "squad-review",
-            ParseFrontmatter(File.ReadAllText(Path.Combine(commandDir, "squad-review.md"))).Scalar("name"));
+            TestRepository.ParseFrontmatter(File.ReadAllText(Path.Combine(commandDir, "squad-review.md"))).Scalar("name"));
         Squad_commands_are_exactly_squad_and_review();
     }
 
@@ -695,16 +694,6 @@ public class SquadContractTests
             Assert.Empty(mcp["mcpServers"]!.AsObject());
         }
     }
-
-    private static Frontmatter ParseFrontmatter(string text)
-    {
-        var parsed = Frontmatter.TryParse(text, out var error);
-        Assert.True(parsed is not null, error);
-        return parsed!;
-    }
-
-    private static int NonEmptyBodyLines(string text) =>
-        ParseFrontmatter(text).Body.Split('\n').Count(line => !string.IsNullOrWhiteSpace(line));
 
     private static List<string> DiscoverableClaudeCommandNames(string pluginDirectory, JsonObject entry)
     {
@@ -741,12 +730,4 @@ public class SquadContractTests
                 .Select(path => Path.GetFileNameWithoutExtension(path)!)
                 .ToHashSet(StringComparer.Ordinal)
             : [];
-
-    private static int CountToken(string text, string token)
-    {
-        var count = 0;
-        for (var index = 0; (index = text.IndexOf(token, index, StringComparison.Ordinal)) >= 0; index += token.Length)
-            count++;
-        return count;
-    }
 }

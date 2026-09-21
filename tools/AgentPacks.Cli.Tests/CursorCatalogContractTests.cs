@@ -236,7 +236,7 @@ public sealed class CursorCatalogContractTests
                 .ToArray());
 
         var pipeline = File.ReadAllText(Path.Combine(root, "tools", "AgentPacks.Cli", "Commands", "Pipeline.cs"));
-        Assert.Equal(1, CountToken(pipeline, "new CursorMarketplaceGenerator"));
+        Assert.Equal(1, TestRepository.CountOccurrences(pipeline, "new CursorMarketplaceGenerator"));
         Assert.Contains(
             ".cursor-plugin/marketplace.json",
             File.ReadAllText(Path.Combine(root, ".github", "workflows", "publish-marketplace.yml")),
@@ -271,13 +271,4 @@ public sealed class CursorCatalogContractTests
 
         return repo;
     }
-
-    private static int CountToken(string text, string token)
-    {
-        var count = 0;
-        for (var index = 0; (index = text.IndexOf(token, index, StringComparison.Ordinal)) >= 0; index += token.Length)
-            count++;
-        return count;
-    }
-
 }

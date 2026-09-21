@@ -1,5 +1,4 @@
 using System.Text.Json.Nodes;
-using AgentPacks.Cli.Io;
 
 namespace AgentPacks.Cli.Tests;
 
@@ -31,7 +30,7 @@ public sealed class SecurityPackContractTests
     [Fact]
     public void Security_audit_is_user_invoked_slash_not_model_invoked()
     {
-        var skill = ParseFrontmatter(File.ReadAllText(
+        var skill = TestRepository.ParseFrontmatter(File.ReadAllText(
             Path.Combine(PackRoot(), "skills", "security-audit-md", "SKILL.md")));
         Assert.Equal("security-audit-md", skill.Scalar("name"));
         Assert.Equal("true", skill.Scalar("disable-model-invocation"));
@@ -39,7 +38,7 @@ public sealed class SecurityPackContractTests
         Assert.Equal("MIT", skill.Scalar("license"));
         Assert.False(skill.Has("metadata"));
 
-        var command = ParseFrontmatter(File.ReadAllText(
+        var command = TestRepository.ParseFrontmatter(File.ReadAllText(
             Path.Combine(PackRoot(), "commands", "security-audit.md")));
         Assert.Equal("security-audit", command.Scalar("name"));
         Assert.NotEqual(command.Scalar("name"), skill.Scalar("name"));
@@ -53,11 +52,11 @@ public sealed class SecurityPackContractTests
         foreach (var agent in AgentNames)
         {
             var text = File.ReadAllText(Path.Combine(PackRoot(), "agents", $"{agent}.md"));
-            var parsed = ParseFrontmatter(text);
+            var parsed = TestRepository.ParseFrontmatter(text);
             Assert.Equal(agent, parsed.Scalar("name"));
             Assert.Equal("fast", parsed.Scalar("model"));
             Assert.Equal("true", parsed.Scalar("readonly"));
-            var lines = NonEmptyBodyLines(text);
+            var lines = TestRepository.NonEmptyBodyLines(text);
             Assert.True(lines <= 32, $"{agent} body is {lines} lines; cap is 32.");
         }
     }
@@ -126,7 +125,7 @@ public sealed class SecurityPackContractTests
             StringComparison.Ordinal);
         Assert.DoesNotContain("A01_2025-Broken_Access_Control", gate, StringComparison.Ordinal);
         Assert.True(
-            NonEmptyBodyLines(gate) <= 44,
+            TestRepository.NonEmptyBodyLines(gate) <= 44,
             "squad-security-reviewer body exceeded its Matt-tiny cap.");
     }
 
@@ -143,14 +142,4 @@ public sealed class SecurityPackContractTests
         Assert.Contains("cloudflare/security-audit-skill", notice, StringComparison.OrdinalIgnoreCase);
         Assert.Contains("MIT", notice, StringComparison.Ordinal);
     }
-
-    private static Frontmatter ParseFrontmatter(string text)
-    {
-        var parsed = Frontmatter.TryParse(text, out var error);
-        Assert.True(parsed is not null, error);
-        return parsed!;
-    }
-
-    private static int NonEmptyBodyLines(string text) =>
-        ParseFrontmatter(text).Body.Split('\n').Count(line => !string.IsNullOrWhiteSpace(line));
 }
