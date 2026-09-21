@@ -67,10 +67,7 @@ internal sealed class CopilotMarketplaceGenerator(RepositoryContext context)
         // Keyed on what ClientTreeGenerator actually writes: always-on rules become a SessionStart
         // hook for Copilot the same way they do for Claude, so a plugin with no authored hooks but
         // one alwaysApply rule still produces a hooks.json that has to be declared.
-        var hasHooks = HookGenerator.Build(plugin, profile) is not null
-            || plugin.Rules.Any(r => r.Frontmatter?.Scalar("alwaysApply") == "true");
-
-        if (hasHooks)
+        if (HookGenerator.EmitsHooksFile(plugin, profile))
         {
             entry["hooks"] = $"./{profile.Directory}/hooks/hooks.json";
         }
