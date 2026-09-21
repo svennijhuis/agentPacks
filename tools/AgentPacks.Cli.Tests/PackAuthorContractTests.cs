@@ -1,5 +1,4 @@
 using System.Text.Json.Nodes;
-using AgentPacks.Cli.Io;
 
 namespace AgentPacks.Cli.Tests;
 
@@ -22,8 +21,8 @@ public sealed class PackAuthorContractTests
             "language-pack",
             manifest["keywords"]!.AsArray().Select(value => value!.GetValue<string>()));
 
-        var command = ParseFrontmatter(File.ReadAllText(Path.Combine(PackRoot(), "commands", "pack-author.md")));
-        var skill = ParseFrontmatter(File.ReadAllText(
+        var command = TestRepository.ParseFrontmatter(File.ReadAllText(Path.Combine(PackRoot(), "commands", "pack-author.md")));
+        var skill = TestRepository.ParseFrontmatter(File.ReadAllText(
             Path.Combine(PackRoot(), "skills", "pack-author-md", "SKILL.md")));
 
         var commandName = command.Scalar("name");
@@ -41,7 +40,7 @@ public sealed class PackAuthorContractTests
     public void Skill_is_a_user_invoked_router_for_three_modes()
     {
         var skillPath = Path.Combine(PackRoot(), "skills", "pack-author-md", "SKILL.md");
-        var skill = ParseFrontmatter(File.ReadAllText(skillPath));
+        var skill = TestRepository.ParseFrontmatter(File.ReadAllText(skillPath));
         var description = skill.Scalar("description") ?? string.Empty;
 
         Assert.Equal("true", skill.Scalar("disable-model-invocation"));
@@ -134,7 +133,7 @@ public sealed class PackAuthorContractTests
         Assert.Equal(["pack-author-reviewer.md"], agents);
 
         var agentText = File.ReadAllText(Path.Combine(PackRoot(), "agents", "pack-author-reviewer.md"));
-        var agent = ParseFrontmatter(agentText);
+        var agent = TestRepository.ParseFrontmatter(agentText);
         Assert.Equal("fast", agent.Scalar("model"));
         Assert.Equal("true", agent.Scalar("readonly"));
         var lines = agent.Body.Split('\n').Count(line => !string.IsNullOrWhiteSpace(line));
@@ -259,12 +258,5 @@ public sealed class PackAuthorContractTests
             Assert.Contains("CONTRIBUTE.md", note, StringComparison.Ordinal);
             Assert.Contains("#63", note, StringComparison.Ordinal);
         }
-    }
-
-    private static Frontmatter ParseFrontmatter(string text)
-    {
-        var parsed = Frontmatter.TryParse(text, out var error);
-        Assert.True(parsed is not null, error);
-        return parsed!;
     }
 }

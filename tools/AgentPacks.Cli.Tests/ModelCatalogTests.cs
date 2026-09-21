@@ -1,6 +1,4 @@
 using System.Text.Json;
-using AgentPacks.Cli.Generation;
-using AgentPacks.Cli.Io;
 using AgentPacks.Cli.Loading;
 
 namespace AgentPacks.Cli.Tests;
@@ -189,8 +187,7 @@ public sealed class ModelCatalogTests
     {
         var skill = File.ReadAllText(Path.Combine(
             TestRepository.SourceRoot(), "plugins", "squad", "skills", "squad", "SKILL.md"));
-        var parsed = Frontmatter.TryParse(skill, out var error);
-        Assert.True(parsed is not null, error);
+        var parsed = TestRepository.ParseFrontmatter(skill);
         Assert.Equal("true", parsed!.Scalar("disable-model-invocation"));
     }
 
