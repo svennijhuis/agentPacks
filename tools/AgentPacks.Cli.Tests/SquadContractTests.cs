@@ -209,13 +209,15 @@ public class SquadContractTests
             File.Exists(Path.Combine(root, "plugins", "squad", "commands", "suggestions.md")),
             "suggestions is a contract, not a slash command");
 
-        // Shared write-gate noun set across slash · worktree · SKILL · contract (no drift).
+        // Shared write-gate noun set across slash · worktree · SKILL · contract · learnings · review (no drift).
         const string Gate = "pack/skill/agent/command/contract";
         Assert.Contains(Gate, squad, StringComparison.Ordinal);
         Assert.Contains(Gate, squadReview, StringComparison.Ordinal);
         Assert.Contains(Gate, worktree, StringComparison.Ordinal);
         Assert.Contains(Gate, skill, StringComparison.Ordinal);
         Assert.Contains(Gate, suggestions, StringComparison.Ordinal);
+        Assert.Contains(Gate, learnings, StringComparison.Ordinal);
+        Assert.Contains(Gate, review, StringComparison.Ordinal);
         Assert.Contains("`pack` / `skill` / `agent` / `command` / `contract`", suggestions, StringComparison.Ordinal);
     }
 
