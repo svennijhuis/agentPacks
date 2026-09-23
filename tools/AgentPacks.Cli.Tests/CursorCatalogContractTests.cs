@@ -142,6 +142,43 @@ public sealed class CursorCatalogContractTests
     }
 
     /// <summary>
+    /// Official Cursor workflow packs set <c>category: developer-tools</c> on
+    /// <c>.cursor-plugin/plugin.json</c> (orchestrate, pstack, thermos, ralph-loop).
+    /// The marketplace catalog still cannot: additionalProperties: false. Claude
+    /// and Copilot catalogs stay without a Cursor-only category so the four-client
+    /// entry shapes do not grow a field only one picker reads.
+    /// </summary>
+    [Fact]
+    public void Cursor_plugin_manifests_set_developer_tools_category()
+    {
+        using var repo = ShippedPlugins();
+        var run = repo.ValidateAndGenerate();
+        Assert.False(run.HasErrors, run.Text);
+
+        var claudeEntries = run.File(".claude-plugin/marketplace.json").Content["plugins"]!.AsArray()
+            .OfType<JsonObject>()
+            .ToDictionary(entry => entry["name"]!.GetValue<string>(), StringComparer.Ordinal);
+        var copilotEntries = run.File(".github/plugin/marketplace.json").Content["plugins"]!.AsArray()
+            .OfType<JsonObject>()
+            .ToDictionary(entry => entry["name"]!.GetValue<string>(), StringComparer.Ordinal);
+        var cursorEntries = run.File(".cursor-plugin/marketplace.json").Content["plugins"]!.AsArray()
+            .OfType<JsonObject>()
+            .ToArray();
+
+        foreach (var name in PluginNames)
+        {
+            Assert.Equal(
+                "developer-tools",
+                run.File($"plugins/{name}/.cursor-plugin/plugin.json")
+                    .Content["category"]!.GetValue<string>());
+            Assert.Null(claudeEntries[name]["category"]);
+            Assert.Null(copilotEntries[name]["category"]);
+        }
+
+        Assert.All(cursorEntries, entry => Assert.Null(entry["category"]));
+    }
+
+    /// <summary>
     /// Official Cursor packs set <c>displayName</c> on <c>.cursor-plugin/plugin.json</c>
     /// (schemas/plugin.schema.json). Claude marketplace entries use the same titles
     /// (v2.1.143+). Copilot's catalog schema has no display-name field.
