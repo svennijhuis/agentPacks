@@ -103,10 +103,7 @@ internal sealed class ClaudeCompatGenerator(RepositoryContext context)
         // pack-check and git omit the field: Claude rejects a marketplace hooks path or array.
         // Those packs emit Claude-shaped hooks/hooks.json at the plugin root instead so Claude
         // auto-discovers it. Do not substitute Copilot's namespaced hooks file.
-        var hasHooks = HookGenerator.Build(plugin, claude) is not null
-            || plugin.Rules.Any(r => r.Frontmatter?.Scalar("alwaysApply") == "true");
-
-        if (hasHooks && !plugin.ClaudeAutoDiscoversRootHooks)
+        if (HookGenerator.EmitsHooksFile(plugin, claude) && !plugin.ClaudeAutoDiscoversRootHooks)
         {
             entry["hooks"] = $"./{claude.Directory}/hooks/hooks.json";
         }
