@@ -6,7 +6,8 @@ namespace AgentPacks.Cli.Generation;
 /// <summary>
 /// Builds the repo marketplace Codex discovers at .agents/plugins/marketplace.json. Component
 /// routing belongs to each plugin's .codex-plugin/plugin.json; this catalog only controls discovery,
-/// ordering and installation policy.
+/// ordering and installation policy. Category follows official openai/plugins taxonomy
+/// (<see cref="CodexCategory"/>).
 /// </summary>
 internal sealed class CodexMarketplaceGenerator(RepositoryContext context)
 {
@@ -29,7 +30,7 @@ internal sealed class CodexMarketplaceGenerator(RepositoryContext context)
                     ["installation"] = "AVAILABLE",
                     ["authentication"] = "ON_INSTALL"
                 },
-                ["category"] = "Productivity"
+                ["category"] = CodexCategory.From(plugin)
             });
         }
 

@@ -196,6 +196,7 @@ public sealed class ClientManifestTests
         Assert.Equal("./skills/", codex["skills"]!.GetValue<string>());
         Assert.Equal("agentPacks Maintainers", codex["author"]!["name"]!.GetValue<string>());
         Assert.Equal("Engineering", codex["interface"]!["displayName"]!.GetValue<string>());
+        Assert.Equal(CodexCategory.DeveloperTools, codex["interface"]!["category"]!.GetValue<string>());
         Assert.Equal(["Skills", "Hooks"], codex["interface"]!["capabilities"]!.AsArray().Select(x => x!.GetValue<string>()));
     }
 
@@ -213,7 +214,7 @@ public sealed class ClientManifestTests
         Assert.Equal("./plugins/engineering", entry["source"]!["path"]!.GetValue<string>());
         Assert.Equal("AVAILABLE", entry["policy"]!["installation"]!.GetValue<string>());
         Assert.Equal("ON_INSTALL", entry["policy"]!["authentication"]!.GetValue<string>());
-        Assert.Equal("Productivity", entry["category"]!.GetValue<string>());
+        Assert.Equal(CodexCategory.DeveloperTools, entry["category"]!.GetValue<string>());
     }
 
     [Fact]
