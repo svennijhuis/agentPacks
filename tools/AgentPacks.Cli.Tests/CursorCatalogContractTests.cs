@@ -142,6 +142,54 @@ public sealed class CursorCatalogContractTests
     }
 
     /// <summary>
+    /// Official openai/plugins classifies coding/workflow packs as
+    /// <c>Developer Tools</c> (superpowers, github, plugin-eval) and audit packs
+    /// as <c>Security</c> (codex-security). <c>Productivity</c> is for Linear /
+    /// Notion / calendar apps. Claude and Copilot catalogs have no Codex category
+    /// field; Cursor catalog entries still cannot carry one.
+    /// </summary>
+    [Fact]
+    public void Codex_catalog_uses_official_developer_tools_taxonomy()
+    {
+        using var repo = ShippedPlugins();
+        var run = repo.ValidateAndGenerate();
+        Assert.False(run.HasErrors, run.Text);
+
+        var expected = PluginNames.ToDictionary(
+            name => name,
+            name => name == "security" ? CodexCategory.Security : CodexCategory.DeveloperTools,
+            StringComparer.Ordinal);
+
+        var codexEntries = run.File(".agents/plugins/marketplace.json").Content["plugins"]!.AsArray()
+            .OfType<JsonObject>()
+            .ToDictionary(entry => entry["name"]!.GetValue<string>(), StringComparer.Ordinal);
+        var claudeEntries = run.File(".claude-plugin/marketplace.json").Content["plugins"]!.AsArray()
+            .OfType<JsonObject>()
+            .ToDictionary(entry => entry["name"]!.GetValue<string>(), StringComparer.Ordinal);
+        var copilotEntries = run.File(".github/plugin/marketplace.json").Content["plugins"]!.AsArray()
+            .OfType<JsonObject>()
+            .ToDictionary(entry => entry["name"]!.GetValue<string>(), StringComparer.Ordinal);
+        var cursorEntries = run.File(".cursor-plugin/marketplace.json").Content["plugins"]!.AsArray()
+            .OfType<JsonObject>()
+            .ToArray();
+
+        foreach (var (name, category) in expected)
+        {
+            Assert.Equal(category, codexEntries[name]["category"]!.GetValue<string>());
+            Assert.Equal(
+                category,
+                run.File($"plugins/{name}/.codex-plugin/plugin.json")
+                    .Content["interface"]!["category"]!.GetValue<string>());
+            Assert.Null(claudeEntries[name]["category"]);
+            Assert.Null(copilotEntries[name]["category"]);
+        }
+
+        Assert.All(cursorEntries, entry => Assert.Null(entry["category"]));
+        Assert.Equal(CodexCategory.DeveloperTools, CodexCategory.From("squad"));
+        Assert.Equal(CodexCategory.Security, CodexCategory.From("security"));
+    }
+
+    /// <summary>
     /// Official Cursor packs set <c>displayName</c> on <c>.cursor-plugin/plugin.json</c>
     /// (schemas/plugin.schema.json). Claude marketplace entries use the same titles
     /// (v2.1.143+). Copilot's catalog schema has no display-name field.
