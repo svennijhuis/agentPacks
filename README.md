@@ -325,4 +325,4 @@ creating or advertising another standards location on the repository or the deve
 
 [`docs/ADD-LANGUAGE-PACK.md`](docs/ADD-LANGUAGE-PACK.md) has the full contract.
 
-Contributor and architecture documentation lives in [`docs/`](docs/).
+Contributor and architecture documentation lives in [`docs/`](docs/). Contribute: [`docs/CONTRIBUTE.md`](docs/CONTRIBUTE.md).
