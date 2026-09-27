@@ -9,9 +9,9 @@ Audience: platform + product test teams. Maintainers still own catalog decisions
 | Lane | You work in | Goal |
 |---|---|---|
 | **A. Pack contribute** | `svennijhuis/agentPacks` | New/updated skill, standard, language pack, or capability pack |
-| **B. App testing** | Your product repo | Unit / component / integration / smoke; `/scenarios` writes smoke md |
+| **B. App testing** | Your product repo | Unit / integration / smoke; `/scenarios` writes smoke md |
 
-Do not invent a fifth user slash. Locked user commands: `/squad` · `/squad-review` · `/scenarios` · `/pack-check` (plus `/security-audit` on the security pack).
+No new slash. Locked user commands: `/squad` · `/squad-review` · `/scenarios` · `/pack-check` (plus `/security-audit` on the security pack).
 
 ---
 
@@ -107,8 +107,8 @@ Install packs once (team marketplace or per-user). Prefer language pack for your
 
 | Role | Command | Output |
 |---|---|---|
-| Dev | `/squad` | Code change, gated implement/verify/review, uncommitted hand-off |
-| Dev | `/squad-review` | Code/diff report (optional `docs/reviews/*.md`) |
+| Dev | `/squad` (Copilot: `/squad:run`) | Code change, gated implement/verify/review, uncommitted hand-off |
+| Dev | `/squad-review` (Copilot: `/squad:squad-review`) | Code/diff report (optional `docs/reviews/*.md`) |
 | Office tester | `/scenarios` (Copilot: `/squad:scenarios`) | Only `docs/smoke/<slug>.md` in **app** workspace |
 | Setup | `/pack-check` | Detect stack; ask before language pack install |
 
@@ -121,11 +121,10 @@ Use the stack’s `<lang>-test-patterns` + `standards/testing.md`. Shared idea:
 | Layer | Kind | Runs where | Typical proof |
 |---|---|---|---|
 | **Unit** | Fast, focused branching | In-process | `dotnet test` / `cargo test` / `vitest` filtered |
-| **Component** | One module + light deps | In-process or narrow host | Same runner; fakes at boundary |
 | **Integration** | Composition, routing, DB, wiring | Local host / `WebApplicationFactory` / testcontainers | Shared fixture lifetime; real provider when in-memory lies |
 | **Smoke** | Deployed/API probe | **Deployed env** | Manual or CI against real URL; rows from `/scenarios` |
 
-Smoke ≠ integration. Local host / factory = integration. Deployed URL + secrets in **app repo** = smoke ([`smoke-matrix.md`](https://github.com/svennijhuis/agentPacks/blob/main/plugins/squad/references/smoke-matrix.md)).
+Smoke ≠ unit/integration. Local host / factory = integration. Deployed URL + secrets in **app repo** = smoke ([`smoke-matrix.md`](https://github.com/svennijhuis/agentPacks/blob/main/plugins/squad/references/smoke-matrix.md)).
 
 .NET reminders (from pack standard):
 
