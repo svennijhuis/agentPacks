@@ -1,5 +1,4 @@
 using System.Text.Json.Nodes;
-using AgentPacks.Cli.Io;
 
 namespace AgentPacks.Cli.Tests;
 
@@ -22,13 +21,9 @@ public sealed class HttpScenariosContractTests
             .ToArray();
 
         Assert.Equal(["pack-check", "scenarios", "security-audit", "squad", "squad-review"], commands);
-        Assert.Equal(
-            ["dotnet", "git", "pack-check", "rust", "security", "squad", "typescript"],
-            Directory.GetDirectories(Path.Combine(root, "plugins"))
-                .Select(path => Path.GetFileName(path) ?? path)
-                .OrderBy(name => name, StringComparer.Ordinal));
+        Assert.Equal(TestRepository.ShippedPluginNames, TestRepository.ShippedPluginDirectories(root));
 
-        var skill = ParseFrontmatter(File.ReadAllText(ScenariosSkillPath(root)));
+        var skill = TestRepository.ParseFrontmatter(File.ReadAllText(ScenariosSkillPath(root)));
         Assert.Equal("scenarios-md", skill.Scalar("name"));
         Assert.Equal("true", skill.Scalar("disable-model-invocation"));
         Assert.Equal("false", skill.Scalar("user-invocable"));
@@ -83,8 +78,8 @@ public sealed class HttpScenariosContractTests
         Assert.False(Directory.Exists(Path.Combine(root, "plugins", "squad", "skills", "http-scenarios")));
         Assert.False(Directory.Exists(Path.Combine(root, "plugins", "squad", "skills", "scenarios")));
 
-        Assert.Equal("scenarios", ParseFrontmatter(File.ReadAllText(commandPath)).Scalar("name"));
-        Assert.Equal("scenarios-md", ParseFrontmatter(File.ReadAllText(skillPath)).Scalar("name"));
+        Assert.Equal("scenarios", TestRepository.ParseFrontmatter(File.ReadAllText(commandPath)).Scalar("name"));
+        Assert.Equal("scenarios-md", TestRepository.ParseFrontmatter(File.ReadAllText(skillPath)).Scalar("name"));
         Assert.True(File.Exists(Path.Combine(root, "plugins", "squad", "references", "smoke-matrix.md")));
     }
 
@@ -123,7 +118,7 @@ public sealed class HttpScenariosContractTests
         Assert.False(File.Exists(Path.Combine(root, "plugins", "squad", "commands", "http-scenarios.md")));
         Assert.Equal(
             "scenarios",
-            ParseFrontmatter(File.ReadAllText(Path.Combine(root, "plugins", "squad", "commands", "scenarios.md")))
+            TestRepository.ParseFrontmatter(File.ReadAllText(Path.Combine(root, "plugins", "squad", "commands", "scenarios.md")))
                 .Scalar("name"));
 
         Assert.True(run.HasFile("plugins/squad/com.anthropic.claude-code/commands/scenarios.md"));
@@ -132,7 +127,7 @@ public sealed class HttpScenariosContractTests
         Assert.False(run.HasFile("plugins/squad/com.github.copilot/commands/http-scenarios.md"));
         Assert.Equal(
             "scenarios",
-            ParseFrontmatter(run.File("plugins/squad/com.github.copilot/commands/scenarios.md").Text).Scalar("name"));
+            TestRepository.ParseFrontmatter(run.File("plugins/squad/com.github.copilot/commands/scenarios.md").Text).Scalar("name"));
         Assert.False(run.HasFile("plugins/squad/com.openai.codex/commands/http-scenarios.md"));
         Assert.False(run.HasFile("plugins/squad/.cursor-plugin/commands/http-scenarios.md"));
 
@@ -149,8 +144,8 @@ public sealed class HttpScenariosContractTests
     public void Copilot_scenarios_command_name_differs_from_skill()
     {
         var root = TestRepository.SourceRoot();
-        var command = ParseFrontmatter(File.ReadAllText(Path.Combine(root, "plugins", "squad", "commands", "scenarios.md")));
-        var skill = ParseFrontmatter(File.ReadAllText(ScenariosSkillPath(root)));
+        var command = TestRepository.ParseFrontmatter(File.ReadAllText(Path.Combine(root, "plugins", "squad", "commands", "scenarios.md")));
+        var skill = TestRepository.ParseFrontmatter(File.ReadAllText(ScenariosSkillPath(root)));
 
         Assert.Equal("scenarios", command.Scalar("name"));
         Assert.Equal("scenarios-md", skill.Scalar("name"));
@@ -163,7 +158,7 @@ public sealed class HttpScenariosContractTests
         var run = repo.ValidateAndGenerate();
         Assert.False(run.HasErrors, run.Text);
 
-        var copilot = ParseFrontmatter(run.File("plugins/squad/com.github.copilot/commands/scenarios.md").Text);
+        var copilot = TestRepository.ParseFrontmatter(run.File("plugins/squad/com.github.copilot/commands/scenarios.md").Text);
         Assert.Equal("scenarios", copilot.Scalar("name"));
         Assert.NotEqual("scenarios-md", copilot.Scalar("name"));
 
@@ -201,11 +196,4 @@ public sealed class HttpScenariosContractTests
 
     private static string ScenariosSkillPath(string root) =>
         Path.Combine(root, "plugins", "squad", "skills", "scenarios-md", "SKILL.md");
-
-    private static Frontmatter ParseFrontmatter(string text)
-    {
-        var parsed = Frontmatter.TryParse(text, out var error);
-        Assert.True(parsed is not null, error);
-        return parsed!;
-    }
 }

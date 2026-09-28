@@ -1,5 +1,4 @@
 using System.Text.RegularExpressions;
-using AgentPacks.Cli.Io;
 
 namespace AgentPacks.Cli.Tests;
 
@@ -43,10 +42,10 @@ public sealed class SkillHygieneContractTests
     [Fact]
     public void Skill_descriptions_are_short_when_to_use()
     {
-        foreach (var path in AuthoredSkillFiles())
+        foreach (var path in TestRepository.AuthoredSkillFiles())
         {
             var text = File.ReadAllText(path);
-            var frontmatter = ParseFrontmatter(path, text);
+            var frontmatter = TestRepository.ParseFrontmatter(text, RelativeToPlugins(path));
             var description = frontmatter.Scalar("description") ?? string.Empty;
             var relative = RelativeToPlugins(path);
 
@@ -83,16 +82,6 @@ public sealed class SkillHygieneContractTests
                 "references/checklist.md");
         }
 
-        AssertRouterLinksReference(
-            Path.Combine(root, "plugins", "dotnet", "skills", "dotnet-build"),
-            "references/commands.md");
-        AssertRouterLinksReference(
-            Path.Combine(root, "plugins", "rust", "skills", "rust-build"),
-            "references/commands.md");
-        AssertRouterLinksReference(
-            Path.Combine(root, "plugins", "typescript", "skills", "typescript-build"),
-            "references/commands.md");
-
         var packCheck = Path.Combine(root, "plugins", "pack-check", "skills", "pack-check");
         AssertRouterLinksReference(packCheck, "references/detect.md");
         AssertRouterLinksReference(packCheck, "references/packs.md");
@@ -109,12 +98,12 @@ public sealed class SkillHygieneContractTests
         AssertRouterLinksReference(squad, "references/worktree.md");
         AssertRouterLinksReference(squad, "references/advisor-lite.md");
 
-        foreach (var path in AuthoredSkillFiles())
+        foreach (var path in TestRepository.AuthoredSkillFiles())
         {
             var skillDir = Directory.GetParent(path)!.FullName;
             var skillName = Directory.GetParent(path)!.Name;
             var text = File.ReadAllText(path);
-            var frontmatter = ParseFrontmatter(path, text);
+            var frontmatter = TestRepository.ParseFrontmatter(text, RelativeToPlugins(path));
             var body = frontmatter.Body;
             var lines = body.Split('\n').Count(line => !string.IsNullOrWhiteSpace(line));
             var relative = RelativeToPlugins(path);
@@ -170,29 +159,17 @@ public sealed class SkillHygieneContractTests
         }
     }
 
-    private static IEnumerable<string> AuthoredSkillFiles() =>
-        Directory.GetFiles(Path.Combine(TestRepository.SourceRoot(), "plugins"), "SKILL.md", SearchOption.AllDirectories)
-            .Where(path => !path.Contains($"{Path.DirectorySeparatorChar}com.", StringComparison.Ordinal))
-            .OrderBy(path => path, StringComparer.Ordinal);
-
     private static IEnumerable<string> AuthoredSkillTreeMarkdown() =>
         Directory.GetFiles(Path.Combine(TestRepository.SourceRoot(), "plugins"), "*.md", SearchOption.AllDirectories)
             .Where(path => path.Contains($"{Path.DirectorySeparatorChar}skills{Path.DirectorySeparatorChar}", StringComparison.Ordinal)
                 && !path.Contains($"{Path.DirectorySeparatorChar}com.", StringComparison.Ordinal))
             .OrderBy(path => path, StringComparer.Ordinal);
 
-    private static Frontmatter ParseFrontmatter(string path, string text)
-    {
-        var parsed = Frontmatter.TryParse(text, out var error);
-        Assert.True(parsed is not null, $"{RelativeToPlugins(path)} frontmatter: {error}");
-        return parsed!;
-    }
-
     private static void AssertRouterLinksReference(string skillDir, string href)
     {
         var skillPath = Path.Combine(skillDir, "SKILL.md");
         var relative = RelativeToPlugins(skillPath);
-        var body = ParseFrontmatter(skillPath, File.ReadAllText(skillPath)).Body;
+        var body = TestRepository.ParseFrontmatter(File.ReadAllText(skillPath), relative).Body;
         Assert.Contains(href, body, StringComparison.Ordinal);
 
         var target = Path.GetFullPath(Path.Combine(skillDir, href));

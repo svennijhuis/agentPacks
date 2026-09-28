@@ -11,19 +11,9 @@ namespace AgentPacks.Cli.Tests;
 /// </summary>
 public sealed class CursorCatalogContractTests
 {
-    private static readonly string[] PluginNames =
-        ["dotnet", "git", "pack-check", "rust", "security", "squad", "typescript"];
+    private static readonly string[] PluginNames = TestRepository.ShippedPluginNames;
 
-    private static readonly string[] SquadAgents =
-    [
-        "squad-planner",
-        "squad-implementer",
-        "squad-verifier",
-        "squad-reviewer",
-        "squad-security-reviewer",
-        "squad-simplifier",
-        "squad-orchestrator"
-    ];
+    private static readonly string[] SquadAgents = TestRepository.SquadAgentNames;
 
     /// <summary>
     /// Reviewer named proof. Official-schema Cursor catalog ships: generated
@@ -236,7 +226,7 @@ public sealed class CursorCatalogContractTests
                 .ToArray());
 
         var pipeline = File.ReadAllText(Path.Combine(root, "tools", "AgentPacks.Cli", "Commands", "Pipeline.cs"));
-        Assert.Equal(1, CountToken(pipeline, "new CursorMarketplaceGenerator"));
+        Assert.Equal(1, TestRepository.CountOccurrences(pipeline, "new CursorMarketplaceGenerator"));
         Assert.Contains(
             ".cursor-plugin/marketplace.json",
             File.ReadAllText(Path.Combine(root, ".github", "workflows", "publish-marketplace.yml")),
@@ -271,13 +261,4 @@ public sealed class CursorCatalogContractTests
 
         return repo;
     }
-
-    private static int CountToken(string text, string token)
-    {
-        var count = 0;
-        for (var index = 0; (index = text.IndexOf(token, index, StringComparison.Ordinal)) >= 0; index += token.Length)
-            count++;
-        return count;
-    }
-
 }
