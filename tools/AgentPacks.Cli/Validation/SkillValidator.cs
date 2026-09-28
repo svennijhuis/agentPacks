@@ -34,8 +34,9 @@ internal sealed class SkillValidator(RepositoryContext context)
             ValidateCompatibility(frontmatter, relative);
             ValidateMetadata(frontmatter, relative);
             ValidateAllowedTools(frontmatter, relative);
-            ValidateInvocationPolicy(frontmatter, relative);
-            ValidateUserInvocable(frontmatter, relative);
+            // Claude: disable-model-invocation. Copilot: user-invocable. Same boolean rule.
+            ValidateBooleanScalar(frontmatter, "disable-model-invocation", relative);
+            ValidateBooleanScalar(frontmatter, "user-invocable", relative);
             ValidateBody(frontmatter, relative);
 
             if (name is null)
@@ -152,46 +153,20 @@ internal sealed class SkillValidator(RepositoryContext context)
         }
     }
 
-    /// <summary>
-    /// Claude reads <c>disable-model-invocation</c> from SKILL.md; Codex reads the generated
-    /// <c>agents/openai.yaml</c>. The flag must be a boolean when present. Setting it on one
-    /// dialect only is prevented by generating the Codex half from this field.
-    /// </summary>
-    private void ValidateInvocationPolicy(Frontmatter frontmatter, string relative)
+    private void ValidateBooleanScalar(Frontmatter frontmatter, string key, string relative)
     {
-        if (!frontmatter.Has("disable-model-invocation"))
+        if (!frontmatter.Has(key))
         {
             return;
         }
 
-        var value = frontmatter.Scalar("disable-model-invocation");
+        var value = frontmatter.Scalar(key);
 
         if (value is not ("true" or "false"))
         {
             context.Diagnostics.SpecFatal(
                 relative,
-                "frontmatter 'disable-model-invocation' must be true or false.");
-        }
-    }
-
-    /// <summary>
-    /// Copilot reads <c>user-invocable</c>. When present it must be a boolean. Loop-audience
-    /// skills are emitted with <c>false</c> so they are not user entrypoints.
-    /// </summary>
-    private void ValidateUserInvocable(Frontmatter frontmatter, string relative)
-    {
-        if (!frontmatter.Has("user-invocable"))
-        {
-            return;
-        }
-
-        var value = frontmatter.Scalar("user-invocable");
-
-        if (value is not ("true" or "false"))
-        {
-            context.Diagnostics.SpecFatal(
-                relative,
-                "frontmatter 'user-invocable' must be true or false.");
+                $"frontmatter '{key}' must be true or false.");
         }
     }
 

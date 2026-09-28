@@ -31,7 +31,7 @@ and name every source.
 | Problem | One sentence stating the defect and its cause when needed to identify it |
 | Fix | Imperative and specific enough to execute without another question. Classify first (Mechanical vs judgment): a mechanical defect names the repo's existing check when one would have caught it |
 | Empty | Write `No findings.` and state what was examined; never add filler findings |
-| Confidence | Score 0–100. Do not emit a confidence column; the bar is in Confidence below |
+| Confidence | See Confidence below |
 
 ## Mechanical vs judgment
 

@@ -1,5 +1,4 @@
 using System.Text.Json.Nodes;
-using AgentPacks.Cli.Io;
 using AgentPacks.Cli.Verification;
 
 namespace AgentPacks.Cli.Tests;
@@ -85,8 +84,7 @@ public sealed class PluginMcpContractTests
     {
         var skill = File.ReadAllText(Path.Combine(
             TestRepository.SourceRoot(), "plugins", "dotnet", "skills", "dotnet-solution", "SKILL.md"));
-        var frontmatter = Frontmatter.TryParse(skill, out var error);
-        Assert.True(frontmatter is not null, error);
+        var frontmatter = TestRepository.ParseFrontmatter(skill);
         Assert.Equal("loop", frontmatter!.StringMap("metadata")?["audience"]);
         Assert.Null(frontmatter.Scalar("disable-model-invocation"));
     }
@@ -96,15 +94,11 @@ public sealed class PluginMcpContractTests
     {
         var root = TestRepository.SourceRoot();
         var loopSkills = 0;
-        foreach (var skill in Directory.GetFiles(Path.Combine(root, "plugins"), "SKILL.md",
-                     SearchOption.AllDirectories)
-                     .Where(path => !path.Contains($"{Path.DirectorySeparatorChar}com.", StringComparison.Ordinal)
-                         && !path.Contains(".cursor-plugin", StringComparison.Ordinal)))
+        foreach (var skill in TestRepository.AuthoredSkillFiles(root))
         {
             var text = File.ReadAllText(skill);
             var directoryName = Directory.GetParent(skill)!.Name;
-            var parsed = Frontmatter.TryParse(text, out var error);
-            Assert.True(parsed is not null, $"{directoryName} frontmatter: {error}");
+            var parsed = TestRepository.ParseFrontmatter(text, directoryName);
             Assert.Equal(directoryName, parsed!.Scalar("name"));
             Assert.False(string.IsNullOrWhiteSpace(parsed.Scalar("description")));
             Assert.False(string.IsNullOrWhiteSpace(parsed.Scalar("license")));
@@ -127,10 +121,9 @@ public sealed class PluginMcpContractTests
                          && !path.Contains($"{Path.DirectorySeparatorChar}com.", StringComparison.Ordinal)
                          && !path.Contains(".cursor-plugin", StringComparison.Ordinal)))
         {
-            var parsed = Frontmatter.TryParse(File.ReadAllText(agent), out var error);
             var name = Path.GetFileNameWithoutExtension(agent);
-            Assert.True(parsed is not null, $"{name} frontmatter: {error}");
-            Assert.Equal(name, parsed!.Scalar("name"));
+            var parsed = TestRepository.ParseFrontmatter(File.ReadAllText(agent), name);
+            Assert.Equal(name, parsed.Scalar("name"));
             Assert.False(string.IsNullOrWhiteSpace(parsed.Scalar("model")));
             Assert.False(string.IsNullOrWhiteSpace(parsed.Scalar("readonly")));
             Assert.True(parsed.Has("tools"));
@@ -142,8 +135,7 @@ public sealed class PluginMcpContractTests
                          && !path.Contains($"{Path.DirectorySeparatorChar}com.", StringComparison.Ordinal)
                          && !path.Contains(".cursor-plugin", StringComparison.Ordinal)))
         {
-            var parsed = Frontmatter.TryParse(File.ReadAllText(command), out var error);
-            Assert.True(parsed is not null, $"{command} frontmatter: {error}");
+            var parsed = TestRepository.ParseFrontmatter(File.ReadAllText(command), command);
             Assert.False(string.IsNullOrWhiteSpace(parsed!.Scalar("name")));
         }
 
