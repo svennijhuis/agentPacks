@@ -10,18 +10,14 @@ namespace AgentPacks.Cli.Tests;
 /// </summary>
 public sealed class PluginVersionContractTests
 {
-    private static readonly string[] PluginNames =
-        ["dotnet", "git", "pack-author", "pack-check", "rust", "security", "squad", "typescript"];
+    private static readonly string[] PluginNames = TestRepository.ShippedPluginNames;
 
     [Fact]
     public void All_plugins_version_0_1_3()
     {
         var root = TestRepository.SourceRoot();
         var plugins = Path.Combine(root, "plugins");
-        var names = Directory.GetDirectories(plugins)
-            .Select(path => Path.GetFileName(path) ?? path)
-            .OrderBy(name => name, StringComparer.Ordinal)
-            .ToArray();
+        var names = TestRepository.ShippedPluginDirectories(root);
         Assert.Equal(PluginNames, names);
 
         foreach (var name in PluginNames)

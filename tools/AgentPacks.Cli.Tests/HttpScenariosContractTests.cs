@@ -21,11 +21,7 @@ public sealed class HttpScenariosContractTests
             .ToArray();
 
         Assert.Equal(["pack-author", "pack-check", "scenarios", "security-audit", "squad", "squad-review"], commands);
-        Assert.Equal(
-            ["dotnet", "git", "pack-author", "pack-check", "rust", "security", "squad", "typescript"],
-            Directory.GetDirectories(Path.Combine(root, "plugins"))
-                .Select(path => Path.GetFileName(path) ?? path)
-                .OrderBy(name => name, StringComparer.Ordinal));
+        Assert.Equal(TestRepository.ShippedPluginNames, TestRepository.ShippedPluginDirectories(root));
 
         var skill = TestRepository.ParseFrontmatter(File.ReadAllText(ScenariosSkillPath(root)));
         Assert.Equal("scenarios-md", skill.Scalar("name"));
