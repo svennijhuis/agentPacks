@@ -159,14 +159,18 @@ internal sealed class CompatibilityValidator(RepositoryContext context)
         }
     }
 
-    private void ValidateCursorEntry(JsonObject entry, string path, Dictionary<string, string> seen)
+    private string? ReadUniqueMarketplaceName(
+        JsonObject entry,
+        string path,
+        Dictionary<string, string> seen,
+        string emptyNameMessage)
     {
         var name = entry["name"]?.GetValue<string>();
 
         if (string.IsNullOrWhiteSpace(name))
         {
-            context.Diagnostics.Policy(path, "every generated Cursor plugin entry must define 'name'.");
-            return;
+            context.Diagnostics.Policy(path, emptyNameMessage);
+            return null;
         }
 
         if (!AgentPluginSpec.MarketplaceSafeName.IsMatch(name))
@@ -187,6 +191,27 @@ internal sealed class CompatibilityValidator(RepositoryContext context)
             seen[name] = name;
         }
 
+        if (entry["version"] is not null)
+        {
+            context.Diagnostics.Policy(
+                path,
+                $"plugin entry '{name}' declares 'version'. It must be omitted so update detection " +
+                "falls back to the Git commit SHA.");
+        }
+
+        return name;
+    }
+
+    private void ValidateCursorEntry(JsonObject entry, string path, Dictionary<string, string> seen)
+    {
+        var name = ReadUniqueMarketplaceName(
+            entry, path, seen, "every generated Cursor plugin entry must define 'name'.");
+
+        if (name is null)
+        {
+            return;
+        }
+
         foreach (var key in entry.Select(p => p.Key))
         {
             if (key is not ("name" or "source" or "description" or "minClientVersions"))
@@ -196,14 +221,6 @@ internal sealed class CompatibilityValidator(RepositoryContext context)
                     $"Cursor plugin entry '{name}' field '{key}' is not in the official catalog schema. " +
                     "Put identity and component paths on .cursor-plugin/plugin.json.");
             }
-        }
-
-        if (entry["version"] is not null)
-        {
-            context.Diagnostics.Policy(
-                path,
-                $"plugin entry '{name}' declares 'version'. It must be omitted so update detection " +
-                "falls back to the Git commit SHA.");
         }
 
         var source = entry["source"]?.GetValue<string>();
@@ -284,38 +301,12 @@ internal sealed class CompatibilityValidator(RepositoryContext context)
 
     private void ValidateEntry(JsonObject entry, string path, Dictionary<string, string> seen)
     {
-        var name = entry["name"]?.GetValue<string>();
+        var name = ReadUniqueMarketplaceName(
+            entry, path, seen, "every generated plugin entry must define 'name'.");
 
-        if (string.IsNullOrWhiteSpace(name))
+        if (name is null)
         {
-            context.Diagnostics.Policy(path, "every generated plugin entry must define 'name'.");
             return;
-        }
-
-        if (!AgentPluginSpec.MarketplaceSafeName.IsMatch(name))
-        {
-            context.Diagnostics.Policy(
-                path,
-                $"plugin name '{name}' is valid for Agent Plugins but not for the generated provider " +
-                "marketplaces, which require kebab-case names without periods. Rename the plugin.");
-        }
-
-        if (seen.TryGetValue(name, out var existing))
-        {
-            context.Diagnostics.Policy(
-                path, $"plugin names '{existing}' and '{name}' collide after normalization.");
-        }
-        else
-        {
-            seen[name] = name;
-        }
-
-        if (entry["version"] is not null)
-        {
-            context.Diagnostics.Policy(
-                path,
-                $"plugin entry '{name}' declares 'version'. It must be omitted so update detection " +
-                "falls back to the Git commit SHA.");
         }
 
         if (entry["author"] is { } author && author is not JsonObject)

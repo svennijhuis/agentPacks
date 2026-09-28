@@ -17,6 +17,15 @@ internal sealed record HookInvocation(string Script, string? ScriptMatcher, doub
 /// </summary>
 internal static class HookGenerator
 {
+    /// <summary>
+    /// True when this client's generated tree includes a hooks.json the catalog or manifest must
+    /// declare. Claude and Copilot also emit SessionStart hooks for always-on rules.
+    /// </summary>
+    public static bool EmitsHooksFile(PluginPackage plugin, ClientProfile profile) =>
+        Build(plugin, profile) is not null
+        || (profile.Client is Client.Claude or Client.Copilot
+            && plugin.Rules.Any(rule => ComponentWriter.Flag(rule, "alwaysApply")));
+
     /// <summary>Builds the hooks document, or null when the plugin declares no usable hooks.</summary>
     public static JsonObject? Build(PluginPackage plugin, ClientProfile profile)
     {
