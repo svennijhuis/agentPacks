@@ -21,6 +21,8 @@ public sealed class RedundancyContractTests
         Assert.Empty(ClonedHelpers(tests, "private static int " + "NonEmptyBodyLines"));
         Assert.Empty(ClonedHelpers(tests, "private static int " + "CountToken"));
         Assert.Empty(ClonedHelpers(tests, "private static int " + "Occurrences("));
+        Assert.Empty(ClonedHelpers(tests, "private static IEnumerable<string> " + "AuthoredSkillFiles"));
+        Assert.Empty(ClonedHelpers(tests, "private static string " + "FrontmatterName"));
 
         var jsonFile = File.ReadAllText(Path.Combine(root, "tools", "AgentPacks.Cli", "Io", "JsonFile.cs"));
         Assert.Contains("public static void CopyProperties", jsonFile, StringComparison.Ordinal);
@@ -45,6 +47,17 @@ public sealed class RedundancyContractTests
             root, "tools", "AgentPacks.Cli", "Validation", "CompatibilityValidator.cs"));
         Assert.Contains("private string? ReadUniqueMarketplaceName", compatibility, StringComparison.Ordinal);
         Assert.Equal(1, TestRepository.CountOccurrences(compatibility, "collide after normalization"));
+
+        var skillValidator = File.ReadAllText(Path.Combine(
+            root, "tools", "AgentPacks.Cli", "Validation", "SkillValidator.cs"));
+        Assert.Contains("private void ValidateBooleanScalar", skillValidator, StringComparison.Ordinal);
+        Assert.DoesNotContain("private void ValidateInvocationPolicy", skillValidator, StringComparison.Ordinal);
+        Assert.DoesNotContain("private void ValidateUserInvocable", skillValidator, StringComparison.Ordinal);
+
+        var testRepository = File.ReadAllText(Path.Combine(tests, "TestRepository.cs"));
+        Assert.Contains("public static readonly string[] ShippedPluginNames", testRepository, StringComparison.Ordinal);
+        Assert.Contains("public static readonly string[] SquadAgentNames", testRepository, StringComparison.Ordinal);
+        Assert.Equal(1, TestRepository.CountOccurrences(testRepository, "[\"dotnet\", \"git\", \"pack-author\""));
     }
 
     /// <summary>
