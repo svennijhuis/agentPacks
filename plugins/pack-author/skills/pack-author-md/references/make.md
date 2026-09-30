@@ -25,7 +25,7 @@ Do not edit `plugins/squad/skills/squad/SKILL.md`.
 
 ## Names
 
-Skill name equals the directory. Kebab-case. No periods. Command name, skill name, and plugin name are three strings. The stub must pass [style](style.md) before you stop.
+Skill name equals the directory. Kebab-case. No periods. Skill name differs from the command name. Copilot's emitted command name differs from the plugin name. Claude, Cursor, and Codex command may equal the plugin name. The stub must pass [style](style.md) before you stop.
 
 ## Skill stub
 

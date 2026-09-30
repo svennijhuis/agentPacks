@@ -87,6 +87,12 @@ public sealed class PackAuthorContractTests
         Assert.Contains("+-- references/", style, StringComparison.Ordinal);
         Assert.Contains("When ", style, StringComparison.Ordinal);
         Assert.Contains("40 non-blank", style, StringComparison.Ordinal);
+        Assert.Contains("Skill name differs from the command name.", style, StringComparison.Ordinal);
+        Assert.Contains("Copilot's emitted command name differs from the plugin name.", style, StringComparison.Ordinal);
+        Assert.Contains("Claude, Cursor, and Codex command may equal the plugin name.", style, StringComparison.Ordinal);
+        Assert.DoesNotContain("three different strings", style, StringComparison.Ordinal);
+        Assert.Contains("Skill name differs from the command name.", make, StringComparison.Ordinal);
+        Assert.DoesNotContain("are three strings", make, StringComparison.Ordinal);
         Assert.DoesNotContain("mattpocock", style, StringComparison.OrdinalIgnoreCase);
         Assert.DoesNotContain("github.com/mattpocock", make, StringComparison.OrdinalIgnoreCase);
 

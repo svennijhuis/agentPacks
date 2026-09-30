@@ -42,7 +42,7 @@ skills/example-helper/
 | Router | At most 40 non-blank lines. Detail moves to `references/` |
 | Name | Equals the directory (skill) or filename (agent). Kebab-case. No periods in skill names |
 | Disclosure | Every `references/` file outside `standards/` and `examples/` is linked from the router |
-| User entry | `disable-model-invocation: true`. Command name, skill name, and plugin name are three different strings |
+| User entry | `disable-model-invocation: true`. Skill name differs from the command name. Copilot's emitted command name differs from the plugin name. Claude, Cursor, and Codex command may equal the plugin name. |
 | Loop slot | Contracted `<lang>-*` skills: `audience: loop`, first body line `Internal. Do not run directly — Squad loads by exact Skill name.`, `user-invocable: false` |
 | Agent | One job. Numbered steps. One Good/Bad pair. Tools from `read`, `write`, `edit`, `grep`, `glob`, `bash`, `webfetch`, `websearch`. Model is `inherit`, `fast`, `standard`, or `frontier` |
 | Catalog | A framework ships as a skill inside the language pack. Prefer a pack that already ships. Do not add an empty pack. See [PLAN.md](../../../../../docs/PLAN.md) |
