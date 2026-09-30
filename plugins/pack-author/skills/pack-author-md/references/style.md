@@ -18,6 +18,22 @@ Delete a step that does not change what the agent does. Delete a sentence that r
 
 `SKILL.md` routes. Operational detail lives in `references/` and is linked from the router, one level deep. Do not paste a reference back into the router.
 
+Good:
+
+```text
+skills/example-helper/
++-- SKILL.md              router: when, steps, one link
++-- references/
+    +-- detail.md         the procedure
+```
+
+Bad:
+
+```text
+skills/example-helper/
++-- SKILL.md              router, procedure, examples, and tables in one file
+```
+
 ## Hygiene
 
 | Bar | Rule |

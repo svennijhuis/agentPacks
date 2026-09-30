@@ -21,7 +21,7 @@ public sealed class HttpScenariosContractTests
             .OrderBy(name => name, StringComparer.Ordinal)
             .ToArray();
 
-        Assert.Equal(["author", "pack-check", "scenarios", "security-audit", "squad", "squad-review"], commands);
+        Assert.Equal(["pack-author", "pack-check", "scenarios", "security-audit", "squad", "squad-review"], commands);
         Assert.Equal(
             ["dotnet", "git", "pack-author", "pack-check", "rust", "security", "squad", "typescript"],
             Directory.GetDirectories(Path.Combine(root, "plugins"))

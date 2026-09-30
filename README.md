@@ -208,7 +208,7 @@ Glob-scoped rules remain Cursor-only; other clients receive only always-on rules
 | `/scenarios` | Office tester | `docs/smoke/*.md` only |
 | `/pack-check` | Setup | not a Squad flow |
 | `/security-audit` | Dev | full-repo recon/hunt/validate report |
-| `/pack-author` | Marketplace author | make / review / change a skill or agent. Claude and Cursor: `/author`. Copilot: `/pack-author:author` |
+| `/pack-author` | Marketplace author | make / review / change a skill or agent. Copilot: `/pack-author:author` |
 
 The fifth slash is intentional. `/pack-author` is Lane A for marketplace authors, not a Squad phase. Detail: [`docs/PACK-AUTHOR.md`](docs/PACK-AUTHOR.md).
 
@@ -299,9 +299,9 @@ tool name. They are not a second public skill surface.
 ### `/pack-author`
 
 ```
-/author make
-/author review plugins/dotnet/skills/dotnet-review
-/author change
+/pack-author make
+/pack-author review plugins/dotnet/skills/dotnet-review
+/pack-author change
 ```
 
 Modes are `make`, `review`, and `change`. v1 writes a skill or an agent. Review returns PASS/FAIL and leaves the file alone. Change applies at most two rounds, and only the FAIL items you approve. Copilot picker: `/pack-author:author`. [Its README](plugins/pack-author/README.md) has the three names.

@@ -10,7 +10,7 @@ user-invocable: false
 
 User-invoked. The command is the slash. v1 writes a skill or an agent.
 
-Load with the Skill tool by exact name `pack-author-md`. Never write `/author` as prose to load it.
+Load with the Skill tool by exact name `pack-author-md`. Never write `/pack-author` as prose to load it.
 
 Read [style](references/style.md). Then run [make](references/make.md), [review](references/review.md), or [change](references/change.md).
 

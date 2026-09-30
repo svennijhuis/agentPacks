@@ -69,7 +69,7 @@ Capability packs — installed because of a workflow you want wired into the age
 | `squad` | anyone who wants a change planned before it is built and checked after | the user-invoked orchestrator (`/squad` and `/squad-review`), planning, review, learnings and suggestions contracts, seven Loop agents, and per-role model tiers |
 | `git` | anyone letting an agent run git | one `beforeShellExecution` hook that blocks the commands which destroy work: `reset --hard`, `clean -f`, `push --force`, `branch -D`, `checkout .`, `restore .` |
 | `security` | anyone who wants a full-repo audit, not a per-change gate | user-invoked `/security-audit`, recon/hunter/validator agents, and a confirmed vs needs-validation report |
-| `pack-author` | anyone adding or editing marketplace skills and agents | user-invoked `/pack-author` (command `author`, skill `pack-author-md`): make, review, or a human-gated change. One readonly reviewer |
+| `pack-author` | anyone adding or editing marketplace skills and agents | user-invoked `/pack-author` (skill `pack-author-md`; Copilot `/pack-author:author`): make, review, or a human-gated change. One readonly reviewer |
 
 A capability pack is the exception to "a role is a role pack", and it earns the exception only by shipping components a skill cannot express: rules that apply without being invoked, subagents, commands, or hooks. A pack that would hold nothing but skills is a role pack, not a capability pack.
 

@@ -22,19 +22,19 @@ public sealed class PackAuthorContractTests
             "language-pack",
             manifest["keywords"]!.AsArray().Select(value => value!.GetValue<string>()));
 
-        var command = ParseFrontmatter(File.ReadAllText(Path.Combine(PackRoot(), "commands", "author.md")));
+        var command = ParseFrontmatter(File.ReadAllText(Path.Combine(PackRoot(), "commands", "pack-author.md")));
         var skill = ParseFrontmatter(File.ReadAllText(
             Path.Combine(PackRoot(), "skills", "pack-author-md", "SKILL.md")));
 
         var commandName = command.Scalar("name");
         var skillName = skill.Scalar("name");
-        Assert.Equal("author", commandName);
+        Assert.Equal("pack-author", commandName);
         Assert.Equal("pack-author-md", skillName);
         Assert.Equal("pack-author-md", Path.GetFileName(Path.Combine(PackRoot(), "skills", "pack-author-md")));
         Assert.False(skillName!.Contains('.', StringComparison.Ordinal));
-        Assert.NotEqual("pack-author", commandName);
         Assert.NotEqual(commandName, skillName);
         Assert.NotEqual("pack-author", skillName);
+        Assert.False(File.Exists(Path.Combine(PackRoot(), "commands", "author.md")));
     }
 
     [Fact]
@@ -82,6 +82,9 @@ public sealed class PackAuthorContractTests
         foreach (var principle in new[] { "Predictability", "Leading words", "Prune no-ops", "Progressive disclosure" })
             Assert.Contains(principle, style, StringComparison.Ordinal);
 
+        Assert.Contains("skills/example-helper/", style, StringComparison.Ordinal);
+        Assert.Contains("+-- SKILL.md", style, StringComparison.Ordinal);
+        Assert.Contains("+-- references/", style, StringComparison.Ordinal);
         Assert.Contains("When ", style, StringComparison.Ordinal);
         Assert.Contains("40 non-blank", style, StringComparison.Ordinal);
         Assert.DoesNotContain("mattpocock", style, StringComparison.OrdinalIgnoreCase);
@@ -116,7 +119,7 @@ public sealed class PackAuthorContractTests
             .Select(path => Path.GetFileName(path))
             .OrderBy(name => name, StringComparer.Ordinal)
             .ToArray();
-        Assert.Equal(["author.md"], commands);
+        Assert.Equal(["pack-author.md"], commands);
 
         var agents = Directory.GetFiles(Path.Combine(PackRoot(), "agents"), "*.md")
             .Select(path => Path.GetFileName(path))
@@ -141,8 +144,8 @@ public sealed class PackAuthorContractTests
             .WithPlugin("pack-author", File.ReadAllText(Path.Combine(PackRoot(), "plugin.json")));
 
         repo.WithFile(
-            "plugins/pack-author/commands/author.md",
-            File.ReadAllText(Path.Combine(PackRoot(), "commands", "author.md")));
+            "plugins/pack-author/commands/pack-author.md",
+            File.ReadAllText(Path.Combine(PackRoot(), "commands", "pack-author.md")));
         repo.WithFile(
             "plugins/pack-author/agents/pack-author-reviewer.md",
             File.ReadAllText(Path.Combine(PackRoot(), "agents", "pack-author-reviewer.md")));
@@ -185,11 +188,17 @@ public sealed class PackAuthorContractTests
             run.File("plugins/pack-author/com.github.copilot/agents/pack-author-reviewer.agent.md").Text));
         Assert.True(run.HasFile("plugins/pack-author/.cursor-plugin/agents/pack-author-reviewer.md"));
 
-        Assert.True(run.HasFile("plugins/pack-author/com.anthropic.claude-code/commands/author.md"));
+        Assert.True(run.HasFile("plugins/pack-author/com.anthropic.claude-code/commands/pack-author.md"));
+        Assert.False(run.HasFile("plugins/pack-author/com.anthropic.claude-code/commands/author.md"));
+        Assert.False(run.HasFile("plugins/pack-author/com.openai.codex/commands/author.md"));
         Assert.True(run.HasFile("plugins/pack-author/com.github.copilot/commands/author.md"));
         Assert.False(run.HasFile("plugins/pack-author/com.github.copilot/commands/pack-author.md"));
         Assert.Contains(
             "name: \"author\"",
+            run.File("plugins/pack-author/com.github.copilot/commands/author.md").Text,
+            StringComparison.Ordinal);
+        Assert.DoesNotContain(
+            "name: \"pack-author\"",
             run.File("plugins/pack-author/com.github.copilot/commands/author.md").Text,
             StringComparison.Ordinal);
         Assert.Contains(
@@ -213,9 +222,24 @@ public sealed class PackAuthorContractTests
         Assert.Contains("/pack-author", readme, StringComparison.Ordinal);
         Assert.Contains("/pack-author:author", readme, StringComparison.Ordinal);
         Assert.Contains("fifth slash is intentional", readme, StringComparison.Ordinal);
+        Assert.DoesNotContain("/author", readme, StringComparison.Ordinal);
+        Assert.DoesNotContain("$author", readme, StringComparison.Ordinal);
         Assert.Contains("`pack-author`", plan, StringComparison.Ordinal);
+        Assert.DoesNotContain("/author", plan, StringComparison.Ordinal);
         Assert.Contains("Lane A", note, StringComparison.Ordinal);
         Assert.Contains("/pack-author:author", note, StringComparison.Ordinal);
+        Assert.Contains("$pack-author", note, StringComparison.Ordinal);
+        Assert.DoesNotContain("/author", note, StringComparison.Ordinal);
+        Assert.DoesNotContain("$author", note, StringComparison.Ordinal);
+
+        var packReadme = File.ReadAllText(Path.Combine(root, "plugins", "pack-author", "README.md"));
+        var skill = File.ReadAllText(Path.Combine(root, "plugins", "pack-author", "skills", "pack-author-md", "SKILL.md"));
+        var command = File.ReadAllText(Path.Combine(root, "plugins", "pack-author", "commands", "pack-author.md"));
+        foreach (var text in new[] { packReadme, skill, command })
+        {
+            Assert.DoesNotContain("/author", text, StringComparison.Ordinal);
+            Assert.DoesNotContain("$author", text, StringComparison.Ordinal);
+        }
 
         var contribute = Path.Combine(root, "docs", "CONTRIBUTE.md");
         if (File.Exists(contribute))
