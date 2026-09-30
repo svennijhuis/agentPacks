@@ -43,8 +43,8 @@ Both give a Rust shop a way to avoid installing .NET skills. Only one stays read
 
 ## What ships today
 
-The repository currently ships **four capability packs and three language packs**: `squad`,
-`pack-check`, `git`, `security`, `dotnet`, `rust`, and `typescript`. Authored `mcp.json` files are empty scaffolds.
+The repository currently ships **five capability packs and three language packs**: `squad`,
+`pack-check`, `git`, `security`, `pack-author`, `dotnet`, `rust`, and `typescript`. Authored `mcp.json` files are empty scaffolds.
 v1 ships no MCP server. `dotnet` still has the `dotnet-solution` skill (`dotnet sln` / `dotnet list`).
 
 The earlier catalog carried five role packs and three language packs, six of which held nothing but a `plugin.json`. An empty pack is not a placeholder — it is an install that appears in the marketplace, resolves, and does nothing, which is worse than not being listed. They were removed in the same branch that added Squad; the pinned external-skill imports and the two authored skills (`engineering/testing`, `dotnet/dotnet-review`) are in history at `007f609` and can be restored when there is a pack around them worth installing.
@@ -69,6 +69,7 @@ Capability packs — installed because of a workflow you want wired into the age
 | `squad` | anyone who wants a change planned before it is built and checked after | the user-invoked orchestrator (`/squad` and `/squad-review`), planning, review, learnings and suggestions contracts, seven Loop agents, and per-role model tiers |
 | `git` | anyone letting an agent run git | one `beforeShellExecution` hook that blocks the commands which destroy work: `reset --hard`, `clean -f`, `push --force`, `branch -D`, `checkout .`, `restore .` |
 | `security` | anyone who wants a full-repo audit, not a per-change gate | user-invoked `/security-audit`, recon/hunter/validator agents, and a confirmed vs needs-validation report |
+| `pack-author` | anyone adding or editing marketplace skills and agents | user-invoked `/pack-author` (command `author`, skill `pack-author-md`): make, review, or a human-gated change. One readonly reviewer |
 
 A capability pack is the exception to "a role is a role pack", and it earns the exception only by shipping components a skill cannot express: rules that apply without being invoked, subagents, commands, or hooks. A pack that would hold nothing but skills is a role pack, not a capability pack.
 
@@ -77,6 +78,8 @@ There was briefly a second one. `code-review` shipped a review skill, review sta
 The rule that falls out of it: **a capability pack is a workflow, and a phase of an existing workflow is not a new pack.** A later pack has to clear both bars — components a skill cannot express, and a loop that is not already someone else's phase.
 
 `security` clears both. It ships a command and subagents, and `/security-audit` is a full-repo hunt with adversarial validation — not Squad's per-change OWASP gate. Two packs share the security *subject*; they do not share a command or a phase. The methodology is adapted from Cloudflare's `security-audit-skill` and rewritten in this repository's skill/agent shape.
+
+`pack-author` clears both. It ships a command and a reviewer subagent. `/pack-author` makes, reviews, and changes skills and agents for this catalog. That loop is not a Squad phase and not pack-check's setup probe. v1 scaffolds a skill or an agent; commands, hooks, and rules stay on the ADD-* docs. It does not import an external skill catalog.
 
 `git` is separate from the Loop. You want destructive-command
 protection whether or not a Squad run is in progress. The Loop states its no-commit hand-off in
