@@ -12,7 +12,7 @@ namespace AgentPacks.Cli.Tests;
 public sealed class CursorCatalogContractTests
 {
     private static readonly string[] PluginNames =
-        ["dotnet", "git", "pack-check", "rust", "security", "squad", "typescript"];
+        ["dotnet", "git", "pack-author", "pack-check", "rust", "security", "squad", "typescript"];
 
     private static readonly string[] SquadAgents =
     [
@@ -159,6 +159,7 @@ public sealed class CursorCatalogContractTests
         {
             ["dotnet"] = ".NET",
             ["git"] = "Git",
+            ["pack-author"] = "Pack Author",
             ["pack-check"] = "Pack Check",
             ["rust"] = "Rust",
             ["security"] = "Security",
@@ -187,6 +188,7 @@ public sealed class CursorCatalogContractTests
             Assert.Null(copilotEntries[name]["displayName"]);
         }
 
+        Assert.Equal("Pack Author", PluginDisplayName.From("pack-author"));
         Assert.Equal("Pack Check", PluginDisplayName.From("pack-check"));
         Assert.Equal("Squad", PluginDisplayName.From("squad"));
         Assert.Equal(".NET", PluginDisplayName.From("dotnet"));

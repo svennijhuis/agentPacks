@@ -11,18 +11,20 @@ Audience: platform + product test teams. Maintainers still own catalog decisions
 | **A. Pack contribute** | `svennijhuis/agentPacks` | New/updated skill, standard, language pack, or capability pack |
 | **B. App testing** | Your product repo | Unit / integration / smoke; `/scenarios` writes smoke md |
 
-No new slash. Locked user commands: `/squad` · `/squad-review` · `/scenarios` · `/pack-check` (plus `/security-audit` on the security pack).
+Locked user commands: `/squad` · `/squad-review` · `/scenarios` · `/pack-check` (plus `/security-audit` on the security pack) and `/pack-author` (Claude and Cursor; Copilot `/pack-author:author`).
 
 ---
 
 ## Lane A — Contribute a plugin or update an existing one
+
+Marketplace authors make, review, or change a skill or an agent with `/pack-author` (Claude and Cursor; Copilot `/pack-author:author`). Detail: [`docs/PACK-AUTHOR.md`](PACK-AUTHOR.md).
 
 ### Decide where it belongs
 
 1. Read [`docs/PLAN.md`](https://github.com/svennijhuis/agentPacks/blob/main/docs/PLAN.md). Frameworks do **not** earn their own plugin.
 2. Pick the owner:
    - **Language pack** (`dotnet` / `rust` / `typescript`) if it needs a compiler and contracted slots.
-   - **Role / capability pack** (`squad`, `git`, `security`, `pack-check`) if it is workflow, not a language.
+   - **Role / capability pack** (`squad`, `git`, `security`, `pack-check`, `pack-author`) if it is workflow, not a language.
 3. Prefer **update an existing pack** over a new plugin. New plugins need catalog proof.
 
 Deep how-tos (do not duplicate here):
@@ -179,7 +181,7 @@ Ordered backlog for platform + test chapters (pick 1–2, not all at once):
 3. **Per-stack example PRs** in a sample app: unit + integration + one smoke md from `/scenarios` (dotnet first if that is the majority stack).
 4. **Pack improvements from testers**: richer `*-test-patterns` examples; timer/cron smoke rows; HTTP envelope checks in review checklist.
 5. **Team marketplace**: Cursor Teams Import from Repo on `marketplace` (or beta); Auto Refresh; document who promotes beta→stable.
-6. **Out of scope for v1**: new slash, auto skill rewrite, Matt catalog dump, second skill pack, inventing cloud product names in scenarios.
+6. **Out of scope for v1**: auto skill rewrite, Matt catalog dump, second skill pack, inventing cloud product names in scenarios.
 
 ---
 

@@ -4,7 +4,7 @@ Portable [Agent Plugins](https://agent-plugins.org) that wire a workflow into th
 
 ## Available plugins
 
-Four capability packs, installed because you want a behaviour wired into the agent loop rather than knowledge sitting on a shelf, and three language packs, installed because of the ecosystem you compile in:
+Five capability packs, installed because you want a behaviour wired into the agent loop rather than knowledge sitting on a shelf, and three language packs, installed because of the ecosystem you compile in:
 
 | Plugin | Use it for |
 | --- | --- |
@@ -12,6 +12,7 @@ Four capability packs, installed because you want a behaviour wired into the age
 | `pack-check` | Detecting the repository stack at session start and asking before installing the language pack that supplies its required build and test skills |
 | `git` | Blocking the git commands that destroy work an agent cannot get back — `reset --hard`, `clean -fd`, `push --force`, `branch -D`, `checkout .` — before the client runs them |
 | `security` | User-invoked `/security-audit`: recon, parallel hunting, and adversarial validation of exploitable trust-boundary failures. Per-change OWASP stays in Squad |
+| `pack-author` | User-invoked `/pack-author`: make, review, or change a marketplace skill or agent. Edits wait for approval. Fifth slash is intentional |
 | `dotnet` | Teaching the loop how C# is built, tested and reviewed, backed by one canonical set of standards distributed only to the skills that need each document |
 | `rust` | Teaching the loop how Cargo workspaces are built, tested and reviewed, backed by canonical Rust, error/concurrency, and testing standards |
 | `typescript` | Teaching the loop how TypeScript is typechecked, tested and reviewed, backed by canonical type and testing standards |
@@ -28,6 +29,7 @@ copilot plugin install squad@agentpacks
 copilot plugin install pack-check@agentpacks
 copilot plugin install git@agentpacks
 copilot plugin install security@agentpacks
+copilot plugin install pack-author@agentpacks
 copilot plugin install dotnet@agentpacks
 copilot plugin install rust@agentpacks
 copilot plugin install typescript@agentpacks
@@ -35,7 +37,7 @@ copilot plugin install typescript@agentpacks
 
 **Install from Source** (VS Code / Copilot): use `#marketplace` or a marketplace-branch clone - not default `main`.
 
-Copilot uses namespaced `/squad:…` for run, squad-review, scenarios. After install, pick `/squad:run`. Copilot hides a command named the same as the plugin, so there is no `/squad:squad`. Review is `/squad:squad-review`. Scenarios are `/squad:scenarios` (renamed from http-scenarios). Setup is `/pack-check`. Full-repo audit is `/security:security-audit`.
+Copilot uses namespaced `/squad:…` for run, squad-review, scenarios. After install, pick `/squad:run`. Copilot hides a command named the same as the plugin, so there is no `/squad:squad`. Review is `/squad:squad-review`. Scenarios are `/squad:scenarios` (renamed from http-scenarios). Setup is `/pack-check`. Full-repo audit is `/security:security-audit`. Authoring is `/pack-author:author`.
 
 Update later with:
 
@@ -51,6 +53,7 @@ codex plugin add squad@agentpacks
 codex plugin add pack-check@agentpacks
 codex plugin add git@agentpacks
 codex plugin add security@agentpacks
+codex plugin add pack-author@agentpacks
 codex plugin add dotnet@agentpacks
 codex plugin add rust@agentpacks
 codex plugin add typescript@agentpacks
@@ -70,6 +73,7 @@ claude plugin install squad@agentpacks --scope user
 claude plugin install pack-check@agentpacks --scope user
 claude plugin install git@agentpacks --scope user
 claude plugin install security@agentpacks --scope user
+claude plugin install pack-author@agentpacks --scope user
 claude plugin install dotnet@agentpacks --scope user
 claude plugin install rust@agentpacks --scope user
 claude plugin install typescript@agentpacks --scope user
@@ -108,6 +112,7 @@ ln -s ~/.cursor/agentPacks/plugins/squad ~/.cursor/plugins/local/squad
 ln -s ~/.cursor/agentPacks/plugins/pack-check ~/.cursor/plugins/local/pack-check
 ln -s ~/.cursor/agentPacks/plugins/git ~/.cursor/plugins/local/git
 ln -s ~/.cursor/agentPacks/plugins/security ~/.cursor/plugins/local/security
+ln -s ~/.cursor/agentPacks/plugins/pack-author ~/.cursor/plugins/local/pack-author
 ln -s ~/.cursor/agentPacks/plugins/dotnet ~/.cursor/plugins/local/dotnet
 ln -s ~/.cursor/agentPacks/plugins/rust ~/.cursor/plugins/local/rust
 ln -s ~/.cursor/agentPacks/plugins/typescript ~/.cursor/plugins/local/typescript
@@ -118,7 +123,7 @@ On Windows PowerShell, junctions work without Developer Mode (`ln -s` does not):
 ```powershell
 git clone --branch marketplace --single-branch https://github.com/svennijhuis/agentPacks.git $HOME\.cursor\agentPacks
 New-Item -ItemType Directory -Force -Path $HOME\.cursor\plugins\local | Out-Null
-foreach ($name in @('squad', 'pack-check', 'git', 'security', 'dotnet', 'rust', 'typescript')) {
+foreach ($name in @('squad', 'pack-check', 'git', 'security', 'pack-author', 'dotnet', 'rust', 'typescript')) {
   cmd /c mklink /J "$HOME\.cursor\plugins\local\$name" "$HOME\.cursor\agentPacks\plugins\$name"
 }
 ```
@@ -154,7 +159,7 @@ cd agentPacks
 gh pr checkout 7
 ```
 
-Edit under `plugins/squad/`, `plugins/security/`, or a language pack (`plugins/dotnet/`, `plugins/rust/`, `plugins/typescript/`).
+Edit under `plugins/squad/`, `plugins/security/`, `plugins/pack-author/`, or a language pack (`plugins/dotnet/`, `plugins/rust/`, `plugins/typescript/`).
 
 ```bash
 dotnet run --project tools/AgentPacks.Cli -- validate
@@ -189,6 +194,7 @@ Codex loads subagents only from `.codex/agents/` and reads `AGENTS.md` from the 
 ```shell
 cp plugins/squad/com.openai.codex/agents/*.toml .codex/agents/
 cp plugins/security/com.openai.codex/agents/*.toml .codex/agents/
+cp plugins/pack-author/com.openai.codex/agents/*.toml .codex/agents/
 ```
 
 Glob-scoped rules remain Cursor-only; other clients receive only always-on rules, and validation reports the expected portability warning. The [`squad`](plugins/squad/README.md) README has the details.
@@ -202,6 +208,9 @@ Glob-scoped rules remain Cursor-only; other clients receive only always-on rules
 | `/scenarios` | Office tester | `docs/smoke/*.md` only |
 | `/pack-check` | Setup | not a Squad flow |
 | `/security-audit` | Dev | full-repo recon/hunt/validate report |
+| `/pack-author` | Marketplace author | make / review / change a skill or agent. Copilot: `/pack-author:author` |
+
+The fifth slash is intentional. `/pack-author` is Lane A for marketplace authors, not a Squad phase. Detail: [`docs/PACK-AUTHOR.md`](docs/PACK-AUTHOR.md).
 
 The model does not pick the orchestrator. `/scenarios` is a sibling
 slash on the same plugin; it is not a Squad phase. `/security-audit` is a
@@ -286,6 +295,16 @@ optional mention only. Copilot picker: `/squad:scenarios`.
 
 Language-pack slots (`dotnet-build`, `rust-review`, …) are loop internals, loaded by exact Skill
 tool name. They are not a second public skill surface.
+
+### `/pack-author`
+
+```
+/pack-author make
+/pack-author review plugins/dotnet/skills/dotnet-review
+/pack-author change
+```
+
+Modes are `make`, `review`, and `change`. v1 writes a skill or an agent. Review returns PASS/FAIL and leaves the file alone. Change applies at most two rounds, and only the FAIL items you approve. Copilot picker: `/pack-author:author`. [Its README](plugins/pack-author/README.md) has the three names.
 
 `git` needs no invocation either, and has nothing to ask: its hook blocks `git reset --hard`, `git clean -fd`, `git push --force`, `git branch -D`, `git checkout .` and `git restore .` before the client runs them, with the reason on stderr. [Its README](plugins/git/README.md) covers the `AGENTPACKS_GIT_GUARD=off` switch and which clients the blocking contract is actually verified on.
 

@@ -393,8 +393,9 @@ internal sealed class ClientTreeGenerator(RepositoryContext context, ModelCatalo
     /// schema declares agents, skills, commands, hooks, mcpServers and lspServers and nothing for
     /// instructions, so an instructions file inside the plugin is a file nothing ever loads.
     /// Copilot hides <c>/plugin:command</c> when the two names match, so Squad's factory is
-    /// rematerialized as <c>run</c> (<c>/squad:run</c>). Claude, Cursor and Codex keep
-    /// <c>squad</c>. <c>pack-check</c> is a setup slash and is not remapped.
+    /// rematerialized as <c>run</c> (<c>/squad:run</c>) and pack-author's command is
+    /// rematerialized as <c>author</c> (<c>/pack-author:author</c>). Claude, Cursor and Codex keep
+    /// the authored command name. <c>pack-check</c> is a setup slash and is not remapped.
     /// </summary>
     private void GenerateCopilot(
         PluginPackage plugin,
@@ -431,8 +432,9 @@ internal sealed class ClientTreeGenerator(RepositoryContext context, ModelCatalo
     }
 
     /// <summary>
-    /// Copilot CLI drops the factory slash when command name equals plugin name. Only Squad's
-    /// colliding factory is rewritten; a setup command such as <c>pack-check</c> stays.
+    /// Copilot CLI drops the factory slash when command name equals plugin name. Squad's
+    /// colliding factory is rewritten to <c>run</c>. pack-author's colliding command is rewritten
+    /// to <c>author</c>. A setup command such as <c>pack-check</c> stays.
     /// </summary>
     private static string CopilotCommandName(PluginPackage plugin, MarkdownComponent command)
     {
@@ -442,6 +444,12 @@ internal sealed class ClientTreeGenerator(RepositoryContext context, ModelCatalo
             string.Equals(command.Name, "squad", StringComparison.Ordinal))
         {
             return "run";
+        }
+
+        if (string.Equals(pluginName, "pack-author", StringComparison.Ordinal) &&
+            string.Equals(command.Name, "pack-author", StringComparison.Ordinal))
+        {
+            return "author";
         }
 
         return command.Name;

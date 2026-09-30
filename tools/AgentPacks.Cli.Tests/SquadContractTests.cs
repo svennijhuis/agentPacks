@@ -656,7 +656,7 @@ public class SquadContractTests
     {
         var root = TestRepository.SourceRoot();
         Assert.Equal(
-            ["dotnet", "git", "pack-check", "rust", "security", "squad", "typescript"],
+            ["dotnet", "git", "pack-author", "pack-check", "rust", "security", "squad", "typescript"],
             Directory.GetDirectories(Path.Combine(root, "plugins"))
                 .Select(path => Path.GetFileName(path) ?? path)
                 .OrderBy(name => name, StringComparer.Ordinal));
