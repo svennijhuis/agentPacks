@@ -10,22 +10,22 @@
       "codex": "inherit"
     },
     "fast": {
-      "claude": "haiku",
-      "cursor": "composer-2",
-      "copilot": "gpt-4.1",
-      "codex": "gpt-5.6-luna"
+      "claude": "sonnet",
+      "cursor": "claude-sonnet-5-5",
+      "copilot": "claude-sonnet-5-5",
+      "codex": "gpt-6-luna"
     },
     "standard": {
       "claude": "sonnet",
-      "cursor": "grok-4.5",
-      "copilot": "gpt-5",
-      "codex": "gpt-5.6-terra"
+      "cursor": "claude-sonnet-5-5",
+      "copilot": "claude-sonnet-5-5",
+      "codex": "gpt-6-sol"
     },
     "frontier": {
       "claude": "opus",
-      "cursor": "claude-opus-5",
-      "copilot": "gpt-5",
-      "codex": "gpt-5.6-sol"
+      "cursor": "grok-4.7",
+      "copilot": "claude-opus-5-5",
+      "codex": "gpt-6.1-sol"
     }
   }
 }

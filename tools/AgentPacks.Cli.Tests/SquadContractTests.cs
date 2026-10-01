@@ -141,12 +141,20 @@ public class SquadContractTests
     }
 
     [Fact]
-    public void Loop_agents_use_per_role_tiers_implementer_standard_others_fast()
+    public void Loop_agents_keep_role_tiers()
     {
         Assert.Equal("standard", ParseFrontmatter(Fixture("squad-implementer.md")).Scalar("model"));
+        Assert.Equal("standard", ParseFrontmatter(Fixture("squad-planner.md")).Scalar("model"));
         Assert.Equal("true", ParseFrontmatter(Fixture("squad-simplifier.md")).Scalar("readonly"));
-        foreach (var agent in AgentNames.Where(name => name != "squad-implementer"))
+        foreach (var agent in AgentNames.Where(name => name is not ("squad-implementer" or "squad-planner")))
+        {
             Assert.Equal("fast", ParseFrontmatter(Fixture($"{agent}.md")).Scalar("model"));
+        }
+
+        foreach (var agent in AgentNames)
+        {
+            Assert.NotEqual("frontier", ParseFrontmatter(Fixture($"{agent}.md")).Scalar("model"));
+        }
     }
 
     [Fact]

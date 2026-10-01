@@ -14,8 +14,8 @@ namespace AgentPacks.Cli.Validation;
 internal sealed class ComponentValidator(RepositoryContext context)
 {
     /// <summary>
-    /// Portable tiers an agent may author. Client-specific ids such as opus/sonnet/haiku or
-    /// composer-2 are generated from <c>models.source.json</c>, never authored.
+    /// Portable tiers an agent may author. Client-specific ids such as opus/sonnet or
+    /// claude-sonnet-5-5 are generated from <c>models.source.json</c>, never authored.
     /// </summary>
     private static readonly IReadOnlySet<string> AllowedModels =
         new HashSet<string>(StringComparer.Ordinal) { "inherit", "fast", "standard", "frontier" };

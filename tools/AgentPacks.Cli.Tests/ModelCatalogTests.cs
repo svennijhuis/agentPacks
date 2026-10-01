@@ -1,4 +1,7 @@
+using System.Text.Json;
+using AgentPacks.Cli.Generation;
 using AgentPacks.Cli.Io;
+using AgentPacks.Cli.Loading;
 
 namespace AgentPacks.Cli.Tests;
 
@@ -15,12 +18,36 @@ public sealed class ModelCatalogTests
         var catalog = File.ReadAllText(Path.Combine(root, "models.source.json"));
 
         Assert.Contains("\"default\": \"inherit\"", catalog, StringComparison.Ordinal);
-        Assert.Contains("\"composer-2\"", catalog, StringComparison.Ordinal);
-        Assert.Contains("\"grok-4.5\"", catalog, StringComparison.Ordinal);
-        Assert.Contains("\"claude-opus-5\"", catalog, StringComparison.Ordinal);
+        Assert.Contains("\"cursor\": \"claude-sonnet-5-5\"", catalog, StringComparison.Ordinal);
+        Assert.Contains("\"cursor\": \"grok-4.7\"", catalog, StringComparison.Ordinal);
+        Assert.Contains("\"copilot\": \"claude-sonnet-5-5\"", catalog, StringComparison.Ordinal);
+        Assert.Contains("\"copilot\": \"claude-opus-5-5\"", catalog, StringComparison.Ordinal);
+        Assert.Contains("\"claude\": \"sonnet\"", catalog, StringComparison.Ordinal);
+        Assert.Contains("\"claude\": \"opus\"", catalog, StringComparison.Ordinal);
+        Assert.Contains("\"codex\": \"gpt-6-luna\"", catalog, StringComparison.Ordinal);
+        Assert.Contains("\"codex\": \"gpt-6-sol\"", catalog, StringComparison.Ordinal);
+        Assert.Contains("\"codex\": \"gpt-6.1-sol\"", catalog, StringComparison.Ordinal);
+        Assert.DoesNotContain("haiku", catalog, StringComparison.Ordinal);
+        Assert.DoesNotContain("composer-2", catalog, StringComparison.Ordinal);
+        Assert.DoesNotContain("grok-4.5", catalog, StringComparison.Ordinal);
+        Assert.DoesNotContain("\"claude-opus-5\"", catalog, StringComparison.Ordinal);
+        Assert.DoesNotContain("gpt-4.1", catalog, StringComparison.Ordinal);
+        Assert.DoesNotContain("gpt-5.6", catalog, StringComparison.Ordinal);
+        Assert.DoesNotContain("\"gpt-5\"", catalog, StringComparison.Ordinal);
+        Assert.DoesNotContain("fable", catalog, StringComparison.Ordinal);
+        Assert.DoesNotContain("astra", catalog, StringComparison.Ordinal);
         Assert.DoesNotContain("\"cursor\": \"sonnet\"", catalog, StringComparison.Ordinal);
         Assert.DoesNotContain("\"cursor\": \"opus\"", catalog, StringComparison.Ordinal);
-        Assert.DoesNotContain("\"cursor\": \"haiku\"", catalog, StringComparison.Ordinal);
+
+        using var document = JsonDocument.Parse(catalog);
+        foreach (var tier in new[] { "inherit", "fast", "standard", "frontier" })
+        {
+            var node = document.RootElement.GetProperty("tiers").GetProperty(tier);
+            Assert.Equal(node.GetProperty("claude").GetString(), ModelCatalog.BuiltIn.Resolve(tier, Client.Claude));
+            Assert.Equal(node.GetProperty("cursor").GetString(), ModelCatalog.BuiltIn.Resolve(tier, Client.Cursor));
+            Assert.Equal(node.GetProperty("copilot").GetString(), ModelCatalog.BuiltIn.Resolve(tier, Client.Copilot));
+            Assert.Equal(node.GetProperty("codex").GetString(), ModelCatalog.BuiltIn.Resolve(tier, Client.Codex));
+        }
     }
 
     [Fact]
@@ -39,12 +66,13 @@ public sealed class ModelCatalogTests
         var codex = run.File("plugins/engineering/com.openai.codex/agents/reviewer.toml").Text;
 
         Assert.Contains("model: \"sonnet\"", claude, StringComparison.Ordinal);
-        Assert.Contains("model: \"gpt-5\"", copilot, StringComparison.Ordinal);
-        Assert.Contains("model = \"gpt-5.6-terra\"", codex, StringComparison.Ordinal);
+        Assert.Contains("model: \"claude-sonnet-5-5\"", copilot, StringComparison.Ordinal);
+        Assert.Contains("model = \"gpt-6-sol\"", codex, StringComparison.Ordinal);
 
         var cursor = run.File("plugins/engineering/.cursor-plugin/agents/reviewer.md").Text;
-        Assert.Contains("model: \"grok-4.5\"", cursor, StringComparison.Ordinal);
+        Assert.Contains("model: \"claude-sonnet-5-5\"", cursor, StringComparison.Ordinal);
         Assert.DoesNotContain("model: \"sonnet\"", cursor, StringComparison.Ordinal);
+        Assert.DoesNotContain("haiku", cursor, StringComparison.Ordinal);
     }
 
     /// <summary>
@@ -54,9 +82,9 @@ public sealed class ModelCatalogTests
     public void Codex_tiers_map_to_real_ids_not_all_inherit()
     {
         var catalog = File.ReadAllText(Path.Combine(TestRepository.SourceRoot(), "models.source.json"));
-        Assert.Contains("\"codex\": \"gpt-5.6-luna\"", catalog, StringComparison.Ordinal);
-        Assert.Contains("\"codex\": \"gpt-5.6-terra\"", catalog, StringComparison.Ordinal);
-        Assert.Contains("\"codex\": \"gpt-5.6-sol\"", catalog, StringComparison.Ordinal);
+        Assert.Contains("\"codex\": \"gpt-6-luna\"", catalog, StringComparison.Ordinal);
+        Assert.Contains("\"codex\": \"gpt-6-sol\"", catalog, StringComparison.Ordinal);
+        Assert.Contains("\"codex\": \"gpt-6.1-sol\"", catalog, StringComparison.Ordinal);
 
         using var repo = new TestRepository()
             .WithValidPlugin()
@@ -69,16 +97,32 @@ public sealed class ModelCatalogTests
         Assert.False(run.HasErrors, run.Text);
 
         Assert.Contains(
-            "model = \"gpt-5.6-luna\"",
+            "model = \"gpt-6-luna\"",
             run.File("plugins/engineering/com.openai.codex/agents/fast-agent.toml").Text,
             StringComparison.Ordinal);
         Assert.Contains(
-            "model = \"gpt-5.6-terra\"",
+            "model = \"gpt-6-sol\"",
             run.File("plugins/engineering/com.openai.codex/agents/standard-agent.toml").Text,
             StringComparison.Ordinal);
         Assert.Contains(
-            "model = \"gpt-5.6-sol\"",
+            "model = \"gpt-6.1-sol\"",
             run.File("plugins/engineering/com.openai.codex/agents/frontier-agent.toml").Text,
+            StringComparison.Ordinal);
+        Assert.Contains(
+            "model: \"grok-4.7\"",
+            run.File("plugins/engineering/.cursor-plugin/agents/frontier-agent.md").Text,
+            StringComparison.Ordinal);
+        Assert.Contains(
+            "model: \"claude-sonnet-5-5\"",
+            run.File("plugins/engineering/.cursor-plugin/agents/fast-agent.md").Text,
+            StringComparison.Ordinal);
+        Assert.Contains(
+            "model: \"sonnet\"",
+            run.File("plugins/engineering/com.anthropic.claude-code/agents/fast-agent.md").Text,
+            StringComparison.Ordinal);
+        Assert.Contains(
+            "model: \"claude-opus-5-5\"",
+            run.File("plugins/engineering/com.github.copilot/agents/frontier-agent.agent.md").Text,
             StringComparison.Ordinal);
         Assert.Contains(
             "model = \"inherit\"",
@@ -91,6 +135,10 @@ public sealed class ModelCatalogTests
             run.File("plugins/engineering/com.openai.codex/agents/frontier-agent.toml").Text);
         Assert.DoesNotContain("model = \"inherit\"", emitted, StringComparison.Ordinal);
         Assert.DoesNotContain("model = \"opus\"", emitted, StringComparison.Ordinal);
+        Assert.DoesNotContain("haiku", emitted, StringComparison.Ordinal);
+        Assert.DoesNotContain("gpt-5.6", emitted, StringComparison.Ordinal);
+        Assert.DoesNotContain("fable", emitted, StringComparison.Ordinal);
+        Assert.DoesNotContain("astra", emitted, StringComparison.Ordinal);
     }
 
     [Fact]

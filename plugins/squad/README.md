@@ -114,7 +114,7 @@ Authored: `plugin.json`, `mcp.json` (empty scaffold), `skills/`, `rules/`, `agen
 Generated only in validation output or on `marketplace` / `marketplace-beta`: client manifests and `com.*` provider trees.
 
 Portable model tiers are authored on each agent and mapped in [`models.source.json`](../../models.source.json).
-Default `inherit`. The implementer is `standard`; other squad agents are `fast`.
+Default `inherit`. The implementer and planner are `standard`. Reviewers, orchestrator, verifier, simplifier, and security-reviewer are `fast`. No agent defaults to `frontier`.
 
 Test changes on a feature branch without merging to `main`:
 [ADD-SKILL.md — Test a skill locally](../../docs/ADD-SKILL.md#test-a-skill-locally).
@@ -133,7 +133,7 @@ contract prose, restated in Squad's shape rather than copied:
 | 66 quantitative criteria re-measured | worker `## Measurements` + script re-run with drift flag | Plan writes metric, operator, bound and the measuring command. `squad-verifier` re-measures and quotes `<measured> <op> <bound>`. A green test name is not a measurement. |
 | 67 `## Request` verbatim in the plan | `goal` kept verbatim, `summary` separate; minimal-goal discipline | The ask as typed sits between the outcome title and `## Problem`, so ask-vs-plan drift is visible without the chat transcript. Scope still lives in In scope / Out of scope / Non-goals. |
 | 68 build or type-check is not behavioral evidence | `type-check-only` verification tier — "only type-check / build passes; weak" | A `pass` row whose only command is a build, restore, format, or type-check is `not verified` unless the criterion is about compiling. Compiling proves compiling. `dotnet build && dotnet test` is not compile-only. |
-| 70 name facts, do not dig | planners publish tasks and never do the work themselves; per-task model choice | The main agent (user's model) lists `Facts to check`; the `fast`-tier `squad-planner` answers them under **Facts found** with a source, then grills. Facts never replace the frontier round. Same single invocation per turn. No extra `squad-*` spawn; the planner uses its granted tools. Squad keeps per-role tiers plus learnings demotion instead of a per-task model catalog. |
+| 70 name facts, do not dig | planners publish tasks and never do the work themselves; per-task model choice | The main agent (user's model) lists `Facts to check`; the `standard`-tier `squad-planner` answers them under **Facts found** with a source, then grills. Facts never replace the frontier round. Same single invocation per turn. No extra `squad-*` spawn; the planner uses its granted tools. Squad keeps per-role tiers plus learnings demotion instead of a per-task model catalog. |
 
 Each rule is contract prose. Items 65, 66, and 68 are also pinned by the executable
 `VerificationEvidence` gate (parse + pass/fail), not by markdown string matches.
