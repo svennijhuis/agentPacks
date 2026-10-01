@@ -22,9 +22,8 @@ Canonical standards live once under `standards/`:
 - `layers.md` — Web / Application / Infrastructure boundaries when the solution already uses them.
 - [`http-api.md`](../../shared/standards/http-api.md) — named collection envelope for list APIs, not a root JSON array (shared across language packs).
 
-`standards.source.json` maps each document to the skills that need it. Marketplace generation copies
-only those documents into each consumer's `references/standards/` directory. Generated copies carry
-a do-not-edit header; edit the canonical source here instead.
+`standards.source.json` maps each document to the skills that need it. Generation copies selected
+documents into `references/standards/` — see [ADD-LANGUAGE-PACK.md](../../docs/ADD-LANGUAGE-PACK.md).
 
 ## Standards and repository conventions
 

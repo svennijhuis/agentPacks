@@ -251,7 +251,7 @@ internal sealed class ClientTreeGenerator(RepositoryContext context, ModelCatalo
         }
 
         if (plugin.ClaudeAutoDiscoversRootHooks &&
-            HookGenerator.Build(plugin, ClientProfile.Cursor) is not null)
+            HookGenerator.EmitsHooksFile(plugin, ClientProfile.Cursor))
         {
             cursor["hooks"] = $"./{ClientProfile.RelocatedCursorHooks}";
         }
@@ -302,7 +302,7 @@ internal sealed class ClientTreeGenerator(RepositoryContext context, ModelCatalo
         // Keyed on what the generator actually produces, not on the source file existing: an event
         // declared with an empty entry array yields no hooks.json, and a manifest pointing at a
         // file that was never written fails the plugin at install time.
-        var hasHooks = HookGenerator.Build(plugin, profile) is not null;
+        var hasHooks = HookGenerator.EmitsHooksFile(plugin, profile);
 
         if (hasHooks)
         {

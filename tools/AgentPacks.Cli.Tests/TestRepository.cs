@@ -1,5 +1,6 @@
 using AgentPacks.Cli.Commands;
 using AgentPacks.Cli.Generation;
+using AgentPacks.Cli.Io;
 using AgentPacks.Cli.Loading;
 using AgentPacks.Cli.Validation;
 using AgentPacks.Cli.Importing;
@@ -57,6 +58,25 @@ internal sealed class TestRepository : IDisposable
         path.Contains($"{Path.DirectorySeparatorChar}bin{Path.DirectorySeparatorChar}", StringComparison.Ordinal)
         || path.Contains($"{Path.DirectorySeparatorChar}obj{Path.DirectorySeparatorChar}", StringComparison.Ordinal)
         || path.Contains($"{Path.DirectorySeparatorChar}.git{Path.DirectorySeparatorChar}", StringComparison.Ordinal);
+
+    /// <summary>Parses authored markdown frontmatter, failing the test with the parser error.</summary>
+    public static Frontmatter ParseFrontmatter(string text, string? context = null)
+    {
+        var parsed = Frontmatter.TryParse(text, out var error);
+        Assert.True(parsed is not null, context is null ? error : $"{context} frontmatter: {error}");
+        return parsed!;
+    }
+
+    public static int NonEmptyBodyLines(string text) =>
+        ParseFrontmatter(text).Body.Split('\n').Count(line => !string.IsNullOrWhiteSpace(line));
+
+    public static int CountOccurrences(string text, string token)
+    {
+        var count = 0;
+        for (var index = 0; (index = text.IndexOf(token, index, StringComparison.Ordinal)) >= 0; index += token.Length)
+            count++;
+        return count;
+    }
 
     public string PluginDirectory(string plugin = "engineering") =>
         Path.Combine(Root, "plugins", plugin);

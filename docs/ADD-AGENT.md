@@ -90,7 +90,11 @@ Collapse these. One reader or the compiler already has the twin:
 | Marketplace/client JSON field clone loops | `JsonFile.CopyProperties` |
 | Claude/Cursor/Copilot agent markdown emit | `WriteAgentMarkdown` |
 | Repeated test `SourceRoot` / generated-path skip / command-directory copy | `TestRepository` |
+| Repeated test `ParseFrontmatter` / `NonEmptyBodyLines` / occurrence counting | `TestRepository` |
+| Marketplace "will we emit hooks.json?" predicate | `HookGenerator.EmitsHooksFile` |
+| Claude/Copilot/Cursor catalog entry identity checks | `CompatibilityValidator.ReadUniqueMarketplaceName` |
 | Same-file restatements (Confidence table vs section) | One canonical section, table points at it |
+| `/scenarios` command restating the skill's numbered flow | Thin command: load skill, run its flow (same shape as `/pack-check` / `/security-audit`) |
 
 ## What gets generated
 
