@@ -11,13 +11,13 @@
     },
     "fast": {
       "claude": "sonnet",
-      "cursor": "claude-sonnet-5-5",
+      "cursor": "grok-4.7",
       "copilot": "claude-sonnet-5-5",
       "codex": "gpt-6-luna"
     },
     "standard": {
       "claude": "sonnet",
-      "cursor": "claude-sonnet-5-5",
+      "cursor": "grok-4.7",
       "copilot": "claude-sonnet-5-5",
       "codex": "gpt-6-sol"
     },

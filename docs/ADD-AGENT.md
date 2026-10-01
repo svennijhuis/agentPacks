@@ -97,7 +97,7 @@ Collapse these. One reader or the compiler already has the twin:
 | Path | For |
 |---|---|
 | `agents/<name>.md` | Authored portable tier (source) |
-| `.cursor-plugin/agents/<name>.md` | Cursor — remapped id (`inherit`, `claude-sonnet-5-5`, `grok-4.7`). `.cursor-plugin/plugin.json` points here so Cursor does not scan root `agents/` |
+| `.cursor-plugin/agents/<name>.md` | Cursor — remapped id (`inherit`, `grok-4.7` on fast, standard, and frontier). `.cursor-plugin/plugin.json` points here so Cursor does not scan root `agents/` |
 | `com.anthropic.claude-code/agents/<name>.md` | Claude — remapped alias (`inherit`, `sonnet`, `opus`), tool names in PascalCase |
 | `com.github.copilot/agents/<name>.agent.md` | Copilot — remapped id (`inherit`, `claude-sonnet-5-5`, `claude-opus-5-5`); `model` is never dropped |
 | `com.openai.codex/agents/<name>.toml` | Codex — `model` is emitted from the catalog (`gpt-6-luna` / `gpt-6-sol` / `gpt-6.1-sol`) |
@@ -119,4 +119,5 @@ Cost-first: catalog default is `inherit`. The implementer and the planner use `s
 Reviewers, orchestrator, verifier, simplifier, and security-reviewer use `fast`. No agent
 defaults to `frontier` (escalate only). Generation remaps those portable tiers for every
 client. Cursor loads the remapped copies because `.cursor-plugin/plugin.json` sets `agents`.
+Cursor emit is Grok only: `fast`, `standard`, and `frontier` all map to `grok-4.7`.
 Do not author `sonnet` to mean Cursor.

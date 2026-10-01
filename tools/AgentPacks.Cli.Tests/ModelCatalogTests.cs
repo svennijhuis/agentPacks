@@ -18,8 +18,8 @@ public sealed class ModelCatalogTests
         var catalog = File.ReadAllText(Path.Combine(root, "models.source.json"));
 
         Assert.Contains("\"default\": \"inherit\"", catalog, StringComparison.Ordinal);
-        Assert.Contains("\"cursor\": \"claude-sonnet-5-5\"", catalog, StringComparison.Ordinal);
         Assert.Contains("\"cursor\": \"grok-4.7\"", catalog, StringComparison.Ordinal);
+        Assert.DoesNotContain("\"cursor\": \"claude-", catalog, StringComparison.Ordinal);
         Assert.Contains("\"copilot\": \"claude-sonnet-5-5\"", catalog, StringComparison.Ordinal);
         Assert.Contains("\"copilot\": \"claude-opus-5-5\"", catalog, StringComparison.Ordinal);
         Assert.Contains("\"claude\": \"sonnet\"", catalog, StringComparison.Ordinal);
@@ -43,10 +43,13 @@ public sealed class ModelCatalogTests
         foreach (var tier in new[] { "inherit", "fast", "standard", "frontier" })
         {
             var node = document.RootElement.GetProperty("tiers").GetProperty(tier);
+            var cursor = node.GetProperty("cursor").GetString() ?? string.Empty;
             Assert.Equal(node.GetProperty("claude").GetString(), ModelCatalog.BuiltIn.Resolve(tier, Client.Claude));
-            Assert.Equal(node.GetProperty("cursor").GetString(), ModelCatalog.BuiltIn.Resolve(tier, Client.Cursor));
+            Assert.Equal(cursor, ModelCatalog.BuiltIn.Resolve(tier, Client.Cursor));
             Assert.Equal(node.GetProperty("copilot").GetString(), ModelCatalog.BuiltIn.Resolve(tier, Client.Copilot));
             Assert.Equal(node.GetProperty("codex").GetString(), ModelCatalog.BuiltIn.Resolve(tier, Client.Codex));
+            Assert.DoesNotContain("claude", cursor, StringComparison.OrdinalIgnoreCase);
+            Assert.Equal(tier == "inherit" ? "inherit" : "grok-4.7", cursor);
         }
     }
 
@@ -70,9 +73,8 @@ public sealed class ModelCatalogTests
         Assert.Contains("model = \"gpt-6-sol\"", codex, StringComparison.Ordinal);
 
         var cursor = run.File("plugins/engineering/.cursor-plugin/agents/reviewer.md").Text;
-        Assert.Contains("model: \"claude-sonnet-5-5\"", cursor, StringComparison.Ordinal);
-        Assert.DoesNotContain("model: \"sonnet\"", cursor, StringComparison.Ordinal);
-        Assert.DoesNotContain("haiku", cursor, StringComparison.Ordinal);
+        Assert.Contains("model: \"grok-4.7\"", cursor, StringComparison.Ordinal);
+        Assert.DoesNotContain("claude", cursor, StringComparison.OrdinalIgnoreCase);
     }
 
     /// <summary>
@@ -108,14 +110,12 @@ public sealed class ModelCatalogTests
             "model = \"gpt-6.1-sol\"",
             run.File("plugins/engineering/com.openai.codex/agents/frontier-agent.toml").Text,
             StringComparison.Ordinal);
-        Assert.Contains(
-            "model: \"grok-4.7\"",
-            run.File("plugins/engineering/.cursor-plugin/agents/frontier-agent.md").Text,
-            StringComparison.Ordinal);
-        Assert.Contains(
-            "model: \"claude-sonnet-5-5\"",
-            run.File("plugins/engineering/.cursor-plugin/agents/fast-agent.md").Text,
-            StringComparison.Ordinal);
+        foreach (var agent in new[] { "fast-agent", "standard-agent", "frontier-agent" })
+        {
+            var cursor = run.File($"plugins/engineering/.cursor-plugin/agents/{agent}.md").Text;
+            Assert.Contains("model: \"grok-4.7\"", cursor, StringComparison.Ordinal);
+            Assert.DoesNotContain("claude", cursor, StringComparison.OrdinalIgnoreCase);
+        }
         Assert.Contains(
             "model: \"sonnet\"",
             run.File("plugins/engineering/com.anthropic.claude-code/agents/fast-agent.md").Text,
