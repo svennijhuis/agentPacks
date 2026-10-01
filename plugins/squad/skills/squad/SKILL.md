@@ -51,7 +51,7 @@ are rewritten in place; do not append forever inside the plan.
 | Trust-boundary / irreversible | Full loop; record the human decision first. |
 | Existing diff, no plan | `/squad-review`. No verifier report, plan write, verdict, or fix round. One save-markdown ask at the end. |
 
-Cost-first: default `inherit`. `squad-implementer` is `standard`. Other squad agents are `fast`.
+Cost-first: default `inherit`. `squad-implementer` and `squad-planner` are `standard`. Reviewers, orchestrator, verifier, simplifier, and security-reviewer are `fast`. No agent defaults to `frontier`.
 
 ## Gated agents
 
@@ -89,7 +89,7 @@ Required slots: `<lang>-build`, `<lang>-test-patterns`.
 
 Read [the planning contract](references/planning-contract.md). Invoke `squad-planner` once per
 turn. Grill stays here: facts via the planner; decisions = human. The main agent never grills
-itself. Name facts, do not dig: list them under `Facts to check` and let the `fast`-tier planner
+itself. Name facts, do not dig: list them under `Facts to check` and let the `standard`-tier planner
 find them. Prefer constraint-shaped recommendations. Read `docs/decisions.md` when it exists; do not write it. After confirmation,
 write exactly `docs/plans/<slug>.md`.
 

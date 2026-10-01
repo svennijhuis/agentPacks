@@ -116,7 +116,7 @@ standards, or specifications, and the plan cites the source beside the decision 
 facts without evidence remain unresolved.
 
 Name facts, do not dig for them. The main agent runs on the user's model; the planner runs on the
-`fast` tier. When the main agent needs a fact to route, answer the user, or shape the next round,
+`standard` tier. When the main agent needs a fact to route, answer the user, or shape the next round,
 it lists that fact under `Facts to check` and lets the planner find it, instead of reading the
 repository itself. The planner answers every listed fact under `**Facts found:**` with its source
 before asking anything, and carries the answers forward as repository evidence. A fact it could not

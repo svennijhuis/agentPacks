@@ -1,7 +1,7 @@
 ---
 name: squad-planner
 description: Produces one turn-based planning-question round for the main agent, or writes one confirmed plan to docs/plans/<slug>.md. Use only for the full Squad run; obvious small changes bypass this agent.
-model: fast
+model: standard
 readonly: false
 tools:
   - read

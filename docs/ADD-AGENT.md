@@ -28,8 +28,8 @@ One job. Load skills with the Skill tool by exact name. Never write slash-prose.
 ```
 
 That is the production shape: short frontmatter, portable tier, `readonly`, closed tool list, one
-job, exact Skill-tool names. Squad agents are `squad-*`. Security pack agents are `security-*`. The implementer is `standard`; other squad
-agents are `fast`. Bodies stay operational-but-short (28 non-empty lines after frontmatter;
+job, exact Skill-tool names. Squad agents are `squad-*`. Security pack agents are `security-*`. The implementer and planner are `standard`; reviewers, orchestrator, verifier, simplifier, and security-reviewer are `fast`. No agent defaults to `frontier`.
+Bodies stay operational-but-short (28 non-empty lines after frontmatter;
 security reviewer 40). Numbered steps, required outputs, one Good/Bad pair — not essay soup.
 Copy from [`plugins/squad/agents/`](../plugins/squad/agents/); do not invent a public command
 per specialist.
@@ -97,10 +97,10 @@ Collapse these. One reader or the compiler already has the twin:
 | Path | For |
 |---|---|
 | `agents/<name>.md` | Authored portable tier (source) |
-| `.cursor-plugin/agents/<name>.md` | Cursor — remapped id (`inherit`, `composer-2`, `grok-4.5`, `claude-opus-5`). `.cursor-plugin/plugin.json` points here so Cursor does not scan root `agents/` |
-| `com.anthropic.claude-code/agents/<name>.md` | Claude — remapped id, tool names in PascalCase |
-| `com.github.copilot/agents/<name>.agent.md` | Copilot — remapped id; `model` is never dropped |
-| `com.openai.codex/agents/<name>.toml` | Codex — `model` is emitted from the catalog (`gpt-5.6-luna` / `gpt-5.6-terra` / `gpt-5.6-sol`) |
+| `.cursor-plugin/agents/<name>.md` | Cursor — remapped id (`inherit`, `grok-4.7` on fast, standard, and frontier). `.cursor-plugin/plugin.json` points here so Cursor does not scan root `agents/` |
+| `com.anthropic.claude-code/agents/<name>.md` | Claude — remapped alias (`inherit`, `sonnet`, `opus`), tool names in PascalCase |
+| `com.github.copilot/agents/<name>.agent.md` | Copilot — remapped id (`inherit`, `claude-sonnet-5-5`, `claude-opus-5-5`); `model` is never dropped |
+| `com.openai.codex/agents/<name>.toml` | Codex — `model` is emitted from the catalog (`gpt-6-luna` / `gpt-6-sol` / `gpt-6.1-sol`) |
 
 ## The Codex gap
 
@@ -110,12 +110,14 @@ Codex loads subagents from `~/.codex/agents/` or `<repo>/.codex/agents/` only. I
 cp plugins/squad/com.openai.codex/agents/*.toml .codex/agents/
 ```
 
-Codex generation emits the catalog Codex id into `model =`. `fast` → `gpt-5.6-luna`,
-`standard` → `gpt-5.6-terra`, `frontier` → `gpt-5.6-sol`. `inherit` stays `inherit`.
+Codex generation emits the catalog Codex id into `model =`. `fast` → `gpt-6-luna`,
+`standard` → `gpt-6-sol`, `frontier` → `gpt-6.1-sol`. `inherit` stays `inherit`.
 
 If Codex gains plugin-shipped agents, only the generated manifest needs a field.
 
-Cost-first: catalog default is `inherit`. The implementer (the agent that writes code) uses
-`standard`. Other loop subagents use `fast`. Generation remaps those portable tiers for every
+Cost-first: catalog default is `inherit`. The implementer and the planner use `standard`.
+Reviewers, orchestrator, verifier, simplifier, and security-reviewer use `fast`. No agent
+defaults to `frontier` (escalate only). Generation remaps those portable tiers for every
 client. Cursor loads the remapped copies because `.cursor-plugin/plugin.json` sets `agents`.
+Cursor emit is Grok only: `fast`, `standard`, and `frontier` all map to `grok-4.7`.
 Do not author `sonnet` to mean Cursor.

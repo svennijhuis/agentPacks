@@ -124,21 +124,16 @@ public sealed class CursorCatalogContractTests
         foreach (var agent in SquadAgents)
         {
             var text = run.File($"plugins/squad/.cursor-plugin/agents/{agent}.md").Text;
+            Assert.Contains("model: \"grok-4.7\"", text, StringComparison.Ordinal);
+            Assert.DoesNotContain("claude-", text, StringComparison.OrdinalIgnoreCase);
             Assert.DoesNotContain("model: \"sonnet\"", text, StringComparison.Ordinal);
-            Assert.DoesNotContain("model: \"haiku\"", text, StringComparison.Ordinal);
             Assert.DoesNotContain("model: \"opus\"", text, StringComparison.Ordinal);
+            Assert.DoesNotContain("model: \"haiku\"", text, StringComparison.Ordinal);
+            Assert.DoesNotContain("composer-2", text, StringComparison.Ordinal);
+            Assert.DoesNotContain("grok-4.5", text, StringComparison.Ordinal);
             Assert.True(File.Exists(Path.Combine(repo.Root, "plugins", "squad", "agents", $"{agent}.md")));
             Assert.False(run.HasFile($"plugins/squad/agents/{agent}.md"));
         }
-
-        Assert.Contains(
-            "model: \"grok-4.5\"",
-            run.File("plugins/squad/.cursor-plugin/agents/squad-implementer.md").Text,
-            StringComparison.Ordinal);
-        Assert.Contains(
-            "model: \"composer-2\"",
-            run.File("plugins/squad/.cursor-plugin/agents/squad-planner.md").Text,
-            StringComparison.Ordinal);
     }
 
     /// <summary>

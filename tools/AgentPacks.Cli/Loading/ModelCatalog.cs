@@ -35,9 +35,9 @@ internal sealed class ModelCatalog
     public static ModelCatalog BuiltIn { get; } = new(new Dictionary<string, ClientModels>(StringComparer.Ordinal)
     {
         ["inherit"] = new("inherit", "inherit", "inherit", "inherit"),
-        ["fast"] = new("haiku", "composer-2", "gpt-4.1", "gpt-5.6-luna"),
-        ["standard"] = new("sonnet", "grok-4.5", "gpt-5", "gpt-5.6-terra"),
-        ["frontier"] = new("opus", "claude-opus-5", "gpt-5", "gpt-5.6-sol")
+        ["fast"] = new("sonnet", "grok-4.7", "claude-sonnet-5-5", "gpt-6-luna"),
+        ["standard"] = new("sonnet", "grok-4.7", "claude-sonnet-5-5", "gpt-6-sol"),
+        ["frontier"] = new("opus", "grok-4.7", "claude-opus-5-5", "gpt-6.1-sol")
     });
 
     public IReadOnlyCollection<string> TierNames => _tiers.Keys;
@@ -124,7 +124,7 @@ internal sealed class ModelCatalog
                 context.Diagnostics.Policy(
                     relative,
                     $"tier '{tier}' maps Cursor to '{cursor}', which is a Claude alias. " +
-                    "Cursor needs a real Cursor id such as inherit, composer-2, grok-4.5 or claude-opus-5.");
+                    "Cursor needs a real Cursor id such as inherit or grok-4.7.");
             }
 
             mapped[tier] = new ClientModels(claude, cursor, copilot, codex);
