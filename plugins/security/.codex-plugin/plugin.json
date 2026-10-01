@@ -1,0 +1,30 @@
+{
+  "name": "security",
+  "version": "0.1.3",
+  "description": "User-invoked /security-audit: recon, parallel hunting, and adversarial validation of exploitable trust-boundary failures. Per-change OWASP stays in Squad.",
+  "author": {
+    "name": "agentPacks Maintainers"
+  },
+  "license": "UNLICENSED",
+  "keywords": [
+    "security",
+    "audit",
+    "threat-model",
+    "vulnerability",
+    "agents"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Security",
+    "shortDescription": "User-invoked /security-audit: recon, parallel hunting, and adversarial validation of exploitable trust-boundary failures. Per-change OWASP stays in Squad.",
+    "longDescription": "User-invoked /security-audit: recon, parallel hunting, and adversarial validation of exploitable trust-boundary failures. Per-change OWASP stays in Squad.",
+    "developerName": "agentPacks Maintainers",
+    "category": "Productivity",
+    "capabilities": [
+      "Skills"
+    ],
+    "defaultPrompt": [
+      "Use the Security plugin when it is relevant to this task."
+    ]
+  }
+}
