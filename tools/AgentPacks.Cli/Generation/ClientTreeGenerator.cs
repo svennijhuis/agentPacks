@@ -343,7 +343,7 @@ internal sealed class ClientTreeGenerator(RepositoryContext context, ModelCatalo
             ["shortDescription"] = description,
             ["longDescription"] = description,
             ["developerName"] = developer,
-            ["category"] = "Productivity",
+            ["category"] = CodexCategory.From(plugin),
             ["capabilities"] = capabilities,
             ["defaultPrompt"] = new JsonArray($"Use the {displayName} plugin when it is relevant to this task.")
         };
