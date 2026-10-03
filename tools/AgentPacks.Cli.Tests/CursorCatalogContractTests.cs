@@ -11,19 +11,9 @@ namespace AgentPacks.Cli.Tests;
 /// </summary>
 public sealed class CursorCatalogContractTests
 {
-    private static readonly string[] PluginNames =
-        ["dotnet", "git", "pack-author", "pack-check", "rust", "security", "squad", "typescript"];
+    private static readonly string[] PluginNames = TestRepository.ShippedPluginNames;
 
-    private static readonly string[] SquadAgents =
-    [
-        "squad-planner",
-        "squad-implementer",
-        "squad-verifier",
-        "squad-reviewer",
-        "squad-security-reviewer",
-        "squad-simplifier",
-        "squad-orchestrator"
-    ];
+    private static readonly string[] SquadAgents = TestRepository.SquadAgentNames;
 
     /// <summary>
     /// Reviewer named proof. Official-schema Cursor catalog ships: generated

@@ -19,16 +19,7 @@ public class SquadContractTests
         }
         """;
 
-    private static readonly string[] AgentNames =
-    [
-        "squad-planner",
-        "squad-implementer",
-        "squad-verifier",
-        "squad-reviewer",
-        "squad-security-reviewer",
-        "squad-simplifier",
-        "squad-orchestrator"
-    ];
+    private static readonly string[] AgentNames = TestRepository.SquadAgentNames;
 
     private static string Fixture(string name) =>
         File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "Fixtures", "squad", name));
@@ -662,11 +653,7 @@ public class SquadContractTests
     public void Smoke_matrix_not_user_slash_no_new_plugin()
     {
         var root = TestRepository.SourceRoot();
-        Assert.Equal(
-            ["dotnet", "git", "pack-author", "pack-check", "rust", "security", "squad", "typescript"],
-            Directory.GetDirectories(Path.Combine(root, "plugins"))
-                .Select(path => Path.GetFileName(path) ?? path)
-                .OrderBy(name => name, StringComparer.Ordinal));
+        Assert.Equal(TestRepository.ShippedPluginNames, TestRepository.ShippedPluginDirectories(root));
 
         Squad_commands_are_exactly_squad_and_review();
         Assert.False(File.Exists(Path.Combine(root, "plugins", "squad", "commands", "smoke.md")));

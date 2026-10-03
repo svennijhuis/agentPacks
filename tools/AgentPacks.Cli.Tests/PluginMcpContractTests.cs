@@ -94,10 +94,7 @@ public sealed class PluginMcpContractTests
     {
         var root = TestRepository.SourceRoot();
         var loopSkills = 0;
-        foreach (var skill in Directory.GetFiles(Path.Combine(root, "plugins"), "SKILL.md",
-                     SearchOption.AllDirectories)
-                     .Where(path => !path.Contains($"{Path.DirectorySeparatorChar}com.", StringComparison.Ordinal)
-                         && !path.Contains(".cursor-plugin", StringComparison.Ordinal)))
+        foreach (var skill in TestRepository.AuthoredSkillFiles(root))
         {
             var text = File.ReadAllText(skill);
             var directoryName = Directory.GetParent(skill)!.Name;
@@ -126,7 +123,7 @@ public sealed class PluginMcpContractTests
         {
             var name = Path.GetFileNameWithoutExtension(agent);
             var parsed = TestRepository.ParseFrontmatter(File.ReadAllText(agent), name);
-            Assert.Equal(name, parsed!.Scalar("name"));
+            Assert.Equal(name, parsed.Scalar("name"));
             Assert.False(string.IsNullOrWhiteSpace(parsed.Scalar("model")));
             Assert.False(string.IsNullOrWhiteSpace(parsed.Scalar("readonly")));
             Assert.True(parsed.Has("tools"));

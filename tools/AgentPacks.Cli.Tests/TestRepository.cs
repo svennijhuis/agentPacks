@@ -59,6 +59,20 @@ internal sealed class TestRepository : IDisposable
         || path.Contains($"{Path.DirectorySeparatorChar}obj{Path.DirectorySeparatorChar}", StringComparison.Ordinal)
         || path.Contains($"{Path.DirectorySeparatorChar}.git{Path.DirectorySeparatorChar}", StringComparison.Ordinal);
 
+    public static readonly string[] ShippedPluginNames =
+        ["dotnet", "git", "pack-author", "pack-check", "rust", "security", "squad", "typescript"];
+
+    public static readonly string[] SquadAgentNames =
+    [
+        "squad-planner",
+        "squad-implementer",
+        "squad-verifier",
+        "squad-reviewer",
+        "squad-security-reviewer",
+        "squad-simplifier",
+        "squad-orchestrator"
+    ];
+
     /// <summary>Parses authored markdown frontmatter, failing the test with the parser error.</summary>
     public static Frontmatter ParseFrontmatter(string text, string? context = null)
     {
@@ -77,6 +91,18 @@ internal sealed class TestRepository : IDisposable
             count++;
         return count;
     }
+
+    public static IEnumerable<string> AuthoredSkillFiles(string? root = null) =>
+        Directory.GetFiles(Path.Combine(root ?? SourceRoot(), "plugins"), "SKILL.md", SearchOption.AllDirectories)
+            .Where(path => !path.Contains($"{Path.DirectorySeparatorChar}com.", StringComparison.Ordinal)
+                && !path.Contains(".cursor-plugin", StringComparison.Ordinal))
+            .OrderBy(path => path, StringComparer.Ordinal);
+
+    public static string[] ShippedPluginDirectories(string? root = null) =>
+        Directory.GetDirectories(Path.Combine(root ?? SourceRoot(), "plugins"))
+            .Select(path => Path.GetFileName(path) ?? path)
+            .OrderBy(name => name, StringComparer.Ordinal)
+            .ToArray();
 
     public string PluginDirectory(string plugin = "engineering") =>
         Path.Combine(Root, "plugins", plugin);

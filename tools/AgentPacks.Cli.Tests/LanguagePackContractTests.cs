@@ -261,7 +261,7 @@ public class LanguagePackContractTests
     public void Skill_bodies_point_only_at_references_standards()
     {
         var root = TestRepository.SourceRoot();
-        foreach (var path in AuthoredSkillFiles(root))
+        foreach (var path in TestRepository.AuthoredSkillFiles(root))
         {
             var body = BodyAfterFrontmatter(File.ReadAllText(path));
             Assert.DoesNotContain("../../standards", body, StringComparison.Ordinal);
@@ -421,7 +421,7 @@ public class LanguagePackContractTests
     {
         var root = TestRepository.SourceRoot();
         var loopCount = 0;
-        foreach (var path in AuthoredSkillFiles(root))
+        foreach (var path in TestRepository.AuthoredSkillFiles(root))
         {
             var text = File.ReadAllText(path);
             if (!FrontmatterBlock(text).Contains("audience: loop", StringComparison.Ordinal))
@@ -473,7 +473,7 @@ public class LanguagePackContractTests
             return new HashSet<string>(StringComparer.Ordinal);
 
         return Directory.GetFiles(directory, "*.md")
-            .Select(path => FrontmatterName(File.ReadAllText(path)))
+            .Select(path => TestRepository.ParseFrontmatter(File.ReadAllText(path)).Scalar("name")!)
             .ToHashSet(StringComparer.Ordinal);
     }
 
@@ -486,34 +486,9 @@ public class LanguagePackContractTests
         return Directory.GetDirectories(directory)
             .Select(skill => Path.Combine(skill, "SKILL.md"))
             .Where(File.Exists)
-            .Select(path => FrontmatterName(File.ReadAllText(path)))
+            .Select(path => TestRepository.ParseFrontmatter(File.ReadAllText(path)).Scalar("name")!)
             .ToHashSet(StringComparer.Ordinal);
     }
-
-    private static string FrontmatterName(string markdown)
-    {
-        var inFrontmatter = false;
-        foreach (var line in markdown.Split('\n'))
-        {
-            var trimmed = line.TrimEnd('\r');
-            if (trimmed == "---")
-            {
-                if (inFrontmatter)
-                    break;
-                inFrontmatter = true;
-                continue;
-            }
-
-            if (inFrontmatter && trimmed.StartsWith("name:", StringComparison.Ordinal))
-                return trimmed["name:".Length..].Trim().Trim('"');
-        }
-
-        throw new InvalidOperationException("missing frontmatter name");
-    }
-
-    private static IEnumerable<string> AuthoredSkillFiles(string root) =>
-        Directory.GetFiles(Path.Combine(root, "plugins"), "SKILL.md", SearchOption.AllDirectories)
-            .Where(path => !path.Contains($"{Path.DirectorySeparatorChar}com.", StringComparison.Ordinal));
 
     private static (int Start, int End) FrontmatterFence(string text)
     {
