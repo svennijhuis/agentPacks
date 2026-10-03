@@ -1,4 +1,5 @@
 using System.Text.Json;
+using AgentPacks.Cli.Generation;
 using AgentPacks.Cli.Loading;
 
 namespace AgentPacks.Cli.Tests;
