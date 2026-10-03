@@ -138,6 +138,7 @@ public sealed class ClientManifestTests
 
         Assert.Equal("engineering", cursor["name"]!.GetValue<string>());
         Assert.Equal("Engineering", cursor["displayName"]!.GetValue<string>());
+        Assert.Equal("developer-tools", cursor["category"]!.GetValue<string>());
         Assert.Equal("Test plugin.", cursor["description"]!.GetValue<string>());
         Assert.Null(cursor["agents"]);
     }

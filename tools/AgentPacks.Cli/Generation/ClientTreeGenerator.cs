@@ -224,8 +224,11 @@ internal sealed class ClientTreeGenerator(RepositoryContext context, ModelCatalo
     /// portable source. Generation writes remapped Cursor ids into <c>.cursor-plugin/agents/</c>
     /// and points <c>.cursor-plugin/plugin.json</c> at that directory so Cursor never scans the
     /// authored portable tiers. <c>displayName</c> is the official-schema title (squad → Squad).
-    /// When Claude owns plugin-root hooks, the manifest also points at
-    /// <see cref="ClientProfile.RelocatedCursorHooks"/>.
+    /// <c>category</c> is the official-schema classifier: cursor/plugins first-party workflow
+    /// packs (orchestrate, pstack, thermos, ralph-loop) all set <c>developer-tools</c> on
+    /// <c>.cursor-plugin/plugin.json</c>. Marketplace entries still cannot carry it
+    /// (additionalProperties: false). When Claude owns plugin-root hooks, the manifest also
+    /// points at <see cref="ClientProfile.RelocatedCursorHooks"/>.
     /// </summary>
     private void GenerateCursor(
         PluginPackage plugin,
@@ -237,7 +240,10 @@ internal sealed class ClientTreeGenerator(RepositoryContext context, ModelCatalo
         var cursor = new JsonObject
         {
             ["name"] = plugin.Name ?? plugin.DirectoryName,
-            ["displayName"] = PluginDisplayName.From(plugin)
+            ["displayName"] = PluginDisplayName.From(plugin),
+            // Official cursor/plugins manifests classify workflow packs this way. The catalog
+            // entry cannot: schemas/marketplace.schema.json forbids category on plugins[].
+            ["category"] = "developer-tools"
         };
 
         JsonFile.CopyProperties(cursor, manifest, "version", "description", "author", "license", "keywords");
