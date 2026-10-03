@@ -119,9 +119,9 @@ public sealed class PackCheckContractTests
         var result = RunHook(repo.Root);
 
         Assert.Equal(0, result.ExitCode);
-        Assert.Equal(1, Occurrences(result.Output, "detected stack dotnet with pack dotnet"));
-        Assert.Equal(1, Occurrences(result.Output, "detected stack rust with pack rust"));
-        Assert.Equal(1, Occurrences(result.Output, "Before handling the first coding request"));
+        Assert.Equal(1, TestRepository.CountOccurrences(result.Output, "detected stack dotnet with pack dotnet"));
+        Assert.Equal(1, TestRepository.CountOccurrences(result.Output, "detected stack rust with pack rust"));
+        Assert.Equal(1, TestRepository.CountOccurrences(result.Output, "Before handling the first coding request"));
         Assert.Equal(string.Empty, result.Error);
     }
 
@@ -164,9 +164,6 @@ public sealed class PackCheckContractTests
             .Where(cells => cells.Length >= 5)
             .Select(cells => cells[3].Trim().Trim('`'))
             .ToList();
-
-    private static int Occurrences(string text, string value) =>
-        text.Split(value, StringSplitOptions.None).Length - 1;
 
     private static (int ExitCode, string Output, string Error) RunHook(string workingDirectory)
     {
