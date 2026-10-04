@@ -8,12 +8,29 @@ Use established project configuration and repeated local patterns for choices th
   interfaces that require it.
 - Accept a `CancellationToken` at public asynchronous boundaries and operations whose underlying
   work is cancellable. Pass accepted tokens through every cancellable call.
+- Never drop a caller `CancellationToken`. Take one whenever the call underneath can accept one.
 - Do not add a token mechanically to synchronous, atomic, or non-cancellable work merely because it
   touches I/O somewhere below the abstraction.
 - Avoid blocking on tasks with `.Result`, `.Wait()`, or `.GetAwaiter().GetResult()` on request,
   UI, or concurrency-sensitive paths.
 - Materialize deferred work before reusing it; repeated enumeration of async-producing LINQ can
   start work more than once.
+
+Dropped token.
+
+Bad:
+
+```csharp
+Task Save(Order order, CancellationToken cancellationToken) =>
+    _store.Save(order, CancellationToken.None);
+```
+
+Fix:
+
+```csharp
+Task Save(Order order, CancellationToken cancellationToken) =>
+    _store.Save(order, cancellationToken);
+```
 
 ## Resources and errors
 
