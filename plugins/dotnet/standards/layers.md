@@ -29,6 +29,28 @@ Dependencies point inward only:
 - Controllers call Application (injected use-case / service / mediator). Persistence and external I/O
   stay behind Application ports implemented in Infrastructure.
 
+Bad:
+
+```csharp
+app.MapPost("/orders", (AppDbContext db, Order order) => db.Orders.Add(order));
+```
+
+Fix:
+
+```csharp
+app.MapPost("/orders", (PlaceOrder place, Order order) => place.Handle(order));
+```
+
+```csharp
+// Application
+sealed class PlaceOrder(IOrderStore orders) { public Task Handle(Order order) => orders.Add(order); }
+```
+
+```csharp
+// Infrastructure
+sealed class EfOrders(AppDbContext db) : IOrderStore { public Task Add(Order order) => db.Orders.AddAsync(order).AsTask(); }
+```
+
 ## Where new code goes
 
 | Change | Put it in |
