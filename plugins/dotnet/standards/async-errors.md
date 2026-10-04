@@ -52,6 +52,7 @@ Fix:
 ```csharp
 builder.Services.AddExceptionHandler<OrderMissingHandler>();
 builder.Services.AddProblemDetails();
+app.UseExceptionHandler();
 ```
 
 Registration order.
