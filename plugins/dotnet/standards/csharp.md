@@ -35,6 +35,85 @@ Use established project configuration and repeated local patterns for choices th
 - Match repository naming, analyzers, `.editorconfig`, and existing patterns before introducing a
   new idiom.
 
+## Refactoring
+
+- Keep extract method, extract interface, extract class, and pushing logic down into the domain.
+- Tests stay in place before a behavior-preserving refactor.
+
+Extract method.
+
+Bad:
+
+```csharp
+void Ship(Order order)
+{
+    var cost = Weigh(order) * rate;
+    _mail.Send(order.Id, cost);
+    _log.Write(order.Id);
+}
+```
+
+Fix:
+
+```csharp
+void Ship(Order order)
+{
+    _mail.Send(order.Id, Postage(order));
+    _log.Write(order.Id);
+}
+```
+
+Constructor injection.
+
+Bad:
+
+```csharp
+void Ship(Order order) => new SmtpMailer().Send(order.Id);
+```
+
+Fix:
+
+```csharp
+public Shipper(IMailer mailer) => _mailer = mailer;
+void Ship(Order order) => _mailer.Send(order.Id);
+```
+
+Enum and a small class.
+
+Bad:
+
+```csharp
+if (code == "air") cost = 3m; else if (code == "ground") cost = 1m;
+```
+
+Fix:
+
+```csharp
+enum Lane { Air, Ground }
+
+sealed class Quote
+{
+    public decimal For(Lane lane) => lane == Lane.Air ? 3m : 1m;
+}
+```
+
+Method on the type.
+
+Bad:
+
+```csharp
+void Ship(Order order) { if (order.Lines.Count == 0) throw new InvalidOperationException(); }
+```
+
+Fix:
+
+```csharp
+sealed class Order
+{
+    public void Ship() { if (Lines.Count == 0) throw new InvalidOperationException(); }
+}
+```
+
 ## Toolchain and package versions
 
 - Pin the SDK in `global.json`. Pin `TargetFramework` and `LangVersion` in `Directory.Build.props`;

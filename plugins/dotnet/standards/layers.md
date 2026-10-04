@@ -1,14 +1,17 @@
 # .NET project layering
 
+This shape is onion. Domain stays in the center. Application use cases sit around it.
+Infrastructure and the ASP.NET host stay outside.
+
 Apply when the repository already uses layered projects (names vary: `Web`/`Api`/`Host`,
 `Application`/`Core`, `Infrastructure`/`Data`). Match the repo's names; do not invent a fourth
-layer the solution does not have. Skip this document for a single-project app.
+layer the solution does not have. Skip this document for a single-project app or a tiny script.
 
 ## Dependency rule
 
 Dependencies point inward only:
 
-- **Domain / Core** — entities and rules; no web, EF, or HTTP packages.
+- **Domain / Core** — entities and rules; no reference to EF, ASP.NET, or HTTP clients.
 - **Application** — use cases, DTOs, ports (interfaces). Depends on Domain only. Never references
   Infrastructure or Web.
 - **Infrastructure** — EF Core, file/email/HTTP clients, concrete adapters. Implements Application
@@ -25,6 +28,18 @@ Dependencies point inward only:
   controller can touch persistence.
 - Controllers call Application (injected use-case / service / mediator). Persistence and external I/O
   stay behind Application ports implemented in Infrastructure.
+
+Fix:
+
+```csharp
+// Application
+sealed class PlaceOrder(IOrderStore orders) { public Task Handle(Order order) => orders.Add(order); }
+```
+
+```csharp
+// Infrastructure
+sealed class EfOrders(AppDbContext db) : IOrderStore { public Task Add(Order order) => db.Orders.AddAsync(order).AsTask(); }
+```
 
 ## Where new code goes
 

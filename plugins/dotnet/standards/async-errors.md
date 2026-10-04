@@ -25,3 +25,48 @@ Use established project configuration and repeated local patterns for choices th
   branch callers routinely handle.
 - Assign review severity from reachability and impact. The same construct can be high on a request
   path, medium behind a rare failure, or no finding when the surrounding contract makes it safe.
+
+## ASP.NET exception handlers
+
+- A new ASP.NET app handles exceptions with `IExceptionHandler` and Problem Details.
+- One exception type per handler. Register specific handlers first and the catch-all last.
+- A middleware catch-all is only for a case that stays small.
+
+Middleware switch.
+
+Bad:
+
+```csharp
+app.Use(async (context, next) =>
+{
+    try { await next(); }
+    catch (Exception ex)
+    {
+        context.Response.StatusCode = ex switch { OrderMissing => 404, _ => 500 };
+    }
+});
+```
+
+Fix:
+
+```csharp
+builder.Services.AddExceptionHandler<OrderMissingHandler>();
+builder.Services.AddProblemDetails();
+app.UseExceptionHandler();
+```
+
+Registration order.
+
+Bad:
+
+```csharp
+builder.Services.AddExceptionHandler<FallbackHandler>();
+builder.Services.AddExceptionHandler<OrderMissingHandler>();
+```
+
+Fix:
+
+```csharp
+builder.Services.AddExceptionHandler<OrderMissingHandler>();
+builder.Services.AddExceptionHandler<FallbackHandler>();
+```
