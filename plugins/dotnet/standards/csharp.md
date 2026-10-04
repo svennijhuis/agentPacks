@@ -35,6 +35,11 @@ Use established project configuration and repeated local patterns for choices th
 - Match repository naming, analyzers, `.editorconfig`, and existing patterns before introducing a
   new idiom.
 
+## Refactoring
+
+- Keep extract method, extract interface, extract class, and pushing logic down into the domain.
+- Tests stay in place before a behavior-preserving refactor.
+
 ## Toolchain and package versions
 
 - Pin the SDK in `global.json`. Pin `TargetFramework` and `LangVersion` in `Directory.Build.props`;
