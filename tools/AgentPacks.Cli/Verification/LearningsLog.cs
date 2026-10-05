@@ -11,7 +11,8 @@ public sealed record LearningsEntry(
     IReadOnlyList<string> AgentsSpun,
     IReadOnlyList<string> SkippedAgents,
     string Result,
-    string NextTweak);
+    string NextTweak,
+    string Case);
 
 /// <summary>
 /// What the next run should do differently. Prior skips that passed are preferred again;
@@ -55,6 +56,9 @@ public static partial class LearningsLog
     [GeneratedRegex(@"^-\s+Next tweak:\s+(.+)$", RegexOptions.IgnoreCase | RegexOptions.Multiline)]
     private static partial Regex TweakLine { get; }
 
+    [GeneratedRegex(@"^-\s+Case:\s+(.+)$", RegexOptions.IgnoreCase | RegexOptions.Multiline)]
+    private static partial Regex CaseLine { get; }
+
     public static IReadOnlyList<LearningsEntry> Parse(string markdown)
     {
         var matches = Heading.Matches(markdown);
@@ -77,7 +81,8 @@ public static partial class LearningsLog
                 Names(First(SpunLine, block)),
                 Names(First(SkippedLine, block)),
                 (First(ResultLine, block) ?? string.Empty).Trim().ToLowerInvariant(),
-                First(TweakLine, block) ?? "None"));
+                First(TweakLine, block) ?? "None",
+                First(CaseLine, block) ?? "None"));
         }
 
         return entries;
