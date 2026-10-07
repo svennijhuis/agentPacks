@@ -41,3 +41,7 @@ Use established workspace configuration and repeated local patterns for choices 
 - Do not create a safe wrapper whose internal invariant depends on undocumented caller behavior.
 - Use `cargo fmt --all` once after implementation and inspect the diff. Follow repository Clippy configuration;
   do not silence a lint globally to avoid fixing one local case.
+
+## Refactoring
+
+- Never land a shape you know is worse just to finish faster.

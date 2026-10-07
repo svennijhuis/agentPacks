@@ -10,3 +10,4 @@ Use the repository `tsconfig`, package manager, and module kind. Do not invent a
 - Exhaust `switch` on discriminated unions. A missing variant is a correctness defect, not a style note.
 - Do not fire-and-forget a `Promise`. Await it, return it, or void it at a documented boundary.
 - Keep `tsconfig` paths, `jsx`, and `lib` as the repo set them. A local override that only the new file needs is a finding.
+- Never land a shape you know is worse just to finish faster.

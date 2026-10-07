@@ -11,12 +11,12 @@ layer the solution does not have. Skip this document for a single-project app or
 
 Dependencies point inward only:
 
-- **Domain / Core** — entities and rules; no reference to EF, ASP.NET, or HTTP clients.
-- **Application** — use cases, DTOs, ports (interfaces). Depends on Domain only. Never references
+- **Domain / Core**: entities and rules; no reference to EF, ASP.NET, or HTTP clients.
+- **Application**: use cases, DTOs, ports (interfaces). Depends on Domain only. Never references
   Infrastructure or Web.
-- **Infrastructure** — EF Core, file/email/HTTP clients, concrete adapters. Implements Application
+- **Infrastructure**: EF Core, file/email/HTTP clients, concrete adapters. Implements Application
   ports. Depends on Application (and Domain as needed).
-- **Web / Api / Host** — controllers, minimal APIs, middleware, composition root (`Program.cs`).
+- **Web / Api / Host**: controllers, minimal APIs, middleware, composition root (`Program.cs`).
   References Application; may reference Infrastructure **only** for DI registration at the host.
 
 ## Controllers stay thin
@@ -40,6 +40,49 @@ sealed class PlaceOrder(IOrderStore orders) { public Task Handle(Order order) =>
 // Infrastructure
 sealed class EfOrders(AppDbContext db) : IOrderStore { public Task Add(Order order) => db.Orders.AddAsync(order).AsTask(); }
 ```
+
+## Application has no infrastructure packages
+
+- **Forbidden in Application:** `PackageReference` or types for persistence, storage, queues,
+  email, HTTP vendor SDKs, `DbContext`, connection strings, account keys, and concrete clients.
+- Ports stay in Application. Adapters and SDKs stay in Infrastructure.
+
+Bad: Application takes an infrastructure SDK so a use case can talk to tables directly.
+
+```xml
+<!-- Application.csproj: do not -->
+<PackageReference Include="Azure.Data.Tables" Version="..." />
+```
+
+Fix: port in Application, adapter in Infrastructure.
+
+```csharp
+// Application
+public interface IOrderStore
+{
+    Task UpsertAsync(Order order, CancellationToken ct);
+}
+```
+
+```csharp
+// Infrastructure
+sealed class AzureOrderTableStore(TableClient client) : IOrderStore
+{
+    public Task UpsertAsync(Order order, CancellationToken ct)
+    {
+        var entity = new OrderEntity
+        {
+            PartitionKey = order.CustomerId,
+            RowKey = order.Id,
+            // map remaining Order fields onto the table entity here
+        };
+        return client.UpsertEntityAsync(entity, cancellationToken: ct);
+    }
+}
+```
+
+When a layered move is large, keep this dependency rule. Do not ship a short known-worse
+shape. Stop, split, or ask.
 
 ## Where new code goes
 
