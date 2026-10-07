@@ -19,6 +19,7 @@ public sealed class LearningsLogTests
         - Skipped: squad-security-reviewer — no trust boundary
         - Ran: small-change
         - Result: pass
+        - Case: None
         - Next tweak: keep inherit; skip security when no boundary
         """;
 
@@ -34,6 +35,7 @@ public sealed class LearningsLogTests
         - Skipped: squad-security-reviewer — no trust boundary
         - Ran: small-change
         - Result: fail
+        - Case: automated checks: token check missed; guardrail: None
         - Next tweak: security gate missed a token check; do not skip security
         """;
 
@@ -49,6 +51,9 @@ public sealed class LearningsLogTests
         Assert.DoesNotContain("squad-security-reviewer", afterFail.PreferSkip);
         Assert.NotEqual(afterPass.MustRun.Contains("squad-security-reviewer"),
             afterFail.MustRun.Contains("squad-security-reviewer"));
+        Assert.Equal("None", LearningsLog.Parse(PassedSkip)[0].Case);
+        Assert.Equal("automated checks: token check missed; guardrail: None",
+            LearningsLog.Parse(FailedSkip)[0].Case);
     }
 
     [Fact]
@@ -63,6 +68,7 @@ public sealed class LearningsLogTests
             - Agents spun: squad-planner
             - Skipped: None
             - Result: pass
+            - Case: None
             - Next tweak: None
             """, "build");
 

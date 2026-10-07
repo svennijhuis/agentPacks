@@ -33,6 +33,7 @@ a skill from the log.
 - Ran: plan, implement, verify, dual-axis review, merge
 - Result: pass
 - Handoff themes: keep inherit; small rename skipped planner successfully
+- Case: None
 - Next tweak: keep inherit; the small rename did not need a planner
 ```
 
@@ -47,11 +48,18 @@ a skill from the log.
 | Ran | Phases that actually executed |
 | Result | `pass`, `fail`, `stopped`, or `uncommitted hand-off` |
 | Handoff themes | One line summarizing concerns/deviations that carried across phases, or `None` |
+| Case | `<bucket>: <what missed>; guardrail: <name or None>`, or `None`. Always written |
 | Next tweak | One concrete adjustment that cites Result — not a vibe — or `None` |
 
 **Handoff themes** is optional prose authored by the main agent or orchestrator from this run's
 reports. It never triggers skill rewrites or a self-improve graph. A pack/skill/agent/command/contract edit
 belongs in `docs/suggestions.md`, not in Next tweak.
+
+**Case** comes from this run's reports only. Do not scrape old logs. Write `None` when there is
+no case. Buckets: navigation, automated checks, coding standards, fat steering files, tool cost,
+dead instructions, missing information. A mechanical miss names a linter, hook, or CI job. A
+judgement miss points to the existing reviewer standards. No guardrail at all counts as a case.
+A pack edit still goes to `docs/suggestions.md`.
 
 A **pass** keeps the recorded tier. A **fail** or **stopped** demotes one tier
 (`frontier` → `standard` → `fast` → `inherit`) on the next same-entrypoint run.
