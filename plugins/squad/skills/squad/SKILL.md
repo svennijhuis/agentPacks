@@ -18,7 +18,7 @@ Two entrypoints only: `/squad` and `/squad-review`. Type the command.
 2. Orient codebase (applicable stacks only)
 3. Small change? → main agent only, spawn nobody → verify → append learnings (+ suggestions if pack/skill/agent/command/contract evidenced) → hand off uncommitted
 4. Else grill/plan rounds (facts via subagent; decisions = human) → write plan
-5. Gate spins: implementer → verifier → reviewers in parallel (correctness + plan/spec; security ONLY if trust boundary)
+5. Gate spins: for each ## Slices entry in order → fresh implementer (that slice only) → then verifier → reviewers in parallel (correctness + plan/spec; security ONLY if trust boundary)
 6. Orchestrator merges ≤2 fix rounds; ≤1 re-ask per producer per review round then accept marker (non-blocking); optional residual fixup → hand off uncommitted → append learnings (+ suggestions if pack/skill/agent/command/contract evidenced)
 
 /squad-review
@@ -95,7 +95,8 @@ write exactly `docs/plans/<slug>.md`.
 
 ## Implement, verify, review
 
-Read [the review contract](references/review-contract.md). Dual-axis: correctness and plan/spec.
+Read [the review contract](references/review-contract.md). For each `## Slices` entry in order, invoke a fresh
+`squad-implementer` for that slice only (same branch; no peer spawn). Then dual-axis: correctness and plan/spec.
 Security only on a trust-boundary diff (Security gate). Launch `squad-reviewer`, `squad-simplifier`, and conditional
 `squad-security-reviewer` in parallel, then `squad-orchestrator`. Do not launch a full-repo audit.
 
