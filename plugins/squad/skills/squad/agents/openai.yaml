@@ -1,0 +1,4 @@
+# Generated from disable-model-invocation: true in SKILL.md.
+# Codex has no frontmatter flag; this is the matching dialect.
+policy:
+  allow_implicit_invocation: false

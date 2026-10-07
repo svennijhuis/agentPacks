@@ -1,0 +1,29 @@
+{
+  "name": "pack-author",
+  "version": "0.1.3",
+  "description": "User-invoked /pack-author: make, review, or change a marketplace skill or agent. Edits wait for approval.",
+  "author": {
+    "name": "agentPacks Maintainers"
+  },
+  "license": "UNLICENSED",
+  "keywords": [
+    "authoring",
+    "skills",
+    "agents",
+    "marketplace"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Pack Author",
+    "shortDescription": "User-invoked /pack-author: make, review, or change a marketplace skill or agent. Edits wait for approval.",
+    "longDescription": "User-invoked /pack-author: make, review, or change a marketplace skill or agent. Edits wait for approval.",
+    "developerName": "agentPacks Maintainers",
+    "category": "Developer Tools",
+    "capabilities": [
+      "Skills"
+    ],
+    "defaultPrompt": [
+      "Use the Pack Author plugin when it is relevant to this task."
+    ]
+  }
+}
