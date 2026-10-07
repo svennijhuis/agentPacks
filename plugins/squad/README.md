@@ -16,7 +16,7 @@ The numbered flow below is locked v1 and is copied verbatim into the
 2. Orient codebase (applicable stacks only)
 3. Small change? → main agent only, spawn nobody → verify → append learnings (+ suggestions if pack/skill/agent/command/contract evidenced) → hand off uncommitted
 4. Else grill/plan rounds (facts via subagent; decisions = human) → write plan
-5. Gate spins: implementer → verifier → reviewers in parallel (correctness + plan/spec; security ONLY if trust boundary)
+5. Gate spins: sequential implementers (missing/one ## Slices → one whole-plan implementer; else one fresh implementer per slice in order) → then one verifier → reviewers in parallel (correctness + plan/spec; security ONLY if trust boundary)
 6. Orchestrator merges ≤2 fix rounds; ≤1 re-ask per producer per review round then accept marker (non-blocking); optional residual fixup → hand off uncommitted → append learnings (+ suggestions if pack/skill/agent/command/contract evidenced)
 
 /squad-review
