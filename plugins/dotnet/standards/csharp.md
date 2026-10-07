@@ -39,6 +39,7 @@ Use established project configuration and repeated local patterns for choices th
 
 - Keep extract method, extract interface, extract class, and pushing logic down into the domain.
 - Tests stay in place before a behavior-preserving refactor.
+- Never land a shape you know is worse just to finish faster.
 
 Extract method.
 

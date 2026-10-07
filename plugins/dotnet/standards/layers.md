@@ -41,6 +41,41 @@ sealed class PlaceOrder(IOrderStore orders) { public Task Handle(Order order) =>
 sealed class EfOrders(AppDbContext db) : IOrderStore { public Task Add(Order order) => db.Orders.AddAsync(order).AsTask(); }
 ```
 
+## Application has no storage SDKs
+
+- **Forbidden in Application:** `PackageReference` to `Azure.Data.Tables` (or any other
+  storage SDK), connection strings, account keys, and Table/Blob/Queue clients.
+- Ports (interfaces) live in Application. Concrete adapters live in Infrastructure.
+
+Bad: Application takes a storage SDK so a use case can talk to tables directly.
+
+```xml
+<!-- Application.csproj: do not -->
+<PackageReference Include="Azure.Data.Tables" Version="..." />
+```
+
+Fix: port in Application, adapter in Infrastructure.
+
+```csharp
+// Application
+public interface IOrderTableStore
+{
+    Task UpsertAsync(OrderRow row, CancellationToken ct);
+}
+```
+
+```csharp
+// Infrastructure
+sealed class AzureOrderTableStore(TableClient client) : IOrderTableStore
+{
+    public Task UpsertAsync(OrderRow row, CancellationToken ct) =>
+        client.UpsertEntityAsync(row, cancellationToken: ct);
+}
+```
+
+When a layered move is large, keep this dependency rule. Do not ship a short known-worse
+shape. Stop, split, or ask.
+
 ## Where new code goes
 
 | Change | Put it in |
