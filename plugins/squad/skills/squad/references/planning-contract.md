@@ -143,7 +143,7 @@ permission to silently fill unresolved branches.
 
 ## Write the plan
 
-If effort is more than one session, say so and stop.
+If the work is too big for one implementer pass, write ordered `## Slices` (ports and seams before adapters). Do not stop the human for size alone. Cap: ≤3 slices without asking; more → ask. A slice that would ship a known-worse shape → stop, split, or ask. One plan file. Same branch. Sequential: one fresh `squad-implementer` per slice, then the next.
 
 Write mode is valid only when the input includes the user's confirmation, every applicable decision branch is settled, and the open frontier is empty. Otherwise return the missing condition without writing.
 
@@ -180,6 +180,10 @@ The plan contains:
 |---|---|---|---|---|---|
 | 1 | <happy path> | <edge> | <fail> | unit or integration | <pre-agreed test seam> |
 
+## Slices
+1. <slice name>: criteria <ids>; done when those matrix rows are green
+(Omit or use a single slice when one implementer pass is enough.)
+
 ## In scope
 ## Out of scope
 ## Non-goals
@@ -190,7 +194,7 @@ The plan contains:
 ## Open questions
 None.
 ## Status
-planning | implementing | verifying | reviewing | fix-round <n> | fixup | hand-off
+planning | implementing | implementing slice <n>/<total> | verifying | reviewing | fix-round <n> | fixup | hand-off
 ## Fix list
 <rewritten each merge; empty until first review>
 ## Handoff notes
@@ -201,7 +205,8 @@ planning | implementing | verifying | reviewing | fix-round <n> | fixup | hand-o
 
 `## Status`, `## Fix list`, and `## Handoff notes` are **run scratch**: the main agent and
 `squad-orchestrator` rewrite those sections in place during the loop. Do not append forever inside
-the plan. Learnings stay append-only elsewhere.
+the plan. Learnings stay append-only elsewhere. While implementing, `## Status` may say
+`implementing slice <n>/<total>`.
 
 `## Request` is the user's words as typed; the title is the planner's outcome sentence. Do not expand
 or narrow the ask there — scope belongs in `## In scope`, `## Out of scope`, and `## Non-goals`. It is

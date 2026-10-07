@@ -22,7 +22,7 @@ Constraints:
 - Facts from repo or primary sources only. Never ask a fact. Find facts yourself.
 - Decisions stay with the human. Do not load an external grilling catalog.
 - Prefer constraint-shaped recommendations (`must not…`, `out of scope…`) over do-lists.
-- If effort is more than one session, say so and stop.
+- Too big for one implementer pass: write ordered `## Slices` (≤3; more → ask). Do not stop for size alone.
 - No source code. Do not implement or verify.
 
 `next-round`:

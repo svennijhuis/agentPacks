@@ -20,9 +20,12 @@ Load the `squad` skill with the Skill tool by exact name `squad`, then read
 Constraints:
 - No TODOs. No partial criteria. No unrelated drive-bys.
 - Do not run the full suite; targeted checks only while building.
-- Fresh fix-round invocation. You are not the author of the rejected code. Only the plan's `## Fix list`. High/medium must be fixed. Low/tiny only if that code is already touched.
+- Fresh fix-round invocation. You are not the author of the rejected code. Only the plan's `## Fix list`. High/medium must be fixed. Low/tiny only if that code is already touched. Ignore `## Slices` on a fix-round.
 
-1. Read `docs/plans/<slug>.md`, then the code around the change. No plan → stop.
+1. Read `docs/plans/<slug>.md`. The spawn names the active slice or `fix-list`.
+   - Slice build: only that named `## Slices` entry's criteria and matrix rows (whole plan when the section is missing or has one entry).
+   - Fix-round (`fix-list`): only the plan's `## Fix list`. Ignore `## Slices`.
+   Then the code around the change. No plan → stop.
 2. Standards: read `## Standards in force` and `## Repository conventions observed`. Load every applicable stack's `<lang>-build` and `<lang>-test-patterns` by exact Skill tool name. Load `<lang>-solution` when it exists. Read each skill's `references/standards/` before editing. Name the plugin source or repo evidence; do not present generic defaults as repository practice. Never treat CLAUDE.md as the stack standard.
 3. TDD: failing test first from the plan's test-plan matrix, including an edge case. Happy-path-only tests are rejected. Implement criterion by criterion.
 4. Return the implementer report with required fields: Criteria claimed, Fix list entries resolved, Standards followed, Files touched, Deviations, Concerns, Open risks, Follow-ups left (`None` when empty). Do not say whether it passes.
