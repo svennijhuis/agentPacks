@@ -41,13 +41,13 @@ sealed class PlaceOrder(IOrderStore orders) { public Task Handle(Order order) =>
 sealed class EfOrders(AppDbContext db) : IOrderStore { public Task Add(Order order) => db.Orders.AddAsync(order).AsTask(); }
 ```
 
-## Application has no storage SDKs
+## Application has no infrastructure packages
 
-- **Forbidden in Application:** `PackageReference` to `Azure.Data.Tables` (or any other
-  storage SDK), connection strings, account keys, and Table/Blob/Queue clients.
-- Ports (interfaces) live in Application. Concrete adapters live in Infrastructure.
+- **Forbidden in Application:** `PackageReference` or types for persistence, storage, queues,
+  email, HTTP vendor SDKs, `DbContext`, connection strings, account keys, and concrete clients.
+- Ports stay in Application. Adapters and SDKs stay in Infrastructure.
 
-Bad: Application takes a storage SDK so a use case can talk to tables directly.
+Bad: Application takes an infrastructure SDK so a use case can talk to tables directly.
 
 ```xml
 <!-- Application.csproj: do not -->
