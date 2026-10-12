@@ -29,7 +29,7 @@ Cross-language. Reviewer, simplifier, and verifier findings cite the section by 
 
 ## Test behavior, not implementation
 
-- Lives in `testing-principles.md` (Test behavior, not implementation): weak-assertion ban, AAA, one reason to fail.
+- Lives in `testing-principles.md`: AAA and one reason to fail under `## Rules`, the weak-assertion ban and "no test beats a bad test" under `## Test behavior, not implementation`.
 
 ## Guard at boundaries
 
