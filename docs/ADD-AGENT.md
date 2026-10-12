@@ -80,8 +80,13 @@ Keep these copies. Subagents and separately installed packs start without the pa
 | Skill-load preamble and the CLAUDE.md rule on every squad agent | Each specialist starts empty |
 | Locked v1 flow in the skill and the READMEs | Agents follow the skill; humans follow the README |
 | Malformed-report re-ask in command numbered steps, `references/malformed-reask.md` (skill pointer), and the review contract | The main agent follows the command |
+| `/squad-review` save-markdown numbered step | The main agent follows the command |
 | Language-pack slot boilerplate (`Internal. Do not run directly…`) | Each slot skill is loaded on its own |
 | Parallel language-pack skills | Packs install separately |
+| `deployed-smoke` / targeted-verify prose in each language pack | Loaded by exact Skill name into empty subagent context |
+| Language-pack `testing.md` "don't grep README" bullet | Each pack installs alone |
+| Security pack agents' skill-load + constraints | Empty subagent context; not Squad's per-change gate |
+| Security SKILL numbered steps vs `workflow.md` | Main agent follows the skill; workflow.md is the expanded reference |
 
 Collapse these. One reader or the compiler already has the twin:
 
@@ -89,14 +94,19 @@ Collapse these. One reader or the compiler already has the twin:
 |---|---|
 | Marketplace/client JSON field clone loops | `JsonFile.CopyProperties` |
 | Claude/Cursor/Copilot agent markdown emit | `WriteAgentMarkdown` |
+| Claude/Copilot command markdown emit | `WriteCommandMarkdown` |
+| Cursor/Copilot metadata catalog shell | `MarketplaceCatalog.Metadata` |
+| `plugin.Name ?? plugin.DirectoryName` | `PluginPackage.CanonicalName` |
 | Repeated test `SourceRoot` / generated-path skip / command-directory copy | `TestRepository` |
 | Repeated test `ParseFrontmatter` / `NonEmptyBodyLines` / occurrence counting | `TestRepository` |
-| Shipped plugin names, Squad agent names, authored skill file walk | `TestRepository` |
+| Shipped plugin names, Squad agent names, authored skill file walk, plugin root path | `TestRepository` |
 | Marketplace "will we emit hooks.json?" predicate | `HookGenerator.EmitsHooksFile` |
 | Claude/Copilot/Cursor catalog entry identity checks | `CompatibilityValidator.ReadUniqueMarketplaceName` |
 | Skill boolean frontmatter (`disable-model-invocation`, `user-invocable`) | `SkillValidator.ValidateBooleanScalar` |
 | Same-file restatements (Confidence table vs section) | One canonical section, table points at it |
 | `/scenarios` command restating the skill's numbered flow | Thin command: load skill, run its flow (same shape as `/pack-check` / `/security-audit`) |
+| `/pack-author` command restating make/review/change | Thin command: load skill, run the named mode |
+| Root README `/scenarios` essay restating the skill | Short blurb + link to `scenarios-md` / smoke-matrix |
 
 ## What gets generated
 

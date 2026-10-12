@@ -104,6 +104,9 @@ internal sealed class TestRepository : IDisposable
             .OrderBy(name => name, StringComparer.Ordinal)
             .ToArray();
 
+    public static string PluginRoot(string plugin, string? root = null) =>
+        Path.Combine(root ?? SourceRoot(), "plugins", plugin);
+
     public string PluginDirectory(string plugin = "engineering") =>
         Path.Combine(Root, "plugins", plugin);
 

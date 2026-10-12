@@ -11,8 +11,7 @@ public sealed class SecurityPackContractTests
     private static readonly string[] AgentNames =
         ["security-hunter", "security-recon", "security-validator"];
 
-    private static string PackRoot() =>
-        Path.Combine(TestRepository.SourceRoot(), "plugins", "security");
+    private static string PackRoot() => TestRepository.PluginRoot("security");
 
     [Fact]
     public void Security_is_a_capability_pack_not_a_language_pack()
@@ -81,14 +80,10 @@ public sealed class SecurityPackContractTests
             "security-audit-md",
             File.ReadAllText(Path.Combine(PackRoot(), "skills", "security-audit-md", "SKILL.md")),
             plugin: "security");
-
-        foreach (var reference in Directory.GetFiles(
-                     Path.Combine(PackRoot(), "skills", "security-audit-md", "references"), "*.md"))
-        {
-            repo.WithFile(
-                $"plugins/security/skills/security-audit-md/references/{Path.GetFileName(reference)}",
-                File.ReadAllText(reference));
-        }
+        repo.WithCopiedDirectory(
+            TestRepository.SourceRoot(),
+            "plugins/security/skills/security-audit-md/references",
+            "*.md");
 
         var run = repo.ValidateAndGenerate();
         Assert.False(run.HasErrors, run.Text);

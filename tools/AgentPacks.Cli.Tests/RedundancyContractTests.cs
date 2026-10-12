@@ -8,8 +8,8 @@ namespace AgentPacks.Cli.Tests;
 public sealed class RedundancyContractTests
 {
     /// <summary>
-    /// One <c>SourceRoot</c> implementation, shared JSON copy, agent markdown emit,
-    /// marketplace hooks declaration, and catalog entry identity checks.
+    /// One <c>SourceRoot</c> implementation, shared JSON copy, agent/command markdown emit,
+    /// marketplace catalog shell, hooks declaration, and catalog entry identity checks.
     /// </summary>
     [Fact]
     public void Compiler_and_same_file_copies_are_collapsed()
@@ -57,11 +57,33 @@ public sealed class RedundancyContractTests
         var testRepository = File.ReadAllText(Path.Combine(tests, "TestRepository.cs"));
         Assert.Contains("public static readonly string[] ShippedPluginNames", testRepository, StringComparison.Ordinal);
         Assert.Contains("public static readonly string[] SquadAgentNames", testRepository, StringComparison.Ordinal);
+        Assert.Contains("public static string PluginRoot", testRepository, StringComparison.Ordinal);
         Assert.Equal(1, TestRepository.CountOccurrences(testRepository, "[\"dotnet\", \"git\", \"pack-author\""));
+
+        var model = File.ReadAllText(Path.Combine(root, "tools", "AgentPacks.Cli", "Loading", "Model.cs"));
+        Assert.Contains("public string CanonicalName", model, StringComparison.Ordinal);
+        Assert.Equal(1, TestRepository.CountOccurrences(model, "Name ?? DirectoryName"));
+
+        Assert.Empty(ClonedHelpers(
+            Path.Combine(root, "tools", "AgentPacks.Cli"),
+            "plugin.Name ?? plugin.DirectoryName"));
+
+        var catalog = File.ReadAllText(Path.Combine(
+            root, "tools", "AgentPacks.Cli", "Generation", "MarketplaceCatalog.cs"));
+        Assert.Contains("public static GeneratedFile Metadata", catalog, StringComparison.Ordinal);
+
+        Assert.Contains("private static void WriteCommandMarkdown", generator, StringComparison.Ordinal);
+
+        var cursor = File.ReadAllText(Path.Combine(
+            root, "tools", "AgentPacks.Cli", "Generation", "CursorMarketplaceGenerator.cs"));
+        Assert.Contains("MarketplaceCatalog.Metadata", cursor, StringComparison.Ordinal);
+        Assert.Contains("MarketplaceCatalog.Metadata", copilot, StringComparison.Ordinal);
+        Assert.DoesNotContain("agentPacks Maintainers", cursor, StringComparison.Ordinal);
+        Assert.DoesNotContain("agentPacks Maintainers", copilot, StringComparison.Ordinal);
     }
 
     /// <summary>
-    /// Same-file Confidence restatement and a thin <c>/scenarios</c> command (skill has the steps).
+    /// Same-file Confidence restatement and thin slash commands (skill has the steps).
     /// </summary>
     [Fact]
     public void Same_reader_markdown_copies_are_collapsed()
@@ -86,10 +108,27 @@ public sealed class RedundancyContractTests
         Assert.True(
             command.Length < skill.Length / 2,
             $"/scenarios command is {command.Length} chars; keep it thin like pack-check. Skill is {skill.Length}.");
+
+        var packAuthorCommand = File.ReadAllText(Path.Combine(
+            root, "plugins", "pack-author", "commands", "pack-author.md"));
+        var packAuthorSkill = File.ReadAllText(Path.Combine(
+            root, "plugins", "pack-author", "skills", "pack-author-md", "SKILL.md"));
+        Assert.Contains("pack-author-md", packAuthorCommand, StringComparison.Ordinal);
+        Assert.DoesNotContain("Matt-tiny", packAuthorCommand, StringComparison.Ordinal);
+        Assert.Contains("Matt-tiny", packAuthorSkill, StringComparison.Ordinal);
+        Assert.True(
+            packAuthorCommand.Length < packAuthorSkill.Length / 2,
+            $"/pack-author command is {packAuthorCommand.Length} chars; keep it thin like /scenarios. Skill is {packAuthorSkill.Length}.");
+
+        var readme = File.ReadAllText(Path.Combine(root, "README.md"));
+        Assert.Contains("scenarios-md", readme, StringComparison.Ordinal);
+        Assert.Contains("/squad:scenarios", readme, StringComparison.Ordinal);
+        Assert.DoesNotContain("TOKEN_VALID", readme, StringComparison.Ordinal);
+        Assert.DoesNotContain("OpenAPI/Swagger fills", readme, StringComparison.Ordinal);
     }
 
     private static string[] ClonedHelpers(string tests, string token) =>
-        Directory.GetFiles(tests, "*.cs")
+        Directory.GetFiles(tests, "*.cs", SearchOption.AllDirectories)
             .Where(path => !TestRepository.IsGeneratedPath(path))
             .Where(path => Path.GetFileName(path) != "TestRepository.cs")
             .Where(path => File.ReadAllText(path).Contains(token, StringComparison.Ordinal))

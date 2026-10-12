@@ -104,12 +104,10 @@ internal sealed class ClientTreeGenerator(RepositoryContext context, ModelCatalo
 
         foreach (var command in plugin.Commands)
         {
-            add(
+            WriteCommandMarkdown(
+                command,
                 profile.PluginRelative($"commands/{command.Name}.md"),
-                ComponentWriter.Markdown(
-                    [new("description", ComponentWriter.Yaml(command.Description))],
-                    command.Body),
-                false);
+                add);
         }
 
         GenerateRulesContext(plugin, profile, add, addJson);
@@ -239,7 +237,7 @@ internal sealed class ClientTreeGenerator(RepositoryContext context, ModelCatalo
 
         var cursor = new JsonObject
         {
-            ["name"] = plugin.Name ?? plugin.DirectoryName,
+            ["name"] = plugin.CanonicalName,
             ["displayName"] = PluginDisplayName.From(plugin),
             // Official cursor/plugins manifests classify workflow packs this way. The catalog
             // entry cannot: schemas/marketplace.schema.json forbids category on plugins[].
@@ -292,7 +290,7 @@ internal sealed class ClientTreeGenerator(RepositoryContext context, ModelCatalo
 
         var codex = new JsonObject
         {
-            ["name"] = plugin.Name ?? plugin.DirectoryName
+            ["name"] = plugin.CanonicalName
         };
 
         JsonFile.CopyProperties(
@@ -322,8 +320,8 @@ internal sealed class ClientTreeGenerator(RepositoryContext context, ModelCatalo
             codex["mcpServers"] = "./.mcp.json";
         }
 
-        var description = manifest["description"]?.GetValue<string>() ?? plugin.DirectoryName;
-        var developer = manifest["author"]?["name"]?.GetValue<string>() ?? "agentPacks Maintainers";
+        var description = manifest["description"]?.GetValue<string>() ?? plugin.CanonicalName;
+        var developer = manifest["author"]?["name"]?.GetValue<string>() ?? MarketplaceCatalog.OwnerName;
         var displayName = PluginDisplayName.From(plugin);
 
         var capabilities = new JsonArray();
@@ -423,15 +421,11 @@ internal sealed class ClientTreeGenerator(RepositoryContext context, ModelCatalo
         {
             var name = CopilotCommandName(plugin, command);
 
-            add(
+            WriteCommandMarkdown(
+                command,
                 profile.PluginRelative($"commands/{name}.md"),
-                ComponentWriter.Markdown(
-                    [
-                        new("name", ComponentWriter.Yaml(name)),
-                        new("description", ComponentWriter.Yaml(command.Description))
-                    ],
-                    command.Body),
-                false);
+                add,
+                emittedName: name);
         }
 
         GenerateRulesContext(plugin, profile, add, addJson);
@@ -444,7 +438,7 @@ internal sealed class ClientTreeGenerator(RepositoryContext context, ModelCatalo
     /// </summary>
     private static string CopilotCommandName(PluginPackage plugin, MarkdownComponent command)
     {
-        var pluginName = plugin.Name ?? plugin.DirectoryName;
+        var pluginName = plugin.CanonicalName;
 
         if (string.Equals(pluginName, "squad", StringComparison.Ordinal) &&
             string.Equals(command.Name, "squad", StringComparison.Ordinal))
@@ -462,6 +456,27 @@ internal sealed class ClientTreeGenerator(RepositoryContext context, ModelCatalo
     }
 
     // ---------------------------------------------------------------- Shared
+
+    /// <summary>
+    /// Claude emits description-only command frontmatter (filename is identity). Copilot also
+    /// writes <c>name</c> because it remaps colliding factory slashes.
+    /// </summary>
+    private static void WriteCommandMarkdown(
+        MarkdownComponent command,
+        string pluginRelative,
+        Action<string, string, bool> add,
+        string? emittedName = null)
+    {
+        var frontmatter = new List<KeyValuePair<string, string>>();
+
+        if (emittedName is not null)
+        {
+            frontmatter.Add(new("name", ComponentWriter.Yaml(emittedName)));
+        }
+
+        frontmatter.Add(new("description", ComponentWriter.Yaml(command.Description)));
+        add(pluginRelative, ComponentWriter.Markdown(frontmatter, command.Body), false);
+    }
 
     /// <summary>
     /// Claude, Cursor and Copilot all emit Markdown agents with the same keys; only the model

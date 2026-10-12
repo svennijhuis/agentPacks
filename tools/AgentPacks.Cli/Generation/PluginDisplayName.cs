@@ -12,7 +12,7 @@ namespace AgentPacks.Cli.Generation;
 /// </summary>
 internal static class PluginDisplayName
 {
-    public static string From(PluginPackage plugin) => From(plugin.Name ?? plugin.DirectoryName);
+    public static string From(PluginPackage plugin) => From(plugin.CanonicalName);
 
     public static string From(string name) => name switch
     {

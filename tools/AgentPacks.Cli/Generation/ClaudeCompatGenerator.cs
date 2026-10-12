@@ -34,7 +34,7 @@ internal sealed class ClaudeCompatGenerator(RepositoryContext context)
         var marketplace = new JsonObject
         {
             ["name"] = MarketplaceName,
-            ["owner"] = new JsonObject { ["name"] = "agentPacks Maintainers" },
+            ["owner"] = new JsonObject { ["name"] = MarketplaceCatalog.OwnerName },
             ["description"] = "Private agentPacks plugins. Generated from the portable Agent Plugins source.",
             ["plugins"] = entries
         };
@@ -49,7 +49,7 @@ internal sealed class ClaudeCompatGenerator(RepositoryContext context)
     private JsonObject BuildEntry(PluginPackage plugin, List<GeneratedFile> files)
     {
         var manifest = plugin.Manifest!;
-        var name = plugin.Name ?? plugin.DirectoryName;
+        var name = plugin.CanonicalName;
 
         var entry = new JsonObject
         {
