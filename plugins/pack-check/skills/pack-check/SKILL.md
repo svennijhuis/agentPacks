@@ -52,3 +52,6 @@ already happened, so do not claim the new skills are available in the current se
 Lint a Squad plan with `sh scripts/check-plan.sh <plan>`, or `pwsh scripts/check-plan.ps1 <plan>` when
 no `sh` exists: date-slug name, required sections for its `## Status`, no em dash. Local files only.
 Findings are warnings: report them, never stop the run. Neither shell available: skip and say so.
+
+Lint a Squad retro with `sh scripts/check-retro.sh <retro>`, or `pwsh scripts/check-retro.ps1 <retro>`:
+date-slug name and no em dash (U+2014), reported per line. The main agent fixes every finding before Done.

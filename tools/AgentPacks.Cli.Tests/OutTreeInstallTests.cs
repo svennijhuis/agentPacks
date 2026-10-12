@@ -36,7 +36,10 @@ public sealed class OutTreeInstallTests
                 Assert.True(File.Exists(Path.Combine(squad, relative)), $"out tree is missing plugins/squad/{relative}");
             }
 
-            Assert.True(File.Exists(Path.Combine(output, "plugins", "pack-check", "skills", "pack-check", "scripts", "check-plan.sh")));
+            foreach (var script in new[] { "check-plan.sh", "check-plan.ps1", "check-retro.sh", "check-retro.ps1" })
+            {
+                Assert.True(File.Exists(Path.Combine(output, "plugins", "pack-check", "skills", "pack-check", "scripts", script)), $"out tree is missing {script}");
+            }
         }
         finally
         {

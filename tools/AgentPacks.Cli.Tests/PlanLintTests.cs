@@ -177,18 +177,37 @@ public sealed class PlanLintTests : IDisposable
         Assert.DoesNotContain("1. Port", output, StringComparison.Ordinal);
     }
 
+    private const string CleanRetro = "# Retro: add x\n\n## Summary\nResult: pass. Last SHA abc1234.\n\n## What went wrong\nNone\n";
+
+    [Fact]
+    public void Retro_with_an_em_dash_fails_in_both_twins()
+    {
+        Assert.True(PwshAvailable.Value, "pwsh must be on PATH so both twins run.");
+        var (exit, output) = Lint("2026-10-13-add-x.md", CleanRetro + "\nOne lesson \u2014 quoted from a vendor.\n", "check-retro");
+        Assert.Equal(1, exit);
+        Assert.Contains("line 9 contains an em dash", output, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void Clean_retro_passes_in_both_twins()
+    {
+        Assert.True(PwshAvailable.Value, "pwsh must be on PATH so both twins run.");
+        Assert.Equal((0, string.Empty), Lint("2026-10-13-add-x.md", CleanRetro, "check-retro"));
+        Assert.Equal(1, Lint("retro.md", CleanRetro, "check-retro").Exit);
+    }
+
     /// <summary>
     /// Runs check-plan.sh and, when pwsh is on PATH, check-plan.ps1 on the same file, and requires
     /// both twins to agree on exit code and findings. Every case in this class is a parity case.
     /// </summary>
-    private (int Exit, string Output) Lint(string name, string text)
+    private (int Exit, string Output) Lint(string name, string text, string script = "check-plan")
     {
         var path = Path.Combine(_directory, name);
         File.WriteAllText(path, text);
-        var posix = Run("sh", [Script("check-plan.sh"), path], name);
+        var posix = Run("sh", [Script(script + ".sh"), path], name);
         if (PwshAvailable.Value)
         {
-            var powerShell = Run("pwsh", ["-NoProfile", "-NonInteractive", "-File", Script("check-plan.ps1"), path], name);
+            var powerShell = Run("pwsh", ["-NoProfile", "-NonInteractive", "-File", Script(script + ".ps1"), path], name);
             Assert.Equal(posix.Exit, powerShell.Exit);
             Assert.Equal(posix.Output.Replace("\r", "", StringComparison.Ordinal), powerShell.Output.Replace("\r", "", StringComparison.Ordinal));
         }

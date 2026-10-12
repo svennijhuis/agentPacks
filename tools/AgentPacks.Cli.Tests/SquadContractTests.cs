@@ -992,6 +992,15 @@ public class SquadContractTests
         Assert.Equal(["accepted, malformed after re-ask"], variants);
     }
 
+    [Theory]
+    [InlineData("squad.md")]
+    [InlineData("squad-review.md")]
+    public void Main_agent_lints_the_retro_and_fixes_findings_before_done(string command)
+    {
+        Assert.Contains("After `squad-retro` writes, run the `pack-check` skill's `scripts/check-retro.sh <retro>` (or `check-retro.ps1` without `sh`) and fix every finding in the retro before reporting Done",
+            Squad("commands", command), StringComparison.Ordinal);
+    }
+
     private static string Sh(string dir, string command)
     {
         var info = new System.Diagnostics.ProcessStartInfo("sh", ["-c", command])
