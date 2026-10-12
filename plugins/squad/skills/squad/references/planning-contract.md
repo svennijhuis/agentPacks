@@ -263,6 +263,24 @@ coverage is rejected. Deployed/API smoke cites
 The plan lives in the file. The implementer builds from it, the verifier checks it, and reviewers
 measure the change against it.
 
+## Precedence
+
+Precedence: the repo's own structure and conventions come first; the architect Map reads them and the planner records them under `## Repository conventions observed`. Skill standards fill the gaps where the repo has no convention. A standard overrides a repo convention only as an explicit improvement, logged under `## Decisions` with the reason, plus an ADR if it changes structure.
+
+## Gap markers
+
+- `Design gap: <question>`: the planner found a hole in `## Design`. The main agent reruns `squad-architect` once with that question, then the planner continues. At most 1 rerun.
+- `Plan gap: <question>`: the implementer needs a decision the plan lacks. It stops the slice instead of guessing and leaves any partial diff uncommitted. The main agent runs the planner in `next-round` mode on that gap only, so the question goes to the user. The answer is recorded in `## Grill log` and `## Decisions`. The architect reruns only when the gap is about design. A fresh implementer then redoes that slice with the updated plan path.
+- Saving a Plan gap: before the planner round, the main agent saves the partial diff, untracked files included, to `docs/plans/<slug>.gap-<n>.patch`, then resets to the last slice commit only when that file exists and is non-empty. Saving fails → stop the run, no reset. The patch is never committed: the repo `.gitignore` carries `*.gap-*.patch` (add the rule when missing). The fresh implementer gets the patch path to read but builds on a clean tree. The retro lists the gap.
+
+```sh
+git add -N . && git diff HEAD --binary > docs/plans/<slug>.gap-<n>.patch && test -s docs/plans/<slug>.gap-<n>.patch && git reset --hard && git clean -fd
+```
+
+- Cap: at most 1 `Plan gap:` per slice. A second one on the same slice becomes `Replan:` for the whole plan, and the retro records it.
+
+Grill rounds stay as they are.
+
 ## The rule that outranks the rest
 
 **An open question is never a criterion.** Return it to the frontier. Never replace it with the

@@ -77,6 +77,7 @@ public sealed class PlanLintTests : IDisposable
         Assert.Equal(1, exit);
         Assert.Contains("missing ## Design or 'Design: skipped (small)'", output, StringComparison.Ordinal);
         Assert.Equal(0, Lint("2026-10-12-add-x.md", Confirmed + "\nDesign: skipped (small)\n").Exit);
+        Assert.Equal(0, Lint("2026-10-12-add-x.md", Confirmed + "\n## Design\n\nDesign: skipped (small)\n").Exit);
     }
 
     [Fact]

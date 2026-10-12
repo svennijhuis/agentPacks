@@ -30,8 +30,9 @@ if ($lines -ccontains '## Goal') {
     Need 'Grill log'
     if ($status -ne 'draft') {
         foreach ($s in 'Decisions', 'Acceptance criteria', 'Test plan matrix', 'Open questions', 'Verification') { Need $s }
-        if ($lines -ccontains '## Design') { Need 'Map' }
-        elseif (-not ($lines -ccontains 'Design: skipped (small)')) { Fail "missing ## Design or 'Design: skipped (small)'" }
+        if ($lines -ccontains 'Design: skipped (small)') { }
+        elseif ($lines -ccontains '## Design') { Need 'Map' }
+        else { Fail "missing ## Design or 'Design: skipped (small)'" }
     }
 }
 $hardIndex = [Array]::IndexOf($lines, '### Hard decisions')

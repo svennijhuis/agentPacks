@@ -27,8 +27,9 @@ else
   need "Grill log"
   if [ "$status" != draft ]; then
     for s in Decisions "Acceptance criteria" "Test plan matrix" "Open questions" Verification; do need "$s"; done
-    if lines | grep -q '^## Design$'; then need Map
-    else lines | grep -q '^Design: skipped (small)$' || fail "missing ## Design or 'Design: skipped (small)'"; fi
+    if lines | grep -q '^Design: skipped (small)$'; then :
+    elif lines | grep -q '^## Design$'; then need Map
+    else fail "missing ## Design or 'Design: skipped (small)'"; fi
   fi
 fi
 

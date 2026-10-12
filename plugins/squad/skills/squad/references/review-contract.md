@@ -317,7 +317,7 @@ After this shape is returned, the main agent shows it in the IDE/CLI and always 
 
 ## Judgment buckets
 
-The merged list sorts every finding into one bucket: **Act on** (real, in scope, fix now), **Consider** (real, judgment call), **Noted** (true, not worth a round), **Dismissed** (wrong or out of scope, with the reason). A second failed fix on the same premise is `Replan:`.
+The merged list sorts every finding into one bucket: **Act on** (real, in scope, fix now), **Consider** (real, judgment call), **Noted** (true, not worth a round), **Dismissed** (wrong or out of scope, with the reason). A second failed fix on the same premise is `Replan:`. So is a second `Plan gap:` on one slice (planning-contract Gap markers); the retro records it.
 
 ## Spawning agents
 

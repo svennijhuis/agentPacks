@@ -838,6 +838,115 @@ public class SquadContractTests
             .ToList();
     }
 
+    private static string Squad(params string[] parts) =>
+        File.ReadAllText(Path.Combine([TestRepository.SourceRoot(), "plugins", "squad", .. parts]));
+
+    [Fact]
+    public void Repo_conventions_outrank_skill_standards_unless_an_improvement_is_logged()
+    {
+        const string line = "A standard overrides a repo convention only as an explicit improvement, logged under `## Decisions`";
+        Assert.Contains(line, Squad("skills", "squad", "references", "planning-contract.md"), StringComparison.Ordinal);
+        Assert.Contains(line, Squad("agents", "squad-implementer.md"), StringComparison.Ordinal);
+        var reviewer = Squad("agents", "squad-reviewer.md");
+        Assert.Contains("A break from a repo convention without an improvement logged under `## Decisions` → `medium`", reviewer, StringComparison.Ordinal);
+        Assert.Contains("a break from our standard where the repo has no convention → `medium`", reviewer, StringComparison.Ordinal);
+        Assert.DoesNotContain("convention → `low`", reviewer, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void Design_gap_reruns_the_architect_at_most_once()
+    {
+        Assert.Contains("`Design gap: <question>`", Squad("agents", "squad-planner.md"), StringComparison.Ordinal);
+        var command = Squad("commands", "squad.md");
+        Assert.Contains("rerun `squad-architect` once with that question", command, StringComparison.Ordinal);
+        Assert.Contains("at most 1 rerun", command, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void Plan_gap_stops_the_slice_and_routes_to_one_planner_round()
+    {
+        Assert.Contains("return `Plan gap: <question>` instead of guessing", Squad("agents", "squad-implementer.md"), StringComparison.Ordinal);
+        var command = Squad("commands", "squad.md");
+        Assert.Contains("run `squad-planner` in `next-round` mode on that gap only", command, StringComparison.Ordinal);
+        Assert.Contains("`## Grill log` and `## Decisions`", command, StringComparison.Ordinal);
+        Assert.Contains("a fresh `squad-implementer` redoes that slice", command, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void Second_plan_gap_on_a_slice_is_replan_and_the_retro_records_it()
+    {
+        Assert.Contains("a second becomes `Replan:` for the whole plan and the retro records it", Squad("commands", "squad.md"), StringComparison.Ordinal);
+        Assert.Contains("A second one on the same slice becomes `Replan:` for the whole plan", Squad("skills", "squad", "references", "planning-contract.md"), StringComparison.Ordinal);
+        Assert.Contains("second `Plan gap:` on one slice", Squad("skills", "squad", "references", "review-contract.md"), StringComparison.Ordinal);
+        Assert.Contains("each `Plan gap:`", Squad("skills", "squad", "references", "retro.md"), StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void Locked_v1_fence_is_identical_in_skill_and_both_readmes()
+    {
+        static string Fence(string text)
+        {
+            var start = text.IndexOf("## Locked v1 flow", StringComparison.Ordinal);
+            var open = text.IndexOf("```text", start, StringComparison.Ordinal);
+            var close = text.IndexOf("\n```", open + 7, StringComparison.Ordinal);
+            return text[open..close].Replace("\r", "", StringComparison.Ordinal);
+        }
+
+        var skill = Fence(Squad("skills", "squad", "SKILL.md"));
+        Assert.Equal(skill, Fence(Squad("README.md")));
+        Assert.Equal(skill, Fence(File.ReadAllText(Path.Combine(TestRepository.SourceRoot(), "README.md"))));
+    }
+
+    [Fact]
+    public void After_a_plan_gap_the_tree_is_clean_and_the_gitignored_patch_holds_the_diff()
+    {
+        var contract = Squad("skills", "squad", "references", "planning-contract.md");
+        var start = contract.IndexOf("```sh\ngit add -N .", StringComparison.Ordinal);
+        Assert.True(start >= 0, "save command missing from planning-contract");
+        var save = contract[(start + 6)..contract.IndexOf("\n```", start + 6, StringComparison.Ordinal)]
+            .Replace("<slug>", "2026-10-12-x", StringComparison.Ordinal).Replace("<n>", "1", StringComparison.Ordinal);
+
+        var dir = Directory.CreateTempSubdirectory("plan-gap-").FullName;
+        try
+        {
+            File.Copy(Path.Combine(TestRepository.SourceRoot(), ".gitignore"), Path.Combine(dir, ".gitignore"));
+            Directory.CreateDirectory(Path.Combine(dir, "docs", "plans"));
+            File.WriteAllText(Path.Combine(dir, "a.txt"), "slice 1\n");
+            Sh(dir, "git init -q && git add -A && git -c user.name=t -c user.email=t@t commit -qm slice1");
+            File.WriteAllText(Path.Combine(dir, "a.txt"), "partial\n");
+            File.WriteAllText(Path.Combine(dir, "new.txt"), "untracked\n");
+
+            Sh(dir, save);
+
+            var patch = Path.Combine(dir, "docs", "plans", "2026-10-12-x.gap-1.patch");
+            Assert.True(new FileInfo(patch).Length > 0);
+            var text = File.ReadAllText(patch);
+            Assert.Contains("+partial", text, StringComparison.Ordinal);
+            Assert.Contains("new.txt", text, StringComparison.Ordinal);
+            Assert.Equal("", Sh(dir, "git status --porcelain"));
+            Assert.Contains("gap-1.patch", Sh(dir, "git check-ignore docs/plans/2026-10-12-x.gap-1.patch"), StringComparison.Ordinal);
+            Assert.Equal("slice 1\n", File.ReadAllText(Path.Combine(dir, "a.txt")));
+        }
+        finally
+        {
+            Directory.Delete(dir, true);
+        }
+    }
+
+    private static string Sh(string dir, string command)
+    {
+        var info = new System.Diagnostics.ProcessStartInfo("sh", ["-c", command])
+        {
+            WorkingDirectory = dir, RedirectStandardOutput = true, RedirectStandardError = true,
+        };
+        using var p = System.Diagnostics.Process.Start(info)!;
+        var output = p.StandardOutput.ReadToEnd();
+        var error = p.StandardError.ReadToEnd();
+        p.WaitForExit();
+        Assert.True(p.ExitCode == 0, $"{command}: {error}");
+        return output;
+    }
+
     private static HashSet<string> CommandNames(string directory) =>
         Directory.Exists(directory)
             ? Directory.GetFiles(directory, "*.md")

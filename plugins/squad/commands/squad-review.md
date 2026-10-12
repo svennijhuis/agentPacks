@@ -7,7 +7,7 @@ description: Report-only review of a PR / uncommitted / vs main.
 
 Load the `squad` skill with the Skill tool by exact name `squad`. Never write `/squad` as prose
 to load it. Then read `references/review-contract.md`. Read
-the latest same-entrypoint `docs/retros/` file when present; carry open Backlog rows as facts.
+the latest same-entrypoint `docs/retros/` file when present; carry its Lessons and Improvements as facts.
 
 This command reviews an existing change with no plan. Dual-axis: correctness and the spec implied
 by the diff. Security only when the review contract's Security gate says run.

@@ -26,7 +26,7 @@ Entrypoint, result, phases run, agents spawned and skipped, fix rounds, last SHA
 
 ## What went wrong
 Each miss with its evidence: failed gates, fix rounds, user interruptions, and design misses
-(where the built change left the chosen Design option or Map). `None` when clean.
+(where the built change left the chosen Design option or Map), and each `Plan gap:` with its question and patch path (a second gap on one slice is the `Replan:`). `None` when clean.
 
 ## Lessons
 | Lesson | Type | File |

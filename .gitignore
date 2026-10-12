@@ -14,3 +14,6 @@ artifacts/
 # OS
 .DS_Store
 Thumbs.db
+
+# Squad Plan gap patches (never committed)
+*.gap-*.patch
