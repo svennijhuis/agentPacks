@@ -230,6 +230,18 @@ public class SquadContractTests
     }
 
     [Fact]
+    public void Planner_defers_to_design_and_implementer_spawn_names_plan_design_and_map()
+    {
+        var root = TestRepository.SourceRoot();
+        Assert.Contains("When `## Design` exists, skip the shape compare and the architecture fitness check; write `see ## Design` for both.",
+            Fixture("squad-planner.md"), StringComparison.Ordinal);
+        var skill = File.ReadAllText(Path.Combine(root, "plugins", "squad", "skills", "squad", "SKILL.md"));
+        var squad = File.ReadAllText(Path.Combine(root, "plugins", "squad", "commands", "squad.md"));
+        Assert.Contains("spawn passes the slice name and the paths of the plan, its `## Design`, and its `## Map`", skill, StringComparison.Ordinal);
+        Assert.Contains("passes the slice name (or `whole-plan`) and the paths of the plan, its `## Design`, and its `## Map`", squad, StringComparison.Ordinal);
+    }
+
+    [Fact]
     public void Squad_loop_slash_commands_stay_exactly_four()
     {
         var root = TestRepository.SourceRoot();

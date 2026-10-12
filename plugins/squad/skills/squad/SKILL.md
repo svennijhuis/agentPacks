@@ -98,7 +98,7 @@ find them. Prefer constraint-shaped recommendations. Read `docs/decisions.md` wh
 
 Read [the review contract](references/review-contract.md). Sequential implementers first: if `## Slices` is missing or
 has one entry, one fresh `squad-implementer` on the whole plan; otherwise one fresh `squad-implementer` per entry in
-order (spawn names the slice; same branch; no peer spawn). Then one `squad-verifier`. Then dual-axis: correctness and
+order (spawn passes the slice name and the paths of the plan, its `## Design`, and its `## Map`; each slice names its files from the Map, so no research is redone; same branch; no peer spawn). Then one `squad-verifier`. Then dual-axis: correctness and
 plan/spec. Security only on a trust-boundary diff (Security gate). Launch `squad-reviewer`, `squad-simplifier`, and
 conditional `squad-security-reviewer` in parallel, then `squad-orchestrator`. Do not launch a full-repo audit.
 

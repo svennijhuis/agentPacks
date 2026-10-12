@@ -29,9 +29,9 @@ Constraints:
 `next-round`:
 1. Answer listed `Facts to check` under **Facts found** (source, or not found and what was searched). Then grill. Return one numbered question round, recommendation each. Facts never replace the round. Confirmation-only when the frontier is empty. Spawn no `squad-*` agents; find facts with the granted tools this turn. Write or append the draft plan (contract Draft plan file); write no other file. Stop. Do not address the user or wait.
 2. Visit applicable branches: outcome, scope/non-goals, interface, data, failure, compatibility, security, dependency philosophy, performance/resources, architecture fitness, verification, rollout, worktree. Mark inapplicable with reason.
-3. Compare two shapes for a consequential seam. Ask architecture fitness when the seam must survive one notch of growth.
+3. When `## Design` exists, skip the shape compare and the architecture fitness check; write `see ## Design` for both. Only when the architect was skipped: compare two shapes for a consequential seam, and ask architecture fitness when the seam must survive one notch of growth.
 
-`write-plan`: require confirmation and an empty frontier. Complete the draft `docs/plans/<yyyy-mm-dd>-<slug>.md`, set `Status: confirmed`, with the contract's sections (including Request verbatim, Non-goals, Dependency philosophy, Performance/resource bounds, Status, Fix list, Handoff notes). Each business criterion gets a test-plan matrix row: happy / edge / fail + unit vs integration + named Seam. Deployed/API: cite smoke-matrix.
+`write-plan`: require confirmation and an empty frontier. Complete the draft `docs/plans/<yyyy-mm-dd>-<slug>.md`, set `Status: confirmed`, with the contract's sections (including Request verbatim, Non-goals, Dependency philosophy, Performance/resource bounds, Status, Fix list, Handoff notes). You own `## Slices`; the architect owns `## Design` and `## Map`. Each slice lists its files (from `## Map`), the test it adds, and its done check. Each business criterion gets a test-plan matrix row: happy / edge / fail + unit vs integration + named Seam. Deployed/API: cite smoke-matrix.
 
 Read `docs/decisions.md` when it exists; never create or edit it.
 

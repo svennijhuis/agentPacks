@@ -156,6 +156,10 @@ permission to silently fill unresolved branches.
 
 ## Write the plan
 
+Ownership: the architect owns `## Design` and `## Map` (where the change goes and why). The planner
+owns `## Slices` (what gets built and in what order). Each slice lists its files (taken from the Map),
+the test it adds, and its done check.
+
 If the work is too big for one implementer pass, write ordered `## Slices` (data structures and scaffold first, ports and seams before adapters, each slice ending green). Do not stop the human for size alone. Cap: ≤3 slices without asking; more → ask. A slice that would ship a known-worse shape → stop, split, or ask. One plan file. Same branch. Sequential: one fresh `squad-implementer` per slice, then the next.
 
 Write mode is valid only when the input includes the user's confirmation, every applicable decision branch is settled, and the open frontier is empty. Otherwise return the missing condition without writing.
@@ -204,7 +208,7 @@ Hard decisions get an ADR per [the ADR contract](adr.md); the plan links each on
 | 1 | <happy path> | <edge> | <fail> | unit or integration | <pre-agreed test seam> |
 
 ## Slices
-1. <slice name>: criteria <ids>; done when those matrix rows are green
+1. <slice name>: criteria <ids>; files <from ## Map>; test <the test it adds>; done when <check, e.g. those matrix rows are green>
 (Omit or use a single slice when one implementer pass is enough.)
 
 ## In scope

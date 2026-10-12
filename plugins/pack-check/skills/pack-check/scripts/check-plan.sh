@@ -42,6 +42,11 @@ if [ -n "$hard" ] && [ "$hard" != None ]; then
   fi
 fi
 
+lines | awk '/^## Slices$/{f=1; next} /^## /{f=0} f && /^[0-9]+\. /' | while IFS= read -r slice; do
+  case "$slice" in *files*) ;; *) warn "slice has no files line: $slice" ;; esac
+  case "$slice" in *done*) ;; *) warn "slice has no done check: $slice" ;; esac
+done
+
 if lines | grep -q '^## Map$'; then
   map=$(lines | awk '/^## Map$/{f=1; next} /^## /{f=0} f')
   printf '%s\n' "$map" | grep -q '^```mermaid' || warn "## Map has no fenced mermaid block"

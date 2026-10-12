@@ -45,6 +45,15 @@ if ($hardIndex -ge 0) {
         elseif ($joined -cnotmatch "docs/adr/[0-9]{4}-$([regex]::Escape($slug))(-[a-z0-9-]+)?\.md") { Fail "ADR link must be docs/adr/NNNN-$slug.md" }
     }
 }
+$slicesIndex = [Array]::IndexOf($lines, '## Slices')
+if ($slicesIndex -ge 0) {
+    for ($i = $slicesIndex + 1; $i -lt $lines.Count -and -not $lines[$i].StartsWith('## '); $i++) {
+        $slice = $lines[$i]
+        if ($slice -notmatch '^[0-9]+\. ') { continue }
+        if (-not $slice.Contains('files')) { Warn "slice has no files line: $slice" }
+        if (-not $slice.Contains('done')) { Warn "slice has no done check: $slice" }
+    }
+}
 $mapIndex = [Array]::IndexOf($lines, '## Map')
 if ($mapIndex -ge 0) {
     $hasMermaid = $false

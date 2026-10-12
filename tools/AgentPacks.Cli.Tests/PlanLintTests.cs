@@ -90,7 +90,7 @@ public sealed class PlanLintTests : IDisposable
                      "Request", "Goal", "Decision", "Verify", "Grill log", "Decisions", "Acceptance criteria",
                      "Test plan matrix", "Open questions", "Verification", "Design", "Map", "Design: skipped (small)",
                      "file name must be <yyyy-mm-dd>-<slug>.md", "contains an em dash", "missing ## Status value",
-                     "### Hard decisions", "hard decision without a docs/adr/ link", "ADR link must be docs/adr/NNNN-", "## Map has no fenced mermaid block"
+                     "### Hard decisions", "hard decision without a docs/adr/ link", "ADR link must be docs/adr/NNNN-", "## Map has no fenced mermaid block", "slice has no files line", "slice has no done check"
                  })
         {
             Assert.Contains(section, sh, StringComparison.Ordinal);
@@ -144,6 +144,17 @@ public sealed class PlanLintTests : IDisposable
         Assert.Contains("warning: ## Map has no fenced mermaid block", output, StringComparison.Ordinal);
         var withDiagram = Confirmed + "\n## Design\nx\n\n## Map\n| a |\n\n```mermaid\nflowchart LR\n  A --> B\n```\nCaption.\n";
         Assert.Equal((0, string.Empty), Lint("2026-10-12-add-x.md", withDiagram));
+    }
+
+    [Fact]
+    public void Slice_without_files_or_done_check_warns_but_still_passes()
+    {
+        var plan = Draft + "\n## Slices\n1. Port: criteria 1; files src/Port.cs; test PortTests; done when PortTests is green\n2. Adapter: criteria 2\n";
+        var (exit, output) = Lint("2026-10-12-add-x.md", plan);
+        Assert.Equal(0, exit);
+        Assert.Contains("warning: slice has no files line: 2. Adapter: criteria 2", output, StringComparison.Ordinal);
+        Assert.Contains("warning: slice has no done check: 2. Adapter: criteria 2", output, StringComparison.Ordinal);
+        Assert.DoesNotContain("1. Port", output, StringComparison.Ordinal);
     }
 
     /// <summary>
