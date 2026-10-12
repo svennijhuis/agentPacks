@@ -24,6 +24,8 @@ Chosen: <option>. Why: <reason>. Alternatives rejected: <option and reason>.
 <one mermaid diagram>
 ### Risks
 <risk and the check that catches it>
+### Hard decisions
+<each hard-to-reverse decision (new layer or boundary, new dependency, storage or API contract change, dropped option) with its ADR link `docs/adr/NNNN-slug.md`, or None>
 ```
 
 ## Map
@@ -34,6 +36,7 @@ Chosen: <option>. Why: <reason>. Alternatives rejected: <option and reason>.
 |---|---|---|---|
 | <new or changed unit> | <where it goes> | <rule text> | <layers.md ## Where new code goes, or skill path> |
 | <unit> | MISSING | no rule places it | <what was searched> |
+| Accepted ADRs | `docs/adr/` | decisions this change must respect | <ADR files read> |
 ```
 
 ## Prompts

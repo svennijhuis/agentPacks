@@ -19,7 +19,7 @@ Two entrypoints only: `/squad` and `/squad-review`. Type the command.
 3. Small change? → main agent only, spawn nobody → tiny plan (goal, decision, verify cmd) → verify (no retro; + suggestions if pack/skill/agent/command/contract evidenced) → hand off uncommitted
 4. Else grill/plan rounds (facts via subagent; decisions = human); draft plan file from round 1, each round appended → confirm sets Status: confirmed
 5. Gate spins: sequential implementers (missing/one ## Slices → one whole-plan implementer; else one fresh implementer per slice in order) → then one verifier → reviewers in parallel (correctness + plan/spec; security ONLY if trust boundary)
-6. Orchestrator merges ≤2 fix rounds; ≤1 re-ask per producer per review round then accept marker (non-blocking); optional residual fixup → hand off uncommitted → squad-retro writes the retro (+ suggestions if pack/skill/agent/command/contract evidenced)
+6. Orchestrator merges ≤2 fix rounds; ≤1 re-ask per producer per review round then accept marker (non-blocking); optional residual fixup → hand off uncommitted → squad-retro writes the retro, also on stop or fail (+ suggestions if pack/skill/agent/command/contract evidenced)
 
 /squad-review
 Pin vs PR / uncommitted / main → same gated dual-axis reviewers (no plan/fix loop) → squad-retro writes the retro (+ suggestions if pack/skill/agent/command/contract evidenced) → always save report to docs/reviews/<yyyy-mm-dd>-<slug>.md
@@ -65,7 +65,7 @@ Cost-first: default `inherit`. Every `squad-*` agent is `standard` except `squad
 | `squad-simplifier` | every review phase | reuse, quality, efficiency in one spawn |
 | `squad-security-reviewer` | trust boundary only | OWASP gate |
 | `squad-orchestrator` | merge only | verdict / ≤2 fixes |
-| `squad-retro` | hand-off of a full run or `/squad-review` | one `docs/retros/` file ([retro](references/retro.md)) |
+| `squad-retro` | end of a full run or `/squad-review`, also on stop or fail | one `docs/retros/` file ([retro](references/retro.md)) |
 
 Small change: spawn none of these; no retro. Do not add a tester agent. Do not split simplifier. `squad-orchestrator` never launches agents, edits product code, or plans.
 
@@ -92,7 +92,7 @@ Read [the planning contract](references/planning-contract.md). Invoke `squad-pla
 turn. Grill stays here: facts via the planner; decisions = human. The main agent never grills
 itself. Name facts, do not dig: list them under `Facts to check` and let the `standard`-tier planner
 find them. Prefer constraint-shaped recommendations. Read `docs/decisions.md` when it exists; do not write it. The planner keeps the draft
-`docs/plans/<yyyy-mm-dd>-<slug>.md` from round 1; confirmation sets `Status: confirmed`.
+`docs/plans/<yyyy-mm-dd>-<slug>.md` from round 1; confirmation sets `Status: confirmed`. Hard decisions get `docs/adr/` records ([ADR](references/adr.md)).
 
 ## Implement, verify, review
 

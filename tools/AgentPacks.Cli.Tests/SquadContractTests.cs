@@ -152,6 +152,42 @@ public class SquadContractTests
         Assert.DoesNotContain("\n  - edit\n", planner, StringComparison.Ordinal);
     }
 
+    [Theory]
+    [InlineData("squad.md")]
+    [InlineData("squad-review.md")]
+    public void Each_entrypoint_ends_by_spawning_the_retro(string command)
+    {
+        var body = File.ReadAllText(Path.Combine(TestRepository.SourceRoot(), "plugins", "squad", "commands", command));
+        var lastStep = body.Split('\n').Last(line => System.Text.RegularExpressions.Regex.IsMatch(line, @"^\d+\. "));
+        Assert.Contains("Spawn `squad-retro` once", lastStep, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void Retro_also_runs_on_stop_or_fail_but_never_on_a_small_change()
+    {
+        var root = TestRepository.SourceRoot();
+        var squad = File.ReadAllText(Path.Combine(root, "plugins", "squad", "commands", "squad.md"));
+        var review = File.ReadAllText(Path.Combine(root, "plugins", "squad", "commands", "squad-review.md"));
+        var skill = File.ReadAllText(Path.Combine(root, "plugins", "squad", "skills", "squad", "SKILL.md"));
+        Assert.Contains("A full run that stops or fails at any step also ends with this `squad-retro` spawn, passing the interruptions.", squad, StringComparison.Ordinal);
+        Assert.Contains("A review that stops early also ends with this `squad-retro` spawn, passing the interruptions.", review, StringComparison.Ordinal);
+        Assert.Contains("A small change gets no retro.", squad, StringComparison.Ordinal);
+        Assert.Contains("Small change: spawn none of these; no retro.", skill, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void No_squad_text_forbids_writing_the_draft_plan_before_confirmation()
+    {
+        var root = Path.Combine(TestRepository.SourceRoot(), "plugins", "squad");
+        var banned = new System.Text.RegularExpressions.Regex(
+            @"(do not|don't|never) (create|write) the plan before confirm",
+            System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+        foreach (var file in Directory.EnumerateFiles(root, "*.md", SearchOption.AllDirectories))
+            Assert.False(banned.IsMatch(File.ReadAllText(file)), file);
+        Assert.Contains("writes the draft plan .md from round 1, then finalizes it after confirmation",
+            File.ReadAllText(Path.Combine(root, "commands", "squad.md")), StringComparison.Ordinal);
+    }
+
     [Fact]
     public void Squad_loop_slash_commands_stay_exactly_four()
     {

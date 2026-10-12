@@ -31,4 +31,9 @@ else
   fi
 fi
 
+hard=$(lines | awk '/^### Hard decisions/{f=1; next} /^#/{f=0} f && NF' )
+if [ -n "$hard" ] && [ "$hard" != None ] && ! printf '%s\n' "$hard" | grep -q 'docs/adr/'; then
+  fail "hard decision without a docs/adr/ link"
+fi
+
 [ "$errors" -eq 0 ]

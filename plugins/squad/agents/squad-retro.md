@@ -21,7 +21,7 @@ Constraints:
 - Never rewrite an earlier retro; each line is decision, why, evidence.
 - Every Improvements line names an environment change. A code fix alone is not an improvement.
 
-1. Read the plan, reports, last SHA, and interruptions from the named paths.
+1. Read the plan, reports, last SHA, and interruptions from the named paths. A stopped or failed run is a retro too; its interruptions explain why.
 2. Write Summary and What went wrong (include design misses against the chosen Design and Map).
 3. Fill Lessons with the highest type (architecture > type > lint > test > doc) and the file it lives in; a lint row names the lint to add.
 4. Write Improvements, save the file under `docs/retros/`, and return its path.

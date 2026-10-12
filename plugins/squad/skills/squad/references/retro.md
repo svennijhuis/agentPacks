@@ -1,6 +1,6 @@
 # Retro
 
-One retro per full `/squad` run or `/squad-review`, at `docs/retros/<yyyy-mm-dd>-<slug>.md` (the
+One retro per full `/squad` run or `/squad-review`, including a run that stopped or failed, at `docs/retros/<yyyy-mm-dd>-<slug>.md` (the
 plan's date and slug). A small change gets no retro. `squad-retro` writes the file and may
 write nothing outside `docs/retros/`. A human applies it. Nothing rewrites a skill, standard, or contract.
 
@@ -38,7 +38,7 @@ architecture > type > lint > test > doc. A `doc` row needs a reason no higher ty
 A `lint` row is backlog: name the lint to add, not prose.
 
 Every Improvements line names an environment change: a lint rule, a standard line, a contract line,
-or a check. A code fix alone is not an improvement.
+a check, or a new or superseding ADR in `docs/adr/` ([ADR contract](adr.md)). A code fix alone is not an improvement.
 
 ## Marketplace smoke entry shape
 

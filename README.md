@@ -221,8 +221,8 @@ the locked v1 plan; the [`squad` skill](plugins/squad/skills/squad/SKILL.md) car
 
 All plugins are now `0.1.4`. Squad changed shape (plan files, `squad-architect`, `squad-retro`, per-run retro
 files), so uninstall and reinstall `squad` instead of updating in place, then reload the
-client. Plans land in `docs/plans/<yyyy-mm-dd>-<slug>.md` and retros in
-`docs/retros/<yyyy-mm-dd>-<slug>.md`.
+client. Plans land in `docs/plans/<yyyy-mm-dd>-<slug>.md`, retros in
+`docs/retros/<yyyy-mm-dd>-<slug>.md`, and hard-to-reverse decisions in `docs/adr/NNNN-slug.md`.
 
 ## Locked v1 flow
 

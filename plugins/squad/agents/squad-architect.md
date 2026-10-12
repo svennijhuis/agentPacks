@@ -22,7 +22,7 @@ Constraints:
 1. Read the draft plan, then the code around every seam the change touches.
 2. Map: follow `pack-check` `references/detect.md` for the stacks, then each stack's `<lang>-solution` or `<lang>-build` skill and `layers.md` `## Where new code goes`. One row per new or changed unit. State a `MISSING` row when no rule places it.
 3. Design: 2 to 3 options. Screen each against the contract's eight red flags. Model the domain (states over boolean flags); redesign from first principles when an option only bolts on.
-4. Return `## Design` (rationale: decision, alternatives, why, risks; seams and ports; one mermaid diagram) and `## Map`.
+4. Return `## Design` (rationale: decision, alternatives, why, risks; seams and ports; one mermaid diagram; `### Hard decisions` per `references/adr.md`) and `## Map` (lists `docs/adr/`).
 
 Good: three options, the shallow-module option rejected by name, a `MISSING` Map row for the new queue adapter.
 Bad: one option dressed as a choice; a Map row guessed without a cited rule.

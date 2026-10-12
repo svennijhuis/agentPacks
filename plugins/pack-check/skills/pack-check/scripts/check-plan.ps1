@@ -33,4 +33,11 @@ if ($lines -ccontains '## Goal') {
         elseif (-not ($lines -ccontains 'Design: skipped (small)')) { Fail "missing ## Design or 'Design: skipped (small)'" }
     }
 }
+$hardIndex = [Array]::IndexOf($lines, '### Hard decisions')
+if ($hardIndex -ge 0) {
+    $hard = @()
+    for ($i = $hardIndex + 1; $i -lt $lines.Count -and -not $lines[$i].StartsWith('#'); $i++) { if ($lines[$i].Trim()) { $hard += $lines[$i].Trim() } }
+    $joined = $hard -join "`n"
+    if ($hard.Count -gt 0 -and $joined -ne 'None' -and -not $joined.Contains('docs/adr/')) { Fail 'hard decision without a docs/adr/ link' }
+}
 if ($script:errors -eq 0) { exit 0 } else { exit 1 }

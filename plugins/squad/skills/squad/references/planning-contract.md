@@ -177,7 +177,8 @@ The plan contains:
 ## Design
 <from squad-architect (references/architect-contract.md), or `Design: skipped (small)`>
 ## Map
-<from squad-architect, omitted when Design is skipped>
+<from squad-architect, omitted when Design is skipped; lists `docs/adr/`>
+Hard decisions get an ADR per [the ADR contract](adr.md); the plan links each one.
 
 ## Problem
 ## Decisions
