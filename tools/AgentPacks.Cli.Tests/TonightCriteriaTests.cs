@@ -59,8 +59,8 @@ public sealed class TonightCriteriaTests
         nameof(SquadContractTests.User_facing_surfaces_say_squad_review_not_bare_review))]
     [InlineData("39 friendlier command blurbs still squad and squad-review", typeof(SquadContractTests),
         nameof(SquadContractTests.Squad_and_squad_review_command_blurbs_are_short_user_friendly))]
-    [InlineData("39 retro replaces learnings", typeof(SquadContractTests),
-        nameof(SquadContractTests.Learnings_are_replaced_by_the_retro_agent))]
+    [InlineData("39 retro agent writes only retros", typeof(SquadContractTests),
+        nameof(SquadContractTests.Retro_agent_is_standard_without_shell_and_squad_ships_two_skills))]
     [InlineData("41 Copilot factory command name differs from plugin name", typeof(SquadContractTests),
         nameof(SquadContractTests.Copilot_factory_command_name_differs_from_plugin_name))]
     [InlineData("42 dotnet-review examples standards.source kept", typeof(LanguagePackContractTests),
@@ -77,8 +77,8 @@ public sealed class TonightCriteriaTests
         nameof(ClaudeMarketplaceHooksTests.Claude_plugin_root_hooks_json_is_claude_shaped))]
     [InlineData("47 Copilot ships scenarios command", typeof(HttpScenariosContractTests),
         nameof(HttpScenariosContractTests.Copilot_ships_http_scenarios_command))]
-    [InlineData("48 all plugins version 0.1.3", typeof(PluginVersionContractTests),
-        nameof(PluginVersionContractTests.All_plugins_version_0_1_3))]
+    [InlineData("48 all plugins version 0.1.4", typeof(PluginVersionContractTests),
+        nameof(PluginVersionContractTests.All_plugins_version_0_1_4))]
     [InlineData("49 Copilot_http_scenarios_renamed_to_scenarios", typeof(HttpScenariosContractTests),
         nameof(HttpScenariosContractTests.Copilot_http_scenarios_renamed_to_scenarios))]
     [InlineData("49 All_trees_command_is_scenarios", typeof(HttpScenariosContractTests),

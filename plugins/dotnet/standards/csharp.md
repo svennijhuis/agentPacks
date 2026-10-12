@@ -1,6 +1,6 @@
 # C# design standards
 
-Use established project configuration and repeated local patterns for choices this standard leaves open.
+Shared rules live in `design` and `engineering`. This file adds language specifics.
 
 ## Types and equality
 
@@ -17,8 +17,7 @@ Use established project configuration and repeated local patterns for choices th
 
 - Follow the repository nullable context. A non-nullable type is a promise; guard the boundary that
   establishes it instead of spreading null-forgiving operators.
-- Keep public surface area small. Prefer `internal` for implementation types and expose a type only
-  when another assembly is intended to depend on it.
+- Prefer `internal` for implementation types (`design.md` keeps public surface small).
 - Return the least-mutable interface that describes caller rights. Do not expose a mutable list when
   callers only need enumeration or indexed reading.
 - Prefer parameters that name intent over boolean switches at call sites.

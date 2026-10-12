@@ -217,6 +217,13 @@ slash on the same plugin; it is not a Squad phase. `/security-audit` is a
 separate capability pack; it is not a Squad phase. The numbered flow below is
 the locked v1 plan; the [`squad` skill](plugins/squad/skills/squad/SKILL.md) carries the same block.
 
+## Upgrading to 0.1.4
+
+All plugins are now `0.1.4`. Squad changed shape (plan files, `squad-architect`, `squad-retro`, per-run retro
+files), so uninstall and reinstall `squad` instead of updating in place, then reload the
+client. Plans land in `docs/plans/<yyyy-mm-dd>-<slug>.md` and retros in
+`docs/retros/<yyyy-mm-dd>-<slug>.md`.
+
 ## Locked v1 flow
 
 ```text

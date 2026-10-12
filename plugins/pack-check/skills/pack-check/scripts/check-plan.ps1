@@ -15,9 +15,9 @@ if ($text.Contains([string][char]0x2014)) { Fail 'contains an em dash' }
 
 $status = ''
 $index = [Array]::IndexOf($lines, ($lines | Where-Object { $_ -like '## Status*' } | Select-Object -First 1))
-if ($index -ge 0) {
+if ($index -ge 0 -and $index + 1 -lt $lines.Count) {
     $value = $lines[($index + 1)..($lines.Count - 1)] | Where-Object { $_.Trim() } | Select-Object -First 1
-    if ($value) { $status = ($value.Trim() -split '\s+')[0] }
+    if ($value -and -not $value.StartsWith('## ')) { $status = ($value.Trim() -split '\s+')[0] }
 }
 if (-not $status) { Fail 'missing ## Status value' }
 

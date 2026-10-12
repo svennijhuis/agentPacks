@@ -80,6 +80,3 @@ Cross-language. Reviewer, simplifier, and verifier findings cite the section by 
 - If the fix is structural, use only the structural fix; the instruction was the symptom.
 - A lesson that needs judgment gets a prominent instruction and an example of the failure.
 
-## Follow the repo
-
-- Use established configuration and local patterns for choices a standard leaves open, keep public surface small, and never land a shape you know is worse just to finish faster.

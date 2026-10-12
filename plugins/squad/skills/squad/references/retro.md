@@ -1,49 +1,44 @@
 # Retro
 
-One retro file per run at `docs/retros/<yyyy-mm-dd>-<slug>.md`, the same date and slug as the plan.
-`squad-retro` writes it at hand-off. A human applies it. It never rewrites a skill, standard, or contract.
+One retro per full `/squad` run or `/squad-review`, at `docs/retros/<yyyy-mm-dd>-<slug>.md` (the
+plan's date and slug). A small change gets no retro. `squad-retro` writes the file and may
+write nothing outside `docs/retros/`. A human applies it. Nothing rewrites a skill, standard, or contract.
 
 ## Inputs
 
-Read only this run's files: the plan (`## Grill log`, `## Design`, `## Map`, `## Status`,
-`## Fix list`, `## Handoff notes`), the verifier report, the merged review, and the hand-off summary.
-List each user interruption the main agent passes in. Do not scrape older retros or chat transcripts.
+The spawn passes paths, never pasted text: the plan `.md` (with `## Grill log`, `## Design`,
+`## Map`, `## Fix list`, `## Handoff notes`), the verifier report, the merged review, the last SHA,
+and a short list of user interruptions. Read only those. Do not scrape older retros or transcripts.
 
 ## Shape
 
 ```markdown
 # Retro: <plan title>
 
-Entrypoint: /squad | /squad-review
-Result: pass | fail | stopped | uncommitted hand-off
-Plan: docs/plans/<yyyy-mm-dd>-<slug>.md
+## Summary
+Entrypoint, result, phases run, agents spawned and skipped, fix rounds, last SHA.
 
-## End log
-<phases that ran, agents spawned, skipped agents and why, fix rounds>
+## What went wrong
+Each miss with its evidence: failed gates, fix rounds, user interruptions, and design misses
+(where the built change left the chosen Design option or Map). `None` when clean.
 
-## Interruptions
-<each time the user stopped, corrected, or redirected the run, or None>
-
-## Design misses
-<where the built change left the chosen Design option or Map, or None>
+## Lessons
+| Lesson | Type | File |
+|---|---|---|
+| <what to prevent> | architecture, type, lint, test, or doc | <file the enforcer lives in> |
 
 ## Improvements
-| Lesson | Enforcer | Change | Owner |
-|---|---|---|---|
-| <what went wrong> | architecture, type, lint, test, or doc | <environment change> | human |
-
-## Backlog
-<lessons a lint or check can enforce, written as the check to add>
+<one line per lesson: the environment change a human should make>
 ```
 
 ## Enforcer ladder
 
-Pick the highest enforcer that can stop the lesson from recurring:
-architecture > type > lint > test > doc. A `doc` row needs a reason no higher enforcer fits.
+Pick the highest type that can stop the lesson from recurring:
+architecture > type > lint > test > doc. A `doc` row needs a reason no higher type fits.
+A `lint` row is backlog: name the lint to add, not prose.
 
-Every Improvements row names an environment change: a lint rule, a standard line, a contract line,
-or a check. A code fix alone is not an improvement. A lesson a lint can catch goes to `## Backlog`
-as the lint to add, not as prose.
+Every Improvements line names an environment change: a lint rule, a standard line, a contract line,
+or a check. A code fix alone is not an improvement.
 
 ## Marketplace smoke entry shape
 

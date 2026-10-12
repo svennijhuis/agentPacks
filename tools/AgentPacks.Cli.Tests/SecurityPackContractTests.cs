@@ -18,7 +18,7 @@ public sealed class SecurityPackContractTests
     {
         var manifest = JsonNode.Parse(File.ReadAllText(Path.Combine(PackRoot(), "plugin.json")))!;
         Assert.Equal("security", manifest["name"]!.GetValue<string>());
-        Assert.Equal("0.1.3", manifest["version"]!.GetValue<string>());
+        Assert.Equal("0.1.4", manifest["version"]!.GetValue<string>());
 
         var keywords = manifest["keywords"]!.AsArray().Select(value => value!.GetValue<string>());
         Assert.Contains("security", keywords);

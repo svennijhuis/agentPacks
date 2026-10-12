@@ -112,6 +112,6 @@ Optional residual fixup: read [residual fixup](references/residual-fixup.md).
 
 ## Worktree
 
-Read [worktree](references/worktree.md). Hand off uncommitted. Spawn `squad-retro` once.
+Read [worktree](references/worktree.md). Hand off uncommitted. Spawn `squad-retro` once with paths; it writes only `docs/retros/`.
 If this run evidenced a pack/skill/agent/command/contract change, append one
 `docs/suggestions.md` entry as defined by [suggestions](references/suggestions.md). Do not apply it.

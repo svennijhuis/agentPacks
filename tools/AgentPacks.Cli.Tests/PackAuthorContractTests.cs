@@ -15,7 +15,7 @@ public sealed class PackAuthorContractTests
     {
         var manifest = JsonNode.Parse(File.ReadAllText(Path.Combine(PackRoot(), "plugin.json")))!;
         Assert.Equal("pack-author", manifest["name"]!.GetValue<string>());
-        Assert.Equal("0.1.3", manifest["version"]!.GetValue<string>());
+        Assert.Equal("0.1.4", manifest["version"]!.GetValue<string>());
         Assert.DoesNotContain(
             "language-pack",
             manifest["keywords"]!.AsArray().Select(value => value!.GetValue<string>()));

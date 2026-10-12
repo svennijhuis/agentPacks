@@ -97,6 +97,14 @@ public sealed class PlanLintTests : IDisposable
         }
     }
 
+    [Fact]
+    public void Status_followed_only_by_blank_lines_ends_with_a_finding_instead_of_hanging()
+    {
+        var (exit, output) = Lint("2026-10-12-add-x.md", "# Outcome\n\n## Request\nx\n\n## Grill log\n\n## Status\n\n\n");
+        Assert.Equal(1, exit);
+        Assert.Contains("missing ## Status value", output, StringComparison.Ordinal);
+    }
+
     private (int Exit, string Output) Lint(string name, string text)
     {
         var path = Path.Combine(_directory, name);
@@ -106,8 +114,12 @@ public sealed class PlanLintTests : IDisposable
             "plugins", "pack-check", "skills", "pack-check", "scripts", "check-plan.sh"));
         start.ArgumentList.Add(path);
         using var process = Process.Start(start)!;
-        var output = process.StandardOutput.ReadToEnd();
-        process.WaitForExit();
-        return (process.ExitCode, output);
+        var read = process.StandardOutput.ReadToEndAsync();
+        if (!process.WaitForExit(TimeSpan.FromSeconds(10)))
+        {
+            process.Kill(entireProcessTree: true);
+            Assert.Fail($"check-plan.sh did not finish within 10 s on {name}.");
+        }
+        return (process.ExitCode, read.Result);
     }
 }

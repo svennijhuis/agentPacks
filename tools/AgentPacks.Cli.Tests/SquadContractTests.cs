@@ -139,8 +139,12 @@ public class SquadContractTests
         Assert.Equal("frontier", architect.Scalar("model"));
         Assert.Equal("true", architect.Scalar("readonly"));
         var tools = Fixture("squad-architect.md");
-        foreach (var tool in new[] { "write", "edit", "bash" })
+        foreach (var tool in new[] { "write", "edit", "bash", "websearch" })
             Assert.DoesNotContain($"\n  - {tool}\n", tools, StringComparison.Ordinal);
+        var frontier = AgentNames
+            .Where(name => TestRepository.ParseFrontmatter(Fixture($"{name}.md")).Scalar("model") == "frontier")
+            .ToArray();
+        Assert.Equal(["squad-architect"], frontier);
 
         var planner = Fixture("squad-planner.md");
         Assert.Contains("\n  - write\n", planner, StringComparison.Ordinal);
@@ -184,15 +188,21 @@ public class SquadContractTests
     }
 
     [Fact]
-    public void Learnings_are_replaced_by_the_retro_agent()
+    public void Retro_agent_is_standard_without_shell_and_squad_ships_two_skills()
     {
         var root = TestRepository.SourceRoot();
-        Assert.False(Directory.Exists(Path.Combine(root, "plugins", "squad", "skills", "learnings-digest")));
-        Assert.False(File.Exists(Path.Combine(root, "plugins", "squad", "skills", "squad", "references", "learnings.md")));
+        var skills = Directory.GetDirectories(Path.Combine(root, "plugins", "squad", "skills"))
+            .Select(path => Path.GetFileName(path)).Order(StringComparer.Ordinal).ToArray();
+        Assert.Equal(["scenarios-md", "squad"], skills);
         var retro = TestRepository.ParseFrontmatter(Fixture("squad-retro.md"));
         Assert.Equal("squad-retro", retro.Scalar("name"));
-        Assert.DoesNotContain("\n  - bash\n", Fixture("squad-retro.md"), StringComparison.Ordinal);
-        Assert.DoesNotContain("\n  - edit\n", Fixture("squad-retro.md"), StringComparison.Ordinal);
+        Assert.Equal("standard", retro.Scalar("model"));
+        Assert.Contains("\n  - write\n", Fixture("squad-retro.md"), StringComparison.Ordinal);
+        Assert.Contains(
+            "Writes exactly one file, `docs/retros/<date-slug>.md`, and never edits skills, standards, or code.",
+            retro.Body, StringComparison.Ordinal);
+        foreach (var tool in new[] { "edit", "bash" })
+            Assert.DoesNotContain($"\n  - {tool}\n", Fixture("squad-retro.md"), StringComparison.Ordinal);
         Squad_commands_are_exactly_squad_and_review();
     }
 

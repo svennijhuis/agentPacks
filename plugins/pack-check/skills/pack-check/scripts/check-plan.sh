@@ -13,7 +13,7 @@ echo "$name" | grep -Eq '^[0-9]{4}-[0-9]{2}-[0-9]{2}-[a-z0-9]+(-[a-z0-9]+)*\.md$
 
 grep -q "$(printf '\342\200\224')" "$plan" && fail "contains an em dash"
 
-status=$(awk '/^## Status/{getline; while ($0 ~ /^[[:space:]]*$/) getline; print $1; exit}' "$plan")
+status=$(awk '/^## Status/{while ((getline) > 0 && $0 ~ /^[[:space:]]*$/) {} ; if ($0 !~ /^[[:space:]]*$/ && $0 !~ /^## Status/) print $1; exit}' "$plan")
 [ -n "$status" ] || fail "missing ## Status value"
 
 need() { grep -q "^## $1\$" "$plan" || fail "missing ## $1"; }

@@ -7,7 +7,6 @@ tools:
   - read
   - grep
   - glob
-  - websearch
 ---
 
 Design only. Return `## Design` and `## Map` as text. Do not edit files, write code, or commit.
