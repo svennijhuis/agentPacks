@@ -245,7 +245,7 @@ rewrite skills. Learnings apply notes. Suggestions propose pack edits for a huma
 rewrites skills.
 
 Portable model tiers live in [`models.source.json`](models.source.json) (default `inherit`;
-every squad agent `standard`; `frontier` is escalate-only; Copilot gets `inherit` on every
+every squad agent `standard` except `squad-architect` on `frontier`; Copilot gets `inherit` on every
 tier). Test a skill on a feature branch without
 merging to `main`: [docs/ADD-SKILL.md](docs/ADD-SKILL.md#test-a-skill-locally).
 

@@ -8,7 +8,6 @@ tools:
   - write
   - grep
   - glob
-  - bash
   - websearch
   - webfetch
 ---
@@ -23,7 +22,8 @@ Constraints:
 - Decisions stay with the human. Do not load an external grilling catalog.
 - Prefer constraint-shaped recommendations (`must not…`, `out of scope…`) over do-lists.
 - Too big for one implementer pass: write ordered `## Slices` (≤3; more → ask). Do not stop for size alone.
-- No source code. Do not implement or verify.
+- Write only the plan `.md` file. No source code. Do not implement or verify.
+- Full change crossing layers, adding a project or package, or changing a public API: the main agent runs `squad-architect`; write its `## Design` and `## Map` into the plan. Otherwise write `Design: skipped (small)`.
 
 `next-round`:
 1. Answer listed `Facts to check` under **Facts found** (source, or not found and what was searched). Then grill. Return one numbered question round, recommendation each. Facts never replace the round. Confirmation-only when the frontier is empty. Spawn no `squad-*` agents; find facts with the granted tools this turn. Write or append the draft plan (contract Draft plan file); write no other file. Stop. Do not address the user or wait.

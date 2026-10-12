@@ -51,13 +51,14 @@ are rewritten in place; do not append forever inside the plan.
 | Trust-boundary / irreversible | Full loop; record the human decision first. |
 | Existing diff, no plan | `/squad-review`. No verifier report, plan write, verdict, or fix round. Always saves the report. |
 
-Cost-first: default `inherit`. Every `squad-*` agent is `standard`; none uses `fast`. No agent defaults to `frontier`. Copilot maps every tier to `inherit` (the agent keeps its `model:` field).
+Cost-first: default `inherit`. Every `squad-*` agent is `standard` except `squad-architect` (`frontier`); none uses `fast`. Copilot maps every tier to `inherit` (the agent keeps its `model:` field).
 
 ## Gated agents
 
 | Agent | When | Job |
 |---|---|---|
 | `squad-planner` | full change only | grill/plan |
+| `squad-architect` | full change crossing layers, new project/package, or public API | read-only `## Design` and `## Map` ([contract](references/architect-contract.md)) |
 | `squad-implementer` | full change only | build |
 | `squad-verifier` | after implement/fix | evidence; `not verified` is not a pass; `blocked` is unproven, not a pass |
 | `squad-reviewer` | every review phase | correctness + plan/spec |
@@ -65,8 +66,7 @@ Cost-first: default `inherit`. Every `squad-*` agent is `standard`; none uses `f
 | `squad-security-reviewer` | trust boundary only | OWASP gate |
 | `squad-orchestrator` | merge only | verdict / ≤2 fixes |
 
-Small change: spawn none of these. Do not add a tester agent. Do not split simplifier.
-`squad-orchestrator` never launches agents, edits product code, or plans.
+Small change: spawn none of these. Do not add a tester agent. Do not split simplifier. `squad-orchestrator` never launches agents, edits product code, or plans.
 
 ## Skills
 

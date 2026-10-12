@@ -25,7 +25,7 @@ public class SquadContractTests
         File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "Fixtures", "squad", name));
 
     [Fact]
-    public void All_seven_agents_are_preserved_in_every_generated_agent_client()
+    public void All_eight_agents_are_preserved_in_every_generated_agent_client()
     {
         using var repo = new TestRepository().WithPlugin("squad", Manifest);
         foreach (var agent in AgentNames)
@@ -34,7 +34,7 @@ public class SquadContractTests
         var run = repo.ValidateAndGenerate();
 
         Assert.False(run.HasErrors, run.Text);
-        Assert.Equal(7, AgentNames.Length);
+        Assert.Equal(8, AgentNames.Length);
         foreach (var agent in AgentNames)
         {
             Assert.Equal(agent, TestRepository.ParseFrontmatter(Fixture($"{agent}.md")).Scalar("name"));
@@ -101,6 +101,7 @@ public class SquadContractTests
             .ToArray();
         Assert.Equal(
         [
+            "squad-architect",
             "squad-implementer",
             "squad-orchestrator",
             "squad-planner",
@@ -131,17 +132,45 @@ public class SquadContractTests
     }
 
     [Fact]
+    public void Architect_is_read_only_frontier_and_planner_cannot_run_shell()
+    {
+        var architect = TestRepository.ParseFrontmatter(Fixture("squad-architect.md"));
+        Assert.Equal("frontier", architect.Scalar("model"));
+        Assert.Equal("true", architect.Scalar("readonly"));
+        var tools = Fixture("squad-architect.md");
+        foreach (var tool in new[] { "write", "edit", "bash" })
+            Assert.DoesNotContain($"\n  - {tool}\n", tools, StringComparison.Ordinal);
+
+        var planner = Fixture("squad-planner.md");
+        Assert.Contains("\n  - write\n", planner, StringComparison.Ordinal);
+        Assert.DoesNotContain("\n  - bash\n", planner, StringComparison.Ordinal);
+        Assert.DoesNotContain("\n  - edit\n", planner, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void Squad_loop_slash_commands_stay_exactly_four()
+    {
+        var root = TestRepository.SourceRoot();
+        var commands = new[] { "squad", "pack-check" }
+            .SelectMany(plugin => Directory.GetFiles(Path.Combine(root, "plugins", plugin, "commands"), "*.md"))
+            .Select(path => Path.GetFileNameWithoutExtension(path))
+            .Order(StringComparer.Ordinal)
+            .ToArray();
+        Assert.Equal(["pack-check", "scenarios", "squad", "squad-review"], commands);
+    }
+
+    [Fact]
     public void Loop_agents_keep_role_tiers()
     {
         Assert.Equal("standard", TestRepository.ParseFrontmatter(Fixture("squad-implementer.md")).Scalar("model"));
         Assert.Equal("standard", TestRepository.ParseFrontmatter(Fixture("squad-planner.md")).Scalar("model"));
         Assert.Equal("true", TestRepository.ParseFrontmatter(Fixture("squad-simplifier.md")).Scalar("readonly"));
-        foreach (var agent in AgentNames.Where(name => name is not ("squad-implementer" or "squad-planner")))
+        foreach (var agent in AgentNames.Where(name => name is not ("squad-implementer" or "squad-planner" or "squad-architect")))
         {
             Assert.Equal("standard", TestRepository.ParseFrontmatter(Fixture($"{agent}.md")).Scalar("model"));
         }
 
-        foreach (var agent in AgentNames)
+        foreach (var agent in AgentNames.Where(name => name != "squad-architect"))
         {
             Assert.NotEqual("frontier", TestRepository.ParseFrontmatter(Fixture($"{agent}.md")).Scalar("model"));
         }

@@ -62,7 +62,7 @@ Obvious typos, renames, and one-line fixes take the small-change route: the main
 | Command | `squad-review` | Reviews a PR, uncommitted work, or a diff versus main, without a plan, verdict, or fix round |
 | Command | `scenarios` | From changed code (OpenAPI optional), writes only `docs/smoke/<slug>.md`. Copilot picker: `/squad:scenarios` |
 
-All seven agents remain portable across supported generated clients.
+All eight agents remain portable across supported generated clients.
 
 ## Planning
 
@@ -112,7 +112,7 @@ Authored: `plugin.json`, `mcp.json` (empty scaffold), `skills/`, `rules/`, `agen
 Generated only in validation output or on `marketplace` / `marketplace-beta`: client manifests and `com.*` provider trees.
 
 Portable model tiers are authored on each agent and mapped in [`models.source.json`](../../models.source.json).
-Default `inherit`. Every squad agent is `standard`; none uses `fast`. Copilot maps every tier to `inherit`. No agent defaults to `frontier`.
+Default `inherit`. Every squad agent is `standard` except `squad-architect` (`frontier`); none uses `fast`. Copilot maps every tier to `inherit`.
 
 Test changes on a feature branch without merging to `main`:
 [ADD-SKILL.md — Test a skill locally](../../docs/ADD-SKILL.md#test-a-skill-locally).

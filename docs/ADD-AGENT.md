@@ -28,7 +28,7 @@ One job. Load skills with the Skill tool by exact name. Never write slash-prose.
 ```
 
 That is the production shape: short frontmatter, portable tier, `readonly`, closed tool list, one
-job, exact Skill-tool names. Squad agents are `squad-*`. Security pack agents are `security-*`. Squad agents are `standard`; none uses `fast`. No agent defaults to `frontier`.
+job, exact Skill-tool names. Squad agents are `squad-*`. Security pack agents are `security-*`. Squad agents are `standard`, except `squad-architect` on `frontier`; none uses `fast`.
 Bodies stay operational-but-short (28 non-empty lines after frontmatter;
 security reviewer 40). Numbered steps, required outputs, one Good/Bad pair — not essay soup.
 Copy from [`plugins/squad/agents/`](../plugins/squad/agents/); do not invent a public command
@@ -132,8 +132,7 @@ Codex generation emits the catalog Codex id into `model =`. `fast` → `gpt-6-lu
 If Codex gains plugin-shipped agents, only the generated manifest needs a field.
 
 Cost-first: catalog default is `inherit`. Squad agents use `standard`; none
-uses `fast`. No agent
-defaults to `frontier` (escalate only). Generation remaps those portable tiers for every
+uses `fast`. Only `squad-architect` runs on `frontier`. Generation remaps those portable tiers for every
 client. Cursor loads the remapped copies because `.cursor-plugin/plugin.json` sets `agents`.
 Cursor emit is Grok only: `fast`, `standard`, and `frontier` all map to `grok-4.7`.
 Do not author `sonnet` to mean Cursor.

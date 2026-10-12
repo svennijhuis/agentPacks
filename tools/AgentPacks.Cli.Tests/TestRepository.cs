@@ -65,6 +65,7 @@ internal sealed class TestRepository : IDisposable
     public static readonly string[] SquadAgentNames =
     [
         "squad-planner",
+        "squad-architect",
         "squad-implementer",
         "squad-verifier",
         "squad-reviewer",

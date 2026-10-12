@@ -31,7 +31,7 @@ public sealed class PlanLintTests : IDisposable
     [Fact]
     public void Confirmed_plan_missing_sections_fails_with_each_section()
     {
-        var (exit, output) = Lint("2026-10-12-add-x.md", Draft.Replace("draft", "confirmed", StringComparison.Ordinal));
+        var (exit, output) = Lint("2026-10-12-add-x.md", Draft.Replace("draft", "confirmed", StringComparison.Ordinal) + "\nDesign: skipped (small)\n");
         Assert.Equal(1, exit);
         Assert.Contains("missing ## Acceptance criteria", output, StringComparison.Ordinal);
         Assert.Contains("missing ## Verification", output, StringComparison.Ordinal);
@@ -55,6 +55,28 @@ public sealed class PlanLintTests : IDisposable
         Assert.Equal(1, exit);
         Assert.Contains("contains an em dash", output, StringComparison.Ordinal);
         Assert.Contains("missing ## Grill log", output, StringComparison.Ordinal);
+    }
+
+    private const string Confirmed =
+        "# Outcome\n\n## Request\nadd x\n\n## Status\nconfirmed\n\n## Grill log\n### Round 1\nq\n\n"
+        + "## Decisions\n\n## Acceptance criteria\n\n## Test plan matrix\n\n## Open questions\nNone.\n\n## Verification\ndotnet test\n";
+
+    [Fact]
+    public void Confirmed_full_plan_needs_design_and_map()
+    {
+        var (exit, output) = Lint("2026-10-12-add-x.md", Confirmed + "\n## Design\nRule fired: public API\n");
+        Assert.Equal(1, exit);
+        Assert.Contains("missing ## Map", output, StringComparison.Ordinal);
+        Assert.Equal(0, Lint("2026-10-12-add-x.md", Confirmed + "\n## Design\nx\n\n## Map\n| a |\n").Exit);
+    }
+
+    [Fact]
+    public void Small_full_plan_skips_design_only_when_stated()
+    {
+        var (exit, output) = Lint("2026-10-12-add-x.md", Confirmed);
+        Assert.Equal(1, exit);
+        Assert.Contains("missing ## Design or 'Design: skipped (small)'", output, StringComparison.Ordinal);
+        Assert.Equal(0, Lint("2026-10-12-add-x.md", Confirmed + "\nDesign: skipped (small)\n").Exit);
     }
 
     private (int Exit, string Output) Lint(string name, string text)

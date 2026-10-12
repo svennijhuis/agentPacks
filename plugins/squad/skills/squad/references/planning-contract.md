@@ -59,7 +59,7 @@ Round 1 creates `docs/plans/<yyyy-mm-dd>-<slug>.md` (run date, kebab-case slug) 
 `## Request`, `## Status` set to `draft`, and `## Grill log`. Every round, the planner appends
 `### Round <n>` to `## Grill log`: the questions, the recorded answers, decisions taken, and options
 rejected with the reason. Never rewrite an earlier round. Stop or abandon leaves the file at `draft`.
-Run the `pack-check` skill's `scripts/check-plan.sh <plan>` after each write when it is installed; fix every finding before returning.
+The main agent runs the `pack-check` skill's `scripts/check-plan.sh <plan>` after each write when it is installed and passes findings to the next planner invocation.
 
 Small change: the main agent writes a tiny plan instead, with `## Request`, `## Goal`, `## Decision`,
 `## Verify` (one command), and `## Status`. No agents.
@@ -171,6 +171,11 @@ The plan contains:
 ## Grill log
 ### Round 1
 <questions, answers, decisions, rejected options>
+
+## Design
+<from squad-architect (references/architect-contract.md), or `Design: skipped (small)`>
+## Map
+<from squad-architect, omitted when Design is skipped>
 
 ## Problem
 ## Decisions

@@ -22,7 +22,11 @@ if grep -q '^## Goal$' "$plan"; then
   for s in Goal Decision Verify; do need "$s"; done
 else
   need "Grill log"
-  [ "$status" = draft ] || for s in Decisions "Acceptance criteria" "Test plan matrix" "Open questions" Verification; do need "$s"; done
+  if [ "$status" != draft ]; then
+    for s in Decisions "Acceptance criteria" "Test plan matrix" "Open questions" Verification; do need "$s"; done
+    if grep -q '^## Design$' "$plan"; then need Map
+    else grep -q '^Design: skipped (small)$' "$plan" || fail "missing ## Design or 'Design: skipped (small)'"; fi
+  fi
 fi
 
 [ "$errors" -eq 0 ]
