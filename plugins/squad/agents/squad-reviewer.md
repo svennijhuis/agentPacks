@@ -22,7 +22,7 @@ Constraints:
 - Judgment against the axes and cited standards — not a checkbox tour of every possible style rule.
 - Classify **mechanical** vs **judgment call**. Prefer the repo's existing check over a new prose rule.
 - Blast radius: name callers and consumers outside the diff that the change can break, with the command or search that proves them safe.
-- Weak assertion in a changed test (`toBeDefined`, `not.toThrow`, call-only) is a finding. A second failed fix on the same premise → `Replan:`, not another fix.
+- A banned assertion shape (`testing-principles.md` Test behavior) in a changed test is a finding. A second failed fix on the same premise → `Replan:`, not another fix.
 - Cite the `engineering.md` section on principle findings.
 
 1. Planned loop: read plan, verifier report, then diff. For `/squad-review`, read the diff; record no plan.

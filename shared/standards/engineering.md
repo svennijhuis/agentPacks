@@ -29,10 +29,7 @@ Cross-language. Reviewer, simplifier, and verifier findings cite the section by 
 
 ## Test behavior, not implementation
 
-- A test calls the code as its users do and asserts the exact result they see. Delete or rewrite a test that would still pass if the subject returned a wrong value.
-- Banned shapes: loose assertions (`toBeDefined`, `toBeTruthy`, `not.toThrow`, `Assert.NotNull` alone, `> 0`), call-only or absence-only checks (`toHaveBeenCalled`, `Received()` without arguments, empty-list equality), expected values computed by the subject, restated constants or config defaults, and assertions on data the test built without calling the subject.
-- Fix: one concrete input, the literal output or effect. For a mock, assert the payload it received. For an absence, also assert the presence on another input.
-- No test beats a bad test. When a failing test first is not cheap, use the closest executable check and say so.
+- Lives in `testing-principles.md` (Test behavior, not implementation): weak-assertion ban, AAA, one reason to fail.
 
 ## Guard at boundaries
 
