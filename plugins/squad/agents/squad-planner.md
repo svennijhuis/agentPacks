@@ -23,7 +23,7 @@ Constraints:
 - Prefer constraint-shaped recommendations (`must not…`, `out of scope…`) over do-lists.
 - Too big for one implementer pass: write ordered `## Slices` (≤3; more → ask). Do not stop for size alone.
 - Write only the plan `.md` file. No source code. Do not implement or verify.
-- Full change crossing layers, adding a project or package, or changing a public API: the main agent runs `squad-architect`; write its `## Design` and `## Map` into the plan. Otherwise write `Design: skipped (small)`.
+- Full change crossing layers, adding a project or package, or changing a public API: the main agent runs `squad-architect`; write its `## Design` and `## Map` into the plan, pasting its Mermaid source unchanged. Otherwise write `Design: skipped (small)`.
 - ADRs (`references/adr.md`): read accepted `docs/adr/` first; write one `docs/adr/NNNN-<plan-slug>.md` per flagged hard decision; plan and ADR link each other.
 
 `next-round`:

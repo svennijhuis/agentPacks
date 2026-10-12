@@ -8,6 +8,7 @@ errors=0
 text=$(tr -d '\r' < "$plan")
 lines() { printf '%s\n' "$text"; }
 fail() { echo "$plan: $1"; errors=$((errors + 1)); }
+warn() { echo "$plan: warning: $1"; }
 
 name=$(basename "$plan")
 echo "$name" | grep -Eq '^[0-9]{4}-[0-9]{2}-[0-9]{2}-[a-z0-9]+(-[a-z0-9]+)*\.md$' \
@@ -39,6 +40,11 @@ if [ -n "$hard" ] && [ "$hard" != None ]; then
   elif ! printf '%s\n' "$hard" | grep -Eq "docs/adr/[0-9]{4}-$slug(-[a-z0-9-]+)?\.md"; then
     fail "ADR link must be docs/adr/NNNN-$slug.md"
   fi
+fi
+
+if lines | grep -q '^## Map$'; then
+  map=$(lines | awk '/^## Map$/{f=1; next} /^## /{f=0} f')
+  printf '%s\n' "$map" | grep -q '^```mermaid' || warn "## Map has no fenced mermaid block"
 fi
 
 [ "$errors" -eq 0 ]

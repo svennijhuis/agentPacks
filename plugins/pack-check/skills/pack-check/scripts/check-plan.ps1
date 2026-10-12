@@ -6,6 +6,7 @@ if (-not $Plan -or -not (Test-Path -LiteralPath $Plan -PathType Leaf)) {
 }
 $script:errors = 0
 function Fail([string]$message) { Write-Output "${Plan}: $message"; $script:errors++ }
+function Warn([string]$message) { Write-Output "${Plan}: warning: $message" }
 
 $lines = @(Get-Content -LiteralPath $Plan -Encoding UTF8)
 $text = $lines -join "`n"
@@ -43,5 +44,11 @@ if ($hardIndex -ge 0) {
         if (-not $joined.Contains('docs/adr/')) { Fail 'hard decision without a docs/adr/ link' }
         elseif ($joined -cnotmatch "docs/adr/[0-9]{4}-$([regex]::Escape($slug))(-[a-z0-9-]+)?\.md") { Fail "ADR link must be docs/adr/NNNN-$slug.md" }
     }
+}
+$mapIndex = [Array]::IndexOf($lines, '## Map')
+if ($mapIndex -ge 0) {
+    $hasMermaid = $false
+    for ($i = $mapIndex + 1; $i -lt $lines.Count -and -not $lines[$i].StartsWith('## '); $i++) { if ($lines[$i].StartsWith('```mermaid')) { $hasMermaid = $true } }
+    if (-not $hasMermaid) { Warn '## Map has no fenced mermaid block' }
 }
 if ($script:errors -eq 0) { exit 0 } else { exit 1 }

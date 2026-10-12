@@ -29,6 +29,8 @@ proposed | accepted | superseded by NNNN-<plan-slug>
 <what becomes easier, harder, and what must now be maintained>
 ```
 
+Optional: one before/after Mermaid diagram (contract rules in architect-contract.md Diagrams).
+
 ## Rules
 
 - The planner writes the ADR with `Status: proposed`, and the plan links it under `### Hard decisions`. Each links the other.

@@ -37,6 +37,8 @@ Each miss with its evidence: failed gates, fix rounds, user interruptions, and d
 <one line per lesson: the environment change a human should make>
 ```
 
+A retro has no diagrams.
+
 ## Enforcer ladder
 
 Pick the highest type that can stop the lesson from recurring:

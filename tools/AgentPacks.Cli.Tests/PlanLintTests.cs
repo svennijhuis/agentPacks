@@ -90,7 +90,7 @@ public sealed class PlanLintTests : IDisposable
                      "Request", "Goal", "Decision", "Verify", "Grill log", "Decisions", "Acceptance criteria",
                      "Test plan matrix", "Open questions", "Verification", "Design", "Map", "Design: skipped (small)",
                      "file name must be <yyyy-mm-dd>-<slug>.md", "contains an em dash", "missing ## Status value",
-                     "### Hard decisions", "hard decision without a docs/adr/ link", "ADR link must be docs/adr/NNNN-"
+                     "### Hard decisions", "hard decision without a docs/adr/ link", "ADR link must be docs/adr/NNNN-", "## Map has no fenced mermaid block"
                  })
         {
             Assert.Contains(section, sh, StringComparison.Ordinal);
@@ -136,20 +136,62 @@ public sealed class PlanLintTests : IDisposable
         Assert.Equal(0, Lint("2026-10-12-add-x.md", plan.Replace("0002-queue.md", "0002-add-x-queue.md", StringComparison.Ordinal)).Exit);
     }
 
+    [Fact]
+    public void Map_without_mermaid_warns_but_still_passes()
+    {
+        var (exit, output) = Lint("2026-10-12-add-x.md", Confirmed + "\n## Design\nx\n\n## Map\n| a |\n");
+        Assert.Equal(0, exit);
+        Assert.Contains("warning: ## Map has no fenced mermaid block", output, StringComparison.Ordinal);
+        var withDiagram = Confirmed + "\n## Design\nx\n\n## Map\n| a |\n\n```mermaid\nflowchart LR\n  A --> B\n```\nCaption.\n";
+        Assert.Equal((0, string.Empty), Lint("2026-10-12-add-x.md", withDiagram));
+    }
+
+    /// <summary>
+    /// Runs check-plan.sh and, when pwsh is on PATH, check-plan.ps1 on the same file, and requires
+    /// both twins to agree on exit code and findings. Every case in this class is a parity case.
+    /// </summary>
     private (int Exit, string Output) Lint(string name, string text)
     {
         var path = Path.Combine(_directory, name);
         File.WriteAllText(path, text);
-        var start = new ProcessStartInfo("sh") { RedirectStandardOutput = true, UseShellExecute = false };
-        start.ArgumentList.Add(Path.Combine(TestRepository.SourceRoot(),
-            "plugins", "pack-check", "skills", "pack-check", "scripts", "check-plan.sh"));
-        start.ArgumentList.Add(path);
+        var posix = Run("sh", [Script("check-plan.sh"), path], name);
+        if (PwshAvailable.Value)
+        {
+            var powerShell = Run("pwsh", ["-NoProfile", "-NonInteractive", "-File", Script("check-plan.ps1"), path], name);
+            Assert.Equal(posix.Exit, powerShell.Exit);
+            Assert.Equal(posix.Output.Replace("\r", "", StringComparison.Ordinal), powerShell.Output.Replace("\r", "", StringComparison.Ordinal));
+        }
+        return posix;
+    }
+
+    private static readonly Lazy<bool> PwshAvailable = new(() =>
+    {
+        try
+        {
+            using var probe = Process.Start(new ProcessStartInfo("pwsh", "-NoProfile -Command exit") { RedirectStandardOutput = true, UseShellExecute = false })!;
+            probe.WaitForExit(20000);
+            return probe.ExitCode == 0;
+        }
+        catch (System.ComponentModel.Win32Exception)
+        {
+            return false;
+        }
+    });
+
+    private static string Script(string file) => Path.Combine(TestRepository.SourceRoot(),
+        "plugins", "pack-check", "skills", "pack-check", "scripts", file);
+
+    private static (int Exit, string Output) Run(string shell, string[] arguments, string name)
+    {
+        var start = new ProcessStartInfo(shell) { RedirectStandardOutput = true, UseShellExecute = false };
+        foreach (var argument in arguments)
+            start.ArgumentList.Add(argument);
         using var process = Process.Start(start)!;
         var read = process.StandardOutput.ReadToEndAsync();
-        if (!process.WaitForExit(TimeSpan.FromSeconds(10)))
+        if (!process.WaitForExit(TimeSpan.FromSeconds(20)))
         {
             process.Kill(entireProcessTree: true);
-            Assert.Fail($"check-plan.sh did not finish within 10 s on {name}.");
+            Assert.Fail($"{shell} check-plan did not finish within 20 s on {name}.");
         }
         return (process.ExitCode, read.Result);
     }
