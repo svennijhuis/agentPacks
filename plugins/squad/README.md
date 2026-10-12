@@ -37,7 +37,7 @@ Do not rewrite skills, and do not grow a graph from it.
 
 The main agent owns user interaction, invokes `squad-planner` once per question round, launches applicable reviewers in parallel, and routes the merged verdict. `squad-orchestrator` only merges completed reports and verifier evidence. No phase commits, merges, or pushes.
 
-Obvious typos, renames, and one-line fixes take the small-change route: the main agent implements and verifies directly, with no plan and without invoking planner, implementer, verifier, or review agents.
+Obvious typos, renames, and one-line fixes take the small-change route: the main agent implements and verifies directly, with a tiny plan (goal, decision, verify command) and without invoking planner, implementer, verifier, or review agents.
 
 ## Components
 
@@ -51,12 +51,14 @@ Obvious typos, renames, and one-line fixes take the small-change route: the main
 | Contract | `suggestions` | Append-only pack/skill/agent/command/contract proposals; human applies; never auto-rewrite |
 | Rule | `review-checklist` | Source-review checklist scoped by glob; Cursor-only by design |
 | Agent | `squad-planner` | Returns one numbered planning round, or writes the one confirmed plan |
+| Agent | `squad-architect` | Read-only; returns `## Design` and `## Map` text for the planner to paste when the architect rule fires |
 | Agent | `squad-implementer` | Implements a confirmed plan or merged fix list |
 | Agent | `squad-verifier` | Reports independent evidence per plan criterion |
 | Agent | `squad-reviewer` | Reviews correctness and plan compliance |
 | Agent | `squad-security-reviewer` | Reviews trust-boundary diffs against [OWASP Top 10:2025](https://owasp.org/Top10/) using the review contract's Security gate. Full-repo audits are `/security-audit` on the `security` pack |
 | Agent | `squad-simplifier` | Finds unnecessary implementation complexity |
 | Agent | `squad-orchestrator` | Deduplicates completed reports, assigns the verdict, and appends the fix list |
+| Agent | `squad-retro` | Writes the one `docs/retros/<yyyy-mm-dd>-<slug>.md` file at hand-off, stop, or fail |
 | Command | `squad` | Runs a new change through the proportional workflow. Copilot picker: `/squad:run` |
 | Command | `squad-review` | Reviews a PR, uncommitted work, or a diff versus main, without a plan, verdict, or fix round |
 | Command | `scenarios` | From changed code (OpenAPI optional), writes only `docs/smoke/<slug>.md`. Copilot picker: `/squad:scenarios` |
@@ -67,7 +69,7 @@ All nine agents remain portable across supported generated clients.
 
 Planning is mediated by the main agent. Each `squad-planner` invocation receives the request, repository evidence, settled decisions, prior answers, and open frontier. It returns one numbered round and stops. The main agent presents that round and supplies the answers on the next invocation.
 
-After every decision is settled, the planner returns a shared-understanding confirmation question. Only after the user confirms may a write-mode invocation create `docs/plans/<yyyy-mm-dd>-<slug>.md`. Repository evidence, citations, decisions, and rejected alternatives stay in that plan; no separate research artifact is created.
+After every decision is settled, the planner returns a shared-understanding confirmation question. The planner writes the draft `docs/plans/<yyyy-mm-dd>-<slug>.md` from round 1. After the user confirms, a write-mode invocation finalizes that draft and sets `Status: confirmed`. Repository evidence, citations, decisions, and rejected alternatives stay in that plan; no separate research artifact is created.
 
 ## Review and verdicts
 

@@ -271,10 +271,10 @@ Precedence: the repo's own structure and conventions come first; the architect M
 
 - `Design gap: <question>`: the planner found a hole in `## Design`. The main agent reruns `squad-architect` once with that question, then the planner continues. At most 1 rerun.
 - `Plan gap: <question>`: the implementer needs a decision the plan lacks. It stops the slice instead of guessing and leaves any partial diff uncommitted. The main agent runs the planner in `next-round` mode on that gap only, so the question goes to the user. The answer is recorded in `## Grill log` and `## Decisions`. The architect reruns only when the gap is about design. A fresh implementer then redoes that slice with the updated plan path.
-- Saving a Plan gap: before the planner round, the main agent saves the partial diff, untracked files included, to `docs/plans/<slug>.gap-<n>.patch`, then resets to the last slice commit only when that file exists and is non-empty. Saving fails → stop the run, no reset. The patch is never committed: the repo `.gitignore` carries `*.gap-*.patch` (add the rule when missing). The fresh implementer gets the patch path to read but builds on a clean tree. The retro lists the gap.
+- Saving a Plan gap: before the planner round, the main agent saves the partial diff, untracked files included, to `docs/plans/<slug>.gap-<n>.patch`, and checks that the file exists and is non-empty. Saving fails → stop the run. Implementers never commit, so there is no slice commit to reset to: the tree is left as it is (no `reset --hard`, `clean`, `checkout`, or `restore`; the git pack blocks them and they would drop finished slices). The patch is never committed: the repo `.gitignore` carries `*.gap-*.patch` (add the rule when missing). The fresh implementer gets the patch path to read and redoes the slice on the current tree, keeping or replacing the partial edits to match the updated plan. The retro lists the gap.
 
 ```sh
-git add -N . && git diff HEAD --binary > docs/plans/<slug>.gap-<n>.patch && test -s docs/plans/<slug>.gap-<n>.patch && git reset --hard && git clean -fd
+git add -N . && git diff HEAD --binary > docs/plans/<slug>.gap-<n>.patch && test -s docs/plans/<slug>.gap-<n>.patch
 ```
 
 - Cap: at most 1 `Plan gap:` per slice. A second one on the same slice becomes `Replan:` for the whole plan, and the retro records it.

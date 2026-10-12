@@ -230,15 +230,15 @@ public class SquadContractTests
     }
 
     [Fact]
-    public void Planner_defers_to_design_and_implementer_spawn_names_plan_design_and_map()
+    public void Planner_defers_to_design_and_implementer_spawn_names_the_plan_path()
     {
         var root = TestRepository.SourceRoot();
         Assert.Contains("When `## Design` exists, skip the shape compare and the architecture fitness check; write `see ## Design` for both.",
             Fixture("squad-planner.md"), StringComparison.Ordinal);
         var skill = File.ReadAllText(Path.Combine(root, "plugins", "squad", "skills", "squad", "SKILL.md"));
         var squad = File.ReadAllText(Path.Combine(root, "plugins", "squad", "commands", "squad.md"));
-        Assert.Contains("spawn passes the slice name and the paths of the plan, its `## Design`, and its `## Map`", skill, StringComparison.Ordinal);
-        Assert.Contains("passes the slice name (or `whole-plan`) and the paths of the plan, its `## Design`, and its `## Map`", squad, StringComparison.Ordinal);
+        Assert.Contains("spawn passes the slice name and the plan path;", skill, StringComparison.Ordinal);
+        Assert.Contains("passes the slice name (or `whole-plan`) and the plan path;", squad, StringComparison.Ordinal);
     }
 
     [Fact]
@@ -898,34 +898,38 @@ public class SquadContractTests
     }
 
     [Fact]
-    public void After_a_plan_gap_the_tree_is_clean_and_the_gitignored_patch_holds_the_diff()
+    public void After_a_plan_gap_the_gitignored_patch_holds_the_diff_and_the_tree_is_kept()
     {
         var contract = Squad("skills", "squad", "references", "planning-contract.md");
         var start = contract.IndexOf("```sh\ngit add -N .", StringComparison.Ordinal);
         Assert.True(start >= 0, "save command missing from planning-contract");
         var save = contract[(start + 6)..contract.IndexOf("\n```", start + 6, StringComparison.Ordinal)]
             .Replace("<slug>", "2026-10-12-x", StringComparison.Ordinal).Replace("<n>", "1", StringComparison.Ordinal);
+        foreach (var banned in new[] { "reset --hard", "git clean", "git checkout", "git restore" })
+        {
+            Assert.DoesNotContain(banned, save, StringComparison.Ordinal);
+        }
 
         var dir = Directory.CreateTempSubdirectory("plan-gap-").FullName;
         try
         {
             File.Copy(Path.Combine(TestRepository.SourceRoot(), ".gitignore"), Path.Combine(dir, ".gitignore"));
             Directory.CreateDirectory(Path.Combine(dir, "docs", "plans"));
-            File.WriteAllText(Path.Combine(dir, "a.txt"), "slice 1\n");
-            Sh(dir, "git init -q && git add -A && git -c user.name=t -c user.email=t@t commit -qm slice1");
-            File.WriteAllText(Path.Combine(dir, "a.txt"), "partial\n");
-            File.WriteAllText(Path.Combine(dir, "new.txt"), "untracked\n");
+            File.WriteAllText(Path.Combine(dir, "a.txt"), "base\n");
+            Sh(dir, "git init -q && git add -A && git -c user.name=t -c user.email=t@t commit -qm base");
+            File.WriteAllText(Path.Combine(dir, "a.txt"), "slice 1 done, uncommitted\n");
+            File.WriteAllText(Path.Combine(dir, "new.txt"), "partial slice 2\n");
 
             Sh(dir, save);
 
             var patch = Path.Combine(dir, "docs", "plans", "2026-10-12-x.gap-1.patch");
             Assert.True(new FileInfo(patch).Length > 0);
             var text = File.ReadAllText(patch);
-            Assert.Contains("+partial", text, StringComparison.Ordinal);
+            Assert.Contains("+slice 1 done", text, StringComparison.Ordinal);
             Assert.Contains("new.txt", text, StringComparison.Ordinal);
-            Assert.Equal("", Sh(dir, "git status --porcelain"));
             Assert.Contains("gap-1.patch", Sh(dir, "git check-ignore docs/plans/2026-10-12-x.gap-1.patch"), StringComparison.Ordinal);
-            Assert.Equal("slice 1\n", File.ReadAllText(Path.Combine(dir, "a.txt")));
+            Assert.DoesNotContain("gap-1.patch", Sh(dir, "git status --porcelain"), StringComparison.Ordinal);
+            Assert.Equal("slice 1 done, uncommitted\n", File.ReadAllText(Path.Combine(dir, "a.txt")));
         }
         finally
         {

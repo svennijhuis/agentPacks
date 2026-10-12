@@ -34,7 +34,7 @@ second skill pack, Matt catalog dump, eager fan-out, self-improve graphs, auto s
 
 Step 1 reads the latest retro ([retro](references/retro.md)) as input, not as orders. Improvements
 are human-apply only. Do not rewrite skills. No graph. `docs/suggestions.md` is optional and human-apply only.
-Hand-off between agents passes paths (plan `.md`, its Design and Map, last SHA, retro), never pasted text.
+Hand-off between agents passes paths (plan `.md`, last SHA, retro), never pasted text.
 
 No commits, merges, or pushes. `pass` is ready for human review, not permission to land.
 
@@ -98,7 +98,7 @@ find them. Prefer constraint-shaped recommendations. Read `docs/decisions.md` wh
 
 Read [the review contract](references/review-contract.md). Sequential implementers first: if `## Slices` is missing or
 has one entry, one fresh `squad-implementer` on the whole plan; otherwise one fresh `squad-implementer` per entry in
-order (spawn passes the slice name and the paths of the plan, its `## Design`, and its `## Map`; each slice names its files from the Map, so no research is redone; same branch; no peer spawn). Then one `squad-verifier`. Then dual-axis: correctness and
+order (spawn passes the slice name and the plan path; each slice names its files in `## Slices`, so no research is redone; same branch; no peer spawn). Then one `squad-verifier`. Then dual-axis: correctness and
 plan/spec. Security only on a trust-boundary diff (Security gate). Launch `squad-reviewer`, `squad-simplifier`, and
 conditional `squad-security-reviewer` in parallel, then `squad-orchestrator`. Do not launch a full-repo audit.
 

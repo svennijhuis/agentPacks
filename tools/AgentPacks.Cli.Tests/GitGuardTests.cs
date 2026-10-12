@@ -31,6 +31,7 @@ public sealed class GitGuardTests
 
     [Theory]
     [InlineData("git clean -fd", "GIT002")]
+    [InlineData("git add -N . && git diff HEAD --binary > docs/plans/x.gap-1.patch && test -s docs/plans/x.gap-1.patch && git reset --hard && git clean -fd", "GIT001")]
     [InlineData("git push origin main --force-with-lease", "GIT003")]
     [InlineData("git branch --delete old --force", "GIT004")]
     [InlineData("git checkout -- src/Changed.cs", "GIT005")]
