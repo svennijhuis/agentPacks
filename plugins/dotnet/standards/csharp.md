@@ -32,6 +32,29 @@ Use established project configuration and repeated local patterns for choices th
 - When the solution already uses Web / Application / Infrastructure (or equivalent) projects, follow
   [layers.md](layers.md): thin controllers, use cases in Application, adapters in Infrastructure —
   never EF/`DbContext` or Infrastructure concretes inside Web controllers.
+- One top-level type per file: each class, record, interface, enum, and struct gets its own file
+  named after the type (`Order.cs`, `IOrderStore.cs`). Nested types stay with their parent.
+
+Bad:
+
+```csharp
+// Orders.cs
+public sealed record Order(Guid Id, decimal Total);
+public interface IOrderStore { Task SaveAsync(Order order, CancellationToken ct); }
+public enum OrderStatus { Open, Shipped }
+```
+
+Fix:
+
+```csharp
+// Order.cs
+public sealed record Order(Guid Id, decimal Total);
+// IOrderStore.cs
+public interface IOrderStore { Task SaveAsync(Order order, CancellationToken ct); }
+// OrderStatus.cs
+public enum OrderStatus { Open, Shipped }
+```
+
 - Match repository naming, analyzers, `.editorconfig`, and existing patterns before introducing a
   new idiom.
 
