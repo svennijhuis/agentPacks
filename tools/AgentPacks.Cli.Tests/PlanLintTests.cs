@@ -79,6 +79,24 @@ public sealed class PlanLintTests : IDisposable
         Assert.Equal(0, Lint("2026-10-12-add-x.md", Confirmed + "\nDesign: skipped (small)\n").Exit);
     }
 
+    [Fact]
+    public void Posix_and_powershell_twins_exist_and_check_the_same_sections()
+    {
+        var scripts = Path.Combine(TestRepository.SourceRoot(), "plugins", "pack-check", "skills", "pack-check", "scripts");
+        var sh = File.ReadAllText(Path.Combine(scripts, "check-plan.sh"));
+        var ps1 = File.ReadAllText(Path.Combine(scripts, "check-plan.ps1"));
+        foreach (var section in new[]
+                 {
+                     "Request", "Goal", "Decision", "Verify", "Grill log", "Decisions", "Acceptance criteria",
+                     "Test plan matrix", "Open questions", "Verification", "Design", "Map", "Design: skipped (small)",
+                     "file name must be <yyyy-mm-dd>-<slug>.md", "contains an em dash", "missing ## Status value"
+                 })
+        {
+            Assert.Contains(section, sh, StringComparison.Ordinal);
+            Assert.Contains(section, ps1, StringComparison.Ordinal);
+        }
+    }
+
     private (int Exit, string Output) Lint(string name, string text)
     {
         var path = Path.Combine(_directory, name);

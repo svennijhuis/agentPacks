@@ -49,5 +49,6 @@ already happened, so do not claim the new skills are available in the current se
 
 ## Plan lint
 
-Run `sh scripts/check-plan.sh docs/plans/<yyyy-mm-dd>-<slug>.md` to lint a Squad plan: date-slug name,
-required sections for its `## Status`, no em dash. Local files only. Exit 1 lists each finding.
+Lint a Squad plan with `sh scripts/check-plan.sh <plan>`, or `pwsh scripts/check-plan.ps1 <plan>` when
+no `sh` exists: date-slug name, required sections for its `## Status`, no em dash. Local files only.
+Findings are warnings: report them, never stop the run. Neither shell available: skip and say so.

@@ -133,7 +133,7 @@ public sealed class PackAuthorContractTests
 
         var agentText = File.ReadAllText(Path.Combine(PackRoot(), "agents", "pack-author-reviewer.md"));
         var agent = TestRepository.ParseFrontmatter(agentText);
-        Assert.Equal("fast", agent.Scalar("model"));
+        Assert.Equal("standard", agent.Scalar("model"));
         Assert.Equal("true", agent.Scalar("readonly"));
         var lines = agent.Body.Split('\n').Count(line => !string.IsNullOrWhiteSpace(line));
         Assert.True(lines <= 32, $"reviewer body is {lines} lines.");

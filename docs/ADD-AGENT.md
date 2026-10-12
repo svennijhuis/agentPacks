@@ -15,7 +15,7 @@ A subagent is a focused reviewer or worker the main agent delegates to, with its
 ---
 name: squad-reviewer
 description: Reviews a change against its plan and verifier evidence when present, then reports correctness findings. Use in every review phase, in parallel with simplification and with security when its gate applies.
-model: fast
+model: standard
 readonly: true
 tools:
   - read
@@ -28,7 +28,7 @@ One job. Load skills with the Skill tool by exact name. Never write slash-prose.
 ```
 
 That is the production shape: short frontmatter, portable tier, `readonly`, closed tool list, one
-job, exact Skill-tool names. Squad agents are `squad-*`. Security pack agents are `security-*`. Squad agents are `standard`, except `squad-architect` on `frontier`; none uses `fast`.
+job, exact Skill-tool names. Squad agents are `squad-*`. Security pack agents are `security-*`. Squad, security, and pack-author agents are `standard`, except `squad-architect` on `frontier`; no shipped agent uses `fast`.
 Bodies stay operational-but-short (28 non-empty lines after frontmatter;
 security reviewer 40). Numbered steps, required outputs, one Good/Bad pair — not essay soup.
 Copy from [`plugins/squad/agents/`](../plugins/squad/agents/); do not invent a public command

@@ -59,7 +59,7 @@ Round 1 creates `docs/plans/<yyyy-mm-dd>-<slug>.md` (run date, kebab-case slug) 
 `## Request`, `## Status` set to `draft`, and `## Grill log`. Every round, the planner appends
 `### Round <n>` to `## Grill log`: the questions, the recorded answers, decisions taken, and options
 rejected with the reason. Never rewrite an earlier round. Stop or abandon leaves the file at `draft`.
-The main agent runs the `pack-check` skill's `scripts/check-plan.sh <plan>` after each write when it is installed and passes findings to the next planner invocation.
+After each write the main agent runs the `pack-check` skill's `scripts/check-plan.sh <plan>` (or `check-plan.ps1` without `sh`) when installed. Findings are warnings passed to the next planner invocation; a missing linter or shell is skipped and noted, never a hard fail.
 
 Writing: plain words, short sentences, one idea per line, no filler or hype, no em dashes or curly quotes.
 

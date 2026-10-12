@@ -31,7 +31,7 @@ The wording, agents, and report shape are this repository's.
 | Agent | `security-validator` | Disprove one candidate; confirmed / needs_validation / rejected |
 | Command | `security-audit` | Runs the audit. Copilot picker: `/security:security-audit` |
 
-All three agents are `fast`, `readonly`, and report-only.
+All three agents are `standard`, `readonly`, and report-only.
 
 ## Editing
 

@@ -1,7 +1,7 @@
 ---
 name: security-hunter
 description: Hunts one assigned attack class for exploitable trust-boundary failures. Use after recon during a security audit, in parallel with other hunters.
-model: fast
+model: standard
 readonly: true
 tools:
   - read

@@ -86,7 +86,7 @@ Description starts with `When `, ends with `.`, and stays at or under 120 charac
 ---
 name: example-reviewer
 description: What it does and when to delegate.
-model: fast
+model: standard
 readonly: true
 tools:
   - read

@@ -1,7 +1,7 @@
 ---
 name: pack-author-reviewer
 description: Scores one skill or agent against hygiene and style bars. Use during pack-author review. Feedback only.
-model: fast
+model: standard
 readonly: true
 tools:
   - read

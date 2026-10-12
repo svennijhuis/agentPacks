@@ -20,7 +20,7 @@ This pack is not a Squad phase and not a pack-check probe. v1 writes a skill or 
 | Component | Name | Responsibility |
 |---|---|---|
 | Skill | `pack-author-md` | User-invoked routing for `make`, `review`, and `change`. Not model-invoked. |
-| Agent | `pack-author-reviewer` | Scores one skill or agent. PASS/FAIL only. `fast`, `readonly` |
+| Agent | `pack-author-reviewer` | Scores one skill or agent. PASS/FAIL only. `standard`, `readonly` |
 | Command | `pack-author` | Runs the mode. Copilot picker: `/pack-author:author` |
 
 ## Editing

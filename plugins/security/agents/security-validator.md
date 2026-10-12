@@ -1,7 +1,7 @@
 ---
 name: security-validator
 description: Tries to disprove one security-audit candidate. Use after hunters, never on the finding's author.
-model: fast
+model: standard
 readonly: true
 tools:
   - read
