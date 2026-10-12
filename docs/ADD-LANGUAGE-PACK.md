@@ -2,7 +2,7 @@
 
 A language pack is how [Squad](../plugins/squad/README.md) learns what it is looking at. The loop's agents are language-agnostic on purpose; the code they edit never is. This document is the contract between the two.
 
-Read [the catalog plan](PLAN.md) first — it decides *whether* something earns a plugin. This decides what a language pack must contain once it has.
+Read [the catalog plan](PLAN.md) first: it decides *whether* something earns a plugin. This decides what a language pack must contain once it has.
 
 ## The contract is a set of skill names
 
@@ -27,20 +27,20 @@ Skills are the one component every client loads identically, which makes them th
 
 `<lang>` is the pack name, for example `dotnet`.
 
-The names *are* the interface. A skill called `dotnet-testing` instead of `dotnet-test-patterns` is a skill the loop silently never loads — which is why `LanguagePackValidator` fails the build on a near-miss rather than letting it ship.
+The names *are* the interface. A skill called `dotnet-testing` instead of `dotnet-test-patterns` is a skill the loop silently never loads: which is why `LanguagePackValidator` fails the build on a near-miss rather than letting it ship.
 
 The orchestrator loads these with the Skill tool by exact name, never slash-prose. Slot skills are
 internals: set `metadata.audience: loop` and say they are not a user entrypoint in the body
 (after the Internal line). Keep the description a short when-to-use line. They must stay
 model-invoked; `disable-model-invocation` would hide them from the loop. Copilot: set
 `user-invocable: false`. The first body line is exactly
-`Internal. Do not run directly — Squad loads by exact Skill name.` Repeat that line on every slot
+`Internal. Do not run directly: Squad loads by exact Skill name.` Repeat that line on every slot
 skill. Each skill is loaded on its own; do not fold it into a shared file the specialist will not
 open.
 
 ## Framework skills are not slots
 
-Framework knowledge keeps the `[<framework>-]<action>-<object>` shape from [PLAN.md](PLAN.md) — `aspnet-api-design`, `react-component-scaffold`, `axum-routing` — and is reached *through* the slot skills, never discovered by the loop directly.
+Framework knowledge keeps the `[<framework>-]<action>-<object>` shape from [PLAN.md](PLAN.md), `aspnet-api-design`, `react-component-scaffold`, `axum-routing`, and is reached *through* the slot skills, never discovered by the loop directly.
 
 That is deliberate. Frameworks churn faster than languages; if the loop's contract named them, every Next.js major would be a change to Squad.
 
@@ -50,7 +50,7 @@ That is deliberate. Frameworks churn faster than languages; if the loop's contra
 2. Create both `plugins/<lang>/skills/<lang>-build/SKILL.md` and `plugins/<lang>/skills/<lang>-test-patterns/SKILL.md`. Squad must be able to build and verify the stack.
 3. Add `"language-pack"` to `keywords` in `plugins/<lang>/plugin.json`. That is what turns the validator's checks on.
 4. Add the marker, stack and pack row to `plugins/pack-check/skills/pack-check/references/packs.md`. That row is what makes the new pack discoverable at session start.
-5. Fill the optional review slots as you have real content for them. A thin `<lang>-security-review` is worse than none — OWASP is already the floor. `<lang>-solution` is an optional loop skill for read-only solution/package facts plus local MCP — not a required slot.
+5. Fill the optional review slots as you have real content for them. A thin `<lang>-security-review` is worse than none, OWASP is already the floor. `<lang>-solution` is an optional loop skill for read-only solution/package facts plus local MCP, not a required slot.
 6. Write the pack `README.md` with the slot table, so a reader can see what is filled and what is not.
 7. Validate with the real suite, not only a symlink, then open a pull request. [ADD-SKILL.md](ADD-SKILL.md)
    has the marketplace-shaped commands.
@@ -73,7 +73,7 @@ The loop reads these under time pressure, in the middle of another task. Write f
 - **Facts and commands, not philosophy.** *What deserves a test* is cross-language craft and belongs in a role pack. *How you write an integration test in this stack* is the slot.
 - **Say how to find the shape.** Repositories differ. Open with the `ls`/`grep` that establishes which variant this one is, then give the defaults for when it answers nothing.
 - **Give exact commands.** The verifier runs what `<lang>-test-patterns` says. `dotnet test <solution>` is usable; "run the tests" is not.
-- **Name the failure.** A slot skill earns its place by covering what an agent gets wrong unprompted — a container started per test instead of per collection, a `Version` attribute under Central Package Management.
+- **Name the failure.** A slot skill earns its place by covering what an agent gets wrong unprompted: a container started per test instead of per collection, a `Version` attribute under Central Package Management.
 - **Inspect the repository.** State which project files, dependencies, directory layout, and repeated
   local patterns select among the variants the pack supports. One isolated example is not a convention.
 - **Review slots classify mechanical vs judgment.** A mechanical pattern names the repo's existing
@@ -106,7 +106,7 @@ Author pack documents in `plugins/<lang>/standards/`. A cross-language document 
 shared filename is rejected. That author path belongs in this document, not in a skill body.
 Generation copies the selected files into each consumer's `references/standards/` directory on the
 `marketplace` / `marketplace-beta` branch or in temporary output. Source `main` stays authored-only.
-Skill bodies point only at `references/standards/` — never `authored tree: ../../standards/` or
+Skill bodies point only at `references/standards/`: never `authored tree: ../../standards/` or
 `../../standards/`. Every consuming skill must name them under `Standards in force:` and tell the
 agent to cite the document filename during review and build.
 

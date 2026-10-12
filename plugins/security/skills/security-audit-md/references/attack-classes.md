@@ -2,7 +2,7 @@
 
 Recon picks in-scope rows. Core classes run on every audit. Companion classes run only when the target matches the trigger.
 
-## Core — always
+## Core: always
 
 | Class | Hunt |
 |---|---|
@@ -15,7 +15,7 @@ Recon picks in-scope rows. Core classes run on every audit. Companion classes ru
 | Feature abuse | Intended features chained into a boundary cross (export, webhook, impersonate, debug). |
 | Wildcard | What recon named that no other class owns. One unusual trust assumption. |
 
-## Companions — only when triggered
+## Companions: only when triggered
 
 | Trigger | Class | Hunt |
 |---|---|---|

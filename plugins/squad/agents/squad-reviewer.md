@@ -19,7 +19,7 @@ Constraints:
 - Diff-scope only: the product diff. Run files → Not examined. Scope creep is a finding. Un-evidenced criterion pass is unmet.
 - Do not re-invoke review or the orchestrator.
 - Only findings with confidence ≥ 80. No filler nits.
-- Judgment against the axes and cited standards — not a checkbox tour of every possible style rule.
+- Judgment against the axes and cited standards: not a checkbox tour of every possible style rule.
 - Classify **mechanical** vs **judgment call**. Prefer the repo's existing check over a new prose rule.
 - Blast radius: name callers and consumers outside the diff that the change can break, with the command or search that proves them safe.
 - A banned assertion shape (`testing-principles.md` Test behavior) in a changed test is a finding. A second failed fix on the same premise → `Replan:`, not another fix.

@@ -15,7 +15,7 @@ Locked user commands: `/squad` · `/squad-review` · `/scenarios` · `/pack-chec
 
 ---
 
-## Lane A — Contribute a plugin or update an existing one
+## Lane A: Contribute a plugin or update an existing one
 
 Marketplace authors make, review, or change a skill or an agent with `/pack-author` (Claude and Cursor; Copilot `/pack-author:author`). Detail: [`docs/PACK-AUTHOR.md`](PACK-AUTHOR.md).
 
@@ -101,7 +101,7 @@ Open a PR. Maintainer squash-merge. After merge: wait for beta publish if you te
 
 ---
 
-## Lane B — Test teams in product repos (coding + testing)
+## Lane B: Test teams in product repos (coding + testing)
 
 Install packs once (team marketplace or per-user). Prefer language pack for your stack + `squad` + `pack-check`. See README install blocks.
 
@@ -158,11 +158,11 @@ Matrix fail rules (happy → not 2xx; edge → 2xx on invalid or 5xx; fail → w
 
 ### Suggested day-to-day for a test team
 
-1. **Setup** — marketplace (stable or beta) + `squad` + language pack + `/pack-check`.
-2. **New feature with API** — pair with dev: `/squad` implements + unit/integration; tester runs `/scenarios` when handlers land; execute smoke table on deployed TST/ACC.
-3. **Regression** — keep `docs/smoke/*.md` as living checklist; re-run `/scenarios` when routes change.
-4. **Pack feedback** — if patterns are wrong for your stack, open Lane A PR (examples/standards), or leave `docs/suggestions.md` (human-apply) from a Squad run. Do not expect auto skill rewrite.
-5. **Beta** — try `#marketplace-beta` before promote to stable.
+1. **Setup**: marketplace (stable or beta) + `squad` + language pack + `/pack-check`.
+2. **New feature with API**: pair with dev: `/squad` implements + unit/integration; tester runs `/scenarios` when handlers land; execute smoke table on deployed TST/ACC.
+3. **Regression**: keep `docs/smoke/*.md` as living checklist; re-run `/scenarios` when routes change.
+4. **Pack feedback**: if patterns are wrong for your stack, open Lane A PR (examples/standards), or leave `docs/suggestions.md` (human-apply) from a Squad run. Do not expect auto skill rewrite.
+5. **Beta**: try `#marketplace-beta` before promote to stable.
 
 ### Coding with Squad (short)
 

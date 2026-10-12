@@ -7,11 +7,11 @@ metadata:
   audience: loop
 ---
 
-Internal. Do not run directly — Squad loads by exact Skill name.
+Internal. Do not run directly: Squad loads by exact Skill name.
 
 # .NET build
 
-Loop-only; not as a user entrypoint. The facts an agent needs before it touches a `.csproj`. Read the repository's own files first — the common layout is not a guarantee.
+Loop-only; not as a user entrypoint. The facts an agent needs before it touches a `.csproj`. Read the repository's own files first: the common layout is not a guarantee.
 When opening a solution or package graph, load `dotnet-solution` by exact Skill tool name. Use local `dotnet sln list` / `dotnet list package`. Never a remote service.
 
 When loaded by exact Skill tool name `dotnet-build` during implement or review:

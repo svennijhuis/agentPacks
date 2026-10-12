@@ -15,10 +15,10 @@ The wording, agents, and report shape are this repository's.
 
 ```text
 /security-audit
-1. Recon — security-recon maps architecture, surfaces, in-scope classes
-2. Hunt — security-hunter × N in parallel, one class each
-3. Validate — security-validator × N in parallel, one candidate each (hunter ≠ validator)
-4. Report — docs/security-audit/<slug>.md; IDE/CLI; no commit
+1. Recon: security-recon maps architecture, surfaces, in-scope classes
+2. Hunt: security-hunter × N in parallel, one class each
+3. Validate: security-validator × N in parallel, one candidate each (hunter ≠ validator)
+4. Report: docs/security-audit/<slug>.md; IDE/CLI; no commit
 ```
 
 ## Components
@@ -41,4 +41,4 @@ Generated only in validation output or on `marketplace` / `marketplace-beta`: cl
 manifests and `com.*` provider trees.
 
 Test on a feature branch without merging to `main`:
-[ADD-SKILL.md — Test a skill locally](../../docs/ADD-SKILL.md#test-a-skill-locally).
+[ADD-SKILL.md: Test a skill locally](../../docs/ADD-SKILL.md#test-a-skill-locally).

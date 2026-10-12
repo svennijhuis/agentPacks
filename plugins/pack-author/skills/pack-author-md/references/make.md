@@ -41,7 +41,7 @@ metadata:
   audience: loop
 ---
 
-Internal. Do not run directly — Squad loads by exact Skill name.
+Internal. Do not run directly: Squad loads by exact Skill name.
 
 # Title
 

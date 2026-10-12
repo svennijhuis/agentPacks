@@ -10,7 +10,7 @@ The planner handles one invocation and returns. It never addresses the user dire
 
 Grill-style planning is this contract: frontier rounds with a recommended answer on every question.
 Facts are discovered by the planner (a subagent). Decisions stay with the human. Do not load a
-separate grilling skill or an external skills catalog. The main agent never grills itself — it
+separate grilling skill or an external skills catalog. The main agent never grills itself: it
 presents the planner's round.
 
 Optional `docs/decisions.md` is a human-readable drop-box, not eager memory. Read it when present
@@ -76,12 +76,12 @@ Return exactly one planning round and stop:
 **Facts found:** <numbered fact, answer, and source path or citation; or None>
 **Settled:** <compact numbered summary, or None>
 
-❓ **Q1 — <title>:** <decision, viable options, and material trade-offs>
+❓ **Q1, <title>:** <decision, viable options, and material trade-offs>
 ➡️ **Recommendation:** <choice and reason>
 
 ---
 
-❓ **Q2 — <title>:** <...>
+❓ **Q2, <title>:** <...>
 ➡️ **Recommendation:** <...>
 
 **State for next invocation**
@@ -215,9 +215,9 @@ Hard decisions get an ADR per [the ADR contract](adr.md); the plan links each on
 ## Out of scope
 ## Non-goals
 ## Dependency philosophy
-<allowed / forbidden libs and implement-vs-reuse, or `N/A — no new dependencies`>
+<allowed / forbidden libs and implement-vs-reuse, or `N/A: no new dependencies`>
 ## Performance / resource bounds
-<concrete bounds, or `N/A — not performance-sensitive`>
+<concrete bounds, or `N/A: not performance-sensitive`>
 ## Open questions
 None.
 ## Status
@@ -236,7 +236,7 @@ the plan. Lessons go to the run's retro file. While implementing, `## Status` ma
 `implementing slice <n>/<total>`.
 
 `## Request` is the user's words as typed; the title is the planner's outcome sentence. Do not expand
-or narrow the ask there — scope belongs in `## In scope`, `## Out of scope`, and `## Non-goals`. It is
+or narrow the ask there: scope belongs in `## In scope`, `## Out of scope`, and `## Non-goals`. It is
 there so a later reader, human or `/squad-review` on the same branch, can see drift between the ask
 and the plan without the chat transcript.
 
@@ -247,13 +247,13 @@ Each acceptance criterion is observable and can fail. "Handles errors well" is n
 deliberate boundary from an omission. Give the exact verification commands; when a check does not
 exist yet, making that check is itself planned work.
 
-A criterion that states a number — a bound, count, size, or latency — is **quantitative**. Write it
+A criterion that states a number, a bound, count, size, or latency, is **quantitative**. Write it
 as metric, operator, bound (`p95 ≤ 200 ms`, `bundle ≤ 2.4 MB`) and name the command that measures
 it under `## Verification`. The verifier re-measures and quotes `<measured> <op> <bound>`. A green test name is not a measurement.
 
 Every business criterion in `## Acceptance criteria` requires one `## Test plan matrix` row: a
 happy path, an edge case, a failure case, whether that check is a unit or an integration test,
-and a named Seam — the pre-agreed test surface. Blank or unconfirmed Seam is `not verified`,
+and a named Seam: the pre-agreed test surface. Blank or unconfirmed Seam is `not verified`,
 never `pass`. Tests that hit internals not named in the Seam column fail.
 The implementer TDDs that matrix. The verifier proves the matrix is covered; happy-path-only
 coverage is rejected. Deployed/API smoke cites
@@ -277,6 +277,7 @@ Precedence: the repo's own structure and conventions come first; the architect M
 git add -N . && git diff HEAD --binary > docs/plans/<slug>.gap-<n>.patch && test -s docs/plans/<slug>.gap-<n>.patch
 ```
 
+- Replan after a Plan gap: the planner first reads `git diff --stat` and `docs/plans/<slug>.gap-<n>.patch`, then rewrites the open slice from the code as it stands now and never redoes files that are already changed.
 - Cap: at most 1 `Plan gap:` per slice. A second one on the same slice becomes `Replan:` for the whole plan, and the retro records it.
 
 Grill rounds stay as they are.

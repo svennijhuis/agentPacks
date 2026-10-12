@@ -28,7 +28,7 @@ A client can use the manifest object, the directory, or both. Agent Plugins assi
 
 ## How this repository uses the boundary
 
-Rules, agents, commands and hooks are not portable components — the specification leaves all four out. This repository authors them once in a neutral form at the plugin root and generates a tree per client inside that client's namespace directory:
+Rules, agents, commands and hooks are not portable components: the specification leaves all four out. This repository authors them once in a neutral form at the plugin root and generates a tree per client inside that client's namespace directory:
 
 ```text
 plugins/squad/

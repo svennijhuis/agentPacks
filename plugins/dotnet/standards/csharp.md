@@ -29,7 +29,7 @@ Shared rules live in `design` and `engineering`. This file adds language specifi
 - Match existing project boundaries. A new project creates a compilation and dependency boundary;
   use a folder when that boundary buys nothing.
 - When the solution already uses Web / Application / Infrastructure (or equivalent) projects, follow
-  [layers.md](layers.md): thin controllers, use cases in Application, adapters in Infrastructure —
+  [layers.md](layers.md): thin controllers, use cases in Application, adapters in Infrastructure:
   never EF/`DbContext` or Infrastructure concretes inside Web controllers.
 - One top-level type per file: each class, record, interface, enum, and struct gets its own file
   named after the type (`Order.cs`, `IOrderStore.cs`). Nested types stay with their parent.

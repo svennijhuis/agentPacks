@@ -25,4 +25,4 @@
 dotnet restore <solution>
 ```
 
-Bad: `<PackageReference Include="xunit" Version="2.9.3" />` under CPM — restore error, not an override. Cite `csharp.md`.
+Bad: `<PackageReference Include="xunit" Version="2.9.3" />` under CPM: restore error, not an override. Cite `csharp.md`.

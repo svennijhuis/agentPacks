@@ -2,13 +2,13 @@
 
 ## Agent Plugins
 
-- Overview — https://agent-plugins.org/
-- Specification — https://agent-plugins.org/specification
-- Plugin authors — https://agent-plugins.org/plugin-authors
-- Compatible clients — https://agent-plugins.org/compatible-clients
-- Schemas — https://agent-plugins.org/schemas
-- Specification repository — https://github.com/agentplugins/agent-plugins-spec
-- Announcement — https://vercel.com/blog/introducing-agent-plugins
+- Overview: https://agent-plugins.org/
+- Specification: https://agent-plugins.org/specification
+- Plugin authors: https://agent-plugins.org/plugin-authors
+- Compatible clients: https://agent-plugins.org/compatible-clients
+- Schemas: https://agent-plugins.org/schemas
+- Specification repository: https://github.com/agentplugins/agent-plugins-spec
+- Announcement: https://vercel.com/blog/introducing-agent-plugins
 
 Validation uses the canonical published schemas directly:
 
@@ -17,53 +17,53 @@ Validation uses the canonical published schemas directly:
 
 ## Agent Skills
 
-- Overview — https://agentskills.io/
-- Specification — https://agentskills.io/specification
-- Reference validator — https://github.com/agentskills/agentskills/tree/main/skills-ref
+- Overview: https://agentskills.io/
+- Specification: https://agentskills.io/specification
+- Reference validator: https://github.com/agentskills/agentskills/tree/main/skills-ref
 
 There is no JSON Schema for skills. The normative frontmatter table in the specification is implemented by hand in `SkillValidator`.
 
 ## GitHub Copilot
 
-- Creating plugins — https://docs.github.com/en/copilot/how-tos/copilot-cli/customize-copilot/plugins-creating
-- Finding and installing — https://docs.github.com/en/copilot/how-tos/copilot-cli/customize-copilot/plugins-finding-installing
-- Plugin reference — https://docs.github.com/en/copilot/reference/copilot-cli-reference/cli-plugin-reference
-- Hooks reference (event names, document shape, tool names) — https://docs.github.com/en/copilot/reference/hooks-reference
-- Using hooks with Copilot CLI — https://docs.github.com/en/copilot/how-tos/copilot-cli/customize-copilot/use-hooks
-- Custom agents — https://docs.github.com/en/copilot/how-tos/copilot-cli/customize-copilot/create-custom-agents-for-cli
-- MCP servers — https://docs.github.com/en/copilot/how-tos/copilot-cli/customize-copilot/add-mcp-servers
+- Creating plugins: https://docs.github.com/en/copilot/how-tos/copilot-cli/customize-copilot/plugins-creating
+- Finding and installing: https://docs.github.com/en/copilot/how-tos/copilot-cli/customize-copilot/plugins-finding-installing
+- Plugin reference: https://docs.github.com/en/copilot/reference/copilot-cli-reference/cli-plugin-reference
+- Hooks reference (event names, document shape, tool names): https://docs.github.com/en/copilot/reference/hooks-reference
+- Using hooks with Copilot CLI: https://docs.github.com/en/copilot/how-tos/copilot-cli/customize-copilot/use-hooks
+- Custom agents: https://docs.github.com/en/copilot/how-tos/copilot-cli/customize-copilot/create-custom-agents-for-cli
+- MCP servers: https://docs.github.com/en/copilot/how-tos/copilot-cli/customize-copilot/add-mcp-servers
 
 ## Cursor
 
-- Plugins — https://cursor.com/docs/plugins
-- Plugins reference (marketplace schema) — https://cursor.com/docs/reference/plugins
-- Official catalog shape — https://github.com/cursor/plugins/blob/main/.cursor-plugin/marketplace.json
-- Official marketplace schema — https://github.com/cursor/plugins/blob/main/schemas/marketplace.schema.json
-- CLI marketplace commands — https://cursor.com/docs/cli/changelog
-- Marketplace — https://cursor.com/blog/marketplace
+- Plugins: https://cursor.com/docs/plugins
+- Plugins reference (marketplace schema): https://cursor.com/docs/reference/plugins
+- Official catalog shape: https://github.com/cursor/plugins/blob/main/.cursor-plugin/marketplace.json
+- Official marketplace schema: https://github.com/cursor/plugins/blob/main/schemas/marketplace.schema.json
+- CLI marketplace commands: https://cursor.com/docs/cli/changelog
+- Marketplace: https://cursor.com/blog/marketplace
 
 ## OpenAI Codex
 
-- Plugin packaging and marketplace contract — https://developers.openai.com/plugins/build/plugins
-- Hooks (event names, matcher tool names, commandWindows) — https://learn.chatgpt.com/docs/hooks
-- Plugin examples — https://github.com/openai/plugins
-- Developer docs — https://developers.openai.com/
+- Plugin packaging and marketplace contract: https://developers.openai.com/plugins/build/plugins
+- Hooks (event names, matcher tool names, commandWindows): https://learn.chatgpt.com/docs/hooks
+- Plugin examples: https://github.com/openai/plugins
+- Developer docs: https://developers.openai.com/
 
 ## Claude Code
 
-- Plugins — https://code.claude.com/docs/en/plugins
-- Plugin reference — https://code.claude.com/docs/en/plugins-reference
-- Marketplaces — https://code.claude.com/docs/en/plugin-marketplaces
-- Discover and install — https://code.claude.com/docs/en/discover-plugins
-- MCP — https://code.claude.com/docs/en/mcp
+- Plugins: https://code.claude.com/docs/en/plugins
+- Plugin reference: https://code.claude.com/docs/en/plugins-reference
+- Marketplaces: https://code.claude.com/docs/en/plugin-marketplaces
+- Discover and install: https://code.claude.com/docs/en/discover-plugins
+- MCP: https://code.claude.com/docs/en/mcp
 
 ## Security
 
 The `squad-security-reviewer` subagent walks the OWASP table in the review contract, and links each category from that checklist.
 
-- OWASP Top 10:2025 — https://owasp.org/Top10/
-- Cheat Sheet Series, the reference for what a good control looks like — https://cheatsheetseries.owasp.org/
-- Application Security Verification Standard, the reference for what "verified" means — https://owasp.org/www-project-application-security-verification-standard/
+- OWASP Top 10:2025: https://owasp.org/Top10/
+- Cheat Sheet Series, the reference for what a good control looks like: https://cheatsheetseries.owasp.org/
+- Application Security Verification Standard, the reference for what "verified" means: https://owasp.org/www-project-application-security-verification-standard/
 
 `/security-audit` (the `security` pack) is a full-repo hunt, not the Squad gate. Its recon → isolated hunters → independent validators flow is adapted from Cloudflare's [security-audit-skill](https://github.com/cloudflare/security-audit-skill) (MIT) and rewritten in this repository's skill/agent shape. See [`plugins/security/NOTICE.md`](../plugins/security/NOTICE.md).
 
@@ -73,7 +73,7 @@ with a newer edition.
 
 ## Building MCP servers in .NET
 
-- MCP C# SDK v2.0 announcement — https://devblogs.microsoft.com/dotnet/announcing-v20-of-the-official-mcp-csharp-sdk/
+- MCP C# SDK v2.0 announcement: https://devblogs.microsoft.com/dotnet/announcing-v20-of-the-official-mcp-csharp-sdk/
 
 The official C# SDK is the natural way to build the company MCP servers this repository will point at. v2.0 is production-ready, implements the 2026-07-28 protocol revision, and is backward compatible with v1 apart from the experimental Tasks extension.
 
@@ -94,8 +94,8 @@ Both point the same way as our own policy: prefer `streamable-http` over the dep
 
 ## Examples worth reading
 
-- Microsoft Agent Skills — https://github.com/MicrosoftDocs/Agent-Skills
-- Microsoft Power Platform Skills — https://github.com/microsoft/power-platform-skills
-- OpenAI Plugins — https://github.com/openai/plugins
+- Microsoft Agent Skills: https://github.com/MicrosoftDocs/Agent-Skills
+- Microsoft Power Platform Skills: https://github.com/microsoft/power-platform-skills
+- OpenAI Plugins: https://github.com/openai/plugins
 
 These show the same pattern: keep reusable skills central, add only the client-specific packaging you actually need.

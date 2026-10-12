@@ -96,7 +96,7 @@ the applicable plugin standards and concrete repository conventions in the plan.
 | Claude | yes | no | yes | yes |
 | Cursor | yes | yes | yes | yes |
 | GitHub Copilot | yes | no | yes | `/squad:run` |
-| Codex | yes | no | manual copy | — |
+| Codex | yes | no | manual copy |: |
 
 The scoped-rule limitation is intentional. Cursor is the only target that can carry the rule's glob contract through plugin packaging; generation emits the documented portability warning for the other clients instead of making the checklist always-on.
 
@@ -116,7 +116,7 @@ Portable model tiers are authored on each agent and mapped in [`models.source.js
 Default `inherit`. Every squad agent is `standard` except `squad-architect` (`frontier`); none uses `fast`. Copilot ids use dotted versions (`claude-sonnet-5.5`, `claude-opus-5.5`).
 
 Test changes on a feature branch without merging to `main`:
-[ADD-SKILL.md — Test a skill locally](../../docs/ADD-SKILL.md#test-a-skill-locally).
+[ADD-SKILL.md: Test a skill locally](../../docs/ADD-SKILL.md#test-a-skill-locally).
 
 ## Adopted from `orchestrate`
 
@@ -128,10 +128,10 @@ contract prose, restated in Squad's shape rather than copied:
 
 | Squad item | From `orchestrate` | What Squad does with it |
 |---|---|---|
-| 65 `blocked` verifier result | `verifier-blocked` — env failure is not a thin verification | Fourth Result value next to `pass` / `fail` / `not verified`. Unproven, never a pass; the synthesized Fix is unblock and rerun. Reading the diff is not verification. Ties into the local-secrets ask. |
+| 65 `blocked` verifier result | `verifier-blocked`: env failure is not a thin verification | Fourth Result value next to `pass` / `fail` / `not verified`. Unproven, never a pass; the synthesized Fix is unblock and rerun. Reading the diff is not verification. Ties into the local-secrets ask. |
 | 66 quantitative criteria re-measured | worker `## Measurements` + script re-run with drift flag | Plan writes metric, operator, bound and the measuring command. `squad-verifier` re-measures and quotes `<measured> <op> <bound>`. A green test name is not a measurement. |
 | 67 `## Request` verbatim in the plan | `goal` kept verbatim, `summary` separate; minimal-goal discipline | The ask as typed sits between the outcome title and `## Problem`, so ask-vs-plan drift is visible without the chat transcript. Scope still lives in In scope / Out of scope / Non-goals. |
-| 68 build or type-check is not behavioral evidence | `type-check-only` verification tier — "only type-check / build passes; weak" | A `pass` row whose only command is a build, restore, format, or type-check is `not verified` unless the criterion is about compiling. Compiling proves compiling. `dotnet build && dotnet test` is not compile-only. |
+| 68 build or type-check is not behavioral evidence | `type-check-only` verification tier: "only type-check / build passes; weak" | A `pass` row whose only command is a build, restore, format, or type-check is `not verified` unless the criterion is about compiling. Compiling proves compiling. `dotnet build && dotnet test` is not compile-only. |
 | 70 name facts, do not dig | planners publish tasks and never do the work themselves; per-task model choice | The main agent (user's model) lists `Facts to check`; the `standard`-tier `squad-planner` answers them under **Facts found** with a source, then grills. Facts never replace the frontier round. Same single invocation per turn. No extra `squad-*` spawn; the planner uses its granted tools. Squad keeps per-role tiers instead of a per-task model catalog. |
 
 Each rule is contract prose. Items 65, 66, and 68 are also pinned by the executable

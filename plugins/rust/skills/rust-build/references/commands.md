@@ -40,7 +40,7 @@ cargo check --workspace --all-targets
 ```
 
 During implement, check the touched crate first. Reserve `--workspace` for verifier / CI-shaped
-checks. Do not `cargo clean` mid-loop unless diagnosing a corrupted target directory — cleaning
+checks. Do not `cargo clean` mid-loop unless diagnosing a corrupted target directory: cleaning
 under contention forces full rebuilds and disk thrash.
 
 ### Contention constraints
@@ -54,7 +54,7 @@ under contention forces full rebuilds and disk thrash.
 When the root `Cargo.toml` has `[workspace.dependencies]`:
 
 1. Add or bump the version and shared features there.
-2. The member lists `foo = { workspace = true }` — **no version of its own.**
+2. The member lists `foo = { workspace = true }`: **no version of its own.**
 3. Inspect the `Cargo.lock` diff and reject unrelated upgrades.
 
 A version in the member when the workspace already inherits is a second source of truth, not an

@@ -10,9 +10,9 @@ This pack is not a Squad phase and not a pack-check probe. v1 writes a skill or 
 
 ```text
 /pack-author
-1. make — PLAN.md owning pack, Matt-tiny skill or agent stub, ADD-SKILL or ADD-AGENT, validate hints
+1. make: PLAN.md owning pack, Matt-tiny skill or agent stub, ADD-SKILL or ADD-AGENT, validate hints
 2. review: pack-author-reviewer returns PASS/WARN/FAIL
-3. change — at most two human-approved rounds on FAIL items
+3. change: at most two human-approved rounds on FAIL items
 ```
 
 ## Components
@@ -30,4 +30,4 @@ Authored: `plugin.json`, `skills/`, `agents/`, and `commands/`.
 Generated only in validation output or on `marketplace` / `marketplace-beta`: client manifests and `com.*` provider trees.
 
 Test on a feature branch without merging to `main`:
-[ADD-SKILL.md — Test a skill locally](../../docs/ADD-SKILL.md#test-a-skill-locally).
+[ADD-SKILL.md: Test a skill locally](../../docs/ADD-SKILL.md#test-a-skill-locally).

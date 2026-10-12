@@ -3,7 +3,7 @@
 The Rust language pack for [Squad](../squad/README.md). It supplies the build,
 test, and review skills that the Loop discovers by exact name.
 
-Slot skills are Squad internals. Do not run them directly — Squad loads each by exact Skill name.
+Slot skills are Squad internals. Do not run them directly: Squad loads each by exact Skill name.
 
 ## What is in it
 
@@ -21,13 +21,13 @@ Framework skills are reached through the slot skills, not by the Loop's contract
 
 Canonical standards live once under `standards/`:
 
-- `rust.md` — ownership, public APIs, types, dependencies, unsafe code, formatting, and central crate / toolchain pins.
-- `errors-concurrency.md` — recoverable errors, panic boundaries, async work, locks, and cancellation.
-- `testing.md` — unit, integration, documentation, feature, and concurrent tests.
-- [`http-api.md`](../../shared/standards/http-api.md) — named collection envelope for list APIs, not a root JSON array (shared across language packs).
+- `rust.md`: ownership, public APIs, types, dependencies, unsafe code, formatting, and central crate / toolchain pins.
+- `errors-concurrency.md`: recoverable errors, panic boundaries, async work, locks, and cancellation.
+- `testing.md`: unit, integration, documentation, feature, and concurrent tests.
+- [`http-api.md`](../../shared/standards/http-api.md): named collection envelope for list APIs, not a root JSON array (shared across language packs).
 
 `standards.source.json` maps each document to the skills that need it. Generation copies selected
-documents into `references/standards/` — see [ADD-LANGUAGE-PACK.md](../../docs/ADD-LANGUAGE-PACK.md).
+documents into `references/standards/`: see [ADD-LANGUAGE-PACK.md](../../docs/ADD-LANGUAGE-PACK.md).
 
 ## Standards and repository conventions
 

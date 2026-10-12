@@ -32,7 +32,7 @@ in Copilot's dialect.
 
 | Field | Required | Rule |
 |---|---|---|
-| `script` | yes | Basename of a pair in `scripts/`. Kebab-case. Never a path, never a command line — the generator owns the invocation. |
+| `script` | yes | Basename of a pair in `scripts/`. Kebab-case. Never a path, never a command line: the generator owns the invocation. |
 | `matcher` | no | Regular expression narrowing when the hook fires. Not allowed on events with nothing to match against. |
 | `timeout` | no | Seconds, 1 to 600. |
 
@@ -64,10 +64,10 @@ Three clients are not enough alike to share one writer:
 |---|---|---|---|---|
 | Entry placement | matcher group | flat | matcher group | flat |
 | POSIX command key | `command` | `command` | `command` | `bash` |
-| Windows command key | — | — | `commandWindows` | `powershell` |
+| Windows command key |, |, | `commandWindows` | `powershell` |
 | Timeout key | `timeout` | `timeout` | `timeout` | `timeoutSec` |
-| Working directory | — | — | — | `"cwd": "${PLUGIN_ROOT}"` |
-| Format version | — | — | — | `"version": 1` |
+| Working directory |, |, |: | `"cwd": "${PLUGIN_ROOT}"` |
+| Format version |, |, |: | `"version": 1` |
 
 These live in `ClientProfile`, so a client is a row rather than a branch in the generator.
 Copilot CLI fail-closes PreToolUse when a hook script cannot be resolved from the project cwd
@@ -87,13 +87,13 @@ This is why a matcher may not contain `"`, `\`, `$` or `` ` ``: it is emitted ve
 
 ## Writing the script pair
 
-Both halves receive the client's hook event JSON on **stdin** and are invoked with the same arguments. Keep them behaviourally identical — they are one hook, and a developer on the other operating system will not notice a divergence until it matters.
+Both halves receive the client's hook event JSON on **stdin** and are invoked with the same arguments. Keep them behaviourally identical: they are one hook, and a developer on the other operating system will not notice a divergence until it matters.
 
 Clients disagree on hook payloads and failure behavior. Blocking hooks must have provider payload
 fixtures and must be checked against each provider's current primary documentation. Never log the
 raw command payload; shell arguments can contain credentials.
 
-The generated hook command is the **extensionless** path `scripts/<name>`, because Claude and Cursor have no per-OS hook field and one string has to work on both platforms. Nothing authored sits at that path, so the generator writes both halves of it: a POSIX dispatcher `scripts/<name>` that execs your `.sh`, and a `scripts/<name>.cmd` shim that calls your `.ps1` and forwards `%ERRORLEVEL%`. `cmd.exe` never runs an extensionless file — it appends `PATHEXT` — so each platform picks up its own half. Codex and Copilot both have a real per-OS field and skip the shim, spelled differently: Codex's `commandWindows` takes a full shell invocation, and Copilot's `powershell` is already a PowerShell context and takes `Set-ExecutionPolicy -Scope Process …; & "<script>.ps1"` so Restricted policy on stock Windows does not refuse the script.
+The generated hook command is the **extensionless** path `scripts/<name>`, because Claude and Cursor have no per-OS hook field and one string has to work on both platforms. Nothing authored sits at that path, so the generator writes both halves of it: a POSIX dispatcher `scripts/<name>` that execs your `.sh`, and a `scripts/<name>.cmd` shim that calls your `.ps1` and forwards `%ERRORLEVEL%`. `cmd.exe` never runs an extensionless file, it appends `PATHEXT`, so each platform picks up its own half. Codex and Copilot both have a real per-OS field and skip the shim, spelled differently: Codex's `commandWindows` takes a full shell invocation, and Copilot's `powershell` is already a PowerShell context and takes `Set-ExecutionPolicy -Scope Process …; & "<script>.ps1"` so Restricted policy on stock Windows does not refuse the script.
 
 The matcher argument is spelled `-Matcher`, with one dash and a capital. That is the only spelling both parsers accept: PowerShell binds it to `param($Matcher)` and has no double-dash parameter names, so `--matcher` would be swallowed as the parameter's value and the regex behind it would fail to bind at all.
 
@@ -101,10 +101,10 @@ The matcher argument is spelled `-Matcher`, with one dash and a capital. That is
 
 | Path | For |
 |---|---|
-| `hooks/hooks.json` | Cursor — flat entries, camelCase events. On `pack-check` and `git` this file is Claude-shaped instead so Claude can auto-discover it |
+| `hooks/hooks.json` | Cursor: flat entries, camelCase events. On `pack-check` and `git` this file is Claude-shaped instead so Claude can auto-discover it |
 | `.cursor-plugin/hooks/hooks.json` | Cursor-shaped copy for `pack-check` and `git`, pointed at by `.cursor-plugin/plugin.json` |
-| `com.anthropic.claude-code/hooks/hooks.json` | Claude — nested entries, PascalCase events |
-| `com.openai.codex/hooks/hooks.json` | Codex — nested, plus `commandWindows` |
+| `com.anthropic.claude-code/hooks/hooks.json` | Claude: nested entries, PascalCase events |
+| `com.openai.codex/hooks/hooks.json` | Codex: nested, plus `commandWindows` |
 | `com.github.copilot/hooks/hooks.json` | Copilot |
 | `scripts/<name>` | The POSIX dispatcher for the pair |
 | `scripts/<name>.cmd` | The Windows shim for the pair |

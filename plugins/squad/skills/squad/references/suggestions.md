@@ -15,7 +15,7 @@ Do not read it to gate, skip, demote, or rewrite. A human may paste one entry as
 
 After the retro, at hand-off. Append **zero or one** entry. Write only when this run
 produced evidence that a **pack, skill, agent, command, or contract** should change. Product-code
-follow-ups stay in the plan handoff notes or residual fixup — not here.
+follow-ups stay in the plan handoff notes or residual fixup: not here.
 
 Never edit or delete an earlier entry. Never open a skill and apply the suggestion. `None` means
 do not append.
@@ -23,7 +23,7 @@ do not append.
 ## Entry shape
 
 ```markdown
-## 2026-09-15 — /squad
+## 2026-09-15: /squad
 
 - Entrypoint: squad
 - Target: plugins/squad/skills/squad/references/review-contract.md
@@ -40,7 +40,7 @@ do not append.
 | Entrypoint | `squad` or `squad-review` |
 | Target | One repo path that would change, or `None` |
 | Kind | `pack` / `skill` / `agent` / `command` / `contract` |
-| Evidence | What this run showed — a report line, criterion, or command — not a vibe |
+| Evidence | What this run showed, a report line, criterion, or command, not a vibe |
 | Suggestion | One concrete edit, imperative, small enough for a later `/squad` |
 | Expected effect | What the next run should do differently if a human applies it |
 | Apply | Always `human`. Any other value is invalid |

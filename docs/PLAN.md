@@ -22,9 +22,9 @@ review × rust × backend × axum   →  a plugin per combination
 | Axis | Examples | Good as a plugin? |
 | --- | --- | --- |
 | Role | engineering, review, testing, security, product | Yes, when it is language-agnostic |
-| Language | dotnet, typescript, rust | Yes — this is the main split for code |
+| Language | dotnet, typescript, rust | Yes: this is the main split for code |
 | Layer | frontend, backend | Only after a language pack gets fat |
-| Framework | react, nestjs, axum, aspnet | Never — it is a skill |
+| Framework | react, nestjs, axum, aspnet | Never: it is a skill |
 
 Framework churn is high: Next.js, Axum and NestJS patterns move faster than the languages under them. Plugins should outlive frameworks. A skill can be added or dropped in one pull request; a plugin is something people have already installed.
 
@@ -47,13 +47,13 @@ The repository currently ships **five capability packs and three language packs*
 `pack-check`, `git`, `security`, `pack-author`, `dotnet`, `rust`, and `typescript`. Authored `mcp.json` files are empty scaffolds.
 v1 ships no MCP server. `dotnet` still has the `dotnet-solution` skill (`dotnet sln` / `dotnet list`).
 
-The earlier catalog carried five role packs and three language packs, six of which held nothing but a `plugin.json`. An empty pack is not a placeholder — it is an install that appears in the marketplace, resolves, and does nothing, which is worse than not being listed. They were removed in the same branch that added Squad; the pinned external-skill imports and the two authored skills (`engineering/testing`, `dotnet/dotnet-review`) are in history at `007f609` and can be restored when there is a pack around them worth installing.
+The earlier catalog carried five role packs and three language packs, six of which held nothing but a `plugin.json`. An empty pack is not a placeholder: it is an install that appears in the marketplace, resolves, and does nothing, which is worse than not being listed. They were removed in the same branch that added Squad; the pinned external-skill imports and the two authored skills (`engineering/testing`, `dotnet/dotnet-review`) are in history at `007f609` and can be restored when there is a pack around them worth installing.
 
 The rest of this document is the rule for what earns a plugin, unchanged. The catalog below is the target, not an inventory.
 
 ## The target catalog
 
-Role packs — installed because of how you work, not what you compile:
+Role packs: installed because of how you work, not what you compile:
 
 | Plugin | Who installs it | Holds |
 | --- | --- | --- |
@@ -62,7 +62,7 @@ Role packs — installed because of how you work, not what you compile:
 | `migrations` | platform teams | Azure DevOps to GitHub and similar moves *(empty for now)* |
 | `engineering` | any builder | **only** cross-language craft: `domain-modeling`, `codebase-design`, `diagnosing-bugs`, `improve-codebase-architecture`, `code-review`, `to-tickets`, `triage`, `wayfinder`, `research`, `grill-with-docs`, `setup-matt-pocock-skills`, `grilling`, `testing` |
 
-Capability packs — installed because of a workflow you want wired into the agent loop, not just knowledge you want available:
+Capability packs: installed because of a workflow you want wired into the agent loop, not just knowledge you want available:
 
 | Plugin | Who installs it | Holds |
 | --- | --- | --- |
@@ -75,9 +75,9 @@ A capability pack is the exception to "a role is a role pack", and it earns the 
 
 There was briefly a second one. `code-review` shipped a review skill, review standards, a security subagent, a diff subagent and a review command; Squad then shipped a review phase with its own security gate and its own diff reviewer. Two packs, one subject, and the only real difference was whether a finding cost a fix round or was merely printed. Review folded into the loop as a phase, and the pack was removed.
 
-The rule that falls out of it: **a capability pack is a workflow, and a phase of an existing workflow is not a new pack.** A later pack has to clear both bars — components a skill cannot express, and a loop that is not already someone else's phase.
+The rule that falls out of it: **a capability pack is a workflow, and a phase of an existing workflow is not a new pack.** A later pack has to clear both bars: components a skill cannot express, and a loop that is not already someone else's phase.
 
-`security` clears both. It ships a command and subagents, and `/security-audit` is a full-repo hunt with adversarial validation — not Squad's per-change OWASP gate. Two packs share the security *subject*; they do not share a command or a phase. The methodology is adapted from Cloudflare's `security-audit-skill` and rewritten in this repository's skill/agent shape.
+`security` clears both. It ships a command and subagents, and `/security-audit` is a full-repo hunt with adversarial validation: not Squad's per-change OWASP gate. Two packs share the security *subject*; they do not share a command or a phase. The methodology is adapted from Cloudflare's `security-audit-skill` and rewritten in this repository's skill/agent shape.
 
 `pack-author` clears both. It ships a command and a reviewer subagent. `/pack-author` makes, reviews, and changes skills and agents for this catalog. That loop is not a Squad phase and not pack-check's setup probe. v1 scaffolds a skill or an agent; commands, hooks, and rules stay on the ADD-* docs. It does not import an external skill catalog.
 
@@ -88,13 +88,13 @@ The `git` pack owns the only shell guard and blocks commands that can destroy lo
 
 The general rule, then: **two packs may share an event, but not a command.** Sharing a *phase* is what folded `code-review` into the loop. Sharing a subject with a different command is how `security` and Squad coexist. Overlapping *events* with disjoint matchers is fine, and is what keeps a data-loss guard from being welded to a workflow nobody is obliged to use.
 
-Language packs — installed because of the ecosystem you live in, one per language family. A language pack has a second job the role packs do not: it fills Squad's **contracted slots**, so the loop knows how this ecosystem builds, tests and reviews. The names are the interface and [`ADD-LANGUAGE-PACK.md`](ADD-LANGUAGE-PACK.md) is the contract; a near miss is a skill the loop silently never loads, so the validator fails the build on one.
+Language packs: installed because of the ecosystem you live in, one per language family. A language pack has a second job the role packs do not: it fills Squad's **contracted slots**, so the loop knows how this ecosystem builds, tests and reviews. The names are the interface and [`ADD-LANGUAGE-PACK.md`](ADD-LANGUAGE-PACK.md) is the contract; a near miss is a skill the loop silently never loads, so the validator fails the build on one.
 
 | Plugin | Holds |
 | --- | --- |
-| `dotnet` | `dotnet-build`, `dotnet-test-patterns` and `dotnet-review` — the Loop's contracted slots — plus canonical standards mapped into only the consuming skills. Formatting runs once after implementation, not as a global edit hook. `dotnet-security-review` comes when there is real content for it |
+| `dotnet` | `dotnet-build`, `dotnet-test-patterns` and `dotnet-review`, the Loop's contracted slots, plus canonical standards mapped into only the consuming skills. Formatting runs once after implementation, not as a global edit hook. `dotnet-security-review` comes when there is real content for it |
 | `typescript` | TypeScript frontend *and* backend; React and NestJS as skills |
-| `rust` | `rust-build`, `rust-test-patterns` and `rust-review` — the Loop's contracted slots — plus canonical ownership/API, error/concurrency, and testing standards. Formatting runs once after implementation; Axum and Rust security skills come when they have substantive content |
+| `rust` | `rust-build`, `rust-test-patterns` and `rust-review`, the Loop's contracted slots, plus canonical ownership/API, error/concurrency, and testing standards. Formatting runs once after implementation; Axum and Rust security skills come when they have substantive content |
 
 Typical installs:
 
@@ -124,11 +124,11 @@ plugins/typescript/skills/       plugins/rust/skills/        plugins/dotnet/skil
   playwright-e2e/
 ```
 
-When there is no framework, prefix with the language: `typescript-review`, `rust-error-handling`, `dotnet-review`. The layer then reads off the name — `react-component-scaffold` is frontend, `nestjs-module-design` is backend — which is all an agent or a human needs to pick one. No `engineering-frontend-typescript` plugin is required to express it.
+When there is no framework, prefix with the language: `typescript-review`, `rust-error-handling`, `dotnet-review`. The layer then reads off the name, `react-component-scaffold` is frontend, `nestjs-module-design` is backend, which is all an agent or a human needs to pick one. No `engineering-frontend-typescript` plugin is required to express it.
 
 ## Who can invoke a skill
 
-A skill is **model-invoked** by default: it keeps a `description`, so the agent can fire it on its own and other skills can load it by name. That description is always-loaded context, paid on every turn of every session whether or not the skill fires. A **user-invoked** skill costs nothing in context and can be reached only by a person typing its name — no agent, and no other skill, can reach it.
+A skill is **model-invoked** by default: it keeps a `description`, so the agent can fire it on its own and other skills can load it by name. That description is always-loaded context, paid on every turn of every session whether or not the skill fires. A **user-invoked** skill costs nothing in context and can be reached only by a person typing its name: no agent, and no other skill, can reach it.
 
 Set it in both dialects or in neither. A pack that sets only the Claude half is user-invoked on one client and model-invoked on three.
 
@@ -151,7 +151,7 @@ name stays model-invoked so the orchestrator can reach it.
   no second skill pack and no public skill surface for planner/reviewer internals.
 
 Reach for user-invoked on a skill that is destructive, is scaffolding that should never run unasked,
-or is a setup step that runs once — and on the orchestrator itself, so planning does not start
+or is a setup step that runs once: and on the orchestrator itself, so planning does not start
 unasked.
 
 ## Where review, testing and security live
@@ -180,7 +180,7 @@ Rules, not vibes:
 | `typescript` → `typescript-frontend` + `typescript-backend` | roughly 12+ skills **and** most people install only one half |
 | `dotnet` → two packs | only with serious Blazor/MAUI versus API audiences; most .NET work is backend-ish |
 | A new language pack (`go`, `python`) | there are 2–3 real skills to put in it, not an empty shell |
-| A new framework | never a plugin — it is a skill inside the language pack |
+| A new framework | never a plugin: it is a skill inside the language pack |
 
 ## External skills travel with their dependencies
 
@@ -190,15 +190,15 @@ Only the transitive closure counts. `code-review` and `to-tickets` both call `/s
 
 A skill that two packs both depend on is pinned in both. `grilling` is imported into `productivity` (the skill `grill-me` wraps) and into `engineering` (what `improve-codebase-architecture`, `triage`, `wayfinder` and `grill-with-docs` all run). Duplicating one pinned URL record is cheaper than a pack whose instructions stop working.
 
-The validator enforces closure for skills authored here, but it deliberately skips materialized external skills — upstream Markdown is not ours to reinterpret. So closure over imports is a review duty, checked when the pin is added or moved.
+The validator enforces closure for skills authored here, but it deliberately skips materialized external skills: upstream Markdown is not ours to reinterpret. So closure over imports is a review duty, checked when the pin is added or moved.
 
-This is why `engineering` was sized at thirteen skills rather than the three or four "small and strict" suggests, and why it should be again. Every one of them is cross-language craft, and they arrive as one connected workflow: architecture, diagnosis, review, and the issue-tracker loop that carries the work. Small means *no language-specific skills*, not a low count. The lean alternative — dropping `code-review` and `to-tickets`, which takes `setup-matt-pocock-skills`, `triage`, `wayfinder`, `research` and `grill-with-docs` with them — is a five-skill pack that is also closed. It is a smaller pack with less capability, not a tidier rule.
+This is why `engineering` was sized at thirteen skills rather than the three or four "small and strict" suggests, and why it should be again. Every one of them is cross-language craft, and they arrive as one connected workflow: architecture, diagnosis, review, and the issue-tracker loop that carries the work. Small means *no language-specific skills*, not a low count. The lean alternative, dropping `code-review` and `to-tickets`, which takes `setup-matt-pocock-skills`, `triage`, `wayfinder`, `research` and `grill-with-docs` with them, is a five-skill pack that is also closed. It is a smaller pack with less capability, not a tidier rule.
 
 ## No empty packs
 
 An earlier version of this plan reserved names: `product`, `migrations`, `security`, `typescript` and `rust` shipped a `plugin.json` and no skills, so the first skill would be a one-file pull request rather than a catalog debate. `security` later earned a pack by shipping `/security-audit`.
 
-That was the wrong trade. A reserved name still appears in the generated marketplace, still resolves, and still installs — it just does nothing afterwards, and the person who installed it has no way to tell the difference between an empty pack and a broken one. The name costs nothing to claim later; the empty install costs trust now. **A pack enters the catalog when it has content, not before.**
+That was the wrong trade. A reserved name still appears in the generated marketplace, still resolves, and still installs: it just does nothing afterwards, and the person who installed it has no way to tell the difference between an empty pack and a broken one. The name costs nothing to claim later; the empty install costs trust now. **A pack enters the catalog when it has content, not before.**
 
 ## How this catalog was reached
 
@@ -213,6 +213,6 @@ The previous catalog was `engineering`, `review` and `testing`: a role split wit
 | `review` → external `code-review` | `engineering` → external `code-review` |
 | `engineering` → external `grill-me`, `grilling`, `writing-for-agents`, `caveman` | `productivity` |
 | `engineering` → the remaining external engineering skills | `engineering`, unchanged |
-| — | `engineering` gains `grill-with-docs`, `triage`, `wayfinder`, `research`; `productivity` gains `caveman-compress` — all pulled in to close the reference graph |
+|, | `engineering` gains `grill-with-docs`, `triage`, `wayfinder`, `research`; `productivity` gains `caveman-compress`, all pulled in to close the reference graph |
 
 The `testing` skill lost its xUnit-shaped assertion example when it moved, since `engineering` is language-agnostic. Nothing else in any skill changed.

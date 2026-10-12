@@ -937,6 +937,32 @@ public class SquadContractTests
         }
     }
 
+    [Fact]
+    public void Replan_after_a_plan_gap_reads_the_diff_stat_and_patch_first()
+    {
+        var contract = Squad("skills", "squad", "references", "planning-contract.md");
+        var at = contract.IndexOf("Replan after a Plan gap", StringComparison.Ordinal);
+        Assert.True(at >= 0, "replan-after-plan-gap line missing");
+        var line = contract[at..contract.IndexOf('\n', at)];
+        Assert.Contains("`git diff --stat`", line, StringComparison.Ordinal);
+        Assert.Contains("`docs/plans/<slug>.gap-<n>.patch`", line, StringComparison.Ordinal);
+        Assert.Contains("never redoes files that are already changed", line, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void No_em_dash_in_any_plugin_text_file()
+    {
+        var root = Path.Combine(TestRepository.SourceRoot(), "plugins");
+        var binary = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { ".png", ".jpg", ".jpeg", ".gif", ".ico", ".zip", ".dll", ".pdf", ".woff", ".woff2" };
+        var hits = Directory.GetFiles(root, "*", SearchOption.AllDirectories)
+            .Where(path => !binary.Contains(Path.GetExtension(path)))
+            .SelectMany(path => File.ReadAllLines(path).Select((text, index) => (path, text, index)))
+            .Where(hit => hit.text.Contains('\u2014'))
+            .Select(hit => $"{Path.GetRelativePath(root, hit.path)}:{hit.index + 1}")
+            .ToList();
+        Assert.True(hits.Count == 0, "U+2014 found:\n" + string.Join("\n", hits));
+    }
+
     private static string Sh(string dir, string command)
     {
         var info = new System.Diagnostics.ProcessStartInfo("sh", ["-c", command])

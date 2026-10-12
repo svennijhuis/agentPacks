@@ -7,11 +7,11 @@ metadata:
   audience: loop
 ---
 
-Internal. Do not run directly — Squad loads by exact Skill name.
+Internal. Do not run directly: Squad loads by exact Skill name.
 
 # Rust build
 
-Loop-only; not as a user entrypoint. The facts an agent needs before it touches a `Cargo.toml`. Read the repository's own files first —
+Loop-only; not as a user entrypoint. The facts an agent needs before it touches a `Cargo.toml`. Read the repository's own files first:
 the common layout is not a guarantee.
 
 When loaded by exact Skill tool name `rust-build` during implement or review:

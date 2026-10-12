@@ -10,7 +10,7 @@ Five capability packs, installed because you want a behaviour wired into the age
 | --- | --- |
 | `squad` | User-invoked `/squad` and `/squad-review`: grill-style planning, gated implement/verify/review, ≤2 fix rounds, uncommitted hand-off, one retro file per run. Sibling `/scenarios` writes `docs/smoke/<slug>.md` from changed code |
 | `pack-check` | Detecting the repository stack at session start and asking before installing the language pack that supplies its required build and test skills |
-| `git` | Blocking the git commands that destroy work an agent cannot get back — `reset --hard`, `clean -fd`, `push --force`, `branch -D`, `checkout .` — before the client runs them |
+| `git` | Blocking the git commands that destroy work an agent cannot get back, `reset --hard`, `clean -fd`, `push --force`, `branch -D`, `checkout .`, before the client runs them |
 | `security` | User-invoked `/security-audit`: recon, parallel hunting, and adversarial validation of exploitable trust-boundary failures. Per-change OWASP stays in Squad |
 | `pack-author` | User-invoked `/pack-author`: make, review, or change a marketplace skill or agent. Edits wait for approval. Fifth slash is intentional |
 | `dotnet` | Teaching the loop how C# is built, tested and reviewed, backed by one canonical set of standards distributed only to the skills that need each document |
@@ -167,7 +167,7 @@ dotnet test tools/AgentPacks.Cli.Tests
 dotnet run --project tools/AgentPacks.Cli -- validate-all --out /tmp/agentpacks-marketplace
 ```
 
-Install the **generated** tree — not the authored `plugins/` folder — without merging. All three clients:
+Install the **generated** tree, not the authored `plugins/` folder, without merging. All three clients:
 
 ```bash
 claude --plugin-dir /tmp/agentpacks-marketplace/plugins/squad
@@ -176,18 +176,18 @@ copilot plugin marketplace add /tmp/agentpacks-marketplace
 copilot plugin install squad@agentpacks
 ```
 
-Reload the client, then smoke `/squad` or `/squad-review` once. The generated tree is what coworkers install; the authored tree is the source. The same loop is in [ADD-SKILL.md — Test a skill locally](docs/ADD-SKILL.md#test-a-skill-locally).
+Reload the client, then smoke `/squad` or `/squad-review` once. The generated tree is what coworkers install; the authored tree is the source. The same loop is in [ADD-SKILL.md: Test a skill locally](docs/ADD-SKILL.md#test-a-skill-locally).
 
 ## What each client gets
 
-Skills and MCP servers are portable: every client loads them from the same files. Rules, subagents, commands and hooks are not — the Agent Plugins standard leaves all four out as too client-specific — so this repository authors them once and generates a tree per client.
+Skills and MCP servers are portable: every client loads them from the same files. Rules, subagents, commands and hooks are not, the Agent Plugins standard leaves all four out as too client-specific, so this repository authors them once and generates a tree per client.
 
 | | Skills | MCP | Rules | Agents | Commands | Hooks |
 | --- | --- | --- | --- | --- | --- | --- |
 | Claude Code | yes | yes | always-on only, at session start | yes | yes | yes |
 | Cursor | yes | yes | always-on and glob-scoped | yes | yes | yes |
 | GitHub Copilot | yes | yes | always-on only, at session start | yes | yes | yes |
-| Codex | yes | yes | always-on, manual copy | manual copy | — | yes |
+| Codex | yes | yes | always-on, manual copy | manual copy |: | yes |
 
 Codex loads subagents only from `.codex/agents/` and reads `AGENTS.md` from the workspace rather than from a plugin, so those arrive as generated files you copy once:
 
@@ -274,7 +274,7 @@ After the merged list, `/squad-review` always writes
 `docs/reviews/<yyyy-mm-dd>-<slug>.md` and still shows the findings in the IDE/CLI.
 No verdict, grill, or fix round. Never `docs/decisions.md`. Reviewers get the product diff
 only: plans, saved review reports, retros, suggestions, and scenarios md stay on the branch and are
-Not examined — not a second pass over markdown the loop just wrote. A missing run file is
+Not examined: not a second pass over markdown the loop just wrote. A missing run file is
 not a finding and not a blocker.
 
 ### `/scenarios`

@@ -17,14 +17,14 @@ single isolated example is not enough evidence to introduce a new convention.
 
 | | Unit | Integration |
 |---|---|---|
-| Touches | One type, its collaborators faked | The composed system — host, container, database |
+| Touches | One type, its collaborators faked | The composed system: host, container, database |
 | Costs | Milliseconds | Seconds, and a Docker daemon |
 | Fails when | The logic is wrong | The wiring is wrong |
 | Lives in | `<Project>.Tests` | `<Project>.IntegrationTests`, or `tests/Integration` |
 
 Put it where it fails usefully. Logic with branches is a unit test; a route that returns the wrong status code, a mapping that drops a column, or a migration that does not apply is an integration test, and no amount of mocking finds any of the three. A markdown file containing a phrase is not a unit test.
 
-## xUnit lifetimes — the part that is usually wrong
+## xUnit lifetimes: the part that is usually wrong
 
 | Construct | Created | Use for |
 |---|---|---|

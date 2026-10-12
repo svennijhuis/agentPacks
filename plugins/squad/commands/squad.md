@@ -24,8 +24,8 @@ The main agent is the thin workflow controller. Specialists own their context.
    `squad-orchestrator` for normalization, merge, and verdict only. If it returns an input error for a
    missing or malformed report, re-ask that producer **once** (hard cap: one re-ask per producer per review round), then merge again with the **same round number**. Never a second re-ask for the same producer in the same round.
    Never "keep fixing the report until it parses". Do not increment the round for parse repair. After a failed re-ask, or if the budget is spent,
-   merge **once** with that axis marked `accepted — malformed after re-ask` **replacing** the bad payload (**non-blocking**) — do not spawn that
-   producer again. If input-error still returns after the marker was already supplied, stop and surface — no further merge. The orchestrator itself never retries or launches agents.
+   merge **once** with that axis marked `accepted, malformed after re-ask` **replacing** the bad payload (**non-blocking**), do not spawn that
+   producer again. If input-error still returns after the marker was already supplied, stop and surface: no further merge. The orchestrator itself never retries or launches agents.
 9. Route `fix`, `pass`, or `replan` as defined by the skill. A `fix` uses a fresh implementer
    invocation (spawn names `fix-list`); the author of the rejected code is not the fixer. Allow at most two fix rounds.
    After `pass`, or after two rounds with only residual `low`/`tiny` notes, at most one residual

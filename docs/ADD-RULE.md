@@ -47,16 +47,16 @@ A rule is loaded into every session it applies to, so it competes with the user'
 
 | Path | For | Scope support |
 |---|---|---|
-| `rules/<name>.mdc` | Cursor — reads the authored file directly | `alwaysApply` and `globs` |
+| `rules/<name>.mdc` | Cursor: reads the authored file directly | `alwaysApply` and `globs` |
 | `com.github.copilot/scripts/rules-context.*` | Copilot | always-on only |
 | `com.anthropic.claude-code/scripts/rules-context.*` | Claude | always-on only |
 | `com.openai.codex/AGENTS.md` | Codex | always-on only |
 
 ## The Claude, Copilot and Codex gaps
 
-Claude has no rules component. Always-on rules are baked into a generated `SessionStart` hook that prints them as context — baked, so the hook reads no files at runtime. A `globs` rule cannot be expressed at all; generation emits a warning naming the rule rather than dropping it silently.
+Claude has no rules component. Always-on rules are baked into a generated `SessionStart` hook that prints them as context: baked, so the hook reads no files at runtime. A `globs` rule cannot be expressed at all; generation emits a warning naming the rule rather than dropping it silently.
 
-Copilot takes the same route, for a different reason. Its plugin schema declares `agents`, `skills`, `commands`, `hooks`, `mcpServers` and `lspServers` — and nothing for instructions. A `.instructions.md` file placed inside a plugin is a file no manifest key can point at, so it would ship to the marketplace and be loaded by nothing. Always-on rules become Copilot's `SessionStart` hook instead. Repository-level `.github/copilot-instructions.md` is a separate mechanism and is not something a plugin can install.
+Copilot takes the same route, for a different reason. Its plugin schema declares `agents`, `skills`, `commands`, `hooks`, `mcpServers` and `lspServers`: and nothing for instructions. A `.instructions.md` file placed inside a plugin is a file no manifest key can point at, so it would ship to the marketplace and be loaded by nothing. Always-on rules become Copilot's `SessionStart` hook instead. Repository-level `.github/copilot-instructions.md` is a separate mechanism and is not something a plugin can install.
 
 Codex reads `AGENTS.md` from the workspace, not from a plugin. The generated file is ready to copy into the repository that needs it:
 

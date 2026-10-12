@@ -11,4 +11,4 @@ Deployed/API smoke, not in-process integration. URLs and secrets stay in the **a
 | Timeout | client budget from the app repo | hang or unmarked retry |
 | 5xx | dependency down or forced 503 | 2xx or unhandled 500 HTML |
 
-Kind `smoke`. Local host / `WebApplicationFactory` is integration — see `<lang>-test-patterns`.
+Kind `smoke`. Local host / `WebApplicationFactory` is integration: see `<lang>-test-patterns`.

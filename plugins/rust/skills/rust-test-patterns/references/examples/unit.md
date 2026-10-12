@@ -15,4 +15,4 @@ When failure is the behavior, inspect the error. Do not `?` it away.
 cargo test -p <package> parses_valid_input
 ```
 
-Bad: `assert!(std::fs::read_to_string("README.md")?.contains("parses valid input"));` — docs wording is reviewed, not unit-tested.
+Bad: `assert!(std::fs::read_to_string("README.md")?.contains("parses valid input"));`: docs wording is reviewed, not unit-tested.

@@ -253,7 +253,7 @@ public class LanguagePackContractTests
     }
 
     public const string InternalDoNotRunLine =
-        "Internal. Do not run directly — Squad loads by exact Skill name.";
+        "Internal. Do not run directly: Squad loads by exact Skill name.";
 
 
     /// <summary>Po 31: skill bodies cite generated references, never the authored standards tree.</summary>

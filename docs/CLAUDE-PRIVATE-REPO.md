@@ -1,8 +1,8 @@
-# Claude Code — generated marketplace branch
+# Claude Code: generated marketplace branch
 
 Claude clones a generated marketplace branch. The authored `main` branch contains no Claude marketplace file.
 
-The repository is public today. Nothing about the setup changes when it becomes private, except that Claude then needs credentials for it — see [Authentication](#authentication).
+The repository is public today. Nothing about the setup changes when it becomes private, except that Claude then needs credentials for it: see [Authentication](#authentication).
 
 ## What is generated
 
@@ -65,7 +65,7 @@ Update the catalog:
 /plugin marketplace update agentpacks
 ```
 
-Reload after an update when MCP configuration changed — edits to a `SKILL.md` apply immediately, but MCP needs a reload:
+Reload after an update when MCP configuration changed: edits to a `SKILL.md` apply immediately, but MCP needs a reload:
 
 ```bash
 /reload-plugins
