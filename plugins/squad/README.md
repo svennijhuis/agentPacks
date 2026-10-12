@@ -12,15 +12,15 @@ The numbered flow below is locked v1 and is copied verbatim into the
 
 ```text
 /squad (user-invoked orchestrator)
-1. Read and apply learnings.md (append-only): prefer passed skips/tiers; avoid what failed
+1. Read the latest same-entrypoint docs/retros/ file when present: carry open Backlog rows as facts; never auto-apply
 2. Orient codebase (applicable stacks only)
-3. Small change? → main agent only, spawn nobody → verify → append learnings (+ suggestions if pack/skill/agent/command/contract evidenced) → hand off uncommitted
+3. Small change? → main agent only, spawn nobody → verify (no retro; + suggestions if pack/skill/agent/command/contract evidenced) → hand off uncommitted
 4. Else grill/plan rounds (facts via subagent; decisions = human) → write plan
 5. Gate spins: sequential implementers (missing/one ## Slices → one whole-plan implementer; else one fresh implementer per slice in order) → then one verifier → reviewers in parallel (correctness + plan/spec; security ONLY if trust boundary)
-6. Orchestrator merges ≤2 fix rounds; ≤1 re-ask per producer per review round then accept marker (non-blocking); optional residual fixup → hand off uncommitted → append learnings (+ suggestions if pack/skill/agent/command/contract evidenced)
+6. Orchestrator merges ≤2 fix rounds; ≤1 re-ask per producer per review round then accept marker (non-blocking); optional residual fixup → hand off uncommitted → squad-retro writes the retro (+ suggestions if pack/skill/agent/command/contract evidenced)
 
 /squad-review
-Pin vs PR / uncommitted / main → same gated dual-axis reviewers (no plan/fix loop) → append learnings (+ suggestions if pack/skill/agent/command/contract evidenced) → one save-markdown ask
+Pin vs PR / uncommitted / main → same gated dual-axis reviewers (no plan/fix loop) → squad-retro writes the retro (+ suggestions if pack/skill/agent/command/contract evidenced) → always save report to docs/reviews/<yyyy-mm-dd>-<slug>.md
 
 Always
 models.source.json tiers (default inherit); load only contracted <lang>-* by Skill name; coworker docs = real dotnet test/validate on a fixture.
@@ -30,9 +30,9 @@ Not in v1
 second skill pack, Matt catalog dump, eager fan-out, self-improve graphs, auto skill rewrite, redoing PR #6.
 ```
 
-Step 1 applies the latest learnings entry when gating and spinning; it does not only
-acknowledge the file. Prefer passed skips and tiers. A failed skip is a must-run. After a
-fail, demote one model tier. Do not rewrite skills, and do not grow a graph from the log.
+Step 1 reads the latest retro as input. `squad-retro` writes one retro per run with a
+lesson-to-enforcer table (architecture > type > lint > test > doc). A human applies it.
+Do not rewrite skills, and do not grow a graph from it.
 `docs/suggestions.md` is optional: write a proposal, do not apply it.
 
 The main agent owns user interaction, invokes `squad-planner` once per question round, launches applicable reviewers in parallel, and routes the merged verdict. `squad-orchestrator` only merges completed reports and verifier evidence. No phase commits, merges, or pushes.
@@ -43,12 +43,11 @@ Obvious typos, renames, and one-line fixes take the small-change route: the main
 
 | Component | Name | Responsibility |
 |---|---|---|
-| Skill | `squad` | User-invoked routing, exact Skill-name loading, security gate, fix-round cap, learnings, and hand-off |
-| Skill | `learnings-digest` | User-invoked digest of `docs/learnings.md`. Does not rewrite skills. |
+| Skill | `squad` | User-invoked routing, exact Skill-name loading, security gate, fix-round cap, retro, and hand-off |
 | Skill | `scenarios-md` | Skill-tool only. Changed-code → `docs/smoke/<slug>.md`. OpenAPI optional. No product-code edits. |
 | Contract | `planning-contract` | Turn-based grill inside the orchestrator: frontier rounds, recommended answers, confirmation, plan shape |
 | Contract | `review-contract` | Dual-axis review, severity, report formats, verify-path evaluator gates, and verdict rules |
-| Contract | `learnings` | Append-only run log read on the next `/squad` or `/squad-review` |
+| Contract | `retro` | One `docs/retros/` file per run, human-apply only |
 | Contract | `suggestions` | Append-only pack/skill/agent/command/contract proposals; human applies; never auto-rewrite |
 | Rule | `review-checklist` | Source-review checklist scoped by glob; Cursor-only by design |
 | Agent | `squad-planner` | Returns one numbered planning round, or writes the one confirmed plan |
@@ -62,7 +61,7 @@ Obvious typos, renames, and one-line fixes take the small-change route: the main
 | Command | `squad-review` | Reviews a PR, uncommitted work, or a diff versus main, without a plan, verdict, or fix round |
 | Command | `scenarios` | From changed code (OpenAPI optional), writes only `docs/smoke/<slug>.md`. Copilot picker: `/squad:scenarios` |
 
-All eight agents remain portable across supported generated clients.
+All nine agents remain portable across supported generated clients.
 
 ## Planning
 
@@ -78,7 +77,7 @@ For a planned change, the main agent runs correctness and simplification reviewe
 
 Malformed-report re-ask: one re-ask per producer per review round, then the axis marker; details in [malformed-reask.md](skills/squad/references/malformed-reask.md). After `pass`, or after two fix rounds with only residual `low`/`tiny` notes, at most one residual fixup may run; details in [residual-fixup.md](skills/squad/references/residual-fixup.md). Still hand off uncommitted.
 
-`/squad-review` uses the same conditional reviewers for a PR, uncommitted work, or a diff versus main, but has no plan, verifier evidence, verdict, or fix round. Reviewers get the product diff only: plans, saved review reports, learnings, suggestions, and scenarios md stay on the branch and are Not examined. A missing run file is not a finding and not a blocker. At the end it asks once: Save report as markdown? Yes writes `docs/reviews/<slug>.md` and still shows the findings in the IDE/CLI. No stays IDE/CLI only. Never `docs/decisions.md`.
+`/squad-review` uses the same conditional reviewers for a PR, uncommitted work, or a diff versus main, but has no plan, verifier evidence, verdict, or fix round. Reviewers get the product diff only: plans, saved review reports, retros, suggestions, and scenarios md stay on the branch and are Not examined. A missing run file is not a finding and not a blocker. At the end it always writes `docs/reviews/<yyyy-mm-dd>-<slug>.md` and still shows the findings in the IDE/CLI. Never `docs/decisions.md`.
 
 ## Stack and workspace
 
@@ -131,7 +130,7 @@ contract prose, restated in Squad's shape rather than copied:
 | 66 quantitative criteria re-measured | worker `## Measurements` + script re-run with drift flag | Plan writes metric, operator, bound and the measuring command. `squad-verifier` re-measures and quotes `<measured> <op> <bound>`. A green test name is not a measurement. |
 | 67 `## Request` verbatim in the plan | `goal` kept verbatim, `summary` separate; minimal-goal discipline | The ask as typed sits between the outcome title and `## Problem`, so ask-vs-plan drift is visible without the chat transcript. Scope still lives in In scope / Out of scope / Non-goals. |
 | 68 build or type-check is not behavioral evidence | `type-check-only` verification tier — "only type-check / build passes; weak" | A `pass` row whose only command is a build, restore, format, or type-check is `not verified` unless the criterion is about compiling. Compiling proves compiling. `dotnet build && dotnet test` is not compile-only. |
-| 70 name facts, do not dig | planners publish tasks and never do the work themselves; per-task model choice | The main agent (user's model) lists `Facts to check`; the `standard`-tier `squad-planner` answers them under **Facts found** with a source, then grills. Facts never replace the frontier round. Same single invocation per turn. No extra `squad-*` spawn; the planner uses its granted tools. Squad keeps per-role tiers plus learnings demotion instead of a per-task model catalog. |
+| 70 name facts, do not dig | planners publish tasks and never do the work themselves; per-task model choice | The main agent (user's model) lists `Facts to check`; the `standard`-tier `squad-planner` answers them under **Facts found** with a source, then grills. Facts never replace the frontier round. Same single invocation per turn. No extra `squad-*` spawn; the planner uses its granted tools. Squad keeps per-role tiers instead of a per-task model catalog. |
 
 Each rule is contract prose. Items 65, 66, and 68 are also pinned by the executable
 `VerificationEvidence` gate (parse + pass/fail), not by markdown string matches.
@@ -154,7 +153,7 @@ plus Superpowers and MAO; still out of scope for locked v1:
 - Recursive subplanner trees or eager multi-worker fan-out
 - Sequential per-task two-stage review, isolated per-task checkouts, architect DAGs
 - Continuous autonomous multi-hour runs without human plan confirm
-- Auto-rewriting skills from `docs/learnings.md` or `docs/suggestions.md` (reflector / skill rewrite)
+- Auto-rewriting skills from `docs/retros/` or `docs/suggestions.md` (reflector / skill rewrite)
 - Growing `squad-orchestrator` into a global quality gate / integrator
 - Extra playbook catalogs that make the pack larger, not simpler
 - The `orchestrate` substrate: SDK-spawned cloud workers, `plan.json` / `state.json`, Slack mirroring, Andon stop signals, failure-mode retry tables. Squad ships no scripts, credentials, or remote service; the human at plan-confirm is its stop signal

@@ -14,15 +14,15 @@ Two entrypoints only: `/squad` and `/squad-review`. Type the command.
 
 ```text
 /squad (user-invoked orchestrator)
-1. Read and apply learnings.md (append-only): prefer passed skips/tiers; avoid what failed
+1. Read the latest same-entrypoint docs/retros/ file when present: carry open Backlog rows as facts; never auto-apply
 2. Orient codebase (applicable stacks only)
-3. Small change? → main agent only, spawn nobody → tiny plan (goal, decision, verify cmd) → verify → append learnings (+ suggestions if pack/skill/agent/command/contract evidenced) → hand off uncommitted
+3. Small change? → main agent only, spawn nobody → tiny plan (goal, decision, verify cmd) → verify (no retro; + suggestions if pack/skill/agent/command/contract evidenced) → hand off uncommitted
 4. Else grill/plan rounds (facts via subagent; decisions = human); draft plan file from round 1, each round appended → confirm sets Status: confirmed
 5. Gate spins: sequential implementers (missing/one ## Slices → one whole-plan implementer; else one fresh implementer per slice in order) → then one verifier → reviewers in parallel (correctness + plan/spec; security ONLY if trust boundary)
-6. Orchestrator merges ≤2 fix rounds; ≤1 re-ask per producer per review round then accept marker (non-blocking); optional residual fixup → hand off uncommitted → append learnings (+ suggestions if pack/skill/agent/command/contract evidenced)
+6. Orchestrator merges ≤2 fix rounds; ≤1 re-ask per producer per review round then accept marker (non-blocking); optional residual fixup → hand off uncommitted → squad-retro writes the retro (+ suggestions if pack/skill/agent/command/contract evidenced)
 
 /squad-review
-Pin vs PR / uncommitted / main → same gated dual-axis reviewers (no plan/fix loop) → append learnings (+ suggestions if pack/skill/agent/command/contract evidenced) → always save report to docs/reviews/<yyyy-mm-dd>-<slug>.md
+Pin vs PR / uncommitted / main → same gated dual-axis reviewers (no plan/fix loop) → squad-retro writes the retro (+ suggestions if pack/skill/agent/command/contract evidenced) → always save report to docs/reviews/<yyyy-mm-dd>-<slug>.md
 
 Always
 models.source.json tiers (default inherit); load only contracted <lang>-* by Skill name; coworker docs = real dotnet test/validate on a fixture.
@@ -32,13 +32,13 @@ Not in v1
 second skill pack, Matt catalog dump, eager fan-out, self-improve graphs, auto skill rewrite, redoing PR #6.
 ```
 
-Step 1 is **Read and apply**. Apply the latest same-entrypoint entry. Prefer passed skips and
-tiers. A **failed** skip is a must-run. Fail demotes one tier. Do not rewrite skills. No graph.
-`docs/learnings.md` is append-only. `docs/suggestions.md` is optional and human-apply only.
+Step 1 reads the latest retro ([retro](references/retro.md)) as input, not as orders. Improvements
+are human-apply only. Do not rewrite skills. No graph. `docs/suggestions.md` is optional and human-apply only.
+Hand-off between agents passes paths (plan `.md`, its Design and Map, last SHA, retro), never pasted text.
 
 No commits, merges, or pushes. `pass` is ready for human review, not permission to land.
 
-Cross-agent API is contracts + plan + learnings only. No shared coordination or lock files between
+Cross-agent API is contracts + plan + retro files only. No shared coordination or lock files between
 agents. `docs/plans/<yyyy-mm-dd>-<slug>.md` run-scratch sections (`## Status`, `## Fix list`, `## Handoff notes`)
 are rewritten in place; do not append forever inside the plan.
 
@@ -65,8 +65,9 @@ Cost-first: default `inherit`. Every `squad-*` agent is `standard` except `squad
 | `squad-simplifier` | every review phase | reuse, quality, efficiency in one spawn |
 | `squad-security-reviewer` | trust boundary only | OWASP gate |
 | `squad-orchestrator` | merge only | verdict / ≤2 fixes |
+| `squad-retro` | hand-off of a full run or `/squad-review` | one `docs/retros/` file ([retro](references/retro.md)) |
 
-Small change: spawn none of these. Do not add a tester agent. Do not split simplifier. `squad-orchestrator` never launches agents, edits product code, or plans.
+Small change: spawn none of these; no retro. Do not add a tester agent. Do not split simplifier. `squad-orchestrator` never launches agents, edits product code, or plans.
 
 ## Skills
 
@@ -111,6 +112,6 @@ Optional residual fixup: read [residual fixup](references/residual-fixup.md).
 
 ## Worktree
 
-Read [worktree](references/worktree.md). Hand off uncommitted. Append one `docs/learnings.md` entry.
+Read [worktree](references/worktree.md). Hand off uncommitted. Spawn `squad-retro` once.
 If this run evidenced a pack/skill/agent/command/contract change, append one
 `docs/suggestions.md` entry as defined by [suggestions](references/suggestions.md). Do not apply it.

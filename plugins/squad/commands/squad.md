@@ -7,8 +7,7 @@ description: Plan → build → verify → review (gated). Uncommitted hand-off.
 
 Load the `squad` skill with the Skill tool by exact name `squad`. Never write `/squad` as prose
 to load it. Then read `references/planning-contract.md` and `references/review-contract.md`. Read
-`docs/learnings.md` first when that file exists and **apply** the latest same-entrypoint entry
-when gating and spinning.
+the latest same-entrypoint `docs/retros/` file when present; carry open Backlog rows as facts.
 
 The main agent is the thin workflow controller. Specialists own their context.
 
@@ -30,4 +29,4 @@ The main agent is the thin workflow controller. Specialists own their context.
    invocation (spawn names `fix-list`); the author of the rejected code is not the fixer. Allow at most two fix rounds.
    After `pass`, or after two rounds with only residual `low`/`tiny` notes, at most one residual
    fixup may run as defined by the skill (never a third fan-out; failed spot-check → hand off).
-10. Before handoff, one Advisor-lite consult as defined by the skill. Then hand off the plan path, files touched, criterion evidence, verdict, rounds, notes, pack status, workspace, and cleanup status. State that nothing was committed, merged, or pushed. Append one learnings entry. If this run evidenced a pack/skill/agent/command/contract change, append one suggestions entry. Do not apply it.
+10. Before handoff, one Advisor-lite consult as defined by the skill. Then hand off the plan path, files touched, criterion evidence, verdict, rounds, notes, pack status, workspace, and cleanup status. State that nothing was committed, merged, or pushed. Spawn `squad-retro` once with the plan or review path. If this run evidenced a pack/skill/agent/command/contract change, append one suggestions entry. Do not apply it.

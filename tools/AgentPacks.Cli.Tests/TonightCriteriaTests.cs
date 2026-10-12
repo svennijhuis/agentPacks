@@ -13,8 +13,6 @@ public sealed class TonightCriteriaTests
         nameof(SquadContractTests.Squad_commands_are_exactly_squad_and_review))]
     [InlineData("4 models.source.json", typeof(ModelCatalogTests),
         nameof(ModelCatalogTests.Claude_receives_the_mapped_tier_and_copilot_and_codex_emit_model))]
-    [InlineData("6 apply fixture", typeof(LearningsLogTests),
-        nameof(LearningsLogTests.A_prior_fail_forces_the_skipped_agent_on_the_next_gate))]
     [InlineData("8 verify-path / evidence gate", typeof(VerificationEvidenceTests),
         nameof(VerificationEvidenceTests.Criterion_command_that_never_covers_is_not_verified_and_not_a_pass))]
     [InlineData("9 loop-only slots", typeof(LanguagePackContractTests),
@@ -37,8 +35,6 @@ public sealed class TonightCriteriaTests
         nameof(SquadContractTests.No_user_facing_loop_star_agents_are_squad_star))]
     [InlineData("23 typescript pack required slots loop audience", typeof(LanguagePackContractTests),
         nameof(LanguagePackContractTests.Typescript_pack_fills_required_slots_with_loop_audience))]
-    [InlineData("25 learnings-digest user-invoked", typeof(SquadContractTests),
-        nameof(SquadContractTests.Learnings_digest_is_user_invoked_matt_tiny_no_rewrite))]
     [InlineData("27 caveman pins", typeof(SquadContractTests),
         nameof(SquadContractTests.Caveman_external_pins_and_squad_invokes_by_exact_name))]
     [InlineData("30 verifier rejects happy-path-only coverage", typeof(VerificationEvidenceTests),
@@ -63,8 +59,8 @@ public sealed class TonightCriteriaTests
         nameof(SquadContractTests.User_facing_surfaces_say_squad_review_not_bare_review))]
     [InlineData("39 friendlier command blurbs still squad and squad-review", typeof(SquadContractTests),
         nameof(SquadContractTests.Squad_and_squad_review_command_blurbs_are_short_user_friendly))]
-    [InlineData("39 learnings-digest is not user-invocable", typeof(SquadContractTests),
-        nameof(SquadContractTests.Learnings_digest_is_not_user_invocable))]
+    [InlineData("39 retro replaces learnings", typeof(SquadContractTests),
+        nameof(SquadContractTests.Learnings_are_replaced_by_the_retro_agent))]
     [InlineData("41 Copilot factory command name differs from plugin name", typeof(SquadContractTests),
         nameof(SquadContractTests.Copilot_factory_command_name_differs_from_plugin_name))]
     [InlineData("42 dotnet-review examples standards.source kept", typeof(LanguagePackContractTests),

@@ -1,10 +1,10 @@
 # Suggestions log
 
 An append-only list of **human-reviewed** pack/skill/agent/command/contract change proposals. It lives at
-`docs/suggestions.md` in the repository being changed, next to `docs/learnings.md`.
+`docs/suggestions.md` in the repository being changed, next to `docs/retros/`.
 
 It is not a second brain. It is not applied on the next `/squad`. It does not rewrite skills.
-`docs/learnings.md` owns gate advice (tiers, skips). This file owns “change that file” proposals.
+`docs/retros/` owns per-run lessons. This file owns “change that file” proposals.
 
 ## When to read
 
@@ -13,7 +13,7 @@ Do not read it to gate, skip, demote, or rewrite. A human may paste one entry as
 
 ## When to write
 
-After the learnings entry, at hand-off. Append **zero or one** entry. Write only when this run
+After the retro, at hand-off. Append **zero or one** entry. Write only when this run
 produced evidence that a **pack, skill, agent, command, or contract** should change. Product-code
 follow-ups stay in the plan handoff notes or residual fixup — not here.
 

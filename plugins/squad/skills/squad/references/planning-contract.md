@@ -225,7 +225,7 @@ draft | confirmed | implementing | implementing slice <n>/<total> | verifying | 
 
 `## Status`, `## Fix list`, and `## Handoff notes` are **run scratch**: the main agent and
 `squad-orchestrator` rewrite those sections in place during the loop. Do not append forever inside
-the plan. Learnings stay append-only elsewhere. While implementing, `## Status` may say
+the plan. Lessons go to the run's retro file. While implementing, `## Status` may say
 `implementing slice <n>/<total>`.
 
 `## Request` is the user's words as typed; the title is the planner's outcome sentence. Do not expand

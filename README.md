@@ -8,7 +8,7 @@ Five capability packs, installed because you want a behaviour wired into the age
 
 | Plugin | Use it for |
 | --- | --- |
-| `squad` | User-invoked `/squad` and `/squad-review`: grill-style planning, gated implement/verify/review, ≤2 fix rounds, uncommitted hand-off, append-only learnings. Sibling `/scenarios` writes `docs/smoke/<slug>.md` from changed code |
+| `squad` | User-invoked `/squad` and `/squad-review`: grill-style planning, gated implement/verify/review, ≤2 fix rounds, uncommitted hand-off, one retro file per run. Sibling `/scenarios` writes `docs/smoke/<slug>.md` from changed code |
 | `pack-check` | Detecting the repository stack at session start and asking before installing the language pack that supplies its required build and test skills |
 | `git` | Blocking the git commands that destroy work an agent cannot get back — `reset --hard`, `clean -fd`, `push --force`, `branch -D`, `checkout .` — before the client runs them |
 | `security` | User-invoked `/security-audit`: recon, parallel hunting, and adversarial validation of exploitable trust-boundary failures. Per-change OWASP stays in Squad |
@@ -221,15 +221,15 @@ the locked v1 plan; the [`squad` skill](plugins/squad/skills/squad/SKILL.md) car
 
 ```text
 /squad (user-invoked orchestrator)
-1. Read and apply learnings.md (append-only): prefer passed skips/tiers; avoid what failed
+1. Read the latest same-entrypoint docs/retros/ file when present: carry open Backlog rows as facts; never auto-apply
 2. Orient codebase (applicable stacks only)
-3. Small change? → main agent only, spawn nobody → verify → append learnings (+ suggestions if pack/skill/agent/command/contract evidenced) → hand off uncommitted
+3. Small change? → main agent only, spawn nobody → verify (no retro; + suggestions if pack/skill/agent/command/contract evidenced) → hand off uncommitted
 4. Else grill/plan rounds (facts via subagent; decisions = human) → write plan
 5. Gate spins: sequential implementers (missing/one ## Slices → one whole-plan implementer; else one fresh implementer per slice in order) → then one verifier → reviewers in parallel (correctness + plan/spec; security ONLY if trust boundary)
-6. Orchestrator merges ≤2 fix rounds; ≤1 re-ask per producer per review round then accept marker (non-blocking); optional residual fixup → hand off uncommitted → append learnings (+ suggestions if pack/skill/agent/command/contract evidenced)
+6. Orchestrator merges ≤2 fix rounds; ≤1 re-ask per producer per review round then accept marker (non-blocking); optional residual fixup → hand off uncommitted → squad-retro writes the retro (+ suggestions if pack/skill/agent/command/contract evidenced)
 
 /squad-review
-Pin vs PR / uncommitted / main → same gated dual-axis reviewers (no plan/fix loop) → append learnings (+ suggestions if pack/skill/agent/command/contract evidenced) → one save-markdown ask
+Pin vs PR / uncommitted / main → same gated dual-axis reviewers (no plan/fix loop) → squad-retro writes the retro (+ suggestions if pack/skill/agent/command/contract evidenced) → always save report to docs/reviews/<yyyy-mm-dd>-<slug>.md
 
 Always
 models.source.json tiers (default inherit); load only contracted <lang>-* by Skill name; coworker docs = real dotnet test/validate on a fixture.
@@ -239,10 +239,9 @@ Not in v1
 second skill pack, Matt catalog dump, eager fan-out, self-improve graphs, auto skill rewrite, redoing PR #6.
 ```
 
-Step 1 **applies** the latest same-entrypoint entry when gating and spinning. Keep a passed
-skip and tier; a failed skip becomes a must-run. After a fail, demote one model tier. Do not
-rewrite skills. Learnings apply notes. Suggestions propose pack edits for a human. Neither
-rewrites skills.
+Step 1 reads the latest same-entrypoint retro as input. `squad-retro` writes
+`docs/retros/<yyyy-mm-dd>-<slug>.md` at hand-off with a lesson-to-enforcer table. Retros and
+suggestions are human-apply only. Neither rewrites skills.
 
 Portable model tiers live in [`models.source.json`](models.source.json) (default `inherit`;
 every squad agent `standard` except `squad-architect` on `frontier`; Copilot gets `inherit` on every
@@ -267,7 +266,7 @@ merging to `main`: [docs/ADD-SKILL.md](docs/ADD-SKILL.md#test-a-skill-locally).
 After the merged list, `/squad-review` always writes
 `docs/reviews/<yyyy-mm-dd>-<slug>.md` and still shows the findings in the IDE/CLI.
 No verdict, grill, or fix round. Never `docs/decisions.md`. Reviewers get the product diff
-only: plans, saved review reports, learnings, suggestions, and scenarios md stay on the branch and are
+only: plans, saved review reports, retros, suggestions, and scenarios md stay on the branch and are
 Not examined — not a second pass over markdown the loop just wrote. A missing run file is
 not a finding and not a blocker.
 

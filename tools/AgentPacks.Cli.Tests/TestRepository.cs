@@ -71,7 +71,8 @@ internal sealed class TestRepository : IDisposable
         "squad-reviewer",
         "squad-security-reviewer",
         "squad-simplifier",
-        "squad-orchestrator"
+        "squad-orchestrator",
+        "squad-retro"
     ];
 
     /// <summary>Parses authored markdown frontmatter, failing the test with the parser error.</summary>

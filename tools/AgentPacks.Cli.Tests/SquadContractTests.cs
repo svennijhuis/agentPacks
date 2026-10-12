@@ -7,7 +7,7 @@ namespace AgentPacks.Cli.Tests;
 /// <summary>
 /// Squad inventory, frontmatter, and generator contracts. Prompt wording is reviewed,
 /// not asserted. Parsers of structured markdown live in <see cref="VerificationEvidenceTests"/>
-/// and <see cref="LearningsLogTests"/>.
+/// and <see cref="PlanLintTests"/>.
 /// </summary>
 public class SquadContractTests
 {
@@ -25,7 +25,7 @@ public class SquadContractTests
         File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "Fixtures", "squad", name));
 
     [Fact]
-    public void All_eight_agents_are_preserved_in_every_generated_agent_client()
+    public void All_nine_agents_are_preserved_in_every_generated_agent_client()
     {
         using var repo = new TestRepository().WithPlugin("squad", Manifest);
         foreach (var agent in AgentNames)
@@ -34,7 +34,7 @@ public class SquadContractTests
         var run = repo.ValidateAndGenerate();
 
         Assert.False(run.HasErrors, run.Text);
-        Assert.Equal(8, AgentNames.Length);
+        Assert.Equal(9, AgentNames.Length);
         foreach (var agent in AgentNames)
         {
             Assert.Equal(agent, TestRepository.ParseFrontmatter(Fixture($"{agent}.md")).Scalar("name"));
@@ -105,6 +105,7 @@ public class SquadContractTests
             "squad-implementer",
             "squad-orchestrator",
             "squad-planner",
+            "squad-retro",
             "squad-reviewer",
             "squad-security-reviewer",
             "squad-simplifier",
@@ -183,28 +184,16 @@ public class SquadContractTests
     }
 
     [Fact]
-    public void Learnings_digest_is_not_user_invocable()
+    public void Learnings_are_replaced_by_the_retro_agent()
     {
         var root = TestRepository.SourceRoot();
-        var skillPath = Path.Combine(root, "plugins", "squad", "skills", "learnings-digest", "SKILL.md");
-        Assert.True(File.Exists(skillPath), "learnings-digest skill must stay; do not remove it.");
-        var skill = TestRepository.ParseFrontmatter(File.ReadAllText(skillPath));
-        Assert.Equal("learnings-digest", skill.Scalar("name"));
-        Assert.Equal("false", skill.Scalar("user-invocable"));
-        Assert.Equal("true", skill.Scalar("disable-model-invocation"));
-        Assert.False(File.Exists(Path.Combine(root, "plugins", "squad", "commands", "learnings-digest.md")));
+        Assert.False(Directory.Exists(Path.Combine(root, "plugins", "squad", "skills", "learnings-digest")));
+        Assert.False(File.Exists(Path.Combine(root, "plugins", "squad", "skills", "squad", "references", "learnings.md")));
+        var retro = TestRepository.ParseFrontmatter(Fixture("squad-retro.md"));
+        Assert.Equal("squad-retro", retro.Scalar("name"));
+        Assert.DoesNotContain("\n  - bash\n", Fixture("squad-retro.md"), StringComparison.Ordinal);
+        Assert.DoesNotContain("\n  - edit\n", Fixture("squad-retro.md"), StringComparison.Ordinal);
         Squad_commands_are_exactly_squad_and_review();
-    }
-
-    [Fact]
-    public void Learnings_digest_is_user_invoked_matt_tiny_no_rewrite()
-    {
-        var skillPath = Path.Combine(
-            TestRepository.SourceRoot(), "plugins", "squad", "skills", "learnings-digest", "SKILL.md");
-        Assert.True(File.Exists(skillPath));
-        var lines = TestRepository.NonEmptyBodyLines(File.ReadAllText(skillPath));
-        Assert.True(lines <= 16, $"learnings-digest body is {lines} lines; Matt-tiny cap is 16.");
-        Learnings_digest_is_not_user_invocable();
     }
 
     [Fact]
@@ -217,8 +206,8 @@ public class SquadContractTests
             root, "plugins", "squad", "skills", "squad", "SKILL.md"));
         var review = File.ReadAllText(Path.Combine(
             root, "plugins", "squad", "skills", "squad", "references", "review-contract.md"));
-        var learnings = File.ReadAllText(Path.Combine(
-            root, "plugins", "squad", "skills", "squad", "references", "learnings.md"));
+        var retro = File.ReadAllText(Path.Combine(
+            root, "plugins", "squad", "skills", "squad", "references", "retro.md"));
         var squad = File.ReadAllText(Path.Combine(root, "plugins", "squad", "commands", "squad.md"));
         var squadReview = File.ReadAllText(Path.Combine(
             root, "plugins", "squad", "commands", "squad-review.md"));
@@ -229,21 +218,21 @@ public class SquadContractTests
         // Inventory: reference exists, skill href, no suggestions slash, pathspec excludes.
         Assert.True(File.Exists(suggestionsPath));
         Assert.Contains("references/suggestions.md", skill, StringComparison.Ordinal);
-        Assert.Contains("[suggestions](suggestions.md)", learnings, StringComparison.Ordinal);
+        Assert.Contains("[suggestions](suggestions.md)", retro, StringComparison.Ordinal);
         Assert.Contains(":(exclude)docs/suggestions.md", review, StringComparison.Ordinal);
         Assert.Contains(":(exclude)docs/security-audit", review, StringComparison.Ordinal);
         Assert.False(
             File.Exists(Path.Combine(root, "plugins", "squad", "commands", "suggestions.md")),
             "suggestions is a contract, not a slash command");
 
-        // Shared write-gate noun set across slash · worktree · SKILL · contract · learnings · review (no drift).
+        // Shared write-gate noun set across slash · worktree · SKILL · contract · retro · review (no drift).
         const string Gate = "pack/skill/agent/command/contract";
         Assert.Contains(Gate, squad, StringComparison.Ordinal);
         Assert.Contains(Gate, squadReview, StringComparison.Ordinal);
         Assert.Contains(Gate, worktree, StringComparison.Ordinal);
         Assert.Contains(Gate, skill, StringComparison.Ordinal);
         Assert.Contains(Gate, suggestions, StringComparison.Ordinal);
-        Assert.Contains(Gate, learnings, StringComparison.Ordinal);
+        Assert.Contains(Gate, retro, StringComparison.Ordinal);
         Assert.Contains(Gate, review, StringComparison.Ordinal);
         Assert.Contains("`pack` / `skill` / `agent` / `command` / `contract`", suggestions, StringComparison.Ordinal);
     }

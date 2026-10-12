@@ -11,7 +11,7 @@ A language pack contributes by shipping skills at **contracted names**. Nothing 
 | Component | Why not |
 |---|---|
 | Rules | Glob-scoped rules are Cursor-only and generate a portability warning; use skills for conditional language guidance that must reach every client |
-| Agents | Codex does not load agents from a plugin at all. And an agent is a role — the loop already has eight; it does not need a C#-flavoured copy of each |
+| Agents | Codex does not load agents from a plugin at all. And an agent is a role — the loop already has nine; it does not need a C#-flavoured copy of each |
 | Hooks | A hook acts, it does not inform. `dotnet format` on write is a hook; how to write an integration test is not |
 
 Skills are the one component every client loads identically, which makes them the only thing the loop can rely on finding.
