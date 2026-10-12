@@ -36,6 +36,12 @@ Chosen: <option>. Why: <reason>. Alternatives rejected: <option and reason>.
 | <unit> | MISSING | no rule places it | <what was searched> |
 ```
 
+## Prompts
+
+- Model the domain: states and transitions over boolean flags and optional-field bags.
+- Redesign from first principles when an option only bolts the new need onto the old shape.
+- Sketch types and signatures before code; the caller's view comes first.
+
 ## Red flags
 
 Screen every option. A red flag rejects or revises the option.

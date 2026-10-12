@@ -313,7 +313,11 @@ For standalone diff review, use round 1 and return this shape instead of the orc
 
 There is no `Verdict`, plan append, verifier evidence, or fix round in this shape.
 
-After this shape is returned, the main agent shows it in the IDE/CLI and asks exactly one question: Save report as markdown? Yes writes `docs/reviews/<slug>.md` (never `docs/decisions.md`) and still shows the findings in the IDE/CLI. No writes no report file. No other question, grill, verdict, or fix round.
+After this shape is returned, the main agent shows it in the IDE/CLI and always writes `docs/reviews/<yyyy-mm-dd>-<slug>.md` (never `docs/decisions.md`). No question, grill, verdict, or fix round.
+
+## Judgment buckets
+
+The merged list sorts every finding into one bucket: **Act on** (real, in scope, fix now), **Consider** (real, judgment call), **Noted** (true, not worth a round), **Dismissed** (wrong or out of scope, with the reason). A second failed fix on the same premise is `Replan:`.
 
 ## Spawning agents
 

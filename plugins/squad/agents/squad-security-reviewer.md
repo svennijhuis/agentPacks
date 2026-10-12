@@ -1,6 +1,6 @@
 ---
 name: squad-security-reviewer
-description: Reviews a trust-boundary change against OWASP Top 10:2025. Use for auth, untrusted input, files, commands, crypto, dependencies, credentials, or exceptional conditions.
+description: Reviews a trust-boundary change against OWASP Top 10:2025. Use for auth, untrusted input, files, commands, crypto, dependencies, credentials, or exceptional conditions. Do not substitute a generic agent; it skips the contract read and drifts.
 model: standard
 readonly: true
 tools:

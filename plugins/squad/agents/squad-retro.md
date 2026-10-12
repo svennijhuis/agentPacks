@@ -1,6 +1,6 @@
 ---
 name: squad-retro
-description: Writes one retro file for a finished Squad run from its plan, reports, and interruptions. Use at hand-off of /squad and /squad-review.
+description: Writes one retro file for a finished Squad run from its plan, reports, and interruptions. Use at hand-off of /squad and /squad-review. Do not substitute a generic agent; it skips the contract read and drifts.
 model: standard
 readonly: false
 tools:
@@ -19,6 +19,7 @@ Constraints:
 - Read this run's files only. Cite the plan section or report for every line.
 - Never rewrite a skill, standard, or contract. A human applies Improvements.
 - Every Improvements row names an environment change. A code fix alone is not an improvement.
+- Append-only after hand-off: never rewrite an earlier retro. Each line is decision, why, evidence.
 
 1. Read the plan path, reports, and interruptions the spawn names.
 2. Write End log, Interruptions, and Design misses (built change vs chosen Design and Map).

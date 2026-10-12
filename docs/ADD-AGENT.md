@@ -115,7 +115,7 @@ Collapse these. One reader or the compiler already has the twin:
 | `agents/<name>.md` | Authored portable tier (source) |
 | `.cursor-plugin/agents/<name>.md` | Cursor — remapped id (`inherit`, `grok-4.7` on fast, standard, and frontier). `.cursor-plugin/plugin.json` points here so Cursor does not scan root `agents/` |
 | `com.anthropic.claude-code/agents/<name>.md` | Claude — remapped alias (`inherit`, `sonnet`, `opus`), tool names in PascalCase |
-| `com.github.copilot/agents/<name>.agent.md` | Copilot — `inherit` on every tier, so Copilot uses the picker model; `model` is never dropped |
+| `com.github.copilot/agents/<name>.agent.md` | Copilot: `inherit` on every tier, so Copilot uses the picker model; `model` is never dropped |
 | `com.openai.codex/agents/<name>.toml` | Codex — `model` is emitted from the catalog (`gpt-6-luna` / `gpt-6-sol` / `gpt-6.1-sol`) |
 
 ## The Codex gap

@@ -1,6 +1,6 @@
 ---
 name: squad-architect
-description: Returns the plan's Design and Map sections for a full change that crosses layers, adds a project or package, or changes a public API. Read-only.
+description: Returns the plan's Design and Map sections for a full change that crosses layers, adds a project or package, or changes a public API. Read-only. Do not substitute a generic agent; it skips the contract read and drifts.
 model: frontier
 readonly: true
 tools:

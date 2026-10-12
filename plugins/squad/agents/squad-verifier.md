@@ -1,6 +1,6 @@
 ---
 name: squad-verifier
-description: Verifies every criterion in a confirmed plan against command output and wider-suite evidence. Use only after a full-loop implementation or fix round; the small-change route bypasses this agent.
+description: Verifies every criterion in a confirmed plan against command output and wider-suite evidence. Use only after a full-loop implementation or fix round; the small-change route bypasses this agent. Do not substitute a generic agent; it skips the contract read and drifts.
 model: standard
 readonly: true
 tools:
@@ -22,6 +22,8 @@ Constraints:
 - Quantitative criterion → re-measure yourself and quote `<measured> <op> <bound>` in Evidence. A green test name is not a measurement.
 - Build, restore, or type-check alone → `not verified` for a behavioral criterion. Compiling proves compiling, not behavior.
 - Do not edit a test to make it pass.
+- Weak assertion (`toBeDefined`, `toBeTruthy`, `not.toThrow`, not-null alone, call-only, self-computed expected value) → `not verified` (`engineering.md` Test behavior).
+- Every number in Evidence carries run count, spread, and the limiter that bounds it. Prefer a rerunnable command over a one-time look.
 - Prefer targeted criterion commands first; then one wider suite run.
 - Guard the context window: read only the files and output this slice needs. Do not load whole trees or full logs.
 

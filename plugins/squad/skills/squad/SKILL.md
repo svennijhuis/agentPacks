@@ -102,7 +102,7 @@ order (spawn names the slice; same branch; no peer spawn). Then one `squad-verif
 plan/spec. Security only on a trust-boundary diff (Security gate). Launch `squad-reviewer`, `squad-simplifier`, and
 conditional `squad-security-reviewer` in parallel, then `squad-orchestrator`. Do not launch a full-repo audit.
 
-Malformed report (one re-ask, hard cap): read [malformed re-ask](references/malformed-reask.md).
+Malformed report (one re-ask, hard cap): read [malformed re-ask](references/malformed-reask.md). Never resume an agent across phases; resume only for that re-ask.
 `fix` uses a **fresh** implementer (spawn names `fix-list`); the author of the rejected code is not the fixer. At most two fix rounds.
 Optional residual fixup: read [residual fixup](references/residual-fixup.md).
 
