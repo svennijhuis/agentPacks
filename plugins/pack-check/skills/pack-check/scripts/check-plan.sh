@@ -44,8 +44,9 @@ if [ -n "$hard" ] && [ "$hard" != None ]; then
 fi
 
 lines | awk '/^## Slices$/{f=1; next} /^## /{f=0} f && /^[0-9]+\. /' | while IFS= read -r slice; do
-  case "$slice" in *files*) ;; *) warn "slice has no files line: $slice" ;; esac
-  case "$slice" in *done*) ;; *) warn "slice has no done check: $slice" ;; esac
+  low=$(printf '%s' "$slice" | tr '[:upper:]' '[:lower:]')
+  case "$low" in *files*) ;; *) warn "slice has no files line: $slice" ;; esac
+  case "$low" in *done*) ;; *) warn "slice has no done check: $slice" ;; esac
 done
 
 if lines | grep -q '^## Map$'; then

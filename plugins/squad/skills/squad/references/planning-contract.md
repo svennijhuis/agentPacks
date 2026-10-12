@@ -59,7 +59,7 @@ Round 1 creates `docs/plans/<yyyy-mm-dd>-<slug>.md` (run date, kebab-case slug) 
 `## Request`, `## Status` set to `draft`, and `## Grill log`. Every round, the planner appends
 `### Round <n>` to `## Grill log`: the questions, the recorded answers, decisions taken, and options
 rejected with the reason. Never rewrite an earlier round. Stop or abandon leaves the file at `draft`.
-After each write the main agent runs the `pack-check` skill's `scripts/check-plan.sh <plan>` (or `check-plan.ps1` without `sh`) when installed. Findings are warnings passed to the next planner invocation; a missing linter or shell is skipped and noted, never a hard fail.
+After each write the main agent runs the `pack-check` skill's `scripts/check-plan.sh <plan>` (or `check-plan.ps1` without `sh`) when installed. Findings are warnings passed to the next planner invocation; a missing linter or shell is skipped and noted, never a hard fail. Before `Status: confirmed`, the main agent runs check-plan once more and fixes every error-level finding (exit 1) in the plan text, an em dash (U+2014) included: replace it with `:` or `,`, and paraphrase quoted vendor text instead of pasting it. Warnings stay warnings.
 
 Writing: plain words, short sentences, one idea per line, no filler or hype, no em dashes or curly quotes.
 
@@ -168,7 +168,7 @@ On valid input, complete the draft at `docs/plans/<yyyy-mm-dd>-<slug>.md` and se
 
 The plan contains:
 
-```markdown
+````markdown
 # <outcome as a sentence>
 
 ## Request
@@ -182,6 +182,10 @@ The plan contains:
 <from squad-architect (references/architect-contract.md), or `Design: skipped (small)`>
 ## Map
 <from squad-architect, omitted when Design is skipped; lists `docs/adr/`>
+```mermaid
+flowchart LR
+  A[Api] --> B[Application]
+```
 Hard decisions get an ADR per [the ADR contract](adr.md); the plan links each one.
 
 ## Problem
@@ -228,7 +232,7 @@ draft | confirmed | implementing | implementing slice <n>/<total> | verifying | 
 <rewritten each phase; deviations, concerns, open risks>
 ## Verification
 <exact commands or a criterion saying which check must be created>
-```
+````
 
 `## Status`, `## Fix list`, and `## Handoff notes` are **run scratch**: the main agent and
 `squad-orchestrator` rewrite those sections in place during the loop. Do not append forever inside

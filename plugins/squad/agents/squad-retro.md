@@ -19,6 +19,7 @@ Constraints:
 - Read only the paths the spawn names. Cite the plan section or report for every line.
 - Never propose rewriting a skill automatically. A human applies Improvements.
 - Never rewrite an earlier retro; each line is decision, why, evidence.
+- Never emit U+2014 (em dash) in the retro; use `:` or `,`, and paraphrase quoted text that has one.
 - Every Improvements line names an environment change. A code fix alone is not an improvement.
 
 1. Read the plan, reports, last SHA, and interruptions from the named paths. A stopped or failed run is a retro too; its interruptions explain why.

@@ -51,8 +51,8 @@ if ($slicesIndex -ge 0) {
     for ($i = $slicesIndex + 1; $i -lt $lines.Count -and -not $lines[$i].StartsWith('## '); $i++) {
         $slice = $lines[$i]
         if ($slice -notmatch '^[0-9]+\. ') { continue }
-        if (-not $slice.Contains('files')) { Warn "slice has no files line: $slice" }
-        if (-not $slice.Contains('done')) { Warn "slice has no done check: $slice" }
+        if ($slice -notmatch 'files') { Warn "slice has no files line: $slice" }
+        if ($slice -notmatch 'done') { Warn "slice has no done check: $slice" }
     }
 }
 $mapIndex = [Array]::IndexOf($lines, '## Map')

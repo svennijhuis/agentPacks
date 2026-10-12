@@ -148,6 +148,25 @@ public sealed class PlanLintTests : IDisposable
     }
 
     [Fact]
+    public void Planning_contract_template_lints_clean_in_both_twins()
+    {
+        var contract = File.ReadAllText(Path.Combine(TestRepository.SourceRoot(), "plugins", "squad", "skills", "squad", "references", "planning-contract.md"))
+            .Replace("\r", "", StringComparison.Ordinal);
+        var start = contract.IndexOf("````markdown\n", StringComparison.Ordinal);
+        Assert.True(start >= 0, "plan template fence missing");
+        start += "````markdown\n".Length;
+        var template = contract[start..contract.IndexOf("\n````", start, StringComparison.Ordinal)] + "\n";
+        Assert.Equal((0, string.Empty), Lint("2026-10-13-template.md", template));
+    }
+
+    [Fact]
+    public void Slice_files_and_done_match_case_insensitively()
+    {
+        var plan = Confirmed + "\nDesign: skipped (small)\n\n## Slices\n1. Client. Files: src/A.cs. Test: A_works. Done when A_works is green.\n";
+        Assert.Equal((0, string.Empty), Lint("2026-10-12-add-x.md", plan));
+    }
+
+    [Fact]
     public void Slice_without_files_or_done_check_warns_but_still_passes()
     {
         var plan = Draft + "\n## Slices\n1. Port: criteria 1; files src/Port.cs; test PortTests; done when PortTests is green\n2. Adapter: criteria 2\n";

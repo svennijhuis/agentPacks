@@ -963,6 +963,22 @@ public class SquadContractTests
         Assert.True(hits.Count == 0, "U+2014 found:\n" + string.Join("\n", hits));
     }
 
+    [Fact]
+    public void Main_agent_fixes_check_plan_errors_before_confirming()
+    {
+        Assert.Contains("Before `Status: confirmed`, the main agent runs check-plan once more and fixes every error-level finding",
+            Squad("skills", "squad", "references", "planning-contract.md"), StringComparison.Ordinal);
+        Assert.Contains("Before confirming, run check-plan on the draft and fix every error-level finding (em dash included; paraphrase quoted vendor text)",
+            Squad("commands", "squad.md"), StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void Retro_writer_never_emits_an_em_dash()
+    {
+        Assert.Contains("Never emit U+2014 (em dash) in the retro", Squad("agents", "squad-retro.md"), StringComparison.Ordinal);
+        Assert.Contains("The retro never contains U+2014 (em dash)", Squad("skills", "squad", "references", "retro.md"), StringComparison.Ordinal);
+    }
+
     private static string Sh(string dir, string command)
     {
         var info = new System.Diagnostics.ProcessStartInfo("sh", ["-c", command])

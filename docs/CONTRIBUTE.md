@@ -76,6 +76,18 @@ copilot plugin marketplace add /tmp/agentpacks-marketplace
 copilot plugin install squad@agentpacks
 ```
 
+`validate-all --out` writes a self-contained tree: every authored plugin file (skills, references,
+commands, agents, manifests) plus the generated client files, so it installs on its own.
+
+Headless Cursor (`cursor-agent -p`) loads plugin skills and agents from `--plugin-dir` but does not
+resolve plugin slash commands, and the Squad skills are hidden (`user-invocable: false`). Copy the
+command files into the workspace once (keep `.cursor/commands/` out of commits), then run:
+
+```bash
+mkdir -p .cursor/commands && cp /tmp/agentpacks-marketplace/plugins/squad/commands/*.md .cursor/commands/
+cursor-agent -p --trust --plugin-dir /tmp/agentpacks-marketplace/plugins/squad --plugin-dir /tmp/agentpacks-marketplace/plugins/pack-check "/squad <ask>"
+```
+
 Reload client. Smoke `/squad` or `/squad-review` once. For org beta: install `#marketplace-beta` (see README).
 
 ### PR bar

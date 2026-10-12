@@ -18,6 +18,8 @@ and a short list of user interruptions. Read only those. Do not scrape older ret
 
 ## Shape
 
+The retro never contains U+2014 (em dash): use `:` or `,`, and paraphrase quoted text that has one.
+
 ```markdown
 # Retro: <plan title>
 
