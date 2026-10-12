@@ -97,6 +97,55 @@ Do not add an Infrastructure class into the Web project to "keep it local." Do n
 controller to construct Infrastructure types. Prefer the existing Application seam; add a port in
 Application and an adapter in Infrastructure when one is missing.
 
+## Outbound HTTP clients use RestEase
+
+Call other HTTP APIs through a typed [RestEase](https://github.com/canton7/RestEase) interface. Do
+not hand-roll `HttpClient` wrappers that build URLs, serialize bodies, and check status codes in new
+code. Follow an existing client library when the repo already standardizes on one.
+
+The RestEase interface carries RestEase attributes, so it is an Infrastructure type. Application
+owns a plain port; an Infrastructure adapter implements it with the RestEase interface. Register the
+RestEase client with `IHttpClientFactory` in the host (package `RestEase.HttpClientFactory`).
+
+Bad:
+
+```csharp
+// Application/WeatherClient.cs
+public sealed class WeatherClient(HttpClient http)
+{
+    public async Task<Forecast> GetAsync(string city, CancellationToken ct)
+    {
+        var response = await http.GetAsync($"forecast?city={city}", ct);
+        response.EnsureSuccessStatusCode();
+        return (await response.Content.ReadFromJsonAsync<Forecast>(ct))!;
+    }
+}
+```
+
+Fix:
+
+```csharp
+// Application/IWeatherClient.cs
+public interface IWeatherClient { Task<Forecast> GetAsync(string city, CancellationToken ct); }
+
+// Infrastructure/IWeatherApi.cs
+public interface IWeatherApi
+{
+    [Get("forecast")]
+    Task<Forecast> GetForecastAsync([Query] string city, CancellationToken ct);
+}
+
+// Infrastructure/WeatherClient.cs
+internal sealed class WeatherClient(IWeatherApi api) : IWeatherClient
+{
+    public Task<Forecast> GetAsync(string city, CancellationToken ct) => api.GetForecastAsync(city, ct);
+}
+
+// Host/Program.cs
+builder.Services.AddRestEaseClient<IWeatherApi>("https://api.example.com/");
+builder.Services.AddScoped<IWeatherClient, WeatherClient>();
+```
+
 ## Simplicity
 
 Use the layers the repo already has. Do not introduce Clean Architecture ceremony (extra projects,
