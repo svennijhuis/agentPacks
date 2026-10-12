@@ -645,7 +645,7 @@ public class SquadContractTests
             var mapped = catalog["consumers"]![$"{pack}-test-patterns"]!.AsArray()
                 .Select(value => value!.GetValue<string>())
                 .ToArray();
-            Assert.Equal(["testing"], mapped);
+            Assert.Equal(["testing", "testing-principles"], mapped);
         }
     }
 

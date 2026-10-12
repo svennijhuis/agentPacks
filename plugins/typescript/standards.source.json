@@ -4,20 +4,26 @@
   "documents": {
     "typescript": "standards/typescript.md",
     "testing": "standards/testing.md",
-    "http-api": "shared/standards/http-api.md"
+    "http-api": "shared/standards/http-api.md",
+    "testing-principles": "shared/standards/testing-principles.md",
+    "engineering": "shared/standards/engineering.md"
   },
   "consumers": {
     "typescript-build": [
       "typescript",
-      "http-api"
+      "http-api",
+      "engineering"
     ],
     "typescript-test-patterns": [
-      "testing"
+      "testing",
+      "testing-principles"
     ],
     "typescript-review": [
       "typescript",
       "testing",
-      "http-api"
+      "http-api",
+      "testing-principles",
+      "engineering"
     ]
   }
 }

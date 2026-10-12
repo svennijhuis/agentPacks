@@ -23,6 +23,7 @@ Constraints:
 - Build, restore, or type-check alone → `not verified` for a behavioral criterion. Compiling proves compiling, not behavior.
 - Do not edit a test to make it pass.
 - Prefer targeted criterion commands first; then one wider suite run.
+- Guard the context window: read only the files and output this slice needs. Do not load whole trees or full logs.
 
 1. Read `docs/plans/<slug>.md`. No plan → stop.
 2. Standards: commands from the plan, or every applicable stack's `<lang>-test-patterns` by exact Skill tool name. Say which source. Never treat CLAUDE.md as the stack standard.

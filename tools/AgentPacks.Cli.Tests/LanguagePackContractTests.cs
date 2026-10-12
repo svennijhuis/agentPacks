@@ -336,8 +336,8 @@ public class LanguagePackContractTests
         var mapped = catalog["consumers"]!["dotnet-review"]!.AsArray()
             .Select(value => value!.GetValue<string>())
             .ToArray();
-        Assert.Equal(["csharp", "async-errors", "testing", "layers", "http-api"], mapped);
-        foreach (var document in mapped.Where(id => id != "http-api"))
+        Assert.Equal(["csharp", "async-errors", "testing", "layers", "http-api", "testing-principles", "engineering"], mapped);
+        foreach (var document in mapped.Where(id => id is not ("http-api" or "testing-principles" or "engineering")))
         {
             Assert.Equal(
                 $"standards/{document}.md",

@@ -16,3 +16,4 @@ globs:
 - Mechanical pattern (syntax, banned API, import shape)? Name the repo's existing lint/analyzer/CI check. Do not invent a prose rule.
 - Do the names still describe what the code does after the change?
 - Deployed/API? Report all edges in [smoke-matrix](../references/smoke-matrix.md): happy/edge/fail/auth/timeout/5xx.
+- Does the change break an `engineering` standard line (shared/standards/engineering.md)? Cite the line by name.
