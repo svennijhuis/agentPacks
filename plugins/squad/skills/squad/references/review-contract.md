@@ -244,7 +244,7 @@ merge that returned the input-error. Do not increment the round for parse repair
 round resets the re-ask budget and is forbidden for this path.
 
 **Axis marker replaces the bad report:** when the budget is spent, the main agent passes
-`<producer>: accepted: malformed after re-ask` **instead of** the malformed/missing payload:
+`<producer>: accepted, malformed after re-ask` **instead of** the malformed/missing payload:
 not in addition to it. The marker is a conforming stand-in for that producer. The orchestrator must **not** emit input-error for an axis that has a marker; it records the skipped axis under
 **Handoff concerns** / **Notes carried forward** as non-blocking (no Fix-list row, no `high`/`medium`,
 does not force `fix` or block `pass` by itself), then completes the merge with the other usable

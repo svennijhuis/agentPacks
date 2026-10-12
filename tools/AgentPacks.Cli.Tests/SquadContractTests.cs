@@ -867,7 +867,7 @@ public class SquadContractTests
     {
         Assert.Contains("return `Plan gap: <question>` instead of guessing", Squad("agents", "squad-implementer.md"), StringComparison.Ordinal);
         var command = Squad("commands", "squad.md");
-        Assert.Contains("run `squad-planner` in `next-round` mode on that gap only", command, StringComparison.Ordinal);
+        Assert.Contains("then `squad-planner` in `next-round` mode on that gap only", command, StringComparison.Ordinal);
         Assert.Contains("`## Grill log` and `## Decisions`", command, StringComparison.Ordinal);
         Assert.Contains("a fresh `squad-implementer` redoes that slice", command, StringComparison.Ordinal);
     }
@@ -938,7 +938,7 @@ public class SquadContractTests
     }
 
     [Fact]
-    public void Replan_after_a_plan_gap_reads_the_diff_stat_and_patch_first()
+    public void Replan_after_a_plan_gap_gets_the_main_agent_diff_stat_and_patch()
     {
         var contract = Squad("skills", "squad", "references", "planning-contract.md");
         var at = contract.IndexOf("Replan after a Plan gap", StringComparison.Ordinal);
@@ -946,7 +946,9 @@ public class SquadContractTests
         var line = contract[at..contract.IndexOf('\n', at)];
         Assert.Contains("`git diff --stat`", line, StringComparison.Ordinal);
         Assert.Contains("`docs/plans/<slug>.gap-<n>.patch`", line, StringComparison.Ordinal);
-        Assert.Contains("never redoes files that are already changed", line, StringComparison.Ordinal);
+        Assert.Contains("the main agent runs `git diff --stat`", line, StringComparison.Ordinal);
+        Assert.Contains("keeps its already-changed files", line, StringComparison.Ordinal);
+        Assert.Contains("run `git diff --stat`, then `squad-planner` in `next-round` mode on that gap only", Squad("commands", "squad.md"), StringComparison.Ordinal);
     }
 
     [Fact]
@@ -977,6 +979,17 @@ public class SquadContractTests
     {
         Assert.Contains("Never emit U+2014 (em dash) in the retro", Squad("agents", "squad-retro.md"), StringComparison.Ordinal);
         Assert.Contains("The retro never contains U+2014 (em dash)", Squad("skills", "squad", "references", "retro.md"), StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void Malformed_reask_marker_is_one_token_everywhere()
+    {
+        var root = Path.Combine(TestRepository.SourceRoot(), "plugins", "squad");
+        var variants = Directory.GetFiles(root, "*.md", SearchOption.AllDirectories)
+            .SelectMany(path => System.Text.RegularExpressions.Regex.Matches(File.ReadAllText(path), @"accepted\W{1,3}malformed after re-ask")
+                .Select(match => match.Value))
+            .ToHashSet(StringComparer.Ordinal);
+        Assert.Equal(["accepted, malformed after re-ask"], variants);
     }
 
     private static string Sh(string dir, string command)

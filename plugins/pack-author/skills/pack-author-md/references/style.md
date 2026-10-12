@@ -47,7 +47,7 @@ skills/example-helper/
 | Agent | One job. Numbered steps. One Good/Bad pair. Tools from `read`, `write`, `edit`, `grep`, `glob`, `bash`, `webfetch`, `websearch`. Model is `inherit`, `fast`, `standard`, or `frontier` |
 | Catalog | A framework ships as a skill inside the language pack. Prefer a pack that already ships. Do not add an empty pack. See [PLAN.md](../../../../../docs/PLAN.md) |
 
-Length bars only warn. These stay `FAIL`: frontmatter shape, hidden skills (`user-invocable: false`), the five user commands, and no secrets.
+Length bars only warn. These stay `FAIL`: frontmatter shape, hidden skills (`user-invocable: false`), the six user commands (squad, squad-review, scenarios, pack-check, pack-author, security-audit), and no secrets.
 
 ## Out
 

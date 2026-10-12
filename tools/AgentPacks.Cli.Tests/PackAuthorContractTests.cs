@@ -271,6 +271,6 @@ public sealed class PackAuthorContractTests
         var style = File.ReadAllText(Path.Combine(PackRoot(), "skills", "pack-author-md", "references", "style.md"));
         Assert.Contains("Over 120 characters is `WARN`, not `FAIL`", style, StringComparison.Ordinal);
         Assert.Contains("Over 40 non-blank lines is `WARN`, not `FAIL`", style, StringComparison.Ordinal);
-        Assert.Contains("These stay `FAIL`: frontmatter shape, hidden skills (`user-invocable: false`), the five user commands, and no secrets.", style, StringComparison.Ordinal);
+        Assert.Contains("These stay `FAIL`: frontmatter shape, hidden skills (`user-invocable: false`), the six user commands (squad, squad-review, scenarios, pack-check, pack-author, security-audit), and no secrets.", style, StringComparison.Ordinal);
     }
 }

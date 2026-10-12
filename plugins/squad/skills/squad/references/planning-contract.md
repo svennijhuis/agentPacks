@@ -281,7 +281,7 @@ Precedence: the repo's own structure and conventions come first; the architect M
 git add -N . && git diff HEAD --binary > docs/plans/<slug>.gap-<n>.patch && test -s docs/plans/<slug>.gap-<n>.patch
 ```
 
-- Replan after a Plan gap: the planner first reads `git diff --stat` and `docs/plans/<slug>.gap-<n>.patch`, then rewrites the open slice from the code as it stands now and never redoes files that are already changed.
+- Replan after a Plan gap: the main agent runs `git diff --stat` and passes its output with `docs/plans/<slug>.gap-<n>.patch`; the planner reads both and rewrites the open slice from the code as it stands now. The slice keeps its already-changed files so the fresh implementer can keep or replace the partial edits; finished slices are not redone.
 - Cap: at most 1 `Plan gap:` per slice. A second one on the same slice becomes `Replan:` for the whole plan, and the retro records it.
 
 Grill rounds stay as they are.
