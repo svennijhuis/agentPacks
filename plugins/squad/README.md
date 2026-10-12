@@ -50,7 +50,7 @@ Obvious typos, renames, and one-line fixes take the small-change route: the main
 | Contract | `retro` | One `docs/retros/` file per run, human-apply only |
 | Contract | `suggestions` | Append-only pack/skill/agent/command/contract proposals; human applies; never auto-rewrite |
 | Rule | `review-checklist` | Source-review checklist scoped by glob; Cursor-only by design |
-| Agent | `squad-planner` | Returns one numbered planning round, or writes the one confirmed plan |
+| Agent | `squad-planner` | Returns one numbered planning round and writes the draft plan, then finalizes it after confirmation |
 | Agent | `squad-architect` | Read-only; returns `## Design` and `## Map` text for the planner to paste when the architect rule fires |
 | Agent | `squad-implementer` | Implements a confirmed plan or merged fix list |
 | Agent | `squad-verifier` | Reports independent evidence per plan criterion |

@@ -43,7 +43,7 @@ A retro has no diagrams.
 
 Pick the highest type that can stop the lesson from recurring:
 architecture > type > lint > test > doc. A `doc` row needs a reason no higher type fits.
-A `lint` row is backlog: name the lint to add, not prose.
+A `lint` row names the lint to add, not prose.
 
 Every Improvements line names an environment change: a lint rule, a standard line, a contract line,
 a check, or a new or superseding ADR in `docs/adr/` ([ADR contract](adr.md)). A code fix alone is not an improvement.

@@ -27,10 +27,6 @@ Cross-language. Reviewer, simplifier, and verifier findings cite the section by 
 - Rule out what else the number could measure: errors, cached or skipped work, code that never ran, an untuned side, noise.
 - Keep the run count, the spread, and the limiter with every number.
 
-## Test behavior, not implementation
-
-- Lives in `testing-principles.md`: AAA and one reason to fail under `## Rules`, the weak-assertion ban and "no test beats a bad test" under `## Test behavior, not implementation`.
-
 ## Guard at boundaries
 
 - Validate, parse, and handle errors where data enters: CLI args, config, external APIs, network protocols. Parse into named domain types there.
