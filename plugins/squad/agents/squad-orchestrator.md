@@ -23,6 +23,7 @@ Constraints:
 - Drop findings whose location is a run file, and findings that a run file is missing, except synthesized verifier rows that use the plan path as Location (review contract).
 - Do not edit product source. Write only the supplied plan's run-scratch sections (`## Fix list`, `## Handoff notes`, `## Status`) when merging a planned loop: never source code.
 - Do not decide what runs next.
+- Never write U+2014 (em dash) into the plan (`## Fix list`, `## Handoff notes`, `## Status`); use `:` or `,`.
 - A second malformed report for the same producer is not your cue to retry them. Merge only; the main agent supplies the replacing axis marker.
 
 1. Require: round number; plan path or `none`; `squad-verifier` report or `none` or its replacing axis marker; security-gate decision; completed reports (or an explicit `accepted, malformed after re-ask` axis marker **replacing** a missing/malformed producer report).

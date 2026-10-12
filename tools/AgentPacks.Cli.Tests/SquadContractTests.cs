@@ -194,7 +194,7 @@ public class SquadContractTests
         var root = TestRepository.SourceRoot();
         var squad = File.ReadAllText(Path.Combine(root, "plugins", "squad", "commands", "squad.md"));
         var retro = File.ReadAllText(Path.Combine(root, "plugins", "squad", "skills", "squad", "references", "retro.md"));
-        Assert.Contains("still `Status: draft` and no `docs/retros/` file has its date-slug, spawn `squad-retro` on that plan with reason `interrupted` before anything else.", squad, StringComparison.Ordinal);
+        Assert.Contains("still `Status: draft` and no `docs/retros/` file has its date-slug (with or without `-interrupted`), spawn `squad-retro` on that plan with reason `interrupted` before anything else", squad, StringComparison.Ordinal);
         Assert.Contains("## Catch-up", retro, StringComparison.Ordinal);
     }
 
@@ -288,7 +288,7 @@ public class SquadContractTests
         Assert.Equal("standard", retro.Scalar("model"));
         Assert.Contains("\n  - write\n", Fixture("squad-retro.md"), StringComparison.Ordinal);
         Assert.Contains(
-            "Writes exactly one file, `docs/retros/<date-slug>.md`, and never edits skills, standards, or code.",
+            "Writes exactly one file, `docs/retros/<date-slug>.md` (`<date-slug>-interrupted.md` for a catch-up), and never edits skills, standards, or code.",
             retro.Body, StringComparison.Ordinal);
         foreach (var tool in new[] { "edit", "bash" })
             Assert.DoesNotContain($"\n  - {tool}\n", Fixture("squad-retro.md"), StringComparison.Ordinal);
@@ -999,6 +999,41 @@ public class SquadContractTests
     {
         Assert.Contains("After `squad-retro` writes, run the `pack-check` skill's `scripts/check-retro.sh <retro>` (or `check-retro.ps1` without `sh`) and fix every finding in the retro before reporting Done",
             Squad("commands", command), StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void Check_plan_reruns_after_every_plan_write_and_a_rejected_call_is_not_a_pass()
+    {
+        Assert.Contains("reruns check-plan after every plan write, including `## Fix list`, `## Handoff notes`, and `## Status`",
+            Squad("skills", "squad", "references", "planning-contract.md"), StringComparison.Ordinal);
+        Assert.Contains("A rejected or failed linter call counts as not run, never as a manual pass.", Squad("skills", "squad", "references", "planning-contract.md"), StringComparison.Ordinal);
+        Assert.Contains("After every plan write (fix list, hand-off notes, status), rerun check-plan", Squad("commands", "squad.md"), StringComparison.Ordinal);
+        Assert.Contains("Rerun check-plan after every plan write; a rejected linter call is not run, never a manual pass.", Squad("skills", "squad", "SKILL.md"), StringComparison.Ordinal);
+    }
+
+    [Theory]
+    [InlineData("squad-orchestrator.md")]
+    [InlineData("squad-implementer.md")]
+    public void Plan_writers_never_write_an_em_dash(string agent)
+    {
+        Assert.Contains("Never write U+2014 (em dash) into the plan (`## Fix list`, `## Handoff notes`, `## Status`)", Squad("agents", agent), StringComparison.Ordinal);
+        Assert.Contains("No writer puts U+2014 (em dash) into these sections", Squad("skills", "squad", "references", "planning-contract.md"), StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void No_shell_is_an_environment_block_not_a_fix_round()
+    {
+        Assert.Contains("the main agent stops and reports `Environment block: no shell`", Squad("skills", "squad", "references", "review-contract.md"), StringComparison.Ordinal);
+        Assert.Contains("No shell (calls rejected): stop and report `Environment block: no shell`; spend no fix round on it.", Squad("commands", "squad.md"), StringComparison.Ordinal);
+        Assert.Contains("Shell calls rejected → `blocked: environment (no shell)`", Squad("agents", "squad-verifier.md"), StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void Catch_up_retro_uses_the_interrupted_suffix()
+    {
+        Assert.Contains("`docs/retros/<yyyy-mm-dd>-<slug>-interrupted.md`", Squad("skills", "squad", "references", "retro.md"), StringComparison.Ordinal);
+        Assert.Contains("it writes `docs/retros/<yyyy-mm-dd>-<slug>-interrupted.md`", Squad("commands", "squad.md"), StringComparison.Ordinal);
+        Assert.Contains("`<date-slug>-interrupted.md` for a catch-up", Squad("agents", "squad-retro.md"), StringComparison.Ordinal);
     }
 
     private static string Sh(string dir, string command)

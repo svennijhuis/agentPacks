@@ -55,7 +55,9 @@ public sealed class OutTreeInstallTests
     {
         var text = File.ReadAllText(Path.Combine(TestRepository.SourceRoot(), doc));
         Assert.Contains("cp /tmp/agentpacks-marketplace/plugins/squad/commands/*.md .cursor/commands/", text, StringComparison.Ordinal);
-        Assert.Contains("cursor-agent -p --trust --plugin-dir /tmp/agentpacks-marketplace/plugins/squad", text, StringComparison.Ordinal);
+        Assert.Contains("cursor-agent -p --trust -f --plugin-dir /tmp/agentpacks-marketplace/plugins/squad", text, StringComparison.Ordinal);
+        Assert.Contains("--plugin-dir /tmp/agentpacks-marketplace/plugins/dotnet \"/squad <ask>\"", text, StringComparison.Ordinal);
+        Assert.Contains("Replace `dotnet` with the language pack pack-check detects", text, StringComparison.Ordinal);
         Assert.Contains("`validate-all --out` writes a self-contained tree", text, StringComparison.Ordinal);
     }
 }

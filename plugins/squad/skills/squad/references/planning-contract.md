@@ -59,7 +59,7 @@ Round 1 creates `docs/plans/<yyyy-mm-dd>-<slug>.md` (run date, kebab-case slug) 
 `## Request`, `## Status` set to `draft`, and `## Grill log`. Every round, the planner appends
 `### Round <n>` to `## Grill log`: the questions, the recorded answers, decisions taken, and options
 rejected with the reason. Never rewrite an earlier round. Stop or abandon leaves the file at `draft`.
-After each write the main agent runs the `pack-check` skill's `scripts/check-plan.sh <plan>` (or `check-plan.ps1` without `sh`) when installed. Findings are warnings passed to the next planner invocation; a missing linter or shell is skipped and noted, never a hard fail. Before `Status: confirmed`, the main agent runs check-plan once more and fixes every error-level finding (exit 1) in the plan text, an em dash (U+2014) included: replace it with `:` or `,`, and paraphrase quoted vendor text instead of pasting it. Warnings stay warnings.
+After each write the main agent runs the `pack-check` skill's `scripts/check-plan.sh <plan>` (or `check-plan.ps1` without `sh`) when installed. Findings are warnings passed to the next planner invocation; a missing linter or shell is skipped and noted, never a hard fail. Before `Status: confirmed`, the main agent runs check-plan once more and fixes every error-level finding (exit 1) in the plan text, an em dash (U+2014) included: replace it with `:` or `,`, and paraphrase quoted vendor text instead of pasting it. Warnings stay warnings. The main agent reruns check-plan after every plan write, including `## Fix list`, `## Handoff notes`, and `## Status`, and fixes error-level findings. A rejected or failed linter call counts as not run, never as a manual pass.
 
 Writing: plain words, short sentences, one idea per line, no filler or hype, no em dashes or curly quotes.
 
@@ -236,7 +236,7 @@ draft | confirmed | implementing | implementing slice <n>/<total> | verifying | 
 
 `## Status`, `## Fix list`, and `## Handoff notes` are **run scratch**: the main agent and
 `squad-orchestrator` rewrite those sections in place during the loop. Do not append forever inside
-the plan. Lessons go to the run's retro file. While implementing, `## Status` may say
+the plan. No writer puts U+2014 (em dash) into these sections; use `:` or `,`. Lessons go to the run's retro file. While implementing, `## Status` may say
 `implementing slice <n>/<total>`.
 
 `## Request` is the user's words as typed; the title is the planner's outcome sentence. Do not expand

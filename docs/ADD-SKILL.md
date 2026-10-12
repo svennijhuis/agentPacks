@@ -106,8 +106,10 @@ command files into the workspace once (keep `.cursor/commands/` out of commits),
 
 ```bash
 mkdir -p .cursor/commands && cp /tmp/agentpacks-marketplace/plugins/squad/commands/*.md .cursor/commands/
-cursor-agent -p --trust --plugin-dir /tmp/agentpacks-marketplace/plugins/squad --plugin-dir /tmp/agentpacks-marketplace/plugins/pack-check "/squad <ask>"
+cursor-agent -p --trust -f --plugin-dir /tmp/agentpacks-marketplace/plugins/squad --plugin-dir /tmp/agentpacks-marketplace/plugins/pack-check --plugin-dir /tmp/agentpacks-marketplace/plugins/dotnet "/squad <ask>"
 ```
+
+Replace `dotnet` with the language pack pack-check detects for the repository (`rust`, `typescript`); without it the pack gate stops the run. `-f` lets the agent run shell steps (check-plan, check-retro, tests, `git diff`); without it every shell call is rejected.
 
 5. Reload, then smoke `/squad` or `/squad-review` once.
 

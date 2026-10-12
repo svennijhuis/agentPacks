@@ -8,7 +8,7 @@ description: Plan → build → verify → review (gated). Uncommitted hand-off.
 Load the `squad` skill with the Skill tool by exact name `squad`. Never write `/squad` as prose
 to load it. Then read `references/planning-contract.md` and `references/review-contract.md`. Read
 the latest same-entrypoint `docs/retros/` file when present; carry its Lessons and Improvements as facts.
-Retro catch-up first: if the newest plan in `docs/plans/` is still `Status: draft` and no `docs/retros/` file has its date-slug, spawn `squad-retro` on that plan with reason `interrupted` before anything else.
+Retro catch-up first: if the newest plan in `docs/plans/` is still `Status: draft` and no `docs/retros/` file has its date-slug (with or without `-interrupted`), spawn `squad-retro` on that plan with reason `interrupted` before anything else; it writes `docs/retros/<yyyy-mm-dd>-<slug>-interrupted.md`.
 
 The main agent is the thin workflow controller. Specialists own their context.
 
@@ -26,8 +26,8 @@ The main agent is the thin workflow controller. Specialists own their context.
    Never "keep fixing the report until it parses". Do not increment the round for parse repair. After a failed re-ask, or if the budget is spent,
    merge **once** with that axis marked `accepted, malformed after re-ask` **replacing** the bad payload (**non-blocking**), do not spawn that
    producer again. If input-error still returns after the marker was already supplied, stop and surface: no further merge. The orchestrator itself never retries or launches agents.
-9. Route `fix`, `pass`, or `replan` as defined by the skill. A `fix` uses a fresh implementer
-   invocation (spawn names `fix-list`); the author of the rejected code is not the fixer. Allow at most two fix rounds.
+9. After every plan write (fix list, hand-off notes, status), rerun check-plan and fix error-level findings; a rejected or failed linter call counts as not run, never as a manual pass. Route `fix`, `pass`, or `replan` as defined by the skill. A `fix` uses a fresh implementer
+   invocation (spawn names `fix-list`); the author of the rejected code is not the fixer. Allow at most two fix rounds. No shell (calls rejected): stop and report `Environment block: no shell`; spend no fix round on it.
    After `pass`, or after two rounds with only residual `low`/`tiny` notes, at most one residual
    fixup may run as defined by the skill (never a third fan-out; failed spot-check → hand off).
 10. Before handoff, one Advisor-lite consult as defined by the skill. Then hand off the plan path, files touched, criterion evidence, verdict, rounds, notes, pack status, workspace, and cleanup status. State that nothing was committed, merged, or pushed. Spawn `squad-retro` once with the plan or review path, last SHA, and interruptions; it writes `docs/retros/<yyyy-mm-dd>-<slug>.md` and nothing else. After `squad-retro` writes, run the `pack-check` skill's `scripts/check-retro.sh <retro>` (or `check-retro.ps1` without `sh`) and fix every finding in the retro before reporting Done; no linter or shell installed: skip and say so. A full run that stops or fails at any step also ends with this `squad-retro` spawn, passing the interruptions. A small change gets no retro. If this run evidenced a pack/skill/agent/command/contract change, append one suggestions entry. Do not apply it.

@@ -55,6 +55,10 @@ Only report findings with confidence ≥ 80. Drop low-confidence noise. Do not e
 A guess, style nit without a standard, or an unevidenced "looks wrong" is below the bar and is
 omitted, not listed as `tiny`.
 
+## Environment block
+
+Environment block: when no shell is available (calls rejected, or no `sh`/`pwsh`), the main agent stops and reports `Environment block: no shell` with the rejected commands. It spends no fix round on it, and the verifier marks affected criteria `blocked: environment (no shell)` instead of `fail`.
+
 ## Security gate
 
 `squad-security-reviewer` only. The main agent records `ran` or `skipped` before spawn. This is a

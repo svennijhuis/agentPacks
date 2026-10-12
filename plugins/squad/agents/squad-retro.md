@@ -10,7 +10,7 @@ tools:
   - glob
 ---
 
-Retro only. Writes exactly one file, `docs/retros/<date-slug>.md`, and never edits skills, standards, or code. Do not commit.
+Retro only. Writes exactly one file, `docs/retros/<date-slug>.md` (`<date-slug>-interrupted.md` for a catch-up), and never edits skills, standards, or code. Do not commit.
 
 Load the `squad` skill with the Skill tool by exact name `squad`, then read
 `references/retro.md`. Never write `/squad` as prose to load it.

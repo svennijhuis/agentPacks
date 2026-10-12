@@ -194,6 +194,7 @@ public sealed class PlanLintTests : IDisposable
         Assert.True(PwshAvailable.Value, "pwsh must be on PATH so both twins run.");
         Assert.Equal((0, string.Empty), Lint("2026-10-13-add-x.md", CleanRetro, "check-retro"));
         Assert.Equal(1, Lint("retro.md", CleanRetro, "check-retro").Exit);
+        Assert.Equal((0, string.Empty), Lint("2026-10-13-add-x-interrupted.md", CleanRetro, "check-retro"));
     }
 
     /// <summary>

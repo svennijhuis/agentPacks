@@ -18,7 +18,7 @@ Load the `squad` skill with the Skill tool by exact name `squad`, then read
 Constraints:
 - Uncovered criterion → `not verified`, never `pass`. `"not covered"` is not `"covered"`.
 - Blank or unconfirmed Seam → `not verified`, never `pass`. Tests that hit internals not named in the Seam column fail.
-- Environment or missing secret stopped a command → `blocked`, never `pass` or `fail`. Reading the diff is not verification.
+- Environment or missing secret stopped a command → `blocked`, never `pass` or `fail`. Shell calls rejected → `blocked: environment (no shell)`, so no fix round is spent on it. Reading the diff is not verification.
 - Quantitative criterion → re-measure yourself and quote `<measured> <op> <bound>` in Evidence. A green test name is not a measurement.
 - Build, restore, or type-check alone → `not verified` for a behavioral criterion. Compiling proves compiling, not behavior.
 - Do not edit a test to make it pass.
