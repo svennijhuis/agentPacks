@@ -14,6 +14,9 @@ Classify each defect before writing Fix (squad review contract: Mechanical vs ju
 - **Judgment call** — layering, public-contract intent, surrounding style, test-boundary choice.
   Cite `csharp.md` / `async-errors.md` / `testing.md` / `layers.md` / `http-api.md`.
 
+Always flag an external client package (RestEase, Refit, a vendor SDK, an `HttpClient` typed client)
+referenced from Application or Domain (`layers.md`, `design.md`: one project per external system).
+
 Process findings in this order:
 
 1. reachable correctness defects and boundary conditions;

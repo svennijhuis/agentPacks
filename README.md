@@ -222,7 +222,7 @@ the locked v1 plan; the [`squad` skill](plugins/squad/skills/squad/SKILL.md) car
 All plugins are now `0.1.4`. Squad changed shape (plan files, `squad-architect`, `squad-retro`, per-run retro
 files), so uninstall and reinstall `squad` instead of updating in place, then reload the
 client. Plans land in `docs/plans/<yyyy-mm-dd>-<slug>.md`, retros in
-`docs/retros/<yyyy-mm-dd>-<slug>.md`, and hard-to-reverse decisions in `docs/adr/NNNN-slug.md`.
+`docs/retros/<yyyy-mm-dd>-<slug>.md`, and hard-to-reverse decisions in `docs/adr/NNNN-<plan-slug>.md`.
 
 ## Locked v1 flow
 
@@ -251,8 +251,8 @@ Step 1 reads the latest same-entrypoint retro as input. `squad-retro` writes
 suggestions are human-apply only. Neither rewrites skills.
 
 Portable model tiers live in [`models.source.json`](models.source.json) (default `inherit`;
-every squad agent `standard` except `squad-architect` on `frontier`; Copilot gets `inherit` on every
-tier). Test a skill on a feature branch without
+every squad agent `standard` except `squad-architect` on `frontier`; Copilot ids use dotted versions such
+as `claude-sonnet-5.5`). Test a skill on a feature branch without
 merging to `main`: [docs/ADD-SKILL.md](docs/ADD-SKILL.md#test-a-skill-locally).
 
 ### `/squad`

@@ -90,7 +90,7 @@ public sealed class PlanLintTests : IDisposable
                      "Request", "Goal", "Decision", "Verify", "Grill log", "Decisions", "Acceptance criteria",
                      "Test plan matrix", "Open questions", "Verification", "Design", "Map", "Design: skipped (small)",
                      "file name must be <yyyy-mm-dd>-<slug>.md", "contains an em dash", "missing ## Status value",
-                     "### Hard decisions", "hard decision without a docs/adr/ link"
+                     "### Hard decisions", "hard decision without a docs/adr/ link", "ADR link must be docs/adr/NNNN-"
                  })
         {
             Assert.Contains(section, sh, StringComparison.Ordinal);
@@ -121,9 +121,19 @@ public sealed class PlanLintTests : IDisposable
         var (exit, output) = Lint("2026-10-12-add-x.md", plan);
         Assert.Equal(1, exit);
         Assert.Contains("hard decision without a docs/adr/ link", output, StringComparison.Ordinal);
-        var linked = plan.Replace("New queue dependency", "New queue dependency: docs/adr/0002-queue.md", StringComparison.Ordinal);
+        var linked = plan.Replace("New queue dependency", "New queue dependency: docs/adr/0002-add-x.md", StringComparison.Ordinal);
         Assert.Equal(0, Lint("2026-10-12-add-x.md", linked).Exit);
         Assert.Equal(0, Lint("2026-10-12-add-x.md", plan.Replace("New queue dependency", "None", StringComparison.Ordinal)).Exit);
+    }
+
+    [Fact]
+    public void Adr_link_must_carry_the_plan_slug()
+    {
+        var plan = Confirmed + "\n## Design\n### Hard decisions\nQueue: docs/adr/0002-queue.md\n\n## Map\n| a |\n";
+        var (exit, output) = Lint("2026-10-12-add-x.md", plan);
+        Assert.Equal(1, exit);
+        Assert.Contains("ADR link must be docs/adr/NNNN-add-x.md", output, StringComparison.Ordinal);
+        Assert.Equal(0, Lint("2026-10-12-add-x.md", plan.Replace("0002-queue.md", "0002-add-x-queue.md", StringComparison.Ordinal)).Exit);
     }
 
     private (int Exit, string Output) Lint(string name, string text)

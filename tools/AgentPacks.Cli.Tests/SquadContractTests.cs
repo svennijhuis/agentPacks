@@ -189,6 +189,47 @@ public class SquadContractTests
     }
 
     [Fact]
+    public void Next_run_catches_up_a_retro_for_an_interrupted_draft_plan()
+    {
+        var root = TestRepository.SourceRoot();
+        var squad = File.ReadAllText(Path.Combine(root, "plugins", "squad", "commands", "squad.md"));
+        var retro = File.ReadAllText(Path.Combine(root, "plugins", "squad", "skills", "squad", "references", "retro.md"));
+        Assert.Contains("still `Status: draft` and no `docs/retros/` file has its date-slug, spawn `squad-retro` on that plan with reason `interrupted` before anything else.", squad, StringComparison.Ordinal);
+        Assert.Contains("## Catch-up", retro, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void Planner_has_write_in_all_four_generated_clients_and_read_only_agents_stay_read_only()
+    {
+        using var repo = new TestRepository().WithPlugin("squad", Manifest);
+        foreach (var agent in AgentNames)
+            repo.WithFile($"plugins/squad/agents/{agent}.md", Fixture($"{agent}.md"));
+        var run = repo.ValidateAndGenerate();
+        Assert.False(run.HasErrors, run.Text);
+
+        Assert.Contains("\"Write\"", run.File("plugins/squad/com.anthropic.claude-code/agents/squad-planner.md").Text, StringComparison.Ordinal);
+        Assert.Contains("\"write\"", run.File("plugins/squad/com.github.copilot/agents/squad-planner.agent.md").Text, StringComparison.Ordinal);
+        var cursor = run.File("plugins/squad/.cursor-plugin/agents/squad-planner.md").Text;
+        Assert.Contains("\"write\"", cursor, StringComparison.Ordinal);
+        Assert.DoesNotContain("readonly: true", cursor, StringComparison.Ordinal);
+        Assert.Contains("sandbox_mode = \"workspace-write\"", run.File("plugins/squad/com.openai.codex/agents/squad-planner.toml").Text, StringComparison.Ordinal);
+        foreach (var agent in new[] { "squad-architect", "squad-reviewer", "squad-verifier" })
+            Assert.Contains("sandbox_mode = \"read-only\"", run.File($"plugins/squad/com.openai.codex/agents/{agent}.toml").Text, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void Architect_flags_a_missing_vendor_project_and_maps_existing_infrastructure()
+    {
+        var contract = File.ReadAllText(Path.Combine(TestRepository.SourceRoot(),
+            "plugins", "squad", "skills", "squad", "references", "architect-contract.md"));
+        var flags = contract[contract.IndexOf("## Red flags", StringComparison.Ordinal)..]
+            .Split('\n').Count(line => System.Text.RegularExpressions.Regex.IsMatch(line, @"^\d+\. "));
+        Assert.Equal(9, flags);
+        Assert.Contains("9. Missing vendor project:", contract, StringComparison.Ordinal);
+        Assert.Contains("| Existing `Infrastructure.*` projects |", contract, StringComparison.Ordinal);
+    }
+
+    [Fact]
     public void Squad_loop_slash_commands_stay_exactly_four()
     {
         var root = TestRepository.SourceRoot();

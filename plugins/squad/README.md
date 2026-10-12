@@ -111,7 +111,7 @@ Authored: `plugin.json`, `mcp.json` (empty scaffold), `skills/`, `rules/`, `agen
 Generated only in validation output or on `marketplace` / `marketplace-beta`: client manifests and `com.*` provider trees.
 
 Portable model tiers are authored on each agent and mapped in [`models.source.json`](../../models.source.json).
-Default `inherit`. Every squad agent is `standard` except `squad-architect` (`frontier`); none uses `fast`. Copilot maps every tier to `inherit`.
+Default `inherit`. Every squad agent is `standard` except `squad-architect` (`frontier`); none uses `fast`. Copilot ids use dotted versions (`claude-sonnet-5.5`, `claude-opus-5.5`).
 
 Test changes on a feature branch without merging to `main`:
 [ADD-SKILL.md — Test a skill locally](../../docs/ADD-SKILL.md#test-a-skill-locally).

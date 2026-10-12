@@ -14,7 +14,7 @@ Two entrypoints only: `/squad` and `/squad-review`. Type the command.
 
 ```text
 /squad (user-invoked orchestrator)
-1. Read the latest same-entrypoint docs/retros/ file when present: carry open Backlog rows as facts; never auto-apply
+1. Newest docs/plans/ file still Status: draft with no matching retro → spawn squad-retro on it first (reason: interrupted). Then read the latest same-entrypoint docs/retros/ file: carry open Backlog rows as facts; never auto-apply
 2. Orient codebase (applicable stacks only)
 3. Small change? → main agent only, spawn nobody → tiny plan (goal, decision, verify cmd) → verify (no retro; + suggestions if pack/skill/agent/command/contract evidenced) → hand off uncommitted
 4. Else grill/plan rounds (facts via subagent; decisions = human); draft plan file from round 1, each round appended → confirm sets Status: confirmed
@@ -51,7 +51,7 @@ are rewritten in place; do not append forever inside the plan.
 | Trust-boundary / irreversible | Full loop; record the human decision first. |
 | Existing diff, no plan | `/squad-review`. No verifier report, plan write, verdict, or fix round. Always saves the report. |
 
-Cost-first: default `inherit`. Every `squad-*` agent is `standard` except `squad-architect` (`frontier`); none uses `fast`. Copilot maps every tier to `inherit` (the agent keeps its `model:` field).
+Cost-first: default `inherit`. Every `squad-*` agent is `standard` except `squad-architect` (`frontier`); none uses `fast`. Copilot ids use dotted versions (`claude-sonnet-5.5`).
 
 ## Gated agents
 

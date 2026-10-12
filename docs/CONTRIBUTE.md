@@ -167,7 +167,7 @@ Matrix fail rules (happy → not 2xx; edge → 2xx on invalid or 5xx; fail → w
 ### Coding with Squad (short)
 
 `/squad <ask>` e.g. `add an integration test for the orders endpoint`. Loop: last retro → orient → grill/plan if needed → implement → verify → ≤2 fix rounds → uncommitted hand-off. Load language slots by exact Skill name (`dotnet-test-patterns`), never slash-prose.
-Run files: the plan is `docs/plans/<yyyy-mm-dd>-<slug>.md` (draft from round 1), the retro is `docs/retros/<yyyy-mm-dd>-<slug>.md` (full runs and `/squad-review` only), saved reviews go to `docs/reviews/`, and hard-to-reverse decisions get an ADR in `docs/adr/NNNN-slug.md` (Nygard: Context, Decision, Consequences, Status; never edited, only superseded).
+Run files: the plan is `docs/plans/<yyyy-mm-dd>-<slug>.md` (draft from round 1), the retro is `docs/retros/<yyyy-mm-dd>-<slug>.md` (full runs and `/squad-review` only), saved reviews go to `docs/reviews/`, and hard-to-reverse decisions get an ADR in `docs/adr/NNNN-<plan-slug>.md` (a new `Infrastructure.<Vendor>` project counts: one project per external system) (Nygard: Context, Decision, Consequences, Status; never edited, only superseded).
 
 `/squad-review` = report only; no fix loop.
 

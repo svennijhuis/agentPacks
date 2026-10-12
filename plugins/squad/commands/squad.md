@@ -8,6 +8,7 @@ description: Plan → build → verify → review (gated). Uncommitted hand-off.
 Load the `squad` skill with the Skill tool by exact name `squad`. Never write `/squad` as prose
 to load it. Then read `references/planning-contract.md` and `references/review-contract.md`. Read
 the latest same-entrypoint `docs/retros/` file when present; carry open Backlog rows as facts.
+Retro catch-up first: if the newest plan in `docs/plans/` is still `Status: draft` and no `docs/retros/` file has its date-slug, spawn `squad-retro` on that plan with reason `interrupted` before anything else.
 
 The main agent is the thin workflow controller. Specialists own their context.
 

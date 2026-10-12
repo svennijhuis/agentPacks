@@ -38,6 +38,10 @@ if ($hardIndex -ge 0) {
     $hard = @()
     for ($i = $hardIndex + 1; $i -lt $lines.Count -and -not $lines[$i].StartsWith('#'); $i++) { if ($lines[$i].Trim()) { $hard += $lines[$i].Trim() } }
     $joined = $hard -join "`n"
-    if ($hard.Count -gt 0 -and $joined -ne 'None' -and -not $joined.Contains('docs/adr/')) { Fail 'hard decision without a docs/adr/ link' }
+    $slug = ($name -replace '^[0-9]{4}-[0-9]{2}-[0-9]{2}-', '') -replace '\.md$', ''
+    if ($hard.Count -gt 0 -and $joined -ne 'None') {
+        if (-not $joined.Contains('docs/adr/')) { Fail 'hard decision without a docs/adr/ link' }
+        elseif ($joined -cnotmatch "docs/adr/[0-9]{4}-$([regex]::Escape($slug))(-[a-z0-9-]+)?\.md") { Fail "ADR link must be docs/adr/NNNN-$slug.md" }
+    }
 }
 if ($script:errors -eq 0) { exit 0 } else { exit 1 }

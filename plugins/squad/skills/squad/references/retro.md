@@ -4,6 +4,12 @@ One retro per full `/squad` run or `/squad-review`, including a run that stopped
 plan's date and slug). A small change gets no retro. `squad-retro` writes the file and may
 write nothing outside `docs/retros/`. A human applies it. Nothing rewrites a skill, standard, or contract.
 
+## Catch-up
+
+At step 1 of the next run, if the newest plan in `docs/plans/` is still `Status: draft` and has no
+retro with the same date-slug, the main agent spawns `squad-retro` on it first with reason
+`interrupted`. The retro's Summary records that reason.
+
 ## Inputs
 
 The spawn passes paths, never pasted text: the plan `.md` (with `## Grill log`, `## Design`,

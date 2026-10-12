@@ -359,11 +359,7 @@ internal sealed class ClientTreeGenerator(RepositoryContext context, ModelCatalo
             add(
                 profile.PluginRelative($"agents/{agent.Name}.toml"),
                 ComponentWriter.Toml(
-                    [
-                        new("name", agent.Name),
-                        new("description", agent.Description),
-                        new("model", ResolveModel(agent, Client.Codex))
-                    ],
+                    CodexAgentKeys(agent),
                     "developer_instructions",
                     agent.Body),
                 false);
@@ -551,6 +547,27 @@ internal sealed class ClientTreeGenerator(RepositoryContext context, ModelCatalo
     /// Maps the authored portable tier to the identifier this client accepts, including Codex
     /// <c>model =</c> in generated agent TOML.
     /// </summary>
+    /// <summary>
+    /// Codex has no tool list, so <c>sandbox_mode</c> carries the write boundary: a read-only agent
+    /// gets <c>read-only</c>, an agent granted write or edit gets <c>workspace-write</c>, and any
+    /// other agent inherits the parent session.
+    /// </summary>
+    private List<KeyValuePair<string, string>> CodexAgentKeys(MarkdownComponent agent)
+    {
+        var keys = new List<KeyValuePair<string, string>>
+        {
+            new("name", agent.Name),
+            new("description", agent.Description),
+            new("model", ResolveModel(agent, Client.Codex))
+        };
+        var tools = ComponentWriter.Sequence(agent, "tools");
+        if (ComponentWriter.Flag(agent, "readonly"))
+            keys.Add(new("sandbox_mode", "read-only"));
+        else if (tools.Contains("write") || tools.Contains("edit"))
+            keys.Add(new("sandbox_mode", "workspace-write"));
+        return keys;
+    }
+
     private string ResolveModel(MarkdownComponent agent, Client client)
     {
         var authored = agent.Frontmatter?.Scalar("model") ?? ModelCatalog.DefaultTier;

@@ -32,8 +32,13 @@ else
 fi
 
 hard=$(lines | awk '/^### Hard decisions/{f=1; next} /^#/{f=0} f && NF' )
-if [ -n "$hard" ] && [ "$hard" != None ] && ! printf '%s\n' "$hard" | grep -q 'docs/adr/'; then
-  fail "hard decision without a docs/adr/ link"
+if [ -n "$hard" ] && [ "$hard" != None ]; then
+  slug=$(echo "$name" | sed -E 's/^[0-9]{4}-[0-9]{2}-[0-9]{2}-//; s/\.md$//')
+  if ! printf '%s\n' "$hard" | grep -q 'docs/adr/'; then
+    fail "hard decision without a docs/adr/ link"
+  elif ! printf '%s\n' "$hard" | grep -Eq "docs/adr/[0-9]{4}-$slug(-[a-z0-9-]+)?\.md"; then
+    fail "ADR link must be docs/adr/NNNN-$slug.md"
+  fi
 fi
 
 [ "$errors" -eq 0 ]

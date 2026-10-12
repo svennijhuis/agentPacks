@@ -25,7 +25,7 @@ Chosen: <option>. Why: <reason>. Alternatives rejected: <option and reason>.
 ### Risks
 <risk and the check that catches it>
 ### Hard decisions
-<each hard-to-reverse decision (new layer or boundary, new dependency, storage or API contract change, dropped option) with its ADR link `docs/adr/NNNN-slug.md`, or None>
+<each hard-to-reverse decision (new layer or boundary, new dependency, storage or API contract change, dropped option) with its ADR link `docs/adr/NNNN-<plan-slug>.md`, or None>
 ```
 
 ## Map
@@ -37,6 +37,7 @@ Chosen: <option>. Why: <reason>. Alternatives rejected: <option and reason>.
 | <new or changed unit> | <where it goes> | <rule text> | <layers.md ## Where new code goes, or skill path> |
 | <unit> | MISSING | no rule places it | <what was searched> |
 | Accepted ADRs | `docs/adr/` | decisions this change must respect | <ADR files read> |
+| Existing `Infrastructure.*` projects | <each project and the external system it owns> | a new client joins the project for its system; never a duplicate | <solution file or glob> |
 ```
 
 ## Prompts
@@ -57,3 +58,4 @@ Screen every option. A red flag rejects or revises the option.
 6. Two ways to do one task: keep one, move callers, delete the rest.
 7. Importable internals: callers can reach internals from outside the module.
 8. Hand-synced list: two lists of the same items with nothing failing when they drift.
+9. Missing vendor project: a new external system without its own `Infrastructure.<Vendor>` project (one project per external system). A new vendor project is a hard decision and gets an ADR under `### Hard decisions`.

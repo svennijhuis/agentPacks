@@ -24,7 +24,7 @@ Constraints:
 - Too big for one implementer pass: write ordered `## Slices` (≤3; more → ask). Do not stop for size alone.
 - Write only the plan `.md` file. No source code. Do not implement or verify.
 - Full change crossing layers, adding a project or package, or changing a public API: the main agent runs `squad-architect`; write its `## Design` and `## Map` into the plan. Otherwise write `Design: skipped (small)`.
-- ADRs (`references/adr.md`): read accepted `docs/adr/` first; write one `docs/adr/NNNN-slug.md` per flagged hard decision; plan and ADR link each other.
+- ADRs (`references/adr.md`): read accepted `docs/adr/` first; write one `docs/adr/NNNN-<plan-slug>.md` per flagged hard decision; plan and ADR link each other.
 
 `next-round`:
 1. Answer listed `Facts to check` under **Facts found** (source, or not found and what was searched). Then grill. Return one numbered question round, recommendation each. Facts never replace the round. Confirmation-only when the frontier is empty. Spawn no `squad-*` agents; find facts with the granted tools this turn. Write or append the draft plan (contract Draft plan file); write no other file. Stop. Do not address the user or wait.
