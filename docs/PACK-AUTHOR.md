@@ -14,7 +14,7 @@ The fifth user slash is intentional. `/pack-author` is Lane A for marketplace au
 | Codex | `$pack-author` |
 | GitHub Copilot | `/pack-author:author` |
 
-v1 scaffolds a skill or an agent. Commands, hooks, and rules stay on [ADD-CLIENT-EXTENSION.md](ADD-CLIENT-EXTENSION.md), [ADD-HOOK.md](ADD-HOOK.md), and [ADD-RULE.md](ADD-RULE.md). Review returns PASS/FAIL. Change applies at most two rounds, and only the FAIL items a human approved. Pack: [`plugins/pack-author/README.md`](../plugins/pack-author/README.md).
+v1 scaffolds a skill or an agent. Commands, hooks, and rules stay on [ADD-CLIENT-EXTENSION.md](ADD-CLIENT-EXTENSION.md), [ADD-HOOK.md](ADD-HOOK.md), and [ADD-RULE.md](ADD-RULE.md). Review returns PASS/WARN/FAIL. Change applies at most two rounds, and only the FAIL items a human approved. Pack: [`plugins/pack-author/README.md`](../plugins/pack-author/README.md).
 
 ## Lane A
 

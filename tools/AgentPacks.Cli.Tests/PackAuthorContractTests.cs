@@ -47,10 +47,10 @@ public sealed class PackAuthorContractTests
         Assert.False(skill.Has("metadata"));
         Assert.StartsWith("When ", description, StringComparison.Ordinal);
         Assert.EndsWith(".", description, StringComparison.Ordinal);
-        Assert.True(description.Length <= 120, $"description is {description.Length} characters.");
+        Assert.True(description.Length <= AgentPluginSpec.SkillDescriptionMaxLength, $"description is {description.Length} characters.");
 
         var lines = skill.Body.Split('\n').Count(line => !string.IsNullOrWhiteSpace(line));
-        Assert.True(lines <= 40, $"router is {lines} non-blank lines.");
+        Assert.True(lines <= 150, $"router is {lines} non-blank lines.");
         Assert.Contains("`make`", skill.Body, StringComparison.Ordinal);
         Assert.Contains("`review`", skill.Body, StringComparison.Ordinal);
         Assert.Contains("`change`", skill.Body, StringComparison.Ordinal);
@@ -253,5 +253,24 @@ public sealed class PackAuthorContractTests
             Assert.Contains("CONTRIBUTE.md", note, StringComparison.Ordinal);
             Assert.Contains("#63", note, StringComparison.Ordinal);
         }
+    }
+
+    [Fact]
+    public void Richer_skill_over_the_style_aims_passes_validation_and_only_warns_in_review()
+    {
+        var description = "When " + new string('x', 140) + ".";
+        var body = string.Join("\n", Enumerable.Range(1, 70).Select(n => $"{n}. Step {n} of a rich procedure."));
+        using var repo = new TestRepository().WithPlugin().WithRawSkill(
+            "rich-helper",
+            $"---\nname: rich-helper\ndescription: {description}\nuser-invocable: false\nmetadata:\n  audience: loop\n---\n\n{body}\n");
+
+        var run = repo.ValidateAndGenerate();
+
+        Assert.False(run.HasErrors, run.Text);
+        Assert.True(description.Length is > 120 and <= AgentPluginSpec.SkillDescriptionMaxLength);
+        var style = File.ReadAllText(Path.Combine(PackRoot(), "skills", "pack-author-md", "references", "style.md"));
+        Assert.Contains("Over 120 characters is `WARN`, not `FAIL`", style, StringComparison.Ordinal);
+        Assert.Contains("Over 40 non-blank lines is `WARN`, not `FAIL`", style, StringComparison.Ordinal);
+        Assert.Contains("These stay `FAIL`: frontmatter shape, hidden skills (`user-invocable: false`), the five user commands, and no secrets.", style, StringComparison.Ordinal);
     }
 }

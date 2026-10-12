@@ -301,7 +301,7 @@ tool name. They are not a second public skill surface.
 /pack-author change
 ```
 
-Modes are `make`, `review`, and `change`. v1 writes a skill or an agent. Review returns PASS/FAIL and leaves the file alone. Change applies at most two rounds, and only the FAIL items you approve. Copilot picker: `/pack-author:author`. [Its README](plugins/pack-author/README.md) has the three names.
+Modes are `make`, `review`, and `change`. v1 writes a skill or an agent. Review returns PASS/WARN/FAIL and leaves the file alone. Change applies at most two rounds, and only the FAIL items you approve. Copilot picker: `/pack-author:author`. [Its README](plugins/pack-author/README.md) has the three names.
 
 `git` needs no invocation either, and has nothing to ask: its hook blocks `git reset --hard`, `git clean -fd`, `git push --force`, `git branch -D`, `git checkout .` and `git restore .` before the client runs them, with the reason on stderr. [Its README](plugins/git/README.md) covers the `AGENTPACKS_GIT_GUARD=off` switch and which clients the blocking contract is actually verified on.
 

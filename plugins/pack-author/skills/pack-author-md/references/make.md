@@ -78,7 +78,7 @@ Model-invoked helper: same shape, omit `disable-model-invocation`. The descripti
 
 Create the reference the router names. A link with no file fails validate.
 
-Description starts with `When `, ends with `.`, and stays at or under 120 characters. The router stays at or under 40 non-blank lines.
+Description starts with `When ` and ends with `.`. Aim for 120 characters and a 40-line router; past that the review warns, it does not fail.
 
 ## Agent stub
 

@@ -9,8 +9,9 @@ namespace AgentPacks.Cli.Tests;
 /// </summary>
 public sealed class SkillHygieneContractTests
 {
-    private const int DescriptionMaxLength = 120;
-    private const int RouterBodyLines = 40;
+    // Style aims (120 chars, 40 lines) only WARN in pack-author review; these are the hard ceilings.
+    private const int DescriptionMaxLength = AgentPluginSpec.SkillDescriptionMaxLength;
+    private const int RouterBodyLines = 150;
     private const int SquadLockedBodyLines = 87;
 
     private static readonly string[] DescriptionEssayTokens =
