@@ -46,3 +46,8 @@ command. Report an installer failure as-is; do not try another provider's comman
 
 After a successful install, stop and ask the user to reload or start a new session. Plugin discovery
 already happened, so do not claim the new skills are available in the current session.
+
+## Plan lint
+
+Run `sh scripts/check-plan.sh docs/plans/<yyyy-mm-dd>-<slug>.md` to lint a Squad plan: date-slug name,
+required sections for its `## Status`, no em dash. Local files only. Exit 1 lists each finding.

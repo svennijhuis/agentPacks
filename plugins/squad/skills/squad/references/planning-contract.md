@@ -30,7 +30,7 @@ Settled decisions: <numbered decisions and rejected alternatives>
 Human drop-box: <docs/decisions.md contents when that file exists, or None>
 Previous user answers: <latest answers, or None>
 Open frontier: <known open decisions and dependencies>
-Plan path: docs/plans/<slug>.md
+Plan path: docs/plans/<yyyy-mm-dd>-<slug>.md
 User confirmation: <exact confirmation, required only for write-plan>
 ```
 
@@ -52,6 +52,17 @@ invocation. The planner itself never waits across turns or assumes an answer.
 
 The user's answers reshape the decision tree. Settled decisions push the frontier outward and unblock
 their dependants. Recompute the tree before returning the next round.
+
+### Draft plan file
+
+Round 1 creates `docs/plans/<yyyy-mm-dd>-<slug>.md` (run date, kebab-case slug) with `# <outcome>`,
+`## Request`, `## Status` set to `draft`, and `## Grill log`. Every round, the planner appends
+`### Round <n>` to `## Grill log`: the questions, the recorded answers, decisions taken, and options
+rejected with the reason. Never rewrite an earlier round. Stop or abandon leaves the file at `draft`.
+Run the `pack-check` skill's `scripts/check-plan.sh <plan>` after each write when it is installed; fix every finding before returning.
+
+Small change: the main agent writes a tiny plan instead, with `## Request`, `## Goal`, `## Decision`,
+`## Verify` (one command), and `## Status`. No agents.
 
 ### `next-round` output
 
@@ -135,7 +146,7 @@ fact. Ask the rest of the current frontier now rather than blocking the whole ro
 Planning ends only after every applicable branch has been visited and nothing remains silently
 assumed. When the frontier becomes empty, return one final `next-round` response that states the
 complete shared understanding as a numbered list and asks the user to confirm it. The main agent
-presents that confirmation round and waits; the planner still writes nothing.
+presents that confirmation round and waits; the planner writes only the draft round.
 
 If the user says to stop asking and decide, treat that as an answer: use the planner's recommendations
 as the chosen decisions and record that the user accepted them. This is an explicit decision, not
@@ -147,7 +158,7 @@ If the work is too big for one implementer pass, write ordered `## Slices` (port
 
 Write mode is valid only when the input includes the user's confirmation, every applicable decision branch is settled, and the open frontier is empty. Otherwise return the missing condition without writing.
 
-On valid input, write exactly one file at `docs/plans/<slug>.md`. Do not write source code or a separate research artifact. Put repository evidence, primary-source citations, assumptions, decisions, and rejected alternatives in the plan.
+On valid input, complete the draft at `docs/plans/<yyyy-mm-dd>-<slug>.md` and set `## Status` to `confirmed`. Keep `## Grill log`. Do not write source code or a separate research artifact. Put repository evidence, primary-source citations, assumptions, decisions, and rejected alternatives in the plan.
 
 The plan contains:
 
@@ -155,7 +166,11 @@ The plan contains:
 # <outcome as a sentence>
 
 ## Request
-<the user's ask, verbatim — not a paraphrase>
+<the user's ask, verbatim, not a paraphrase>
+
+## Grill log
+### Round 1
+<questions, answers, decisions, rejected options>
 
 ## Problem
 ## Decisions
@@ -194,7 +209,7 @@ The plan contains:
 ## Open questions
 None.
 ## Status
-planning | implementing | implementing slice <n>/<total> | verifying | reviewing | fix-round <n> | fixup | hand-off
+draft | confirmed | implementing | implementing slice <n>/<total> | verifying | reviewing | fix-round <n> | fixup | hand-off
 ## Fix list
 <rewritten each merge; empty until first review>
 ## Handoff notes

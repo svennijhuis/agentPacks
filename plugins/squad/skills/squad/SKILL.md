@@ -16,13 +16,13 @@ Two entrypoints only: `/squad` and `/squad-review`. Type the command.
 /squad (user-invoked orchestrator)
 1. Read and apply learnings.md (append-only): prefer passed skips/tiers; avoid what failed
 2. Orient codebase (applicable stacks only)
-3. Small change? → main agent only, spawn nobody → verify → append learnings (+ suggestions if pack/skill/agent/command/contract evidenced) → hand off uncommitted
-4. Else grill/plan rounds (facts via subagent; decisions = human) → write plan
+3. Small change? → main agent only, spawn nobody → tiny plan (goal, decision, verify cmd) → verify → append learnings (+ suggestions if pack/skill/agent/command/contract evidenced) → hand off uncommitted
+4. Else grill/plan rounds (facts via subagent; decisions = human); draft plan file from round 1, each round appended → confirm sets Status: confirmed
 5. Gate spins: sequential implementers (missing/one ## Slices → one whole-plan implementer; else one fresh implementer per slice in order) → then one verifier → reviewers in parallel (correctness + plan/spec; security ONLY if trust boundary)
 6. Orchestrator merges ≤2 fix rounds; ≤1 re-ask per producer per review round then accept marker (non-blocking); optional residual fixup → hand off uncommitted → append learnings (+ suggestions if pack/skill/agent/command/contract evidenced)
 
 /squad-review
-Pin vs PR / uncommitted / main → same gated dual-axis reviewers (no plan/fix loop) → append learnings (+ suggestions if pack/skill/agent/command/contract evidenced) → one save-markdown ask
+Pin vs PR / uncommitted / main → same gated dual-axis reviewers (no plan/fix loop) → append learnings (+ suggestions if pack/skill/agent/command/contract evidenced) → always save report to docs/reviews/<yyyy-mm-dd>-<slug>.md
 
 Always
 models.source.json tiers (default inherit); load only contracted <lang>-* by Skill name; coworker docs = real dotnet test/validate on a fixture.
@@ -39,17 +39,17 @@ tiers. A **failed** skip is a must-run. Fail demotes one tier. Do not rewrite sk
 No commits, merges, or pushes. `pass` is ready for human review, not permission to land.
 
 Cross-agent API is contracts + plan + learnings only. No shared coordination or lock files between
-agents. `docs/plans/<slug>.md` run-scratch sections (`## Status`, `## Fix list`, `## Handoff notes`)
+agents. `docs/plans/<yyyy-mm-dd>-<slug>.md` run-scratch sections (`## Status`, `## Fix list`, `## Handoff notes`)
 are rewritten in place; do not append forever inside the plan.
 
 ## Route
 
 | Work | Route |
 |---|---|
-| Typo, rename, one-line change | The main agent implements and verifies directly. Do not call `squad-planner`, `squad-implementer`, `squad-verifier`, or any review agent. Do not create a plan. Small changes spawn nobody. |
+| Typo, rename, one-line change | The main agent implements and verifies directly. Do not call `squad-planner`, `squad-implementer`, `squad-verifier`, or any review agent. Write a tiny plan (goal, decision, verify command). Small changes spawn nobody. |
 | Behavior or design change | Full loop. |
 | Trust-boundary / irreversible | Full loop; record the human decision first. |
-| Existing diff, no plan | `/squad-review`. No verifier report, plan write, verdict, or fix round. One save-markdown ask at the end. |
+| Existing diff, no plan | `/squad-review`. No verifier report, plan write, verdict, or fix round. Always saves the report. |
 
 Cost-first: default `inherit`. Every `squad-*` agent is `standard`; none uses `fast`. No agent defaults to `frontier`. Copilot maps every tier to `inherit` (the agent keeps its `model:` field).
 
@@ -90,8 +90,8 @@ Required slots: `<lang>-build`, `<lang>-test-patterns`.
 Read [the planning contract](references/planning-contract.md). Invoke `squad-planner` once per
 turn. Grill stays here: facts via the planner; decisions = human. The main agent never grills
 itself. Name facts, do not dig: list them under `Facts to check` and let the `standard`-tier planner
-find them. Prefer constraint-shaped recommendations. Read `docs/decisions.md` when it exists; do not write it. After confirmation,
-write exactly `docs/plans/<slug>.md`.
+find them. Prefer constraint-shaped recommendations. Read `docs/decisions.md` when it exists; do not write it. The planner keeps the draft
+`docs/plans/<yyyy-mm-dd>-<slug>.md` from round 1; confirmation sets `Status: confirmed`.
 
 ## Implement, verify, review
 

@@ -23,7 +23,7 @@ Constraints:
 - Guard the context window: read only the files and output this slice needs. Do not load whole trees or full logs.
 - Fresh fix-round invocation. You are not the author of the rejected code. Only the plan's `## Fix list`. High/medium must be fixed. Low/tiny only if that code is already touched. Ignore `## Slices` on a fix-round.
 
-1. Read `docs/plans/<slug>.md`. The spawn names the active slice or `fix-list`.
+1. Read `docs/plans/<yyyy-mm-dd>-<slug>.md`. The spawn names the active slice or `fix-list`.
    - Slice build: only that named `## Slices` entry's criteria and matrix rows (whole plan when the section is missing or has one entry).
    - Fix-round (`fix-list`): only the plan's `## Fix list`. Ignore `## Slices`.
    Then the code around the change. No plan → stop.

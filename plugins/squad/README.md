@@ -68,7 +68,7 @@ All seven agents remain portable across supported generated clients.
 
 Planning is mediated by the main agent. Each `squad-planner` invocation receives the request, repository evidence, settled decisions, prior answers, and open frontier. It returns one numbered round and stops. The main agent presents that round and supplies the answers on the next invocation.
 
-After every decision is settled, the planner returns a shared-understanding confirmation question. Only after the user confirms may a write-mode invocation create `docs/plans/<slug>.md`. Repository evidence, citations, decisions, and rejected alternatives stay in that plan; no separate research artifact is created.
+After every decision is settled, the planner returns a shared-understanding confirmation question. Only after the user confirms may a write-mode invocation create `docs/plans/<yyyy-mm-dd>-<slug>.md`. Repository evidence, citations, decisions, and rejected alternatives stay in that plan; no separate research artifact is created.
 
 ## Review and verdicts
 

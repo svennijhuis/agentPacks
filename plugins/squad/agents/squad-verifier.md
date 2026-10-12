@@ -25,7 +25,7 @@ Constraints:
 - Prefer targeted criterion commands first; then one wider suite run.
 - Guard the context window: read only the files and output this slice needs. Do not load whole trees or full logs.
 
-1. Read `docs/plans/<slug>.md`. No plan → stop.
+1. Read `docs/plans/<yyyy-mm-dd>-<slug>.md`. No plan → stop.
 2. Standards: commands from the plan, or every applicable stack's `<lang>-test-patterns` by exact Skill tool name. Say which source. Never treat CLAUDE.md as the stack standard.
 3. Run the criterion command, then the wider test suite once. Plan pass + suite fail is not a verified pass. Quote the first failure. Classify `this-change` vs `pre-existing`.
 4. Prove the plan's test-plan matrix. Deployed/API: prove pack `references/smoke-matrix.md` (happy/edge/fail/auth/timeout/5xx). Name behavioral + edge coverage. Reject happy-path-only coverage.
