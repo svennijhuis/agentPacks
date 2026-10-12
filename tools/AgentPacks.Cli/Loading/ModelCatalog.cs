@@ -35,9 +35,9 @@ internal sealed class ModelCatalog
     public static ModelCatalog BuiltIn { get; } = new(new Dictionary<string, ClientModels>(StringComparer.Ordinal)
     {
         ["inherit"] = new("inherit", "inherit", "inherit", "inherit"),
-        ["fast"] = new("sonnet", "grok-4.7", "claude-sonnet-5-5", "gpt-6-luna"),
-        ["standard"] = new("sonnet", "grok-4.7", "claude-sonnet-5-5", "gpt-6-sol"),
-        ["frontier"] = new("opus", "grok-4.7", "claude-opus-5-5", "gpt-6.1-sol")
+        ["fast"] = new("sonnet", "grok-4.7", "inherit", "gpt-6-luna"),
+        ["standard"] = new("sonnet", "grok-4.7", "inherit", "gpt-6-sol"),
+        ["frontier"] = new("opus", "grok-4.7", "inherit", "gpt-6.1-sol")
     });
 
     public IReadOnlyCollection<string> TierNames => _tiers.Keys;

@@ -112,7 +112,7 @@ Authored: `plugin.json`, `mcp.json` (empty scaffold), `skills/`, `rules/`, `agen
 Generated only in validation output or on `marketplace` / `marketplace-beta`: client manifests and `com.*` provider trees.
 
 Portable model tiers are authored on each agent and mapped in [`models.source.json`](../../models.source.json).
-Default `inherit`. The implementer and planner are `standard`. Reviewers, orchestrator, verifier, simplifier, and security-reviewer are `fast`. No agent defaults to `frontier`.
+Default `inherit`. Every squad agent is `standard`; none uses `fast`. Copilot maps every tier to `inherit`. No agent defaults to `frontier`.
 
 Test changes on a feature branch without merging to `main`:
 [ADD-SKILL.md — Test a skill locally](../../docs/ADD-SKILL.md#test-a-skill-locally).

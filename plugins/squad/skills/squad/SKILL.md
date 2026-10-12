@@ -51,7 +51,7 @@ are rewritten in place; do not append forever inside the plan.
 | Trust-boundary / irreversible | Full loop; record the human decision first. |
 | Existing diff, no plan | `/squad-review`. No verifier report, plan write, verdict, or fix round. One save-markdown ask at the end. |
 
-Cost-first: default `inherit`. `squad-implementer` and `squad-planner` are `standard`. Reviewers, orchestrator, verifier, simplifier, and security-reviewer are `fast`. No agent defaults to `frontier`.
+Cost-first: default `inherit`. Every `squad-*` agent is `standard`; none uses `fast`. No agent defaults to `frontier`. Copilot maps every tier to `inherit` (the agent keeps its `model:` field).
 
 ## Gated agents
 

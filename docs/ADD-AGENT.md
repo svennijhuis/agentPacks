@@ -28,7 +28,7 @@ One job. Load skills with the Skill tool by exact name. Never write slash-prose.
 ```
 
 That is the production shape: short frontmatter, portable tier, `readonly`, closed tool list, one
-job, exact Skill-tool names. Squad agents are `squad-*`. Security pack agents are `security-*`. The implementer and planner are `standard`; reviewers, orchestrator, verifier, simplifier, and security-reviewer are `fast`. No agent defaults to `frontier`.
+job, exact Skill-tool names. Squad agents are `squad-*`. Security pack agents are `security-*`. Squad agents are `standard`; none uses `fast`. No agent defaults to `frontier`.
 Bodies stay operational-but-short (28 non-empty lines after frontmatter;
 security reviewer 40). Numbered steps, required outputs, one Good/Bad pair — not essay soup.
 Copy from [`plugins/squad/agents/`](../plugins/squad/agents/); do not invent a public command
@@ -115,7 +115,7 @@ Collapse these. One reader or the compiler already has the twin:
 | `agents/<name>.md` | Authored portable tier (source) |
 | `.cursor-plugin/agents/<name>.md` | Cursor — remapped id (`inherit`, `grok-4.7` on fast, standard, and frontier). `.cursor-plugin/plugin.json` points here so Cursor does not scan root `agents/` |
 | `com.anthropic.claude-code/agents/<name>.md` | Claude — remapped alias (`inherit`, `sonnet`, `opus`), tool names in PascalCase |
-| `com.github.copilot/agents/<name>.agent.md` | Copilot — remapped id (`inherit`, `claude-sonnet-5-5`, `claude-opus-5-5`); `model` is never dropped |
+| `com.github.copilot/agents/<name>.agent.md` | Copilot — `inherit` on every tier, so Copilot uses the picker model; `model` is never dropped |
 | `com.openai.codex/agents/<name>.toml` | Codex — `model` is emitted from the catalog (`gpt-6-luna` / `gpt-6-sol` / `gpt-6.1-sol`) |
 
 ## The Codex gap
@@ -131,8 +131,8 @@ Codex generation emits the catalog Codex id into `model =`. `fast` → `gpt-6-lu
 
 If Codex gains plugin-shipped agents, only the generated manifest needs a field.
 
-Cost-first: catalog default is `inherit`. The implementer and the planner use `standard`.
-Reviewers, orchestrator, verifier, simplifier, and security-reviewer use `fast`. No agent
+Cost-first: catalog default is `inherit`. Squad agents use `standard`; none
+uses `fast`. No agent
 defaults to `frontier` (escalate only). Generation remaps those portable tiers for every
 client. Cursor loads the remapped copies because `.cursor-plugin/plugin.json` sets `agents`.
 Cursor emit is Grok only: `fast`, `standard`, and `frontier` all map to `grok-4.7`.

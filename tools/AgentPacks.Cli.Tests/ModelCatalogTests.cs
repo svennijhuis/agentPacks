@@ -19,8 +19,7 @@ public sealed class ModelCatalogTests
         Assert.Contains("\"default\": \"inherit\"", catalog, StringComparison.Ordinal);
         Assert.Contains("\"cursor\": \"grok-4.7\"", catalog, StringComparison.Ordinal);
         Assert.DoesNotContain("\"cursor\": \"claude-", catalog, StringComparison.Ordinal);
-        Assert.Contains("\"copilot\": \"claude-sonnet-5-5\"", catalog, StringComparison.Ordinal);
-        Assert.Contains("\"copilot\": \"claude-opus-5-5\"", catalog, StringComparison.Ordinal);
+        Assert.DoesNotContain("\"copilot\": \"claude-", catalog, StringComparison.Ordinal);
         Assert.Contains("\"claude\": \"sonnet\"", catalog, StringComparison.Ordinal);
         Assert.Contains("\"claude\": \"opus\"", catalog, StringComparison.Ordinal);
         Assert.Contains("\"codex\": \"gpt-6-luna\"", catalog, StringComparison.Ordinal);
@@ -49,6 +48,7 @@ public sealed class ModelCatalogTests
             Assert.Equal(node.GetProperty("codex").GetString(), ModelCatalog.BuiltIn.Resolve(tier, Client.Codex));
             Assert.DoesNotContain("claude", cursor, StringComparison.OrdinalIgnoreCase);
             Assert.Equal(tier == "inherit" ? "inherit" : "grok-4.7", cursor);
+            Assert.Equal("inherit", node.GetProperty("copilot").GetString());
         }
     }
 
@@ -68,7 +68,7 @@ public sealed class ModelCatalogTests
         var codex = run.File("plugins/engineering/com.openai.codex/agents/reviewer.toml").Text;
 
         Assert.Contains("model: \"sonnet\"", claude, StringComparison.Ordinal);
-        Assert.Contains("model: \"claude-sonnet-5-5\"", copilot, StringComparison.Ordinal);
+        Assert.Contains("model: \"inherit\"", copilot, StringComparison.Ordinal);
         Assert.Contains("model = \"gpt-6-sol\"", codex, StringComparison.Ordinal);
 
         var cursor = run.File("plugins/engineering/.cursor-plugin/agents/reviewer.md").Text;
@@ -120,7 +120,7 @@ public sealed class ModelCatalogTests
             run.File("plugins/engineering/com.anthropic.claude-code/agents/fast-agent.md").Text,
             StringComparison.Ordinal);
         Assert.Contains(
-            "model: \"claude-opus-5-5\"",
+            "model: \"inherit\"",
             run.File("plugins/engineering/com.github.copilot/agents/frontier-agent.agent.md").Text,
             StringComparison.Ordinal);
         Assert.Contains(

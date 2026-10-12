@@ -1,7 +1,7 @@
 ---
 name: squad-simplifier
 description: Reviews a change for duplication, unneeded abstraction, and work at the wrong altitude. Findings capped at medium. Use in the review phase, in parallel with the other reviewers.
-model: fast
+model: standard
 readonly: true
 tools:
   - read
