@@ -105,6 +105,14 @@ public sealed class PlanLintTests : IDisposable
         Assert.Contains("missing ## Status value", output, StringComparison.Ordinal);
     }
 
+    [Fact]
+    public void Crlf_plan_passes_like_its_lf_twin()
+    {
+        var (exit, output) = Lint("2026-10-12-add-x.md", Draft.Replace("\n", "\r\n", StringComparison.Ordinal));
+        Assert.Equal(0, exit);
+        Assert.Equal(string.Empty, output);
+    }
+
     private (int Exit, string Output) Lint(string name, string text)
     {
         var path = Path.Combine(_directory, name);
