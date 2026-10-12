@@ -49,7 +49,7 @@ internal sealed class LanguagePackValidator(RepositoryContext context)
 
     private void Validate(PluginPackage plugin)
     {
-        var language = plugin.Name ?? plugin.DirectoryName;
+        var language = plugin.CanonicalName;
         var manifest = context.Relative(plugin.ManifestPath);
         var names = plugin.Skills.Select(s => s.DirectoryName).ToHashSet(StringComparer.Ordinal);
 

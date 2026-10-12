@@ -278,21 +278,11 @@ not a finding and not a blocker.
 /scenarios ./openapi.yaml
 ```
 
-Writes only `docs/smoke/<slug>.md` in the current app workspace (the repo under test) —
-scenarios md for a real tester on a deployed env. Seed **changed code first** (controllers,
-routes, handlers, deployed HTTP APIs / cloud hosts and timer/cron). OpenAPI/Swagger fills
-gaps only; not required. `/squad-review` stays code/diff. `/squad` may read the file later
-for test design; it does not write smoke for push. Do not invent a host.
-Do not require a named cloud product or TST.
-Columns: # · Case · Kind · Request · Status · Expected · Why
-(kinds: happy/edge/fail/auth/biz/nothing-breaks).
-Timer/cron rows are `edge`/`fail` (did not run, ran twice, poison message, partial batch) —
-not fake HTTP. Auth header by default: `Auth: Bearer TOKEN_VALID (tester supplies)`.
-Auth/policy rows only when the ask or OpenAPI change is about auth. Seed kinds from
-[`plugins/squad/references/smoke-matrix.md`](plugins/squad/references/smoke-matrix.md).
-No product-source edits. No commit, merge, or push. Secrets stay placeholders (`TOKEN_VALID`).
-Local secrets follow the Squad local-secrets rule. Bruno/Postman is an
-optional mention only. Copilot picker: `/squad:scenarios`.
+Writes only `docs/smoke/<slug>.md` in the current app workspace from changed code
+(OpenAPI optional). No product-source edits, commit, merge, or push.
+Copilot picker: `/squad:scenarios`. Table, kinds, and matrix:
+[`scenarios-md`](plugins/squad/skills/scenarios-md/SKILL.md) and
+[`smoke-matrix.md`](plugins/squad/references/smoke-matrix.md).
 
 Language-pack slots (`dotnet-build`, `rust-review`, …) are loop internals, loaded by exact Skill
 tool name. They are not a second public skill surface.

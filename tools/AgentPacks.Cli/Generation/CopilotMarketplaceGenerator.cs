@@ -12,37 +12,21 @@ namespace AgentPacks.Cli.Generation;
 /// </summary>
 internal sealed class CopilotMarketplaceGenerator(RepositoryContext context)
 {
-    public IReadOnlyList<GeneratedFile> Generate(IReadOnlyList<PluginPackage> plugins)
-    {
-        var entries = new JsonArray();
-
-        foreach (var plugin in plugins.Where(p => p.Manifest is not null))
-        {
-            entries.Add(BuildEntry(plugin));
-        }
-
-        var marketplace = new JsonObject
-        {
-            ["name"] = ClaudeCompatGenerator.MarketplaceName,
-            ["owner"] = new JsonObject { ["name"] = "agentPacks Maintainers" },
-            ["metadata"] = new JsonObject
-            {
-                ["description"] = "agentPacks plugins generated for GitHub Copilot CLI."
-            },
-            ["plugins"] = entries
-        };
-
-        return [GeneratedFile.FromJson(context.CopilotMarketplaceRelativePath, marketplace)];
-    }
+    public IReadOnlyList<GeneratedFile> Generate(IReadOnlyList<PluginPackage> plugins) =>
+        [MarketplaceCatalog.Metadata(
+            context.CopilotMarketplaceRelativePath,
+            "agentPacks plugins generated for GitHub Copilot CLI.",
+            plugins,
+            BuildEntry)];
 
     private static JsonObject BuildEntry(PluginPackage plugin)
     {
         var manifest = plugin.Manifest!;
         var entry = new JsonObject
         {
-            ["name"] = plugin.Name ?? plugin.DirectoryName,
+            ["name"] = plugin.CanonicalName,
             ["source"] = $"./plugins/{plugin.DirectoryName}",
-            ["description"] = manifest["description"]?.GetValue<string>() ?? plugin.DirectoryName
+            ["description"] = manifest["description"]?.GetValue<string>() ?? plugin.CanonicalName
         };
 
         JsonFile.CopyProperties(entry, manifest, "author", "homepage", "repository", "license", "keywords");

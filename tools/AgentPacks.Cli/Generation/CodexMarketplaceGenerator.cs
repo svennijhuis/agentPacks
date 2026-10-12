@@ -19,7 +19,7 @@ internal sealed class CodexMarketplaceGenerator(RepositoryContext context)
         {
             entries.Add(new JsonObject
             {
-                ["name"] = plugin.Name ?? plugin.DirectoryName,
+                ["name"] = plugin.CanonicalName,
                 ["source"] = new JsonObject
                 {
                     ["source"] = "local",

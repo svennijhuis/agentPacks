@@ -8,8 +8,7 @@ namespace AgentPacks.Cli.Tests;
 /// </summary>
 public sealed class PackAuthorContractTests
 {
-    private static string PackRoot() =>
-        Path.Combine(TestRepository.SourceRoot(), "plugins", "pack-author");
+    private static string PackRoot() => TestRepository.PluginRoot("pack-author");
 
     [Fact]
     public void Names_are_plugin_command_and_skill()
@@ -158,14 +157,10 @@ public sealed class PackAuthorContractTests
             "pack-author-md",
             File.ReadAllText(Path.Combine(PackRoot(), "skills", "pack-author-md", "SKILL.md")),
             plugin: "pack-author");
-
-        foreach (var reference in Directory.GetFiles(
-                     Path.Combine(PackRoot(), "skills", "pack-author-md", "references"), "*.md"))
-        {
-            repo.WithFile(
-                $"plugins/pack-author/skills/pack-author-md/references/{Path.GetFileName(reference)}",
-                File.ReadAllText(reference));
-        }
+        repo.WithCopiedDirectory(
+            TestRepository.SourceRoot(),
+            "plugins/pack-author/skills/pack-author-md/references",
+            "*.md");
 
         foreach (var doc in new[]
                  {

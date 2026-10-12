@@ -80,6 +80,9 @@ internal sealed record PluginPackage
 
     public string? Name => Manifest?["name"]?.GetValue<string>();
 
+    /// <summary>Manifest name, or the directory when the manifest omits it.</summary>
+    public string CanonicalName => Name ?? DirectoryName;
+
     public bool HasSkillsDirectory => System.IO.Directory.Exists(Path.Combine(Directory, "skills"));
 
     /// <summary>Non-empty authored <c>mcpServers</c> object, or null when absent or empty.</summary>
@@ -93,7 +96,7 @@ internal sealed record PluginPackage
     /// via the Cursor plugin manifest instead.
     /// </summary>
     public bool ClaudeAutoDiscoversRootHooks =>
-        (Name ?? DirectoryName) is "pack-check" or "git";
+        CanonicalName is "pack-check" or "git";
 
     public ScriptDefinition? Script(string name) =>
         Scripts.FirstOrDefault(s => string.Equals(s.Name, name, StringComparison.Ordinal));

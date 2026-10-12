@@ -14,7 +14,7 @@ internal static class CodexCategory
     public const string DeveloperTools = "Developer Tools";
     public const string Security = "Security";
 
-    public static string From(PluginPackage plugin) => From(plugin.Name ?? plugin.DirectoryName);
+    public static string From(PluginPackage plugin) => From(plugin.CanonicalName);
 
     public static string From(string name) => name switch
     {
