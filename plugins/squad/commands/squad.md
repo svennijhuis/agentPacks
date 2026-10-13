@@ -7,7 +7,7 @@ Paths, relative to the squad plugin root (its `--plugin-dir`; no find/glob searc
 
 # Squad
 
-Load the `squad` skill with the Skill tool by exact name `squad`; if that does not resolve, read `skills/squad/SKILL.md` relative to this plugin's root (the parent of this `commands/` folder). The linters are at `../pack-check/skills/pack-check/scripts/` from that root. Never run `find` or any filesystem search for skills or linters. Never write `/squad` as prose
+Load the `squad` skill with the Skill tool by exact name `squad`; if that does not resolve, read `skills/squad/SKILL.md` relative to the squad plugin root (its `--plugin-dir`, as on the first line; a copy of this file in `.cursor/commands/` is not the root). The linters are at `../pack-check/skills/pack-check/scripts/` from that root. Never run `find` or any filesystem search for skills or linters. Never write `/squad` as prose
 to load it. Then read `references/planning-contract.md` and `references/review-contract.md`. Read
 the latest same-entrypoint `docs/retros/` file when present; carry its Lessons and Improvements as facts.
 Resume: a resumed or stopped run that edits the plan (`## Status`) runs check-plan and does not continue until it exits 0. Retro catch-up first: if the newest plan in `docs/plans/` is still `Status: draft` and no `docs/retros/` file has its date-slug (with or without `-interrupted`), spawn `squad-retro` on that plan with reason `interrupted` before anything else; it writes `docs/retros/<yyyy-mm-dd>-<slug>-interrupted.md`. Then run check-retro on that file (not just `test -f`) and fix its findings before going on.

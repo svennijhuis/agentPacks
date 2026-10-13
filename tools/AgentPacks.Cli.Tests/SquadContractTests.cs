@@ -1125,7 +1125,8 @@ public class SquadContractTests
     public void Skill_and_linter_paths_are_named_and_filesystem_search_is_banned()
     {
         var command = Squad("commands", "squad.md");
-        Assert.Contains("read `skills/squad/SKILL.md` relative to this plugin's root", command, StringComparison.Ordinal);
+        Assert.Contains("read `skills/squad/SKILL.md` relative to the squad plugin root (its `--plugin-dir`", command, StringComparison.Ordinal);
+        Assert.DoesNotContain("the parent of this `commands/` folder", command, StringComparison.Ordinal);
         Assert.Contains("`../pack-check/skills/pack-check/scripts/` from that root", command, StringComparison.Ordinal);
         Assert.Contains("Never run `find` or any filesystem search for skills or linters.", command, StringComparison.Ordinal);
         var root = Path.Combine(TestRepository.SourceRoot(), "plugins", "squad");
