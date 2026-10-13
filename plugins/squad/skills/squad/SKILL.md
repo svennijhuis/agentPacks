@@ -96,6 +96,8 @@ find them. Prefer constraint-shaped recommendations. Read `docs/decisions.md` wh
 
 ## Implement, verify, review
 
+When the change touches app behavior and `docs/verify.md` is missing, ask once: `Make a runnable verify harness too? (yes/no)`. Yes → load `verify-harness` by exact Skill name. No → carry on; write no `docs/verify.md`.
+
 Read [the review contract](references/review-contract.md). Sequential implementers first: if `## Slices` is missing or
 has one entry, one fresh `squad-implementer` on the whole plan; otherwise one fresh `squad-implementer` per entry in
 order (spawn passes the slice name and the plan path; each slice names its files in `## Slices`, so no research is redone; same branch; no peer spawn). Then one `squad-verifier`. Then dual-axis: correctness and

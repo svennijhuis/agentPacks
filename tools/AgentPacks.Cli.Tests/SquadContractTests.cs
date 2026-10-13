@@ -277,12 +277,12 @@ public class SquadContractTests
     }
 
     [Fact]
-    public void Retro_agent_is_standard_without_shell_and_squad_ships_two_skills()
+    public void Retro_agent_is_standard_without_shell_and_squad_ships_three_skills()
     {
         var root = TestRepository.SourceRoot();
         var skills = Directory.GetDirectories(Path.Combine(root, "plugins", "squad", "skills"))
             .Select(path => Path.GetFileName(path)).Order(StringComparer.Ordinal).ToArray();
-        Assert.Equal(["scenarios-md", "squad"], skills);
+        Assert.Equal(["scenarios-md", "squad", "verify-harness"], skills);
         var retro = TestRepository.ParseFrontmatter(Fixture("squad-retro.md"));
         Assert.Equal("squad-retro", retro.Scalar("name"));
         Assert.Equal("standard", retro.Scalar("model"));
