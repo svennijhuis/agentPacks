@@ -45,7 +45,7 @@ public sealed class OutTreeInstallTests
             var sourceNames = Directory.EnumerateFiles(root, "*", SearchOption.TopDirectoryOnly).Select(Path.GetFileName).ToHashSet(StringComparer.Ordinal);
             var missing = new List<string>();
             foreach (var md in Directory.EnumerateFiles(Path.Combine(output, "plugins"), "*.md", SearchOption.AllDirectories)
-                         .Where(f => Path.GetRelativePath(output, f).Replace('\\', '/').Split('/') is var parts && parts.Length > 3 && parts[2] is "skills" or "commands" or "agents"
+                         .Where(f => Path.GetRelativePath(output, f).Replace('\\', '/').Split('/') is var parts && ((parts.Length > 3 && parts[2] is "skills" or "commands" or "agents") || (parts.Length == 3 && parts[2] == "README.md"))
                              // pack-author runs inside an agentPacks checkout, so its links to docs/ resolve there.
                              && parts[1] != "pack-author"))
             {
@@ -69,6 +69,43 @@ public sealed class OutTreeInstallTests
         finally
         {
             Directory.Delete(output, true);
+        }
+    }
+
+    [Theory]
+    [InlineData("README.md")]
+    [InlineData("docs/CONTRIBUTE.md")]
+    [InlineData("docs/ADD-SKILL.md")]
+    public void Headless_copy_step_stamps_an_existing_squad_plugin_root(string doc)
+    {
+        var root = TestRepository.SourceRoot();
+        var text = File.ReadAllText(Path.Combine(root, doc));
+        var at = text.IndexOf("mkdir -p .cursor/commands && cp ", StringComparison.Ordinal);
+        Assert.True(at >= 0, "copy step missing");
+        var lines = text[at..].Split('\n');
+        var snippet = string.Join("\n", lines[0], lines[1]).Replace("/tmp/agentpacks-marketplace", root, StringComparison.Ordinal);
+        var work = Directory.CreateTempSubdirectory("headless-copy-").FullName;
+        try
+        {
+            var info = new ProcessStartInfo("bash", ["-c", snippet]) { WorkingDirectory = work, RedirectStandardError = true };
+            using (var process = Process.Start(info)!)
+            {
+                var err = process.StandardError.ReadToEnd();
+                process.WaitForExit();
+                Assert.True(process.ExitCode == 0, err);
+            }
+
+            var copy = File.ReadAllText(Path.Combine(work, ".cursor", "commands", "squad.md")).Split('\n');
+            var close = Array.IndexOf(copy, "---", 1);
+            Assert.True(close > 0, "frontmatter lost");
+            var stamp = copy[close + 1];
+            Assert.StartsWith("Squad plugin root: ", stamp, StringComparison.Ordinal);
+            var stamped = stamp["Squad plugin root: ".Length..];
+            Assert.True(File.Exists(Path.Combine(stamped, "skills", "squad", "SKILL.md")), stamped);
+        }
+        finally
+        {
+            Directory.Delete(work, true);
         }
     }
 

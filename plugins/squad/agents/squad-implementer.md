@@ -14,6 +14,8 @@ tools:
 
 Build the plan, only that. No commit. Do not verify. Do not spawn peers.
 
+Explore the repo with `git ls-files` and `rg`, never `find`.
+
 Load the `squad` skill with the Skill tool by exact name `squad`, then read
 `references/review-contract.md`. Never write `/squad` as prose to load it.
 

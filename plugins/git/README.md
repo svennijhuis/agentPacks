@@ -84,4 +84,4 @@ Authored: `plugin.json`, `hooks.source.json`, `scripts/git-guard.sh`, and
 Generated on `marketplace` / `marketplace-beta` or in temporary validation output, never on `main`: `hooks/`,
 script dispatchers, client manifests, and `com.*` provider trees.
 
-Keep both script implementations aligned. See [ADD-HOOK.md](../../docs/ADD-HOOK.md).
+Keep both script implementations aligned. See [ADD-HOOK.md](https://github.com/svennijhuis/agentPacks/blob/main/docs/ADD-HOOK.md).

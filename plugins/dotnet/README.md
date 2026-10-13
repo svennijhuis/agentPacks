@@ -20,10 +20,10 @@ Canonical standards live once under `standards/`:
 - `async-errors.md`: async, cancellation, and exception boundaries.
 - `testing.md`: xUnit, integration tests, time, and verification.
 - `layers.md`: Web / Application / Infrastructure boundaries when the solution already uses them.
-- [`http-api.md`](../../shared/standards/http-api.md): named collection envelope for list APIs, not a root JSON array (shared across language packs).
+- [`http-api.md`](https://github.com/svennijhuis/agentPacks/blob/main/shared/standards/http-api.md): named collection envelope for list APIs, not a root JSON array (shared across language packs).
 
 `standards.source.json` maps each document to the skills that need it. Generation copies selected
-documents into `references/standards/`: see [ADD-LANGUAGE-PACK.md](../../docs/ADD-LANGUAGE-PACK.md).
+documents into `references/standards/`: see [ADD-LANGUAGE-PACK.md](https://github.com/svennijhuis/agentPacks/blob/main/docs/ADD-LANGUAGE-PACK.md).
 
 ## Standards and repository conventions
 
@@ -48,11 +48,11 @@ checks the whole solution with `--verify-no-changes`. See the
 
 Authored: `plugin.json`, `mcp.json` (empty scaffold), `standards.source.json`, `standards/`, and `skills/`.
 
-v1 ships no MCP server. Agents use `dotnet sln list` and `dotnet list <csproj> package` on the machine. See [ADD-MCP.md](../../docs/ADD-MCP.md) to add a server later.
+v1 ships no MCP server. Agents use `dotnet sln list` and `dotnet list <csproj> package` on the machine. See [ADD-MCP.md](https://github.com/svennijhuis/agentPacks/blob/main/docs/ADD-MCP.md) to add a server later.
 
 Generated on `marketplace` / `marketplace-beta` or in temporary validation output, never on `main`:
 `.cursor-plugin/`, `.codex-plugin/`, `com.anthropic.claude-code/`, `com.openai.codex/`,
 `com.github.copilot/`, and each skill's `references/standards/` directory.
 
-See [ADD-LANGUAGE-PACK.md](../../docs/ADD-LANGUAGE-PACK.md) and
-[ADD-SKILL.md](../../docs/ADD-SKILL.md).
+See [ADD-LANGUAGE-PACK.md](https://github.com/svennijhuis/agentPacks/blob/main/docs/ADD-LANGUAGE-PACK.md) and
+[ADD-SKILL.md](https://github.com/svennijhuis/agentPacks/blob/main/docs/ADD-SKILL.md).

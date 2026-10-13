@@ -6,7 +6,7 @@ markdown from changed code; it is not a Squad phase. `/pack-check` is setup, not
 The `squad` skill is the thin orchestrator and is not model-invoked.
 
 The numbered flow below is locked v1 and is copied verbatim into the
-[skill](skills/squad/SKILL.md) and the repository [README](../../README.md).
+[skill](skills/squad/SKILL.md) and the repository [README](https://github.com/svennijhuis/agentPacks/blob/main/README.md).
 
 ## Locked v1 flow
 
@@ -87,7 +87,7 @@ Malformed-report re-ask: one re-ask per producer per review round, then the axis
 applicable to the target paths, diff, and acceptance criteria. A mixed change loads both .NET and
 Rust slots; a single-stack change does not load or request the unrelated pack. A full loop records
 the applicable plugin standards and concrete repository conventions in the plan. The
-[language-pack contract](../../docs/ADD-LANGUAGE-PACK.md) defines the required skill names.
+[language-pack contract](https://github.com/svennijhuis/agentPacks/blob/main/docs/ADD-LANGUAGE-PACK.md) defines the required skill names.
 
 ## Provider support
 
@@ -112,11 +112,11 @@ Authored: `plugin.json`, `mcp.json` (empty scaffold), `skills/`, `rules/`, `agen
 
 Generated only in validation output or on `marketplace` / `marketplace-beta`: client manifests and `com.*` provider trees.
 
-Portable model tiers are authored on each agent and mapped in [`models.source.json`](../../models.source.json).
+Portable model tiers are authored on each agent (`model:` tier); the repo maps them to client ids at build time.
 Default `inherit`. Every squad agent is `standard` except `squad-architect` (`frontier`); none uses `fast`. Copilot ids use dotted versions (`claude-sonnet-5.5`, `claude-opus-5.5`).
 
 Test changes on a feature branch without merging to `main`:
-[ADD-SKILL.md: Test a skill locally](../../docs/ADD-SKILL.md#test-a-skill-locally).
+[ADD-SKILL.md: Test a skill locally](https://github.com/svennijhuis/agentPacks/blob/main/docs/ADD-SKILL.md#test-a-skill-locally).
 
 ## Adopted from `orchestrate`
 
@@ -160,4 +160,4 @@ plus Superpowers and MAO; still out of scope for locked v1:
 - Extra playbook catalogs that make the pack larger, not simpler
 - The `orchestrate` substrate: SDK-spawned cloud workers, `plan.json` / `state.json`, Slack mirroring, Andon stop signals, failure-mode retry tables. Squad ships no scripts, credentials, or remote service; the human at plan-confirm is its stop signal
 
-See [ADD-SKILL.md](../../docs/ADD-SKILL.md), [ADD-HOOK.md](../../docs/ADD-HOOK.md), [ADD-AGENT.md](../../docs/ADD-AGENT.md), and [ADD-RULE.md](../../docs/ADD-RULE.md).
+See [ADD-SKILL.md](https://github.com/svennijhuis/agentPacks/blob/main/docs/ADD-SKILL.md), [ADD-HOOK.md](https://github.com/svennijhuis/agentPacks/blob/main/docs/ADD-HOOK.md), [ADD-AGENT.md](https://github.com/svennijhuis/agentPacks/blob/main/docs/ADD-AGENT.md), and [ADD-RULE.md](https://github.com/svennijhuis/agentPacks/blob/main/docs/ADD-RULE.md).

@@ -24,10 +24,10 @@ Canonical standards live once under `standards/`:
 - `rust.md`: ownership, public APIs, types, dependencies, unsafe code, formatting, and central crate / toolchain pins.
 - `errors-concurrency.md`: recoverable errors, panic boundaries, async work, locks, and cancellation.
 - `testing.md`: unit, integration, documentation, feature, and concurrent tests.
-- [`http-api.md`](../../shared/standards/http-api.md): named collection envelope for list APIs, not a root JSON array (shared across language packs).
+- [`http-api.md`](https://github.com/svennijhuis/agentPacks/blob/main/shared/standards/http-api.md): named collection envelope for list APIs, not a root JSON array (shared across language packs).
 
 `standards.source.json` maps each document to the skills that need it. Generation copies selected
-documents into `references/standards/`: see [ADD-LANGUAGE-PACK.md](../../docs/ADD-LANGUAGE-PACK.md).
+documents into `references/standards/`: see [ADD-LANGUAGE-PACK.md](https://github.com/svennijhuis/agentPacks/blob/main/docs/ADD-LANGUAGE-PACK.md).
 
 ## Standards and repository conventions
 
@@ -55,5 +55,5 @@ Generated on `marketplace` / `marketplace-beta` or in temporary validation outpu
 `.cursor-plugin/`, `.codex-plugin/`, `com.anthropic.claude-code/`, `com.openai.codex/`,
 `com.github.copilot/`, and each skill's `references/standards/` directory.
 
-See [ADD-LANGUAGE-PACK.md](../../docs/ADD-LANGUAGE-PACK.md) and
-[ADD-SKILL.md](../../docs/ADD-SKILL.md).
+See [ADD-LANGUAGE-PACK.md](https://github.com/svennijhuis/agentPacks/blob/main/docs/ADD-LANGUAGE-PACK.md) and
+[ADD-SKILL.md](https://github.com/svennijhuis/agentPacks/blob/main/docs/ADD-SKILL.md).

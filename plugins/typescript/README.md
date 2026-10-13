@@ -19,7 +19,7 @@ Canonical standards live once under `standards/`:
 
 - `typescript.md`: strictness, `unknown` vs `any`, modules, exhaustiveness, promises.
 - `testing.md`: runner match, behaviour coverage, isolation.
-- [`http-api.md`](../../shared/standards/http-api.md): named collection envelope for list APIs, not a root JSON array (shared across language packs).
+- [`http-api.md`](https://github.com/svennijhuis/agentPacks/blob/main/shared/standards/http-api.md): named collection envelope for list APIs, not a root JSON array (shared across language packs).
 
 `standards.source.json` maps each document to the skills that need it.
 
@@ -28,4 +28,4 @@ Canonical standards live once under `standards/`:
 Authored: `plugin.json`, `standards.source.json`, `standards/`, and `skills/`.
 No shipped MCP server.
 
-See [ADD-LANGUAGE-PACK.md](../../docs/ADD-LANGUAGE-PACK.md).
+See [ADD-LANGUAGE-PACK.md](https://github.com/svennijhuis/agentPacks/blob/main/docs/ADD-LANGUAGE-PACK.md).

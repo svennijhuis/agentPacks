@@ -41,4 +41,4 @@ Generated only in validation output or on `marketplace` / `marketplace-beta`: cl
 manifests and `com.*` provider trees.
 
 Test on a feature branch without merging to `main`:
-[ADD-SKILL.md: Test a skill locally](../../docs/ADD-SKILL.md#test-a-skill-locally).
+[ADD-SKILL.md: Test a skill locally](https://github.com/svennijhuis/agentPacks/blob/main/docs/ADD-SKILL.md#test-a-skill-locally).
