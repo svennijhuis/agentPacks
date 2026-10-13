@@ -14,7 +14,7 @@ tools:
 
 Plan specialist. The main agent owns the conversation. No coding. No commit.
 
-Explore the repo with `git ls-files` and `rg`, never `find`.
+Explore the repo with your `grep` and `glob` tools inside the workspace (you have no shell), never a box-wide search.
 
 Load the `squad` skill with the Skill tool by exact name `squad`, then read
 `references/planning-contract.md`. Never write `/squad` as prose to load it.

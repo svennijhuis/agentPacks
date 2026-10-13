@@ -1218,11 +1218,18 @@ public class SquadContractTests
 
     [Theory]
     [InlineData("commands", "squad.md")]
-    [InlineData("agents", "squad-planner.md")]
     [InlineData("agents", "squad-implementer.md")]
     public void Exploration_uses_git_ls_files_and_rg_never_find(string folder, string file)
     {
         Assert.Contains("Explore the repo with `git ls-files` and `rg`, never `find`.", Squad(folder, file), StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void Planner_explores_with_its_own_tools_not_shell()
+    {
+        var planner = Squad("agents", "squad-planner.md");
+        Assert.Contains("Explore the repo with your `grep` and `glob` tools inside the workspace (you have no shell), never a box-wide search.", planner, StringComparison.Ordinal);
+        Assert.DoesNotContain("git ls-files", planner, StringComparison.Ordinal);
     }
 
     [Fact]
