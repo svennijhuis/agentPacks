@@ -6,7 +6,8 @@ description: From changed code, write docs/smoke/<slug>.md. No product-code edit
 # HTTP scenarios
 
 Load the `scenarios-md` skill with the Skill tool by exact name `scenarios-md`. Never write
-`/scenarios` as prose to load it. Then run its complete changed-code-first flow and write only
-`docs/smoke/<slug>.md` in the current app workspace (the repo under test).
+`/scenarios` as prose to load it. Then run its complete changed-code-first flow and write
+`docs/smoke/<slug>.md` in the current app workspace (the repo under test). If the user answers yes to its
+verify harness ask, the `verify-harness` skill also writes `docs/verify.md` and `docs/smoke-report.md`.
 
 Do not edit product source. Do not commit, merge, or push.

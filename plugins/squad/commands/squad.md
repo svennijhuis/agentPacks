@@ -15,6 +15,8 @@ Resume: a resumed or stopped run that edits the plan (`## Status`) runs check-pl
 
 The main agent is the thin workflow controller. Specialists own their context.
 
+Verify harness: when the change touches app behavior and `docs/verify.md` is missing, ask once `Make a runnable verify harness too? (yes/no)` as the skill says. Yes loads `verify-harness`; no carries on and writes no `docs/verify.md`.
+
 1. Print the request, size route, every detected stack, the stacks applicable to this change, pack
    status, workspace, standards, repository conventions, and next action. Missing facts remain explicit.
 2. For an obvious small change, write the tiny plan (goal, decision, verify command), then implement and verify directly. Do not call the planner, implementer, verifier, orchestrator, reviewers, or retro.

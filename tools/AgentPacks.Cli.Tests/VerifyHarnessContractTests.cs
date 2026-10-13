@@ -161,6 +161,16 @@ public sealed class VerifyHarnessContractTests
             f => f.Contains("/squad/verify/", StringComparison.Ordinal));
     }
 
+    [Fact]
+    public void Commands_mirror_verify_harness_ask_and_verifier_skips_needs_tags()
+    {
+        var root = TestRepository.SourceRoot();
+        var commands = Path.Combine(root, "plugins", "squad", "commands");
+        Assert.Contains("Make a runnable verify harness too? (yes/no)", File.ReadAllText(Path.Combine(commands, "squad.md")), StringComparison.Ordinal);
+        Assert.Contains("also writes `docs/verify.md` and `docs/smoke-report.md`", File.ReadAllText(Path.Combine(commands, "scenarios.md")), StringComparison.Ordinal);
+        Assert.Contains("tagged `needs:` → `skipped`", File.ReadAllText(Path.Combine(root, "plugins", "squad", "agents", "squad-verifier.md")), StringComparison.Ordinal);
+    }
+
     private static string VerifyHarnessDir() => Path.Combine(
         TestRepository.SourceRoot(), "plugins", "squad", "skills", "verify-harness");
 
