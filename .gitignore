@@ -16,4 +16,3 @@ artifacts/
 Thumbs.db
 
 # Squad Plan gap patches (never committed)
-*.gap-*.patch

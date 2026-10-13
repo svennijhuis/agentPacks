@@ -901,10 +901,10 @@ public class SquadContractTests
     public void After_a_plan_gap_the_gitignored_patch_holds_the_diff_and_the_tree_is_kept()
     {
         var contract = Squad("skills", "squad", "references", "planning-contract.md");
-        var start = contract.IndexOf("```sh\ngit add -N .", StringComparison.Ordinal);
+        var start = contract.IndexOf("```sh\np=\"$(git rev-parse --git-dir)/squad/", StringComparison.Ordinal);
         Assert.True(start >= 0, "save command missing from planning-contract");
         var save = contract[(start + 6)..contract.IndexOf("\n```", start + 6, StringComparison.Ordinal)]
-            .Replace("<slug>", "2026-10-12-x", StringComparison.Ordinal).Replace("<n>", "1", StringComparison.Ordinal);
+            .Replace("<yyyy-mm-dd>-<slug>", "2026-10-12-x", StringComparison.Ordinal).Replace("<n>", "1", StringComparison.Ordinal);
         foreach (var banned in new[] { "reset --hard", "git clean", "git checkout", "git restore" })
         {
             Assert.DoesNotContain(banned, save, StringComparison.Ordinal);
@@ -913,7 +913,6 @@ public class SquadContractTests
         var dir = Directory.CreateTempSubdirectory("plan-gap-").FullName;
         try
         {
-            File.Copy(Path.Combine(TestRepository.SourceRoot(), ".gitignore"), Path.Combine(dir, ".gitignore"));
             Directory.CreateDirectory(Path.Combine(dir, "docs", "plans"));
             File.WriteAllText(Path.Combine(dir, "a.txt"), "base\n");
             Sh(dir, "git init -q && git add -A && git -c user.name=t -c user.email=t@t commit -qm base");
@@ -922,13 +921,14 @@ public class SquadContractTests
 
             Sh(dir, save);
 
-            var patch = Path.Combine(dir, "docs", "plans", "2026-10-12-x.gap-1.patch");
+            var patch = Path.Combine(dir, ".git", "squad", "2026-10-12-x.gap-1.patch");
             Assert.True(new FileInfo(patch).Length > 0);
             var text = File.ReadAllText(patch);
             Assert.Contains("+slice 1 done", text, StringComparison.Ordinal);
             Assert.Contains("new.txt", text, StringComparison.Ordinal);
-            Assert.Contains("gap-1.patch", Sh(dir, "git check-ignore docs/plans/2026-10-12-x.gap-1.patch"), StringComparison.Ordinal);
-            Assert.DoesNotContain("gap-1.patch", Sh(dir, "git status --porcelain"), StringComparison.Ordinal);
+            Assert.False(File.Exists(Path.Combine(dir, ".gitignore")), "save must not create or edit .gitignore");
+            var status = Sh(dir, "git status --porcelain").Split('\n', StringSplitOptions.RemoveEmptyEntries).Select(l => l.Trim()).OrderBy(l => l, StringComparer.Ordinal).ToArray();
+            Assert.Equal(new[] { "?? new.txt", "M a.txt" }, status);
             Assert.Equal("", Sh(dir, "git diff --cached --name-only"));
             Assert.Contains("?? new.txt", Sh(dir, "git status --porcelain"), StringComparison.Ordinal);
             Assert.Equal("slice 1 done, uncommitted\n", File.ReadAllText(Path.Combine(dir, "a.txt")));
@@ -947,7 +947,7 @@ public class SquadContractTests
         Assert.True(at >= 0, "replan-after-plan-gap line missing");
         var line = contract[at..contract.IndexOf('\n', at)];
         Assert.Contains("`git diff --stat`", line, StringComparison.Ordinal);
-        Assert.Contains("`docs/plans/<slug>.gap-<n>.patch`", line, StringComparison.Ordinal);
+        Assert.Contains("`.git/squad/<yyyy-mm-dd>-<slug>.gap-<n>.patch`", line, StringComparison.Ordinal);
         Assert.Contains("the main agent runs `git diff --stat`", line, StringComparison.Ordinal);
         Assert.Contains("keeps its already-changed files", line, StringComparison.Ordinal);
         Assert.Contains("run `git diff --stat`, then `squad-planner` in `next-round` mode on that gap only", Squad("commands", "squad.md"), StringComparison.Ordinal);
@@ -1111,6 +1111,39 @@ public class SquadContractTests
         var command = Squad("commands", "squad.md");
         Assert.Contains("which ends with `git reset -q`; no `reset --hard`, `clean`, `checkout`, or `restore`", command, StringComparison.Ordinal);
         Assert.DoesNotContain("no reset or clean", command, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void Slice_loop_lints_status_before_each_implementer_and_back_to_back_edits_each_lint()
+    {
+        var command = Squad("commands", "squad.md");
+        Assert.Contains("Inside the loop, slice 1 included: write `## Status` (implementing slice i/N), run check-plan, wait for exit 0, then spawn the implementer.", command, StringComparison.Ordinal);
+        Assert.Contains("Two plan edits in a row each get their own check-plan, or combine them into one write and lint that.", command, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void Skill_and_linter_paths_are_named_and_filesystem_search_is_banned()
+    {
+        var command = Squad("commands", "squad.md");
+        Assert.Contains("read `skills/squad/SKILL.md` relative to this plugin's root", command, StringComparison.Ordinal);
+        Assert.Contains("`../pack-check/skills/pack-check/scripts/` from that root", command, StringComparison.Ordinal);
+        Assert.Contains("Never run `find` or any filesystem search for skills or linters.", command, StringComparison.Ordinal);
+        var root = Path.Combine(TestRepository.SourceRoot(), "plugins", "squad");
+        Assert.True(File.Exists(Path.Combine(root, "skills", "squad", "SKILL.md")));
+        Assert.True(File.Exists(Path.Combine(root, "..", "pack-check", "skills", "pack-check", "scripts", "check-plan.sh")));
+        Assert.True(File.Exists(Path.Combine(root, "..", "pack-check", "skills", "pack-check", "scripts", "check-plan.ps1")));
+    }
+
+    [Fact]
+    public void Gap_patch_is_dated_outside_the_worktree_and_never_touches_gitignore()
+    {
+        foreach (var text in new[] { Squad("commands", "squad.md"), Squad("skills", "squad", "references", "planning-contract.md") })
+        {
+            Assert.Contains("`.git/squad/<yyyy-mm-dd>-<slug>.gap-<n>.patch`", text, StringComparison.Ordinal);
+            Assert.DoesNotContain("docs/plans/<slug>.gap-", text, StringComparison.Ordinal);
+            Assert.DoesNotContain("gitignored by", text, StringComparison.Ordinal);
+        }
+        Assert.Contains("never edit the product `.gitignore` for it", Squad("skills", "squad", "references", "planning-contract.md"), StringComparison.Ordinal);
     }
 
     [Fact]

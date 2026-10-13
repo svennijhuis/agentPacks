@@ -284,15 +284,15 @@ Precedence: the repo's own structure and conventions come first; the architect M
 
 - `Design gap: <question>`: the planner found a hole in `## Design`. The main agent reruns `squad-architect` once with that question, then the planner continues. At most 1 rerun.
 - `Plan gap: <question>`: the implementer needs a decision the plan lacks. It stops the slice instead of guessing and leaves any partial diff uncommitted. The main agent runs the planner in `next-round` mode on that gap only, so the question goes to the user. The answer is recorded in `## Grill log` and `## Decisions`. The architect reruns only when the gap is about design. A fresh implementer then redoes that slice with the updated plan path.
-- Saving a Plan gap: before the planner round, the main agent saves the partial diff, untracked files included, to `docs/plans/<slug>.gap-<n>.patch`, and checks that the file exists and is non-empty. Saving fails → stop the run. Implementers never commit, so there is no slice commit to reset to: the tree is left as it is (no `reset --hard`, `clean`, `checkout`, or `restore`; the git pack blocks them and they would drop finished slices). The patch is never committed: the repo `.gitignore` carries `*.gap-*.patch` (add the rule when missing). The fresh implementer gets the patch path to read and redoes the slice on the current tree, keeping or replacing the partial edits to match the updated plan. The retro lists the gap.
+- Saving a Plan gap: before the planner round, the main agent saves the partial diff, untracked files included, to `.git/squad/<yyyy-mm-dd>-<slug>.gap-<n>.patch` (under `git rev-parse --git-dir`, so it works in worktrees), and checks that the file exists and is non-empty. Saving fails → stop the run. Implementers never commit, so there is no slice commit to reset to: the tree is left as it is (no `reset --hard`, `clean`, `checkout`, or `restore`; the git pack blocks them and they would drop finished slices). The patch lives outside the worktree, so it is never committed and needs no ignore rule: never edit the product `.gitignore` for it. `git status` after the save shows only the slice files. The fresh implementer gets the patch path to read and redoes the slice on the current tree, keeping or replacing the partial edits to match the updated plan. The retro lists the gap.
 
 ```sh
-git add -N . && git diff HEAD --binary > docs/plans/<slug>.gap-<n>.patch && test -s docs/plans/<slug>.gap-<n>.patch && git reset -q
+p="$(git rev-parse --git-dir)/squad/<yyyy-mm-dd>-<slug>.gap-<n>.patch" && mkdir -p "${p%/*}" && git add -N . && git diff HEAD --binary > "$p" && test -s "$p" && git reset -q
 ```
 
 `git add -N .` only marks untracked files intent-to-add so the diff includes them; the closing `git reset -q` drops those index entries again before hand-off and keeps every working-tree change. The git pack allows it (no `--hard`).
 
-- Replan after a Plan gap: the main agent runs `git diff --stat` and passes its output with `docs/plans/<slug>.gap-<n>.patch`; the planner reads both and rewrites the open slice from the code as it stands now. The slice keeps its already-changed files so the fresh implementer can keep or replace the partial edits; finished slices are not redone.
+- Replan after a Plan gap: the main agent runs `git diff --stat` and passes its output with `.git/squad/<yyyy-mm-dd>-<slug>.gap-<n>.patch`; the planner reads both and rewrites the open slice from the code as it stands now. The slice keeps its already-changed files so the fresh implementer can keep or replace the partial edits; finished slices are not redone.
 - Cap: at most 1 `Plan gap:` per slice. A second one on the same slice becomes `Replan:` for the whole plan, and the retro records it.
 
 Grill rounds stay as they are.
