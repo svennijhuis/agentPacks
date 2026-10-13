@@ -7,7 +7,7 @@ write nothing outside `docs/retros/`. A human applies it. Nothing rewrites a ski
 ## Catch-up
 
 At step 1 of the next run, if the newest plan in `docs/plans/` is still `Status: draft` and has no
-retro with the same date-slug, the main agent spawns `squad-retro` on it first with reason
+retro with the same date-slug (`<date-slug>.md` or `<date-slug>-interrupted.md`), the main agent spawns `squad-retro` on it first with reason
 `interrupted`. The retro's Summary records that reason. That catch-up retro is named
 `docs/retros/<yyyy-mm-dd>-<slug>-interrupted.md`, so the resumed run's final retro keeps
 `<yyyy-mm-dd>-<slug>.md` and neither rewrites the other. Right after `squad-retro` writes the catch-up

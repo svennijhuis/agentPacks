@@ -1026,8 +1026,13 @@ public class SquadContractTests
     [Fact]
     public void No_shell_is_an_environment_block_not_a_fix_round()
     {
-        Assert.Contains("the main agent stops and reports `Environment block: no shell`", Squad("skills", "squad", "references", "review-contract.md"), StringComparison.Ordinal);
-        Assert.Contains("No shell (calls rejected): stop and report `Environment block: no shell`; spend no fix round on it.", Squad("commands", "squad.md"), StringComparison.Ordinal);
+        var contract = Squad("skills", "squad", "references", "review-contract.md");
+        Assert.Contains("the main agent stops before routing and reports `Environment block: no shell`", contract, StringComparison.Ordinal);
+        Assert.Contains("Environment block (verify and fix rounds only;", contract, StringComparison.Ordinal);
+        var command = Squad("commands", "squad.md");
+        var block = command.IndexOf("No shell (calls rejected) at verify: stop and report `Environment block: no shell` before routing", StringComparison.Ordinal);
+        Assert.True(block >= 0, "no-shell stop missing from /squad");
+        Assert.True(block < command.IndexOf("Route `fix`, `pass`, or `replan`", StringComparison.Ordinal), "no-shell stop must come before routing a fix");
         Assert.Contains("Shell calls rejected → `blocked: environment (no shell)`", Squad("agents", "squad-verifier.md"), StringComparison.Ordinal);
     }
 
@@ -1035,6 +1040,7 @@ public class SquadContractTests
     public void Catch_up_retro_uses_the_interrupted_suffix()
     {
         Assert.Contains("`docs/retros/<yyyy-mm-dd>-<slug>-interrupted.md`", Squad("skills", "squad", "references", "retro.md"), StringComparison.Ordinal);
+        Assert.Contains("retro with the same date-slug (`<date-slug>.md` or `<date-slug>-interrupted.md`)", Squad("skills", "squad", "references", "retro.md"), StringComparison.Ordinal);
         Assert.Contains("it writes `docs/retros/<yyyy-mm-dd>-<slug>-interrupted.md`", Squad("commands", "squad.md"), StringComparison.Ordinal);
         Assert.Contains("`<date-slug>-interrupted.md` for a catch-up", Squad("agents", "squad-retro.md"), StringComparison.Ordinal);
     }
