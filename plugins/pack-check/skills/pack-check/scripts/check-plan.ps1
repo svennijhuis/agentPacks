@@ -55,6 +55,14 @@ if ($slicesIndex -ge 0) {
         if ($slice -notmatch 'done') { Warn "slice has no done check: $slice" }
     }
 }
+if ($slicesIndex -ge 0) {
+    $sliceCount = 0; $reason = $false
+    for ($i = $slicesIndex + 1; $i -lt $lines.Count -and -not $lines[$i].StartsWith('## '); $i++) {
+        if ($lines[$i] -match '^[0-9]+\. ') { $sliceCount++ }
+        if ($lines[$i].StartsWith('Single slice because:')) { $reason = $true }
+    }
+    if ($sliceCount -eq 1 -and -not $reason) { Warn "one slice and no 'Single slice because:' line" }
+}
 $mapIndex = [Array]::IndexOf($lines, '## Map')
 if ($mapIndex -ge 0) {
     $hasMermaid = $false

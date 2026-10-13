@@ -160,9 +160,22 @@ public sealed class PlanLintTests : IDisposable
     }
 
     [Fact]
+    public void One_slice_needs_a_single_slice_reason_in_both_twins()
+    {
+        Assert.True(PwshAvailable.Value, "pwsh must be on PATH so both twins run.");
+        var plan = Confirmed + "\nDesign: skipped (small)\n\n## Slices\n1. Client. Files: src/Api/A.cs, src/Infra/B.cs. Done when A_works is green.\n";
+        var (exit, output) = Lint("2026-10-13-add-x.md", plan);
+        Assert.Equal(0, exit);
+        Assert.Contains("warning: one slice and no 'Single slice because:' line", output, StringComparison.Ordinal);
+        Assert.Equal((0, string.Empty), Lint("2026-10-13-add-x.md", plan + "Single slice because: one project only.\n"));
+        var two = plan + "2. Adapter. Files: src/Infra/B.cs. Done when B_works is green.\n";
+        Assert.Equal((0, string.Empty), Lint("2026-10-13-add-x.md", two));
+    }
+
+    [Fact]
     public void Slice_files_and_done_match_case_insensitively()
     {
-        var plan = Confirmed + "\nDesign: skipped (small)\n\n## Slices\n1. Client. Files: src/A.cs. Test: A_works. Done when A_works is green.\n";
+        var plan = Confirmed + "\nDesign: skipped (small)\n\n## Slices\n1. Client. Files: src/A.cs. Test: A_works. Done when A_works is green.\nSingle slice because: one project only.\n";
         Assert.Equal((0, string.Empty), Lint("2026-10-12-add-x.md", plan));
     }
 

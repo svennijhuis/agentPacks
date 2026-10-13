@@ -8,7 +8,7 @@ description: Plan → build → verify → review (gated). Uncommitted hand-off.
 Load the `squad` skill with the Skill tool by exact name `squad`. Never write `/squad` as prose
 to load it. Then read `references/planning-contract.md` and `references/review-contract.md`. Read
 the latest same-entrypoint `docs/retros/` file when present; carry its Lessons and Improvements as facts.
-Retro catch-up first: if the newest plan in `docs/plans/` is still `Status: draft` and no `docs/retros/` file has its date-slug (with or without `-interrupted`), spawn `squad-retro` on that plan with reason `interrupted` before anything else; it writes `docs/retros/<yyyy-mm-dd>-<slug>-interrupted.md`. Then run check-retro on that file (not just `test -f`) and fix its findings before going on.
+Resume: a resumed or stopped run that edits the plan (`## Status`) runs check-plan and does not continue until it exits 0. Retro catch-up first: if the newest plan in `docs/plans/` is still `Status: draft` and no `docs/retros/` file has its date-slug (with or without `-interrupted`), spawn `squad-retro` on that plan with reason `interrupted` before anything else; it writes `docs/retros/<yyyy-mm-dd>-<slug>-interrupted.md`. Then run check-retro on that file (not just `test -f`) and fix its findings before going on.
 
 The main agent is the thin workflow controller. Specialists own their context.
 
@@ -26,7 +26,7 @@ The main agent is the thin workflow controller. Specialists own their context.
    Never "keep fixing the report until it parses". Do not increment the round for parse repair. After a failed re-ask, or if the budget is spent,
    merge **once** with that axis marked `accepted, malformed after re-ask` **replacing** the bad payload (**non-blocking**), do not spawn that
    producer again. If input-error still returns after the marker was already supplied, stop and surface: no further merge. The orchestrator itself never retries or launches agents.
-9. No shell (calls rejected) at verify: stop and report `Environment block: no shell` before routing; spend no fix round on it. After every plan write (fix list, hand-off notes, status), rerun check-plan and fix error-level findings; a rejected or failed linter call counts as not run, never as a manual pass. Route `fix`, `pass`, or `replan` as defined by the skill. A `fix` uses a fresh implementer
+9. Every plan edit is a hard step: write, run check-plan, fix, and do not continue until it exits 0 (Status, fix list, hand-off notes, resumed or stopped runs too). No shell (calls rejected) at verify: stop and report `Environment block: no shell` before routing; spend no fix round on it. After every plan write (fix list, hand-off notes, status), rerun check-plan and fix error-level findings; a rejected or failed linter call counts as not run, never as a manual pass. Route `fix`, `pass`, or `replan` as defined by the skill. A `fix` uses a fresh implementer
    invocation (spawn names `fix-list`); the author of the rejected code is not the fixer. Allow at most two fix rounds.
    After `pass`, or after two rounds with only residual `low`/`tiny` notes, at most one residual
    fixup may run as defined by the skill (never a third fan-out; failed spot-check → hand off).

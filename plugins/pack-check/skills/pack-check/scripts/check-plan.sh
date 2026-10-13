@@ -49,6 +49,14 @@ lines | awk '/^## Slices$/{f=1; next} /^## /{f=0} f && /^[0-9]+\. /' | while IFS
   case "$low" in *done*) ;; *) warn "slice has no done check: $slice" ;; esac
 done
 
+if lines | grep -q '^## Slices$'; then
+  section=$(lines | awk '/^## Slices$/{f=1; next} /^## /{f=0} f')
+  count=$(printf '%s\n' "$section" | grep -c '^[0-9][0-9]*\. ')
+  if [ "$count" -eq 1 ] && ! printf '%s\n' "$section" | grep -q '^Single slice because:'; then
+    warn "one slice and no 'Single slice because:' line"
+  fi
+fi
+
 if lines | grep -q '^## Map$'; then
   map=$(lines | awk '/^## Map$/{f=1; next} /^## /{f=0} f')
   printf '%s\n' "$map" | grep -q '^```mermaid' || warn "## Map has no fenced mermaid block"

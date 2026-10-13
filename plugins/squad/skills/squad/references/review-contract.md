@@ -57,7 +57,7 @@ omitted, not listed as `tiny`.
 
 ## Environment block
 
-Environment block (verify and fix rounds only; planning skips a missing linter as the planning contract says): when no shell is available at verify (calls rejected, or no `sh`/`pwsh`), the main agent stops before routing and reports `Environment block: no shell` with the rejected commands. It spends no fix round on it, and the verifier marks affected criteria `blocked: environment (no shell)` instead of `fail`.
+Environment block (at verify and fix rounds; a rejected linter call at a plan edit stops the same way, per the planning contract): when no shell is available at verify (calls rejected, or no `sh`/`pwsh`), the main agent stops before routing and reports `Environment block: no shell` with the rejected commands. It spends no fix round on it, and the verifier marks affected criteria `blocked: environment (no shell)` instead of `fail`.
 
 ## Security gate
 

@@ -59,7 +59,7 @@ Round 1 creates `docs/plans/<yyyy-mm-dd>-<slug>.md` (run date, kebab-case slug) 
 `## Request`, `## Status` set to `draft`, and `## Grill log`. Right after round 1 writes the draft, the main agent runs check-plan on it and fixes its findings before presenting the round. Every round, the planner appends
 `### Round <n>` to `## Grill log`: the questions, the recorded answers, decisions taken, and options
 rejected with the reason. Never rewrite an earlier round. Stop or abandon leaves the file at `draft`.
-After each write the main agent runs the `pack-check` skill's `scripts/check-plan.sh <plan>` (or `check-plan.ps1` without `sh`) when installed. Findings are warnings passed to the next planner invocation; a missing linter or shell is skipped and noted, never a hard fail. Before `Status: confirmed`, the main agent runs check-plan once more and fixes every error-level finding (exit 1) in the plan text, an em dash (U+2014) included: replace it with `:` or `,`, and paraphrase quoted vendor text instead of pasting it. Warnings stay warnings. The main agent reruns check-plan after every plan write, including `## Fix list`, `## Handoff notes`, and `## Status`, and fixes error-level findings. A rejected or failed linter call counts as not run, never as a manual pass.
+Plan edits are a hard step. Every time the plan is written (round 1 draft, each round, write-plan, `## Status`, `## Fix list`, `## Handoff notes`, and on a resumed or stopped run), the main agent runs the `pack-check` skill's `scripts/check-plan.sh <plan>` (or `check-plan.ps1` without `sh`), fixes every error-level finding in the plan text, and reruns until it exits 0 before doing anything else. An em dash (U+2014) is an error: replace it with `:` or `,`, and paraphrase quoted vendor text instead of pasting it. Warnings are passed to the next planner invocation and do not block. A rejected or failed linter call counts as not run, never as a manual pass: shell rejected → stop with `Environment block: no shell`. Only a pack-check that is not installed is skipped and noted.
 
 Writing: plain words, short sentences, one idea per line, no filler or hype, no em dashes or curly quotes.
 
@@ -158,7 +158,7 @@ permission to silently fill unresolved branches.
 
 Ownership: the architect owns `## Design` and `## Map` (where the change goes and why). The planner
 owns `## Slices` (what gets built and in what order). Each slice lists its files (taken from the Map),
-the test it adds, and its done check.
+the test it adds, and its done check. A change that touches more than one project needs at least 2 slices, or a `Single slice because: <reason>` line under `## Slices`.
 
 If the work is too big for one implementer pass, write ordered `## Slices` (data structures and scaffold first, ports and seams before adapters, each slice ending green). Do not stop the human for size alone. Cap: ≤3 slices without asking; more → ask. A slice that would ship a known-worse shape → stop, split, or ask. One plan file. Same branch. Sequential: one fresh `squad-implementer` per slice, then the next.
 
@@ -213,7 +213,8 @@ Hard decisions get an ADR per [the ADR contract](adr.md); the plan links each on
 
 ## Slices
 1. <slice name>: criteria <ids>; files <from ## Map>; test <the test it adds>; done when <check, e.g. those matrix rows are green>
-(Omit or use a single slice when one implementer pass is enough.)
+2. <next slice, when the change touches more than one project>: files <...>; test <...>; done when <...>
+Single slice because: <reason; required instead of slice 2 when one slice is enough>
 
 ## In scope
 ## Out of scope
@@ -266,6 +267,10 @@ coverage is rejected. Deployed/API smoke cites
 
 The plan lives in the file. The implementer builds from it, the verifier checks it, and reviewers
 measure the change against it.
+
+## Resume
+
+A resumed or stopped run edits the plan too (the catch-up sets nothing, but resuming rewrites `## Status`): write, run check-plan, and do not continue until it exits 0.
 
 ## Catch-up retro
 

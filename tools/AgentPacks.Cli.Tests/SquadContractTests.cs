@@ -970,7 +970,7 @@ public class SquadContractTests
     [Fact]
     public void Main_agent_fixes_check_plan_errors_before_confirming()
     {
-        Assert.Contains("Before `Status: confirmed`, the main agent runs check-plan once more and fixes every error-level finding",
+        Assert.Contains("fixes every error-level finding in the plan text, and reruns until it exits 0",
             Squad("skills", "squad", "references", "planning-contract.md"), StringComparison.Ordinal);
         Assert.Contains("Before confirming, run check-plan on the draft and fix every error-level finding (em dash included; paraphrase quoted vendor text)",
             Squad("commands", "squad.md"), StringComparison.Ordinal);
@@ -1006,11 +1006,11 @@ public class SquadContractTests
     [Fact]
     public void Check_plan_reruns_after_every_plan_write_and_a_rejected_call_is_not_a_pass()
     {
-        Assert.Contains("reruns check-plan after every plan write, including `## Fix list`, `## Handoff notes`, and `## Status`",
+        Assert.Contains("Every time the plan is written (round 1 draft, each round, write-plan, `## Status`, `## Fix list`, `## Handoff notes`",
             Squad("skills", "squad", "references", "planning-contract.md"), StringComparison.Ordinal);
-        Assert.Contains("A rejected or failed linter call counts as not run, never as a manual pass.", Squad("skills", "squad", "references", "planning-contract.md"), StringComparison.Ordinal);
+        Assert.Contains("A rejected or failed linter call counts as not run, never as a manual pass:", Squad("skills", "squad", "references", "planning-contract.md"), StringComparison.Ordinal);
         Assert.Contains("After every plan write (fix list, hand-off notes, status), rerun check-plan", Squad("commands", "squad.md"), StringComparison.Ordinal);
-        Assert.Contains("Rerun check-plan after every plan write; a rejected linter call is not run, never a manual pass.", Squad("skills", "squad", "SKILL.md"), StringComparison.Ordinal);
+        Assert.Contains("a rejected linter call is not run, never a manual pass.", Squad("skills", "squad", "SKILL.md"), StringComparison.Ordinal);
     }
 
     [Theory]
@@ -1028,7 +1028,7 @@ public class SquadContractTests
     {
         var contract = Squad("skills", "squad", "references", "review-contract.md");
         Assert.Contains("the main agent stops before routing and reports `Environment block: no shell`", contract, StringComparison.Ordinal);
-        Assert.Contains("Environment block (verify and fix rounds only;", contract, StringComparison.Ordinal);
+        Assert.Contains("Environment block (at verify and fix rounds; a rejected linter call at a plan edit stops the same way", contract, StringComparison.Ordinal);
         var command = Squad("commands", "squad.md");
         var block = command.IndexOf("No shell (calls rejected) at verify: stop and report `Environment block: no shell` before routing", StringComparison.Ordinal);
         Assert.True(block >= 0, "no-shell stop missing from /squad");
@@ -1059,6 +1059,29 @@ public class SquadContractTests
         Assert.Contains("Then run check-retro on that file (not just `test -f`) and fix its findings", Squad("commands", "squad.md"), StringComparison.Ordinal);
         Assert.Contains("the main agent runs check-retro on it (not just `test -f`) and fixes its findings", Squad("skills", "squad", "references", "retro.md"), StringComparison.Ordinal);
         Assert.Contains("the main agent runs check-retro on it (not just `test -f`) and fixes its findings before round 1 starts", Squad("skills", "squad", "references", "planning-contract.md"), StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void Every_plan_edit_is_a_hard_check_plan_step_including_resume()
+    {
+        var contract = Squad("skills", "squad", "references", "planning-contract.md");
+        Assert.Contains("Plan edits are a hard step.", contract, StringComparison.Ordinal);
+        Assert.Contains("and on a resumed or stopped run", contract, StringComparison.Ordinal);
+        Assert.Contains("reruns until it exits 0 before doing anything else", contract, StringComparison.Ordinal);
+        Assert.Contains("## Resume\n\nA resumed or stopped run edits the plan too", contract, StringComparison.Ordinal);
+        var command = Squad("commands", "squad.md");
+        Assert.Contains("Resume: a resumed or stopped run that edits the plan (`## Status`) runs check-plan and does not continue until it exits 0.", command, StringComparison.Ordinal);
+        Assert.Contains("Every plan edit is a hard step: write, run check-plan, fix, and do not continue until it exits 0", command, StringComparison.Ordinal);
+        Assert.Contains("Every plan edit (resume and stop too): write, run check-plan, continue only at exit 0", Squad("skills", "squad", "SKILL.md"), StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void Multi_project_change_needs_two_slices_or_a_reason()
+    {
+        Assert.Contains("More than one project touched: at least 2 slices, or a `Single slice because: <reason>` line", Squad("agents", "squad-planner.md"), StringComparison.Ordinal);
+        var contract = Squad("skills", "squad", "references", "planning-contract.md");
+        Assert.Contains("A change that touches more than one project needs at least 2 slices, or a `Single slice because: <reason>` line", contract, StringComparison.Ordinal);
+        Assert.Contains("Single slice because: <reason;", contract, StringComparison.Ordinal);
     }
 
     private static string Sh(string dir, string command)
