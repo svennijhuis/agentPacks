@@ -145,7 +145,6 @@ public sealed class VerifyHarnessContractTests
         Assert.True(File.ReadAllLines(path).Length <= 50);
         var skill = File.ReadAllText(path);
         Assert.Contains("Write for the next agent: it arrives cold, mid-task", skill, StringComparison.Ordinal);
-        Assert.Contains("Drive for every touched scenario", skill, StringComparison.Ordinal);
         Assert.Contains("Run Cleanup on failure too", skill, StringComparison.Ordinal);
         Assert.DoesNotContain("|---", skill, StringComparison.Ordinal);
     }
@@ -193,13 +192,24 @@ public sealed class VerifyHarnessContractTests
     }
 
     [Fact]
+    public void Creation_proof_drives_one_feature()
+        => Assert.Contains("When creating `docs/verify.md`, run Launch, Doctor, Drive for ONE feature", File.ReadAllText(Path.Combine(VerifyHarnessDir(), "SKILL.md")), StringComparison.Ordinal);
+
+    [Fact]
+    public void Later_runs_drive_every_touched_scenario()
+    {
+        Assert.Contains("Every later run (verifier, or `/scenarios` with an existing verify.md) drives every touched scenario", VerifyHarnessBody(), StringComparison.Ordinal);
+        Assert.Contains("Drive for every touched scenario (not only the one-feature creation proof)", File.ReadAllText(Path.Combine(TestRepository.SourceRoot(), "plugins", "squad", "agents", "squad-verifier.md")), StringComparison.Ordinal);
+    }
+
+    [Fact]
     public void Generated_docs_ban_em_dashes()
         => Assert.Contains("No em dashes in `docs/verify.md` or `docs/smoke-report.md`", VerifyHarnessBody(), StringComparison.Ordinal);
 
     [Fact]
     public void Skipped_is_only_for_failed_needs_and_not_run_is_separate()
     {
-        Assert.Contains("`skipped` only for a failed `needs:` check, `not run` for anything else not driven", VerifyHarnessBody(), StringComparison.Ordinal);
+        Assert.Contains("drives every touched scenario; `skipped` only for a failed `needs:` check, `not run` for anything else not driven", VerifyHarnessBody(), StringComparison.Ordinal);
         Assert.Contains("not driven → `not run`", File.ReadAllText(Path.Combine(TestRepository.SourceRoot(), "plugins", "squad", "agents", "squad-verifier.md")), StringComparison.Ordinal);
     }
 

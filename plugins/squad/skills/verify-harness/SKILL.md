@@ -16,7 +16,7 @@ Internal. Do not run directly: Squad loads this by exact Skill name.
 
 1. **Interview the repo.** Read `package.json`, `*.csproj`, `Dockerfile`, `Makefile` and `README*` via `git ls-files` and `rg`, never `find`, so the launch command is found, not guessed.
 2. **Generate or extend `docs/verify.md`.** Five H2 sections in order: `## Launch`, `## Doctor`, `## Drive`, `## Evidence`, `## Cleanup`.
-3. **Prove it.** Run Launch, Doctor, Drive for every touched scenario, Cleanup. Hand over only if that run passes, and quote its output.
+3. **Prove it.** When creating `docs/verify.md`, run Launch, Doctor, Drive for ONE feature, Cleanup, as a fast handoff proof. Hand over only if that run passes, and quote its output.
 4. **Write the smoke report.** Follow [smoke report](references/smoke-report.md).
 
 Sections:
@@ -29,7 +29,7 @@ Sections:
 
 Rules:
 - **Extend an existing verify.md, never overwrite it**, because hand edits must survive a rerun; change a line only where the app now contradicts it.
-- **Drive every touched scenario; `skipped` only for a failed `needs:` check, `not run` for anything else not driven**, so gaps stay visible.
+- **Every later run (verifier, or `/scenarios` with an existing verify.md) drives every touched scenario; `skipped` only for a failed `needs:` check, `not run` for anything else not driven**, so gaps stay visible.
 - **Drive the real user path, not test-only endpoints**, because a side door proves nothing.
 - **Capture action and result, and check side effects in files, rows or logs**, because a 200 alone can hide a lost write.
 - **Mock only at an existing external boundary**, because a mocked core is not the app.
