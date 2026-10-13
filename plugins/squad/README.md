@@ -45,7 +45,7 @@ Obvious typos, renames, and one-line fixes take the small-change route: the main
 |---|---|---|
 | Skill | `squad` | User-invoked routing, exact Skill-name loading, security gate, fix-round cap, retro, and hand-off |
 | Skill | `scenarios-md` | Skill-tool only. Changed-code → `docs/smoke/<slug>.md`. OpenAPI optional. No product-code edits. Asks yes/no for a runnable verify harness. |
-| Skill | `verify-harness` | Hidden loop skill. Writes `docs/verify.md` (Launch/Doctor/Drive/Evidence/Cleanup) and dry-runs it once. |
+| Skill | `verify-harness` | Hidden loop skill. Writes `docs/verify.md` (Launch/Doctor/Drive/Evidence/Cleanup), dry-runs it once, and rewrites tracked `docs/smoke-report.md` each run. |
 | Contract | `planning-contract` | Turn-based grill inside the orchestrator: frontier rounds, recommended answers, confirmation, plan shape |
 | Contract | `review-contract` | Dual-axis review, severity, report formats, verify-path evaluator gates, and verdict rules |
 | Contract | `retro` | One `docs/retros/` file per run, human-apply only |

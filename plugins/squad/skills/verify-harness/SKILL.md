@@ -8,31 +8,33 @@ metadata:
   audience: loop
 ---
 
-Internal. Do not run directly: Squad loads by exact Skill name.
+Write for the next agent: it arrives cold, mid-task, and must prove a change by running the real app.
 
 # Verify harness
 
-Write only `docs/verify.md`. If one already exists, extend it: add missing parts only; change a line only where the app now contradicts it. Never overwrite (hand edits survive a rerun). Explore with `git ls-files` and `rg`, never `find`. Discover launch from `package.json`, `*.csproj`, `Dockerfile`, `Makefile`, `README*`.
+Internal. Do not run directly: Squad loads this by exact Skill name.
 
-Exactly five H2 sections, in this order:
+1. **Interview the repo.** Read `package.json`, `*.csproj`, `Dockerfile`, `Makefile` and `README*` via `git ls-files` and `rg`, never `find`, so the launch command is found, not guessed.
+2. **Generate or extend `docs/verify.md`.** Five H2 sections in order: `## Launch`, `## Doctor`, `## Drive`, `## Evidence`, `## Cleanup`.
+3. **Prove it.** Run Launch, Doctor, Drive for ONE feature, Cleanup. Hand over only if that run passes, and quote its output.
+4. **Write the smoke report.** Follow [smoke report](references/smoke-report.md).
 
-## Launch
-Exact start cmd, ready signal (port or log line), timeout. No app → `none`.
+Sections:
+- **Launch: exact command, ready signal (port or log line), timeout**, because a hung dev server must not stall the loop.
+- **Doctor: read-only checks only**, because checking must never change state. Hard check fails means `blocked`; tagged checks follow [doctor tags](references/doctor-tags.md).
+- **Drive: one entry per scenario, named like the smoke Case**, so the verifier can pick the touched ones.
+- **Evidence: `$(git rev-parse --git-dir)/squad/verify/<slug>/`, one file per scenario**, because it stays out of git without touching the product `.gitignore`.
+- **Cleanup: stop command, keep evidence**, because proof outlives the process.
 
-## Doctor
-Read-only checks. Hard (app up, port answers): fail → `blocked`. Optional tagged `needs: kv|secret|auth|local-resource`: fail → `skipped` with reason; rest keeps running. Local-secrets: [squad skill](../squad/SKILL.md). Never invent tokens. No app → `none`.
+Rules:
+- **Extend an existing verify.md, never overwrite it**, because hand edits must survive a rerun; change a line only where the app now contradicts it.
+- **Drive the real user path, not test-only endpoints**, because a side door proves nothing.
+- **Capture action and result, and check side effects in files, rows or logs**, because a 200 alone can hide a lost write.
+- **Mock only at an existing external boundary**, because a mocked core is not the app.
+- **Use an e2e tool or Playwright only if the repo already has one; never install or vendor browser tooling**, because v1 adds no tools.
+- **Stop only what this run started (track PIDs), never kill by name**, because other work may share the box.
+- **Run Cleanup on failure too, and confirm evidence still exists after it**, because the proof is the point.
+- **No app: Launch and Doctor say none, Drive uses the CLI or tests**, so libraries still get a harness.
+- **Secrets: follow the local-secrets rule in [squad skill](../squad/SKILL.md)**, because invented tokens are worse than a skip.
 
-## Drive
-Per scenario: steps (cmd/curl/selector) + expect. When smoke exists, one Drive entry per Case name. Scenario depending on a skipped Doctor check → `skipped`. No app → CLI or tests only. If the repo already has an e2e tool (e.g. tester-army `e2e`) or Playwright, Drive may use it for UI steps; never install or vendor tester-army/e2e or any browser tooling.
-
-## Evidence
-Dir: `$(git rev-parse --git-dir)/squad/verify/<slug>/` (outside worktree; never edit product `.gitignore`). One file per scenario.
-
-Drive the real user path, not test-only endpoints. Capture the action and its result. Confirm side effects in files, rows, or logs. Mock only at an existing external boundary.
-
-## Cleanup
-Stop only processes/resources this run started (track PIDs); never kill by name. Never delete evidence (earlier run evidence stays). Always run, even on failure. No app → `none` (still keep evidence).
-
-When a section has nothing: write `none` (or the no-app rule above). Out of scope: maintaining this skill, installing browser tooling, anything that needs secrets.
-
-Dry-run once end to end for real (Launch → Doctor → Drive → Cleanup; Cleanup always). Hand over only if that run passes; quote the output.
+Out of scope: maintaining this skill, browser tooling installs, anything that needs secrets.

@@ -19,7 +19,7 @@ public sealed class VerifyHarnessContractTests
         Assert.NotNull(metadata);
         Assert.Equal("loop", metadata!["audience"]);
         Assert.Contains("../squad/SKILL.md", skill.Body, StringComparison.Ordinal);
-        Assert.Contains("needs: kv|secret|auth|local-resource", skill.Body, StringComparison.Ordinal);
+        Assert.Contains("needs: kv|secret|auth|local-resource", VerifyHarnessBody(), StringComparison.Ordinal);
         Assert.Contains("$(git rev-parse --git-dir)/squad/verify/", skill.Body, StringComparison.Ordinal);
         Assert.DoesNotContain('\u2014', skill.Body);
         Assert.False(File.Exists(Path.Combine(root, "plugins", "squad", "commands", "verify.md")));
@@ -32,10 +32,33 @@ public sealed class VerifyHarnessContractTests
         var skill = File.ReadAllText(Path.Combine(
             TestRepository.SourceRoot(), "plugins", "squad", "skills", "scenarios-md", "SKILL.md"));
         Assert.Contains("FIRST ask yes/no: generate runnable verify harness?", skill, StringComparison.Ordinal);
-        Assert.Contains("No → write only the smoke md; write no `docs/verify.md`", skill, StringComparison.Ordinal);
+        Assert.Contains("No → write only the smoke md; write no `docs/verify.md` and no `docs/smoke-report.md`", skill, StringComparison.Ordinal);
         Assert.Contains("load `verify-harness` by exact Skill name", skill, StringComparison.Ordinal);
         Assert.Contains("`## Drive` gets one entry per scenario matched by Case name", skill, StringComparison.Ordinal);
+        Assert.Contains("rewrite tracked `docs/smoke-report.md`", skill, StringComparison.Ordinal);
         Assert.DoesNotContain('\u2014', skill);
+    }
+
+    [Fact]
+    public void Verify_harness_rewrites_smoke_report_with_sections_and_local_evidence()
+    {
+        var body = VerifyHarnessBody();
+        Assert.Contains("docs/smoke-report.md", body, StringComparison.Ordinal);
+        Assert.Contains("fully rewritten each run", body, StringComparison.Ordinal);
+        Assert.Contains("(never appended)", body, StringComparison.Ordinal);
+        Assert.Contains("Manual steps", body, StringComparison.Ordinal);
+        Assert.Contains("Expected", body, StringComparison.Ordinal);
+        Assert.Contains("Outcome", body, StringComparison.Ordinal);
+        Assert.Contains("`pass`", body, StringComparison.Ordinal);
+        Assert.Contains("`fail`", body, StringComparison.Ordinal);
+        Assert.Contains("`skipped`", body, StringComparison.Ordinal);
+        Assert.Contains("`blocked`", body, StringComparison.Ordinal);
+        Assert.Contains("local to the run machine", body, StringComparison.Ordinal);
+        Assert.Contains("$(git rev-parse --git-dir)/squad/verify/", body, StringComparison.Ordinal);
+        Assert.Contains("never tracked", body, StringComparison.Ordinal);
+        Assert.Contains("No clickable link", body, StringComparison.Ordinal);
+        Assert.Contains("plain text", body, StringComparison.Ordinal);
+        Assert.DoesNotContain('\u2014', body);
     }
 
     [Fact]
@@ -46,8 +69,7 @@ public sealed class VerifyHarnessContractTests
         Assert.Contains("Make a runnable verify harness too? (yes/no)", skill, StringComparison.Ordinal);
         Assert.Contains("Yes → load `verify-harness` by exact Skill name", skill, StringComparison.Ordinal);
         Assert.Contains("No → carry on; write no `docs/verify.md`", skill, StringComparison.Ordinal);
-        Assert.Contains("needs: kv|secret|auth|local-resource", File.ReadAllText(Path.Combine(
-            TestRepository.SourceRoot(), "plugins", "squad", "skills", "verify-harness", "SKILL.md")), StringComparison.Ordinal);
+        Assert.Contains("needs: kv|secret|auth|local-resource", VerifyHarnessBody(), StringComparison.Ordinal);
     }
 
     [Fact]
@@ -69,9 +91,9 @@ public sealed class VerifyHarnessContractTests
     public void Verify_harness_drive_may_use_existing_e2e_or_playwright_never_install()
     {
         var body = VerifyHarnessBody();
-        Assert.Contains("tester-army `e2e`) or Playwright", body, StringComparison.Ordinal);
-        Assert.Contains("Drive may use it for UI steps", body, StringComparison.Ordinal);
-        Assert.Contains("never install or vendor tester-army/e2e or any browser tooling", body, StringComparison.Ordinal);
+        Assert.Contains("e2e tool or Playwright only if the repo already has one", body, StringComparison.Ordinal);
+        Assert.Contains("never install or vendor browser tooling", body, StringComparison.Ordinal);
+        Assert.Contains("v1 adds no tools", body, StringComparison.Ordinal);
         Assert.DoesNotContain('\u2014', body);
     }
 
@@ -79,10 +101,10 @@ public sealed class VerifyHarnessContractTests
     public void Verify_harness_extends_existing_verify_md_never_overwrites()
     {
         var body = VerifyHarnessBody();
-        Assert.Contains("If one already exists, extend it", body, StringComparison.Ordinal);
-        Assert.Contains("add missing parts only", body, StringComparison.Ordinal);
+        Assert.Contains("Extend an existing verify.md, never overwrite it", body, StringComparison.Ordinal);
+        Assert.Contains("hand edits must survive a rerun", body, StringComparison.Ordinal);
         Assert.Contains("change a line only where the app now contradicts it", body, StringComparison.Ordinal);
-        Assert.Contains("Never overwrite (hand edits survive a rerun)", body, StringComparison.Ordinal);
+        Assert.Contains("Generate or extend `docs/verify.md`", body, StringComparison.Ordinal);
     }
 
     [Fact]
@@ -90,8 +112,8 @@ public sealed class VerifyHarnessContractTests
     {
         var body = VerifyHarnessBody();
         Assert.Contains("Drive the real user path, not test-only endpoints", body, StringComparison.Ordinal);
-        Assert.Contains("Capture the action and its result", body, StringComparison.Ordinal);
-        Assert.Contains("Confirm side effects in files, rows, or logs", body, StringComparison.Ordinal);
+        Assert.Contains("Capture action and result", body, StringComparison.Ordinal);
+        Assert.Contains("check side effects in files, rows or logs", body, StringComparison.Ordinal);
         Assert.Contains("Mock only at an existing external boundary", body, StringComparison.Ordinal);
     }
 
@@ -99,9 +121,9 @@ public sealed class VerifyHarnessContractTests
     public void Verify_harness_cleanup_is_pid_only_and_keeps_evidence()
     {
         var body = VerifyHarnessBody();
-        Assert.Contains("Stop only processes/resources this run started (track PIDs)", body, StringComparison.Ordinal);
+        Assert.Contains("Stop only what this run started (track PIDs)", body, StringComparison.Ordinal);
         Assert.Contains("never kill by name", body, StringComparison.Ordinal);
-        Assert.Contains("Never delete evidence (earlier run evidence stays)", body, StringComparison.Ordinal);
+        Assert.Contains("confirm evidence still exists after it", body, StringComparison.Ordinal);
     }
 
     [Fact]
@@ -116,6 +138,33 @@ public sealed class VerifyHarnessContractTests
         Assert.Equal(["scenarios.md", "squad-review.md", "squad.md"], names);
     }
 
-    private static string VerifyHarnessBody() => File.ReadAllText(Path.Combine(
-        TestRepository.SourceRoot(), "plugins", "squad", "skills", "verify-harness", "SKILL.md"));
+    [Fact]
+    public void Verify_harness_skill_is_at_most_50_lines_and_proves_one_feature()
+    {
+        var path = Path.Combine(VerifyHarnessDir(), "SKILL.md");
+        Assert.True(File.ReadAllLines(path).Length <= 50);
+        var skill = File.ReadAllText(path);
+        Assert.Contains("Write for the next agent: it arrives cold, mid-task", skill, StringComparison.Ordinal);
+        Assert.Contains("Drive for ONE feature", skill, StringComparison.Ordinal);
+        Assert.Contains("Run Cleanup on failure too", skill, StringComparison.Ordinal);
+        Assert.DoesNotContain("|---", skill, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void Verify_evidence_is_never_tracked()
+    {
+        var tracked = TestRepository.SourceRoot();
+        Assert.Contains("never tracked", VerifyHarnessBody(), StringComparison.Ordinal);
+        Assert.DoesNotContain(Directory.EnumerateFiles(tracked, "*", SearchOption.AllDirectories)
+            .Select(f => f.Replace('\\', '/'))
+            .Where(f => !f.Contains("/.git/", StringComparison.Ordinal)),
+            f => f.Contains("/squad/verify/", StringComparison.Ordinal));
+    }
+
+    private static string VerifyHarnessDir() => Path.Combine(
+        TestRepository.SourceRoot(), "plugins", "squad", "skills", "verify-harness");
+
+    private static string VerifyHarnessBody() => string.Join("\n",
+        new[] { "SKILL.md", "references/smoke-report.md", "references/doctor-tags.md" }
+            .Select(f => File.ReadAllText(Path.Combine(VerifyHarnessDir(), f))));
 }

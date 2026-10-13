@@ -12,7 +12,7 @@ Type /scenarios. One job. Write only in the current app workspace (the repo unde
 `/squad-review` is code/diff. `/squad` may read this file later for test design; it does not write or push smoke.
 Do not require a named cloud product or TST. Do not invent a host.
 
-0. FIRST ask yes/no: generate runnable verify harness? No → write only the smoke md; write no `docs/verify.md`. Yes → after the smoke md, load `verify-harness` by exact Skill name; `## Drive` gets one entry per scenario matched by Case name.
+0. FIRST ask yes/no: generate runnable verify harness? No → write only the smoke md; write no `docs/verify.md` and no `docs/smoke-report.md`. Yes → after the smoke md, load `verify-harness` by exact Skill name; `## Drive` gets one entry per scenario matched by Case name; rewrite tracked `docs/smoke-report.md`.
 1. Read [the smoke matrix](../../references/smoke-matrix.md). Seed kinds from that shape.
 2. Seed **changed code first**: controllers, routes, handlers, deployed HTTP APIs / cloud hosts (HTTP and timer/cron triggers).
 3. OpenAPI/Swagger if present: fill gaps only. Not required. Do not ask for a spec when code is enough.
