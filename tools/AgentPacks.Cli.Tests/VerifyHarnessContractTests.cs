@@ -31,7 +31,7 @@ public sealed class VerifyHarnessContractTests
     {
         var skill = File.ReadAllText(Path.Combine(
             TestRepository.SourceRoot(), "plugins", "squad", "skills", "scenarios-md", "SKILL.md"));
-        Assert.Contains("FIRST ask yes/no: generate runnable verify harness?", skill, StringComparison.Ordinal);
+        Assert.Contains("When `docs/verify.md` is missing, FIRST ask yes/no: generate runnable verify harness?", skill, StringComparison.Ordinal);
         Assert.Contains("No → write only the smoke md; write no `docs/verify.md` and no `docs/smoke-report.md`", skill, StringComparison.Ordinal);
         Assert.Contains("load `verify-harness` by exact Skill name", skill, StringComparison.Ordinal);
         Assert.Contains("`## Drive` gets one entry per scenario matched by Case name", skill, StringComparison.Ordinal);
@@ -169,6 +169,17 @@ public sealed class VerifyHarnessContractTests
         Assert.Contains("Make a runnable verify harness too? (yes/no)", File.ReadAllText(Path.Combine(commands, "squad.md")), StringComparison.Ordinal);
         Assert.Contains("also writes `docs/verify.md` and `docs/smoke-report.md`", File.ReadAllText(Path.Combine(commands, "scenarios.md")), StringComparison.Ordinal);
         Assert.Contains("tagged `needs:` → `skipped`", File.ReadAllText(Path.Combine(root, "plugins", "squad", "agents", "squad-verifier.md")), StringComparison.Ordinal);
+    }
+
+    [Theory]
+    [InlineData("skills/scenarios-md/SKILL.md")]
+    [InlineData("commands/scenarios.md")]
+    [InlineData("skills/squad/SKILL.md")]
+    [InlineData("commands/squad.md")]
+    public void Verify_harness_ask_fires_only_when_verify_md_is_missing(string relative)
+    {
+        var text = File.ReadAllText(Path.Combine(TestRepository.SourceRoot(), "plugins", "squad", relative));
+        Assert.Contains("`docs/verify.md` is missing", text, StringComparison.Ordinal);
     }
 
     private static string VerifyHarnessDir() => Path.Combine(
