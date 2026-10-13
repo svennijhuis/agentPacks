@@ -83,7 +83,7 @@ public sealed class VerifyHarnessContractTests
         Assert.Contains("needs: kv|secret|auth|local-resource", tags, StringComparison.Ordinal);
         Assert.Contains("403", tags, StringComparison.Ordinal);
         Assert.Contains("the rest keeps running", tags, StringComparison.Ordinal);
-        Assert.Contains("depends on a failed tagged check: `skipped`", tags, StringComparison.Ordinal);
+        Assert.Contains("depends on a failed tagged check: `skipped (needs: <tag>, <status>)`", tags, StringComparison.Ordinal);
         Assert.Contains("Cleanup (always)", verifier, StringComparison.Ordinal);
         Assert.Contains("Missing file → today's behavior", verifier, StringComparison.Ordinal);
         Assert.DoesNotContain('\u2014', verifier);
@@ -282,6 +282,8 @@ public sealed class VerifyHarnessContractTests
         var skill = File.ReadAllText(Path.Combine(TestRepository.SourceRoot(), "plugins", "squad", "skills", "squad", "SKILL.md"));
         Assert.Contains("verify (verify cmd, then the wider unit suite once;", skill, StringComparison.Ordinal);
         Assert.Contains("Verify runs that command, then the wider unit suite once.", skill, StringComparison.Ordinal);
+        Assert.Contains("verify directly: run the verify command, then the wider unit suite once.",
+            File.ReadAllText(Path.Combine(TestRepository.SourceRoot(), "plugins", "squad", "commands", "squad.md")), StringComparison.Ordinal);
     }
 
     private static string VerifyHarnessDir() => Path.Combine(

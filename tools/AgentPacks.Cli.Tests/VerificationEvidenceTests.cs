@@ -145,6 +145,50 @@ public sealed class VerificationEvidenceTests
             VerificationEvidence.Evaluate(new VerificationContext(true, ["dotnet"], report)));
     }
 
+    /// <summary>
+    /// Real rows from Tester's run (logs-ec67203/b1-smoke-report.md): the harness Outcome form
+    /// <c>skipped (needs: kv, 403)</c> in the Result cell is a sanctioned skip and does not block.
+    /// </summary>
+    [Fact]
+    public void Harness_outcome_form_skipped_needs_is_parsed_and_does_not_block_pass()
+    {
+        var report = VerificationEvidence.Parse("""
+            | Criterion | Result | Command | Evidence |
+            |---|---|---|---|
+            | 9 | `pass` | `curl -sS -w '\n%{http_code}' 'http://127.0.0.1:3000/premium-forecast?city=Berlin'` | .git/squad/verify/forecast-notes/20261013-233419/premium-kv-denied.txt (local to the run machine) |
+            | 10 | `skipped (needs: kv, 403)` | `curl -sS -w '\n%{http_code}' 'http://127.0.0.1:3000/premium-forecast?city=Berlin'` | .git/squad/verify/forecast-notes/20261013-233419/premium-forecast.txt (local to the run machine) |
+
+            **Suite:** pass
+            **Stacks:** dotnet
+            **Boundary:** not covered
+            **Coverage:** empty input and duplicate id
+            """);
+
+        Assert.Equal(2, report.Criteria.Count);
+        Assert.Equal(VerificationEvidence.Skipped, report.Criteria[1].Result);
+        Assert.StartsWith("needs: kv, 403", report.Criteria[1].Evidence, StringComparison.Ordinal);
+        Assert.Equal(VerificationOutcome.Pass,
+            VerificationEvidence.Evaluate(new VerificationContext(true, ["dotnet"], report)));
+    }
+
+    [Fact]
+    public void Skipped_paren_without_needs_is_not_a_pass()
+    {
+        var report = VerificationEvidence.Parse("""
+            | Criterion | Result | Command | Evidence |
+            |---|---|---|---|
+            | 1 | pass | `dotnet test App.slnx` | `2 passed` |
+            | 2 | skipped (ran out of time) | `curl -s http://localhost:5000/orders` | orders.txt |
+
+            **Suite:** pass
+            **Stacks:** dotnet
+            **Boundary:** not covered
+            **Coverage:** empty input and duplicate id
+            """);
+        Assert.Equal(VerificationOutcome.NotPass,
+            VerificationEvidence.Evaluate(new VerificationContext(true, ["dotnet"], report)));
+    }
+
     [Fact]
     public void All_skipped_report_is_not_a_pass()
     {

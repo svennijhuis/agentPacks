@@ -118,9 +118,9 @@ public static partial class VerificationEvidence
     public static VerificationReport Parse(string markdown)
     {
         var criteria = CriterionRow.Matches(markdown)
-            .Select(match => new VerificationCriterion(
+            .Select(match => Criterion(
                 int.Parse(match.Groups[1].Value),
-                match.Groups[2].Value.Trim().ToLowerInvariant(),
+                match.Groups[2].Value.Trim().Trim('`').Trim().ToLowerInvariant(),
                 Unwrap(match.Groups[3].Value),
                 match.Groups[4].Value.Trim()))
             .ToList();
@@ -256,6 +256,22 @@ public static partial class VerificationEvidence
     {
         var value = Unwrap(command);
         return value.Length > 0 && value != "—" && value != "-" && value != "none";
+    }
+
+    /// <summary>
+    /// The harness Outcome form <c>skipped (needs: kv, 403)</c> becomes Result <c>skipped</c> with the
+    /// <c>needs:</c> reason moved to the front of Evidence, so both stated forms gate the same way.
+    /// </summary>
+    private static VerificationCriterion Criterion(int number, string result, string command, string evidence)
+    {
+        if (result.StartsWith("skipped (needs:", StringComparison.Ordinal) && result.EndsWith(')'))
+        {
+            var reason = result["skipped (".Length..^1].Trim();
+            return new VerificationCriterion(number, Skipped, command,
+                evidence.Length == 0 ? reason : $"{reason}; {evidence}");
+        }
+
+        return new VerificationCriterion(number, result, command, evidence);
     }
 
     /// <summary>
