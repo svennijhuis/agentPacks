@@ -1009,7 +1009,7 @@ public class SquadContractTests
         Assert.Contains("Every time the plan is written (round 1 draft, each round, write-plan, `## Status`, `## Fix list`, `## Handoff notes`",
             Squad("skills", "squad", "references", "planning-contract.md"), StringComparison.Ordinal);
         Assert.Contains("A rejected or failed linter call counts as not run, never as a manual pass:", Squad("skills", "squad", "references", "planning-contract.md"), StringComparison.Ordinal);
-        Assert.Contains("After every plan write (fix list, hand-off notes, status), rerun check-plan", Squad("commands", "squad.md"), StringComparison.Ordinal);
+        Assert.Contains("A rejected or failed linter call counts as not run, never as a manual pass.", Squad("commands", "squad.md"), StringComparison.Ordinal);
         Assert.Contains("a rejected linter call is not run, never a manual pass.", Squad("skills", "squad", "SKILL.md"), StringComparison.Ordinal);
     }
 
@@ -1073,6 +1073,36 @@ public class SquadContractTests
         Assert.Contains("Resume: a resumed or stopped run that edits the plan (`## Status`) runs check-plan and does not continue until it exits 0.", command, StringComparison.Ordinal);
         Assert.Contains("Every plan edit is a hard step: write, run check-plan, fix, and do not continue until it exits 0", command, StringComparison.Ordinal);
         Assert.Contains("Every plan edit (resume and stop too): write, run check-plan, continue only at exit 0", Squad("skills", "squad", "SKILL.md"), StringComparison.Ordinal);
+    }
+
+    [Theory]
+    [InlineData("before each implementer slice")]
+    [InlineData("before the fix-list implementer")]
+    [InlineData("before each reviewer round")]
+    [InlineData("before `squad-retro` at hand-off")]
+    public void Last_plan_edit_is_linted_before_every_spawn_and_retro(string step)
+    {
+        const string rule = "Before any agent starts or the retro is written, the last plan edit must be followed by check-plan exit 0: ";
+        foreach (var text in new[] { Squad("commands", "squad.md"), Squad("skills", "squad", "references", "planning-contract.md") })
+        {
+            var at = text.IndexOf(rule, StringComparison.Ordinal);
+            Assert.True(at >= 0, "spawn lint rule missing");
+            var line = text.Substring(at, text.IndexOf('.', at + rule.Length) - at);
+            Assert.Contains(step, line, StringComparison.Ordinal);
+        }
+        Assert.Contains("the last edit exits 0 before any agent starts or the retro is written", Squad("skills", "squad", "SKILL.md"), StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void Linter_path_is_named_and_old_duplicate_rule_is_gone()
+    {
+        var command = Squad("commands", "squad.md");
+        Assert.Contains("`skills/pack-check/scripts/check-plan.sh <plan>` (or `check-plan.ps1`); do not search the filesystem", command, StringComparison.Ordinal);
+        Assert.DoesNotContain("After every plan write (fix list, hand-off notes, status), rerun check-plan", command, StringComparison.Ordinal);
+        var contract = Squad("skills", "squad", "references", "planning-contract.md");
+        Assert.Contains("`skills/pack-check/scripts/check-plan.sh` and `skills/pack-check/scripts/check-plan.ps1`", contract, StringComparison.Ordinal);
+        foreach (var f in new[] { "check-plan.sh", "check-plan.ps1" })
+            Assert.True(File.Exists(Path.Combine(TestRepository.SourceRoot(), "plugins", "pack-check", "skills", "pack-check", "scripts", f)), f);
     }
 
     [Fact]
