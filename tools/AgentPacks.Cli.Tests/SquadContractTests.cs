@@ -947,7 +947,7 @@ public class SquadContractTests
         Assert.True(at >= 0, "replan-after-plan-gap line missing");
         var line = contract[at..contract.IndexOf('\n', at)];
         Assert.Contains("`git diff --stat`", line, StringComparison.Ordinal);
-        Assert.Contains("`.git/squad/<yyyy-mm-dd>-<slug>.gap-<n>.patch`", line, StringComparison.Ordinal);
+        Assert.Contains("`$(git rev-parse --git-dir)/squad/<yyyy-mm-dd>-<slug>.gap-<n>.patch`", line, StringComparison.Ordinal);
         Assert.Contains("the main agent runs `git diff --stat`", line, StringComparison.Ordinal);
         Assert.Contains("keeps its already-changed files", line, StringComparison.Ordinal);
         Assert.Contains("run `git diff --stat`, then `squad-planner` in `next-round` mode on that gap only", Squad("commands", "squad.md"), StringComparison.Ordinal);
@@ -1139,11 +1139,43 @@ public class SquadContractTests
     {
         foreach (var text in new[] { Squad("commands", "squad.md"), Squad("skills", "squad", "references", "planning-contract.md") })
         {
-            Assert.Contains("`.git/squad/<yyyy-mm-dd>-<slug>.gap-<n>.patch`", text, StringComparison.Ordinal);
+            Assert.Contains("`$(git rev-parse --git-dir)/squad/<yyyy-mm-dd>-<slug>.gap-<n>.patch`", text, StringComparison.Ordinal);
             Assert.DoesNotContain("docs/plans/<slug>.gap-", text, StringComparison.Ordinal);
             Assert.DoesNotContain("gitignored by", text, StringComparison.Ordinal);
+            Assert.DoesNotContain("`.git/squad", text, StringComparison.Ordinal);
         }
         Assert.Contains("never edit the product `.gitignore` for it", Squad("skills", "squad", "references", "planning-contract.md"), StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void Gap_save_works_in_a_linked_worktree()
+    {
+        var contract = Squad("skills", "squad", "references", "planning-contract.md");
+        var start = contract.IndexOf("```sh\np=\"$(git rev-parse --git-dir)/squad/", StringComparison.Ordinal);
+        var save = contract[(start + 6)..contract.IndexOf("\n```", start + 6, StringComparison.Ordinal)]
+            .Replace("<yyyy-mm-dd>-<slug>", "2026-10-12-x", StringComparison.Ordinal).Replace("<n>", "1", StringComparison.Ordinal);
+        var dir = Directory.CreateTempSubdirectory("plan-gap-wt-").FullName;
+        try
+        {
+            var main = Path.Combine(dir, "main");
+            Directory.CreateDirectory(main);
+            File.WriteAllText(Path.Combine(main, "a.txt"), "base\n");
+            Sh(main, "git init -q && git add -A && git -c user.name=t -c user.email=t@t commit -qm base && git worktree add -q ../wt");
+            var wt = Path.Combine(dir, "wt");
+            Assert.True(File.Exists(Path.Combine(wt, ".git")), "linked worktree .git should be a file");
+            File.WriteAllText(Path.Combine(wt, "a.txt"), "slice 1 done\n");
+            File.WriteAllText(Path.Combine(wt, "new.txt"), "partial\n");
+            Sh(wt, save);
+            var patch = Path.Combine(Sh(wt, "git rev-parse --git-dir").Trim(), "squad", "2026-10-12-x.gap-1.patch");
+            if (!Path.IsPathRooted(patch)) patch = Path.Combine(wt, patch);
+            Assert.Contains("new.txt", File.ReadAllText(patch), StringComparison.Ordinal);
+            var status = Sh(wt, "git status --porcelain").Split('\n', StringSplitOptions.RemoveEmptyEntries).Select(l => l.Trim()).OrderBy(l => l, StringComparer.Ordinal).ToArray();
+            Assert.Equal(new[] { "?? new.txt", "M a.txt" }, status);
+        }
+        finally
+        {
+            Directory.Delete(dir, true);
+        }
     }
 
     [Fact]
