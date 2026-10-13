@@ -85,7 +85,7 @@ command files into the workspace once (keep `.cursor/commands/` out of commits),
 
 ```bash
 mkdir -p .cursor/commands && cp /tmp/agentpacks-marketplace/plugins/squad/commands/*.md .cursor/commands/
-for f in .cursor/commands/*.md; do awk -v r=/tmp/agentpacks-marketplace/plugins/squad '{print} /^---$/ && ++n==2 {print "Squad plugin root: " r}' "$f" > "$f.tmp" && mv "$f.tmp" "$f"; done
+for f in .cursor/commands/*.md; do grep -q '^Squad plugin root: /' "$f" || { awk -v r=/tmp/agentpacks-marketplace/plugins/squad '{print} /^---$/ && ++n==2 {print "Squad plugin root: " r}' "$f" > "$f.tmp" && mv "$f.tmp" "$f"; }; done
 cursor-agent -p --trust -f --plugin-dir /tmp/agentpacks-marketplace/plugins/squad --plugin-dir /tmp/agentpacks-marketplace/plugins/pack-check --plugin-dir /tmp/agentpacks-marketplace/plugins/dotnet "/squad <ask>"
 ```
 

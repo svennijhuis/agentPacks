@@ -3,7 +3,7 @@ name: squad
 description: Plan → build → verify → review (gated). Uncommitted hand-off.
 ---
 
-Squad plugin root: a `Squad plugin root:` line above this one when present, else the squad `--plugin-dir`; never search for it (no find/glob). Paths, relative to that root: `skills/squad/SKILL.md`, `skills/squad/references/planning-contract.md`, `../pack-check/skills/pack-check/scripts/check-plan.sh` (or `check-plan.ps1`).
+Root: use the stamped `Squad plugin root:` line above this one when present, else the squad `--plugin-dir`; never search for it (no find/glob). Paths, relative to that root: `skills/squad/SKILL.md`, `skills/squad/references/planning-contract.md`, `../pack-check/skills/pack-check/scripts/check-plan.sh` (or `check-plan.ps1`).
 
 # Squad
 

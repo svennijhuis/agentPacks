@@ -87,12 +87,15 @@ public sealed class OutTreeInstallTests
         var work = Directory.CreateTempSubdirectory("headless-copy-").FullName;
         try
         {
-            var info = new ProcessStartInfo("bash", ["-c", snippet]) { WorkingDirectory = work, RedirectStandardError = true };
-            using (var process = Process.Start(info)!)
+            var stampOnly = lines[1].Replace("/tmp/agentpacks-marketplace", root, StringComparison.Ordinal);
+            foreach (var script in new[] { snippet, stampOnly, snippet })
             {
+                var info = new ProcessStartInfo("bash", ["-c", script]) { WorkingDirectory = work, RedirectStandardError = true };
+                using var process = Process.Start(info)!;
                 var err = process.StandardError.ReadToEnd();
                 process.WaitForExit();
                 Assert.True(process.ExitCode == 0, err);
+                Assert.Equal(1, File.ReadAllLines(Path.Combine(work, ".cursor", "commands", "squad.md")).Count(l => l.StartsWith("Squad plugin root:", StringComparison.Ordinal)));
             }
 
             var copy = File.ReadAllText(Path.Combine(work, ".cursor", "commands", "squad.md")).Split('\n');
@@ -102,6 +105,7 @@ public sealed class OutTreeInstallTests
             Assert.StartsWith("Squad plugin root: ", stamp, StringComparison.Ordinal);
             var stamped = stamp["Squad plugin root: ".Length..];
             Assert.True(File.Exists(Path.Combine(stamped, "skills", "squad", "SKILL.md")), stamped);
+            Assert.Equal(1, copy.Count(l => l.StartsWith("Squad plugin root:", StringComparison.Ordinal)));
         }
         finally
         {

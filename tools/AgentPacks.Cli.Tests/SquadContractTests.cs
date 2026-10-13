@@ -1185,7 +1185,7 @@ public class SquadContractTests
         var command = Squad("commands", "squad.md").Replace("\r\n", "\n", StringComparison.Ordinal);
         var body = command[(command.IndexOf("\n---\n", 4, StringComparison.Ordinal) + 5)..].TrimStart('\n');
         var first = body[..body.IndexOf('\n')];
-        Assert.StartsWith("Squad plugin root: a `Squad plugin root:` line above this one when present, else the squad `--plugin-dir`; never search for it (no find/glob). Paths, relative to that root:", first, StringComparison.Ordinal);
+        Assert.StartsWith("Root: use the stamped `Squad plugin root:` line above this one when present, else the squad `--plugin-dir`; never search for it (no find/glob). Paths, relative to that root:", first, StringComparison.Ordinal);
         var readme = File.ReadAllText(Path.Combine(TestRepository.SourceRoot(), "README.md"));
         var plugins = Path.Combine(TestRepository.SourceRoot(), "plugins");
         foreach (var rel in new[] { "skills/squad/SKILL.md", "skills/squad/references/planning-contract.md", "../pack-check/skills/pack-check/scripts/check-plan.sh", "../pack-check/skills/pack-check/scripts/check-plan.ps1" })
