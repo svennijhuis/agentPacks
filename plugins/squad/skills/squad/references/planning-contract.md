@@ -56,7 +56,7 @@ their dependants. Recompute the tree before returning the next round.
 ### Draft plan file
 
 Round 1 creates `docs/plans/<yyyy-mm-dd>-<slug>.md` (run date, kebab-case slug) with `# <outcome>`,
-`## Request`, `## Status` set to `draft`, and `## Grill log`. Every round, the planner appends
+`## Request`, `## Status` set to `draft`, and `## Grill log`. Right after round 1 writes the draft, the main agent runs check-plan on it and fixes its findings before presenting the round. Every round, the planner appends
 `### Round <n>` to `## Grill log`: the questions, the recorded answers, decisions taken, and options
 rejected with the reason. Never rewrite an earlier round. Stop or abandon leaves the file at `draft`.
 After each write the main agent runs the `pack-check` skill's `scripts/check-plan.sh <plan>` (or `check-plan.ps1` without `sh`) when installed. Findings are warnings passed to the next planner invocation; a missing linter or shell is skipped and noted, never a hard fail. Before `Status: confirmed`, the main agent runs check-plan once more and fixes every error-level finding (exit 1) in the plan text, an em dash (U+2014) included: replace it with `:` or `,`, and paraphrase quoted vendor text instead of pasting it. Warnings stay warnings. The main agent reruns check-plan after every plan write, including `## Fix list`, `## Handoff notes`, and `## Status`, and fixes error-level findings. A rejected or failed linter call counts as not run, never as a manual pass.
@@ -267,6 +267,10 @@ coverage is rejected. Deployed/API smoke cites
 The plan lives in the file. The implementer builds from it, the verifier checks it, and reviewers
 measure the change against it.
 
+## Catch-up retro
+
+After `squad-retro` writes the catch-up `docs/retros/<yyyy-mm-dd>-<slug>-interrupted.md`, the main agent runs check-retro on it (not just `test -f`) and fixes its findings before round 1 starts.
+
 ## Precedence
 
 Precedence: the repo's own structure and conventions come first; the architect Map reads them and the planner records them under `## Repository conventions observed`. Skill standards fill the gaps where the repo has no convention. A standard overrides a repo convention only as an explicit improvement, logged under `## Decisions` with the reason, plus an ADR if it changes structure.
@@ -278,8 +282,10 @@ Precedence: the repo's own structure and conventions come first; the architect M
 - Saving a Plan gap: before the planner round, the main agent saves the partial diff, untracked files included, to `docs/plans/<slug>.gap-<n>.patch`, and checks that the file exists and is non-empty. Saving fails → stop the run. Implementers never commit, so there is no slice commit to reset to: the tree is left as it is (no `reset --hard`, `clean`, `checkout`, or `restore`; the git pack blocks them and they would drop finished slices). The patch is never committed: the repo `.gitignore` carries `*.gap-*.patch` (add the rule when missing). The fresh implementer gets the patch path to read and redoes the slice on the current tree, keeping or replacing the partial edits to match the updated plan. The retro lists the gap.
 
 ```sh
-git add -N . && git diff HEAD --binary > docs/plans/<slug>.gap-<n>.patch && test -s docs/plans/<slug>.gap-<n>.patch
+git add -N . && git diff HEAD --binary > docs/plans/<slug>.gap-<n>.patch && test -s docs/plans/<slug>.gap-<n>.patch && git reset -q
 ```
+
+`git add -N .` only marks untracked files intent-to-add so the diff includes them; the closing `git reset -q` drops those index entries again before hand-off and keeps every working-tree change. The git pack allows it (no `--hard`).
 
 - Replan after a Plan gap: the main agent runs `git diff --stat` and passes its output with `docs/plans/<slug>.gap-<n>.patch`; the planner reads both and rewrites the open slice from the code as it stands now. The slice keeps its already-changed files so the fresh implementer can keep or replace the partial edits; finished slices are not redone.
 - Cap: at most 1 `Plan gap:` per slice. A second one on the same slice becomes `Replan:` for the whole plan, and the retro records it.

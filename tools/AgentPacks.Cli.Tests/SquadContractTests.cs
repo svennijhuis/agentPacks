@@ -929,6 +929,8 @@ public class SquadContractTests
             Assert.Contains("new.txt", text, StringComparison.Ordinal);
             Assert.Contains("gap-1.patch", Sh(dir, "git check-ignore docs/plans/2026-10-12-x.gap-1.patch"), StringComparison.Ordinal);
             Assert.DoesNotContain("gap-1.patch", Sh(dir, "git status --porcelain"), StringComparison.Ordinal);
+            Assert.Equal("", Sh(dir, "git diff --cached --name-only"));
+            Assert.Contains("?? new.txt", Sh(dir, "git status --porcelain"), StringComparison.Ordinal);
             Assert.Equal("slice 1 done, uncommitted\n", File.ReadAllText(Path.Combine(dir, "a.txt")));
         }
         finally
@@ -1014,6 +1016,7 @@ public class SquadContractTests
     [Theory]
     [InlineData("squad-orchestrator.md")]
     [InlineData("squad-implementer.md")]
+    [InlineData("squad-planner.md")]
     public void Plan_writers_never_write_an_em_dash(string agent)
     {
         Assert.Contains("Never write U+2014 (em dash) into the plan (`## Fix list`, `## Handoff notes`, `## Status`)", Squad("agents", agent), StringComparison.Ordinal);
@@ -1034,6 +1037,22 @@ public class SquadContractTests
         Assert.Contains("`docs/retros/<yyyy-mm-dd>-<slug>-interrupted.md`", Squad("skills", "squad", "references", "retro.md"), StringComparison.Ordinal);
         Assert.Contains("it writes `docs/retros/<yyyy-mm-dd>-<slug>-interrupted.md`", Squad("commands", "squad.md"), StringComparison.Ordinal);
         Assert.Contains("`<date-slug>-interrupted.md` for a catch-up", Squad("agents", "squad-retro.md"), StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void Round_one_draft_is_linted_right_away()
+    {
+        Assert.Contains("Right after round 1 writes the draft, the main agent runs check-plan on it and fixes its findings", Squad("skills", "squad", "references", "planning-contract.md"), StringComparison.Ordinal);
+        Assert.Contains("After round 1 writes the draft plan, run check-plan on it right away and fix its findings", Squad("commands", "squad.md"), StringComparison.Ordinal);
+        Assert.Contains("draft plan file from round 1 (check-plan it at once, fix findings)", Squad("skills", "squad", "SKILL.md"), StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void Catch_up_retro_is_linted_with_check_retro()
+    {
+        Assert.Contains("Then run check-retro on that file (not just `test -f`) and fix its findings", Squad("commands", "squad.md"), StringComparison.Ordinal);
+        Assert.Contains("the main agent runs check-retro on it (not just `test -f`) and fixes its findings", Squad("skills", "squad", "references", "retro.md"), StringComparison.Ordinal);
+        Assert.Contains("the main agent runs check-retro on it (not just `test -f`) and fixes its findings before round 1 starts", Squad("skills", "squad", "references", "planning-contract.md"), StringComparison.Ordinal);
     }
 
     private static string Sh(string dir, string command)

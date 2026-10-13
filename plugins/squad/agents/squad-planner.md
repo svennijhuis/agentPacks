@@ -20,6 +20,7 @@ Load the `squad` skill with the Skill tool by exact name `squad`, then read
 Constraints:
 - Facts from repo or primary sources only. Never ask a fact. Find facts yourself.
 - Decisions stay with the human. Do not load an external grilling catalog.
+- Never write U+2014 (em dash) into the plan (`## Fix list`, `## Handoff notes`, `## Status`) or any other section; use `:` or `,`, and paraphrase quoted text that has one.
 - Prefer constraint-shaped recommendations (`must not…`, `out of scope…`) over do-lists.
 - Too big for one implementer pass: write ordered `## Slices` (≤3; more → ask). Do not stop for size alone.
 - Write only the plan `.md` file. No source code. Do not implement or verify.

@@ -245,7 +245,7 @@ client. Plans land in `docs/plans/<yyyy-mm-dd>-<slug>.md`, retros in
 1. Newest docs/plans/ file still Status: draft with no matching retro → spawn squad-retro on it first (reason: interrupted). Then read the latest same-entrypoint docs/retros/ file: carry its Lessons and Improvements as facts; never auto-apply
 2. Orient codebase (applicable stacks only)
 3. Small change? → main agent only, spawn nobody → tiny plan (goal, decision, verify cmd) → verify (no retro; + suggestions if pack/skill/agent/command/contract evidenced) → hand off uncommitted
-4. Else grill/plan rounds (facts via subagent; decisions = human); draft plan file from round 1, each round appended → architect rule fired? main agent spawns squad-architect for Design + Map (planner Design gap → ≤1 architect rerun) → confirm sets Status: confirmed
+4. Else grill/plan rounds (facts via subagent; decisions = human); draft plan file from round 1 (check-plan it at once, fix findings), each round appended → architect rule fired? main agent spawns squad-architect for Design + Map (planner Design gap → ≤1 architect rerun) → confirm sets Status: confirmed
 5. Gate spins: sequential implementers (missing/one ## Slices → one whole-plan implementer; else one fresh implementer per slice in order; Plan gap → planner next-round on that gap → fresh implementer redoes the slice; 2nd Plan gap on a slice → Replan) → then one verifier → reviewers in parallel (correctness + plan/spec; security ONLY if trust boundary)
 6. Orchestrator merges ≤2 fix rounds; ≤1 re-ask per producer per review round then accept marker (non-blocking); optional residual fixup → hand off uncommitted → squad-retro writes the retro, also on stop or fail (+ suggestions if pack/skill/agent/command/contract evidenced)
 
