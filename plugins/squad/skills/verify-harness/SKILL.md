@@ -17,7 +17,7 @@ Internal. Do not run directly: Squad loads this by exact Skill name.
 1. **Interview the repo.** Read `package.json`, `*.csproj`, `Dockerfile`, `Makefile` and `README*` via `git ls-files` and `rg`, never `find`, so the launch command is found, not guessed.
 2. **Generate or extend `docs/verify.md`.** Five H2 sections in order: `## Launch`, `## Doctor`, `## Drive`, `## Evidence`, `## Cleanup`.
 3. **Prove it.** When creating `docs/verify.md`, run Launch, Doctor, Drive for ONE feature, Cleanup, as a fast handoff proof. Hand over only if that run passes, and quote its output.
-4. **Write the smoke report.** Follow [smoke report](references/smoke-report.md) Then run pack-check `check-verify.sh docs/verify.md docs/smoke-report.md` (or the `.ps1` twin) and fix every finding before handover.
+4. **Write the smoke report.** Follow [smoke report](references/smoke-report.md). Then run pack-check `check-verify.sh docs/verify.md docs/smoke-report.md` (or the `.ps1` twin) and fix every finding before handover.
 
 Sections:
 - **Launch: exact command, ready signal (port or health endpoint first, else a log line), timeout**, because a hung dev server must not stall the loop. Follow [process rules](references/process.md).
