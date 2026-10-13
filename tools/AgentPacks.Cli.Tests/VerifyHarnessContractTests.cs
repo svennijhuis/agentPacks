@@ -193,19 +193,39 @@ public sealed class VerifyHarnessContractTests
     }
 
     [Fact]
-    public void Tester_fixes_not_run_needs_non_2xx_pgid_run_id_find_path_no_em_dash()
+    public void Generated_docs_ban_em_dashes()
+        => Assert.Contains("No em dashes in `docs/verify.md` or `docs/smoke-report.md`", VerifyHarnessBody(), StringComparison.Ordinal);
+
+    [Fact]
+    public void Skipped_is_only_for_failed_needs_and_not_run_is_separate()
+    {
+        Assert.Contains("`skipped` only for a failed `needs:` check, `not run` for anything else not driven", VerifyHarnessBody(), StringComparison.Ordinal);
+        Assert.Contains("not driven → `not run`", File.ReadAllText(Path.Combine(TestRepository.SourceRoot(), "plugins", "squad", "agents", "squad-verifier.md")), StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void Needs_check_fails_on_403_any_non_2xx_or_error()
+        => Assert.Contains("A 403, any other non-2xx status, or any error means the check failed", VerifyHarnessBody(), StringComparison.Ordinal);
+
+    [Fact]
+    public void Evidence_is_per_run_dir()
+        => Assert.Contains("squad/verify/<slug>/<run-id>/", VerifyHarnessBody(), StringComparison.Ordinal);
+
+    [Fact]
+    public void Cleanup_kills_process_group_and_checks_ports_free()
     {
         var body = VerifyHarnessBody();
-        Assert.Contains("`not run` for anything else not driven", body, StringComparison.Ordinal);
-        Assert.Contains("A 403, any other non-2xx status, or any error means the check failed", body, StringComparison.Ordinal);
         Assert.Contains("`exec` or `setsid`", body, StringComparison.Ordinal);
         Assert.Contains("kills that process group", body, StringComparison.Ordinal);
         Assert.Contains("check every Launch port is free", body, StringComparison.Ordinal);
-        Assert.Contains("squad/verify/<slug>/<run-id>/", body, StringComparison.Ordinal);
-        Assert.Contains("No em dashes in `docs/verify.md` or `docs/smoke-report.md`", body, StringComparison.Ordinal);
-        var root = TestRepository.SourceRoot();
-        Assert.Contains("`<Squad plugin root>/skills/scenarios-md/SKILL.md`", File.ReadAllText(Path.Combine(root, "plugins", "squad", "commands", "scenarios.md")), StringComparison.Ordinal);
-        Assert.Contains("not driven → `not run`", File.ReadAllText(Path.Combine(root, "plugins", "squad", "agents", "squad-verifier.md")), StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void Scenarios_command_names_full_skill_path_never_find()
+    {
+        var command = File.ReadAllText(Path.Combine(TestRepository.SourceRoot(), "plugins", "squad", "commands", "scenarios.md"));
+        Assert.Contains("`<Squad plugin root>/skills/scenarios-md/SKILL.md`", command, StringComparison.Ordinal);
+        Assert.Contains("never run `find` for it", command, StringComparison.Ordinal);
     }
 
     private static string VerifyHarnessDir() => Path.Combine(
