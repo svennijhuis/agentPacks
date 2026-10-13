@@ -1206,6 +1206,16 @@ public class SquadContractTests
     }
 
     [Fact]
+    public void Gap_save_step_runs_the_contract_command_verbatim_with_test_s()
+    {
+        Assert.Contains("run the planning contract's save command word for word, no substitutes, so `test -s \"$p\"` fails an empty patch and the run stops", Squad("commands", "squad.md"), StringComparison.Ordinal);
+        var contract = Squad("skills", "squad", "references", "planning-contract.md");
+        var start = contract.IndexOf("```sh\np=\"$(git rev-parse --git-dir)/squad/", StringComparison.Ordinal);
+        var save = contract[start..contract.IndexOf("\n```", start + 6, StringComparison.Ordinal)];
+        Assert.Contains("> \"$p\" && test -s \"$p\" && git reset -q", save, StringComparison.Ordinal);
+    }
+
+    [Fact]
     public void Multi_project_change_needs_two_slices_or_a_reason()
     {
         Assert.Contains("More than one project touched: at least 2 slices, or a `Single slice because: <reason>` line", Squad("agents", "squad-planner.md"), StringComparison.Ordinal);

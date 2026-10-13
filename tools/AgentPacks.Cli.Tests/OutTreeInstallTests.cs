@@ -40,6 +40,31 @@ public sealed class OutTreeInstallTests
             {
                 Assert.True(File.Exists(Path.Combine(output, "plugins", "pack-check", "skills", "pack-check", "scripts", script)), $"out tree is missing {script}");
             }
+
+            var outNames = Directory.EnumerateFiles(output, "*", SearchOption.AllDirectories).Select(Path.GetFileName).ToHashSet(StringComparer.Ordinal);
+            var sourceNames = Directory.EnumerateFiles(root, "*", SearchOption.TopDirectoryOnly).Select(Path.GetFileName).ToHashSet(StringComparer.Ordinal);
+            var missing = new List<string>();
+            foreach (var md in Directory.EnumerateFiles(Path.Combine(output, "plugins"), "*.md", SearchOption.AllDirectories)
+                         .Where(f => Path.GetRelativePath(output, f).Replace('\\', '/').Split('/') is var parts && parts.Length > 3 && parts[2] is "skills" or "commands" or "agents"
+                             // pack-author runs inside an agentPacks checkout, so its links to docs/ resolve there.
+                             && parts[1] != "pack-author"))
+            {
+                var text = File.ReadAllText(md);
+                foreach (System.Text.RegularExpressions.Match link in System.Text.RegularExpressions.Regex.Matches(text, @"\]\(([^)#\s]+)(#[^)]*)?\)"))
+                {
+                    var target = link.Groups[1].Value;
+                    if (target.Contains("://", StringComparison.Ordinal) || target.StartsWith("mailto:", StringComparison.Ordinal)) continue;
+                    if (!File.Exists(Path.GetFullPath(Path.Combine(Path.GetDirectoryName(md)!, target))) && !Directory.Exists(Path.GetFullPath(Path.Combine(Path.GetDirectoryName(md)!, target))))
+                        missing.Add($"{Path.GetRelativePath(output, md)} links {target}");
+                }
+                foreach (System.Text.RegularExpressions.Match name in System.Text.RegularExpressions.Regex.Matches(text, @"[\w.-]+\.(json|md|sh|ps1|yml|yaml)\b"))
+                {
+                    // global.json is the product repo's own SDK pin, not a pack file.
+                    if (name.Value != "global.json" && sourceNames.Contains(name.Value) && !outNames.Contains(name.Value))
+                        missing.Add($"{Path.GetRelativePath(output, md)} names repo-only {name.Value}");
+                }
+            }
+            Assert.True(missing.Count == 0, string.Join("\n", missing.Distinct()));
         }
         finally
         {

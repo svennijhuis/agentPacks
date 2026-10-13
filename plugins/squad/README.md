@@ -23,7 +23,7 @@ The numbered flow below is locked v1 and is copied verbatim into the
 Pin vs PR / uncommitted / main → same gated dual-axis reviewers (no plan/fix loop) → always save report to docs/reviews/<yyyy-mm-dd>-<slug>.md → squad-retro writes the retro from that report (+ suggestions if pack/skill/agent/command/contract evidenced)
 
 Always
-models.source.json tiers (default inherit); load only contracted <lang>-* by Skill name; coworker docs = real dotnet test/validate on a fixture.
+agent model tiers (default inherit; the tier is on each agent, no file to read); load only contracted <lang>-* by Skill name; coworker docs = real dotnet test/validate on a fixture.
 suggestions.md is optional, human-apply only; never auto-rewrite.
 
 Not in v1
