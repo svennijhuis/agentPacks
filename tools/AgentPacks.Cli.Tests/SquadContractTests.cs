@@ -1179,6 +1179,33 @@ public class SquadContractTests
     }
 
     [Fact]
+    public void Command_body_starts_with_exact_paths_and_readme_mirrors_them()
+    {
+        var command = Squad("commands", "squad.md").Replace("\r\n", "\n", StringComparison.Ordinal);
+        var body = command[(command.IndexOf("\n---\n", 4, StringComparison.Ordinal) + 5)..].TrimStart('\n');
+        var first = body[..body.IndexOf('\n')];
+        Assert.StartsWith("Paths, relative to the squad plugin root (its `--plugin-dir`; no find/glob search):", first, StringComparison.Ordinal);
+        var readme = File.ReadAllText(Path.Combine(TestRepository.SourceRoot(), "README.md"));
+        var plugins = Path.Combine(TestRepository.SourceRoot(), "plugins");
+        foreach (var rel in new[] { "skills/squad/SKILL.md", "skills/squad/references/planning-contract.md", "../pack-check/skills/pack-check/scripts/check-plan.sh", "../pack-check/skills/pack-check/scripts/check-plan.ps1" })
+        {
+            var name = rel.EndsWith(".ps1", StringComparison.Ordinal) ? "`check-plan.ps1`" : "`" + rel + "`";
+            Assert.Contains(name, first, StringComparison.Ordinal);
+            Assert.True(File.Exists(Path.GetFullPath(Path.Combine(plugins, "squad", rel))), rel);
+            var fromPlugins = Path.GetRelativePath(plugins, Path.GetFullPath(Path.Combine(plugins, "squad", rel))).Replace('\\', '/');
+            Assert.Contains(fromPlugins.EndsWith(".ps1", StringComparison.Ordinal) ? "`check-plan.ps1`" : "`plugins/" + fromPlugins + "`", readme, StringComparison.Ordinal);
+        }
+        Assert.Contains("no find/glob search", readme, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void Plan_gap_answer_needs_the_user_unless_this_session_accepts_recommendations()
+    {
+        Assert.Contains("Who answers a Plan gap: the user, unless this session explicitly said to accept recommendations. An old grill log or a prior plan is not authorization.",
+            Squad("skills", "squad", "references", "planning-contract.md"), StringComparison.Ordinal);
+    }
+
+    [Fact]
     public void Multi_project_change_needs_two_slices_or_a_reason()
     {
         Assert.Contains("More than one project touched: at least 2 slices, or a `Single slice because: <reason>` line", Squad("agents", "squad-planner.md"), StringComparison.Ordinal);

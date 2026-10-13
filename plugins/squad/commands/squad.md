@@ -3,6 +3,8 @@ name: squad
 description: Plan → build → verify → review (gated). Uncommitted hand-off.
 ---
 
+Paths, relative to the squad plugin root (its `--plugin-dir`; no find/glob search): `skills/squad/SKILL.md`, `skills/squad/references/planning-contract.md`, `../pack-check/skills/pack-check/scripts/check-plan.sh` (or `check-plan.ps1`).
+
 # Squad
 
 Load the `squad` skill with the Skill tool by exact name `squad`; if that does not resolve, read `skills/squad/SKILL.md` relative to this plugin's root (the parent of this `commands/` folder). The linters are at `../pack-check/skills/pack-check/scripts/` from that root. Never run `find` or any filesystem search for skills or linters. Never write `/squad` as prose

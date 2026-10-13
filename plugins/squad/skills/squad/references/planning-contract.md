@@ -293,6 +293,7 @@ p="$(git rev-parse --git-dir)/squad/<yyyy-mm-dd>-<slug>.gap-<n>.patch" && mkdir 
 `git add -N .` only marks untracked files intent-to-add so the diff includes them; the closing `git reset -q` drops those index entries again before hand-off and keeps every working-tree change. The git pack allows it (no `--hard`).
 
 - Replan after a Plan gap: the main agent runs `git diff --stat` and passes its output with `$(git rev-parse --git-dir)/squad/<yyyy-mm-dd>-<slug>.gap-<n>.patch`; the planner reads both and rewrites the open slice from the code as it stands now. The slice keeps its already-changed files so the fresh implementer can keep or replace the partial edits; finished slices are not redone.
+- Who answers a Plan gap: the user, unless this session explicitly said to accept recommendations. An old grill log or a prior plan is not authorization.
 - Cap: at most 1 `Plan gap:` per slice. A second one on the same slice becomes `Replan:` for the whole plan, and the retro records it.
 
 Grill rounds stay as they are.

@@ -188,6 +188,8 @@ mkdir -p .cursor/commands && cp /tmp/agentpacks-marketplace/plugins/squad/comman
 cursor-agent -p --trust -f --plugin-dir /tmp/agentpacks-marketplace/plugins/squad --plugin-dir /tmp/agentpacks-marketplace/plugins/pack-check --plugin-dir /tmp/agentpacks-marketplace/plugins/dotnet "/squad <ask>"
 ```
 
+The agent reads files from the plugin dirs, never by search: `plugins/squad/skills/squad/SKILL.md`, `plugins/squad/skills/squad/references/planning-contract.md`, `plugins/pack-check/skills/pack-check/scripts/check-plan.sh` (or `check-plan.ps1`), all under `/tmp/agentpacks-marketplace/`; no find/glob search.
+
 Replace `dotnet` with the language pack pack-check detects for the repository (`rust`, `typescript`); without it the pack gate stops the run. `-f` lets the agent run shell steps (check-plan, check-retro, tests, `git diff`); without it every shell call is rejected.
 
 Reload the client, then smoke `/squad` or `/squad-review` once. The generated tree is what coworkers install; the authored tree is the source. The same loop is in [ADD-SKILL.md: Test a skill locally](docs/ADD-SKILL.md#test-a-skill-locally).
