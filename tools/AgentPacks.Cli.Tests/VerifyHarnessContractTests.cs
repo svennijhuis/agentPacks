@@ -211,6 +211,10 @@ public sealed class VerifyHarnessContractTests
     }
 
     [Fact]
+    public void Smoke_report_outcome_line_carries_skip_reason()
+        => Assert.Contains("`skipped (needs: kv, 403)`", File.ReadAllText(Path.Combine(VerifyHarnessDir(), "references", "smoke-report.md")), StringComparison.Ordinal);
+
+    [Fact]
     public void Generated_docs_ban_em_dashes()
         => Assert.Contains("No em dashes in `docs/verify.md` or `docs/smoke-report.md`", VerifyHarnessBody(), StringComparison.Ordinal);
 
