@@ -8,9 +8,9 @@ Five capability packs, installed because you want a behaviour wired into the age
 
 | Plugin | Use it for |
 | --- | --- |
-| `squad` | User-invoked `/squad` and `/squad-review`: grill-style planning, gated implement/verify/review, ≤2 fix rounds, uncommitted hand-off, append-only learnings. Sibling `/scenarios` writes `docs/smoke/<slug>.md` from changed code |
+| `squad` | User-invoked `/squad` and `/squad-review`: grill-style planning, gated implement/verify/review, ≤2 fix rounds, uncommitted hand-off, one retro file per run. Sibling `/scenarios` writes `docs/smoke/<slug>.md` from changed code |
 | `pack-check` | Detecting the repository stack at session start and asking before installing the language pack that supplies its required build and test skills |
-| `git` | Blocking the git commands that destroy work an agent cannot get back — `reset --hard`, `clean -fd`, `push --force`, `branch -D`, `checkout .` — before the client runs them |
+| `git` | Blocking the git commands that destroy work an agent cannot get back, `reset --hard`, `clean -fd`, `push --force`, `branch -D`, `checkout .`, before the client runs them |
 | `security` | User-invoked `/security-audit`: recon, parallel hunting, and adversarial validation of exploitable trust-boundary failures. Per-change OWASP stays in Squad |
 | `pack-author` | User-invoked `/pack-author`: make, review, or change a marketplace skill or agent. Edits wait for approval. Fifth slash is intentional |
 | `dotnet` | Teaching the loop how C# is built, tested and reviewed, backed by one canonical set of standards distributed only to the skills that need each document |
@@ -167,7 +167,7 @@ dotnet test tools/AgentPacks.Cli.Tests
 dotnet run --project tools/AgentPacks.Cli -- validate-all --out /tmp/agentpacks-marketplace
 ```
 
-Install the **generated** tree — not the authored `plugins/` folder — without merging. All three clients:
+Install the **generated** tree, not the authored `plugins/` folder, without merging. All three clients:
 
 ```bash
 claude --plugin-dir /tmp/agentpacks-marketplace/plugins/squad
@@ -176,18 +176,35 @@ copilot plugin marketplace add /tmp/agentpacks-marketplace
 copilot plugin install squad@agentpacks
 ```
 
-Reload the client, then smoke `/squad` or `/squad-review` once. The generated tree is what coworkers install; the authored tree is the source. The same loop is in [ADD-SKILL.md — Test a skill locally](docs/ADD-SKILL.md#test-a-skill-locally).
+`validate-all --out` writes a self-contained tree: every authored plugin file (skills, references,
+commands, agents, manifests) plus the generated client files, so it installs on its own.
+
+Headless Cursor (`cursor-agent -p`) loads plugin skills and agents from `--plugin-dir` but does not
+resolve plugin slash commands, and the Squad skills are hidden (`user-invocable: false`). Copy the
+command files into the workspace once (keep `.cursor/commands/` out of commits), then run:
+
+```bash
+mkdir -p .cursor/commands && cp /tmp/agentpacks-marketplace/plugins/squad/commands/*.md .cursor/commands/
+for f in .cursor/commands/*.md; do grep -q '^Squad plugin root: /' "$f" || { awk -v r=/tmp/agentpacks-marketplace/plugins/squad '{print} /^---$/ && ++n==2 {print "Squad plugin root: " r}' "$f" > "$f.tmp" && mv "$f.tmp" "$f"; }; done
+cursor-agent -p --trust -f --plugin-dir /tmp/agentpacks-marketplace/plugins/squad --plugin-dir /tmp/agentpacks-marketplace/plugins/pack-check --plugin-dir /tmp/agentpacks-marketplace/plugins/dotnet "/squad <ask>"
+```
+
+The agent reads files from the plugin dirs, never by search: `plugins/squad/skills/squad/SKILL.md`, `plugins/squad/skills/squad/references/planning-contract.md`, `plugins/pack-check/skills/pack-check/scripts/check-plan.sh` (or `check-plan.ps1`), all under `/tmp/agentpacks-marketplace/`; no find/glob search.
+
+Replace `dotnet` with the language pack pack-check detects for the repository (`rust`, `typescript`); without it the pack gate stops the run. `-f` lets the agent run shell steps (check-plan, check-retro, tests, `git diff`); without it every shell call is rejected.
+
+Reload the client, then smoke `/squad` or `/squad-review` once. The generated tree is what coworkers install; the authored tree is the source. The same loop is in [ADD-SKILL.md: Test a skill locally](docs/ADD-SKILL.md#test-a-skill-locally).
 
 ## What each client gets
 
-Skills and MCP servers are portable: every client loads them from the same files. Rules, subagents, commands and hooks are not — the Agent Plugins standard leaves all four out as too client-specific — so this repository authors them once and generates a tree per client.
+Skills and MCP servers are portable: every client loads them from the same files. Rules, subagents, commands and hooks are not, the Agent Plugins standard leaves all four out as too client-specific, so this repository authors them once and generates a tree per client.
 
 | | Skills | MCP | Rules | Agents | Commands | Hooks |
 | --- | --- | --- | --- | --- | --- | --- |
 | Claude Code | yes | yes | always-on only, at session start | yes | yes | yes |
 | Cursor | yes | yes | always-on and glob-scoped | yes | yes | yes |
 | GitHub Copilot | yes | yes | always-on only, at session start | yes | yes | yes |
-| Codex | yes | yes | always-on, manual copy | manual copy | — | yes |
+| Codex | yes | yes | always-on, manual copy | manual copy |: | yes |
 
 Codex loads subagents only from `.codex/agents/` and reads `AGENTS.md` from the workspace rather than from a plugin, so those arrive as generated files you copy once:
 
@@ -217,36 +234,42 @@ slash on the same plugin; it is not a Squad phase. `/security-audit` is a
 separate capability pack; it is not a Squad phase. The numbered flow below is
 the locked v1 plan; the [`squad` skill](plugins/squad/skills/squad/SKILL.md) carries the same block.
 
+## Upgrading to 0.1.4
+
+All plugins are now `0.1.4`. Squad changed shape (plan files, `squad-architect`, `squad-retro`, per-run retro
+files), so uninstall and reinstall `squad` instead of updating in place, then reload the
+client. Plans land in `docs/plans/<yyyy-mm-dd>-<slug>.md`, retros in
+`docs/retros/<yyyy-mm-dd>-<slug>.md`, and hard-to-reverse decisions in `docs/adr/NNNN-<plan-slug>.md`.
+
 ## Locked v1 flow
 
 ```text
 /squad (user-invoked orchestrator)
-1. Read and apply learnings.md (append-only): prefer passed skips/tiers; avoid what failed
+1. Newest docs/plans/ file still Status: draft with no matching retro → spawn squad-retro on it first (reason: interrupted). Then read the latest same-entrypoint docs/retros/ file: carry its Lessons and Improvements as facts; never auto-apply
 2. Orient codebase (applicable stacks only)
-3. Small change? → main agent only, spawn nobody → verify → append learnings (+ suggestions if pack/skill/agent/command/contract evidenced) → hand off uncommitted
-4. Else grill/plan rounds (facts via subagent; decisions = human) → write plan
-5. Gate spins: sequential implementers (missing/one ## Slices → one whole-plan implementer; else one fresh implementer per slice in order) → then one verifier → reviewers in parallel (correctness + plan/spec; security ONLY if trust boundary)
-6. Orchestrator merges ≤2 fix rounds; ≤1 re-ask per producer per review round then accept marker (non-blocking); optional residual fixup → hand off uncommitted → append learnings (+ suggestions if pack/skill/agent/command/contract evidenced)
+3. Small change? → main agent only, spawn nobody → tiny plan (goal, decision, verify cmd) → verify (no retro; + suggestions if pack/skill/agent/command/contract evidenced) → hand off uncommitted
+4. Else grill/plan rounds (facts via subagent; decisions = human); draft plan file from round 1 (check-plan it at once, fix findings), each round appended → architect rule fired? main agent spawns squad-architect for Design + Map (planner Design gap → ≤1 architect rerun) → confirm sets Status: confirmed
+5. Gate spins: sequential implementers (missing/one ## Slices → one whole-plan implementer; else one fresh implementer per slice in order; Plan gap → planner next-round on that gap → fresh implementer redoes the slice; 2nd Plan gap on a slice → Replan) → then one verifier → reviewers in parallel (correctness + plan/spec; security ONLY if trust boundary)
+6. Orchestrator merges ≤2 fix rounds; ≤1 re-ask per producer per review round then accept marker (non-blocking); optional residual fixup → hand off uncommitted → squad-retro writes the retro, also on stop or fail (+ suggestions if pack/skill/agent/command/contract evidenced)
 
 /squad-review
-Pin vs PR / uncommitted / main → same gated dual-axis reviewers (no plan/fix loop) → append learnings (+ suggestions if pack/skill/agent/command/contract evidenced) → one save-markdown ask
+Pin vs PR / uncommitted / main → same gated dual-axis reviewers (no plan/fix loop) → always save report to docs/reviews/<yyyy-mm-dd>-<slug>.md → squad-retro writes the retro from that report (+ suggestions if pack/skill/agent/command/contract evidenced)
 
 Always
-models.source.json tiers (default inherit); load only contracted <lang>-* by Skill name; coworker docs = real dotnet test/validate on a fixture.
+agent model tiers (default inherit; the tier is on each agent, no file to read); load only contracted <lang>-* by Skill name; coworker docs = real dotnet test/validate on a fixture.
 suggestions.md is optional, human-apply only; never auto-rewrite.
 
 Not in v1
 second skill pack, Matt catalog dump, eager fan-out, self-improve graphs, auto skill rewrite, redoing PR #6.
 ```
 
-Step 1 **applies** the latest same-entrypoint entry when gating and spinning. Keep a passed
-skip and tier; a failed skip becomes a must-run. After a fail, demote one model tier. Do not
-rewrite skills. Learnings apply notes. Suggestions propose pack edits for a human. Neither
-rewrites skills.
+Step 1 reads the latest same-entrypoint retro (Lessons and Improvements) as input. `squad-retro` writes
+`docs/retros/<yyyy-mm-dd>-<slug>.md` at hand-off with a lesson-to-enforcer table. Retros and
+suggestions are human-apply only. Neither rewrites skills.
 
 Portable model tiers live in [`models.source.json`](models.source.json) (default `inherit`;
-implementer and planner `standard`; reviewers, orchestrator, verifier, simplifier, and
-security-reviewer `fast`; `frontier` is escalate-only). Test a skill on a feature branch without
+every squad agent `standard` except `squad-architect` on `frontier`; Copilot ids use dotted versions such
+as `claude-sonnet-5.5`). Test a skill on a feature branch without
 merging to `main`: [docs/ADD-SKILL.md](docs/ADD-SKILL.md#test-a-skill-locally).
 
 ### `/squad`
@@ -264,11 +287,11 @@ merging to `main`: [docs/ADD-SKILL.md](docs/ADD-SKILL.md#test-a-skill-locally).
 /squad-review --base main
 ```
 
-After the merged list, `/squad-review` asks once: Save report as markdown? Yes writes
-`docs/reviews/<slug>.md` and still shows the findings in the IDE/CLI. No stays IDE/CLI only.
+After the merged list, `/squad-review` always writes
+`docs/reviews/<yyyy-mm-dd>-<slug>.md` and still shows the findings in the IDE/CLI.
 No verdict, grill, or fix round. Never `docs/decisions.md`. Reviewers get the product diff
-only: plans, saved review reports, learnings, suggestions, and scenarios md stay on the branch and are
-Not examined — not a second pass over markdown the loop just wrote. A missing run file is
+only: plans, saved review reports, retros, suggestions, and scenarios md stay on the branch and are
+Not examined: not a second pass over markdown the loop just wrote. A missing run file is
 not a finding and not a blocker.
 
 ### `/scenarios`
@@ -295,7 +318,7 @@ tool name. They are not a second public skill surface.
 /pack-author change
 ```
 
-Modes are `make`, `review`, and `change`. v1 writes a skill or an agent. Review returns PASS/FAIL and leaves the file alone. Change applies at most two rounds, and only the FAIL items you approve. Copilot picker: `/pack-author:author`. [Its README](plugins/pack-author/README.md) has the three names.
+Modes are `make`, `review`, and `change`. v1 writes a skill or an agent. Review returns PASS/WARN/FAIL and leaves the file alone. Change applies at most two rounds, and only the FAIL items you approve. Copilot picker: `/pack-author:author`. [Its README](plugins/pack-author/README.md) has the three names.
 
 `git` needs no invocation either, and has nothing to ask: its hook blocks `git reset --hard`, `git clean -fd`, `git push --force`, `git branch -D`, `git checkout .` and `git restore .` before the client runs them, with the reason on stderr. [Its README](plugins/git/README.md) covers the `AGENTPACKS_GIT_GUARD=off` switch and which clients the blocking contract is actually verified on.
 

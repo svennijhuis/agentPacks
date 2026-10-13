@@ -16,8 +16,8 @@ Read [principles](references/principles.md), then [the workflow](references/work
 
 1. Resolve target (repo root) and scope (repo, path, or diff). Default profile `standard`; `quick` is one hunter wave.
 2. Launch `security-recon` once. Hunters receive its architecture summary verbatim.
-3. Launch `security-hunter` in parallel — one spawn per in-scope class from recon. Isolated; do not share hunter transcripts.
-4. Deduplicate candidates by location + cause. Launch `security-validator` in parallel — one spawn per unique candidate. Hunter ≠ validator.
+3. Launch `security-hunter` in parallel: one spawn per in-scope class from recon. Isolated; do not share hunter transcripts.
+4. Deduplicate candidates by location + cause. Launch `security-validator` in parallel: one spawn per unique candidate. Hunter ≠ validator.
 5. Write `docs/security-audit/<slug>.md`. Show it in the IDE/CLI. Do not commit.
 
 Good: confirmed finding with a concrete attack, crossed boundary, and observed result.

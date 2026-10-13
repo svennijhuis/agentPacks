@@ -1,6 +1,6 @@
 # Rust design standards
 
-Use established workspace configuration and repeated local patterns for choices this standard leaves open.
+Shared rules live in `design` and `engineering`. This file adds Rust specifics.
 
 ## Ownership and APIs
 
@@ -11,7 +11,7 @@ Use established workspace configuration and repeated local patterns for choices 
   `&[T]` instead of `&Vec<T>`.
 - Represent domain invariants with enums, newtypes, and constructors that validate them. Avoid booleans and raw
   strings whose valid combinations callers must remember.
-- Keep public surface area small. Use `pub(crate)` or private items until another crate is intended to depend on them.
+- Use `pub(crate)` or private items until another crate is intended to depend on them (`design.md` keeps public surface small).
 - Treat a public API change as a compatibility decision. Preserve documented behavior and non-exhaustive evolution
   points rather than exposing representation for convenience.
 
@@ -44,4 +44,4 @@ Use established workspace configuration and repeated local patterns for choices 
 
 ## Refactoring
 
-- Never land a shape you know is worse just to finish faster.
+- Never land a shape you know is worse just to finish faster (`design.md`).

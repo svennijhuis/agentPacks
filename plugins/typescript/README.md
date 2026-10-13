@@ -3,7 +3,7 @@
 The TypeScript language pack for [Squad](../squad/README.md). It supplies the
 build, test, and review skills that Squad discovers by exact name.
 
-Slot skills are Squad internals. Do not run them directly — Squad loads each by exact Skill name.
+Slot skills are Squad internals. Do not run them directly: Squad loads each by exact Skill name.
 
 ## What is in it
 
@@ -17,9 +17,9 @@ No `<lang>-security-review`. OWASP stays the floor. No framework slot skills (`r
 
 Canonical standards live once under `standards/`:
 
-- `typescript.md` — strictness, `unknown` vs `any`, modules, exhaustiveness, promises.
-- `testing.md` — runner match, behaviour coverage, isolation.
-- [`http-api.md`](../../shared/standards/http-api.md) — named collection envelope for list APIs, not a root JSON array (shared across language packs).
+- `typescript.md`: strictness, `unknown` vs `any`, modules, exhaustiveness, promises.
+- `testing.md`: runner match, behaviour coverage, isolation.
+- [`http-api.md`](https://github.com/svennijhuis/agentPacks/blob/main/shared/standards/http-api.md): named collection envelope for list APIs, not a root JSON array (shared across language packs).
 
 `standards.source.json` maps each document to the skills that need it.
 
@@ -28,4 +28,4 @@ Canonical standards live once under `standards/`:
 Authored: `plugin.json`, `standards.source.json`, `standards/`, and `skills/`.
 No shipped MCP server.
 
-See [ADD-LANGUAGE-PACK.md](../../docs/ADD-LANGUAGE-PACK.md).
+See [ADD-LANGUAGE-PACK.md](https://github.com/svennijhuis/agentPacks/blob/main/docs/ADD-LANGUAGE-PACK.md).

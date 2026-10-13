@@ -15,7 +15,7 @@ Locked user commands: `/squad` · `/squad-review` · `/scenarios` · `/pack-chec
 
 ---
 
-## Lane A — Contribute a plugin or update an existing one
+## Lane A: Contribute a plugin or update an existing one
 
 Marketplace authors make, review, or change a skill or an agent with `/pack-author` (Claude and Cursor; Copilot `/pack-author:author`). Detail: [`docs/PACK-AUTHOR.md`](PACK-AUTHOR.md).
 
@@ -76,6 +76,21 @@ copilot plugin marketplace add /tmp/agentpacks-marketplace
 copilot plugin install squad@agentpacks
 ```
 
+`validate-all --out` writes a self-contained tree: every authored plugin file (skills, references,
+commands, agents, manifests) plus the generated client files, so it installs on its own.
+
+Headless Cursor (`cursor-agent -p`) loads plugin skills and agents from `--plugin-dir` but does not
+resolve plugin slash commands, and the Squad skills are hidden (`user-invocable: false`). Copy the
+command files into the workspace once (keep `.cursor/commands/` out of commits), then run:
+
+```bash
+mkdir -p .cursor/commands && cp /tmp/agentpacks-marketplace/plugins/squad/commands/*.md .cursor/commands/
+for f in .cursor/commands/*.md; do grep -q '^Squad plugin root: /' "$f" || { awk -v r=/tmp/agentpacks-marketplace/plugins/squad '{print} /^---$/ && ++n==2 {print "Squad plugin root: " r}' "$f" > "$f.tmp" && mv "$f.tmp" "$f"; }; done
+cursor-agent -p --trust -f --plugin-dir /tmp/agentpacks-marketplace/plugins/squad --plugin-dir /tmp/agentpacks-marketplace/plugins/pack-check --plugin-dir /tmp/agentpacks-marketplace/plugins/dotnet "/squad <ask>"
+```
+
+Replace `dotnet` with the language pack pack-check detects for the repository (`rust`, `typescript`); without it the pack gate stops the run. `-f` lets the agent run shell steps (check-plan, check-retro, tests, `git diff`); without it every shell call is rejected.
+
 Reload client. Smoke `/squad` or `/squad-review` once. For org beta: install `#marketplace-beta` (see README).
 
 ### PR bar
@@ -101,7 +116,7 @@ Open a PR. Maintainer squash-merge. After merge: wait for beta publish if you te
 
 ---
 
-## Lane B — Test teams in product repos (coding + testing)
+## Lane B: Test teams in product repos (coding + testing)
 
 Install packs once (team marketplace or per-user). Prefer language pack for your stack + `squad` + `pack-check`. See README install blocks.
 
@@ -158,15 +173,16 @@ Matrix fail rules (happy → not 2xx; edge → 2xx on invalid or 5xx; fail → w
 
 ### Suggested day-to-day for a test team
 
-1. **Setup** — marketplace (stable or beta) + `squad` + language pack + `/pack-check`.
-2. **New feature with API** — pair with dev: `/squad` implements + unit/integration; tester runs `/scenarios` when handlers land; execute smoke table on deployed TST/ACC.
-3. **Regression** — keep `docs/smoke/*.md` as living checklist; re-run `/scenarios` when routes change.
-4. **Pack feedback** — if patterns are wrong for your stack, open Lane A PR (examples/standards), or leave `docs/suggestions.md` (human-apply) from a Squad run. Do not expect auto skill rewrite.
-5. **Beta** — try `#marketplace-beta` before promote to stable.
+1. **Setup**: marketplace (stable or beta) + `squad` + language pack + `/pack-check`.
+2. **New feature with API**: pair with dev: `/squad` implements + unit/integration; tester runs `/scenarios` when handlers land; execute smoke table on deployed TST/ACC.
+3. **Regression**: keep `docs/smoke/*.md` as living checklist; re-run `/scenarios` when routes change.
+4. **Pack feedback**: if patterns are wrong for your stack, open Lane A PR (examples/standards), or leave `docs/suggestions.md` (human-apply) from a Squad run. Do not expect auto skill rewrite.
+5. **Beta**: try `#marketplace-beta` before promote to stable.
 
 ### Coding with Squad (short)
 
-`/squad <ask>` e.g. `add an integration test for the orders endpoint`. Loop: learnings → orient → grill/plan if needed → implement → verify → ≤2 fix rounds → uncommitted hand-off. Load language slots by exact Skill name (`dotnet-test-patterns`), never slash-prose.
+`/squad <ask>` e.g. `add an integration test for the orders endpoint`. Loop: last retro → orient → grill/plan if needed → implement → verify → ≤2 fix rounds → uncommitted hand-off. Load language slots by exact Skill name (`dotnet-test-patterns`), never slash-prose.
+Run files: the plan is `docs/plans/<yyyy-mm-dd>-<slug>.md` (draft from round 1), the retro is `docs/retros/<yyyy-mm-dd>-<slug>.md` (full runs and `/squad-review` only), saved reviews go to `docs/reviews/`, and hard-to-reverse decisions get an ADR in `docs/adr/NNNN-<plan-slug>.md` (a new `Infrastructure.<Vendor>` project counts: one project per external system) (Nygard: Context, Decision, Consequences, Status; never edited, only superseded).
 
 `/squad-review` = report only; no fix loop.
 

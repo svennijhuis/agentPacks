@@ -14,10 +14,12 @@ Score every bar in [style](style.md). One line per bar.
 Target: <path>
 
 - PASS description
-- FAIL router — 52 non-blank lines; cap is 40. Move detail into references/.
+- WARN router: 52 non-blank lines; aim is 40. Move only lookup detail into references/.
+- FAIL user entry: missing `user-invocable: false`.
 
 FAIL: 1
-PASS: 6
+WARN: 1
+PASS: 5
 ```
 
 A missing file is `FAIL target`, then stop. Do not invent a stub during review.

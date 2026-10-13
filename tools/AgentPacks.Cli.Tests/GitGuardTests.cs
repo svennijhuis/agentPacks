@@ -31,6 +31,7 @@ public sealed class GitGuardTests
 
     [Theory]
     [InlineData("git clean -fd", "GIT002")]
+    [InlineData("git add -N . && git diff HEAD --binary > docs/plans/x.gap-1.patch && test -s docs/plans/x.gap-1.patch && git reset --hard && git clean -fd", "GIT001")]
     [InlineData("git push origin main --force-with-lease", "GIT003")]
     [InlineData("git branch --delete old --force", "GIT004")]
     [InlineData("git checkout -- src/Changed.cs", "GIT005")]
@@ -82,6 +83,8 @@ public sealed class GitGuardTests
     [InlineData("git branch -d merged")]
     [InlineData("git branch -a")]
     [InlineData("dotnet test")]
+    [InlineData("git add -N . && git diff HEAD --binary > docs/plans/x.gap-1.patch && test -s docs/plans/x.gap-1.patch && git reset -q")]
+    [InlineData("p=\"$(git rev-parse --git-dir)/squad/2026-10-12-x.gap-1.patch\" && mkdir -p \"${p%/*}\" && git add -N . && git diff HEAD --binary > \"$p\" && test -s \"$p\" && git reset -q")]
     public void Non_destructive_commands_are_allowed(string command)
     {
         var result = Run(command, "flat");

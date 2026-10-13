@@ -3,7 +3,7 @@
 The C# and .NET language pack for [Squad](../squad/README.md). It supplies the
 build, test, and review skills that the Loop discovers by exact name.
 
-Slot skills are Squad internals. Do not run them directly — Squad loads each by exact Skill name.
+Slot skills are Squad internals. Do not run them directly: Squad loads each by exact Skill name.
 
 ## What is in it
 
@@ -16,14 +16,14 @@ Slot skills are Squad internals. Do not run them directly — Squad loads each b
 
 Canonical standards live once under `standards/`:
 
-- `csharp.md` — type and API design, nullability, resources, formatting, and central SDK / C# / package version pins.
-- `async-errors.md` — async, cancellation, and exception boundaries.
-- `testing.md` — xUnit, integration tests, time, and verification.
-- `layers.md` — Web / Application / Infrastructure boundaries when the solution already uses them.
-- [`http-api.md`](../../shared/standards/http-api.md) — named collection envelope for list APIs, not a root JSON array (shared across language packs).
+- `csharp.md`: type and API design, nullability, resources, formatting, and central SDK / C# / package version pins.
+- `async-errors.md`: async, cancellation, and exception boundaries.
+- `testing.md`: xUnit, integration tests, time, and verification.
+- `layers.md`: Web / Application / Infrastructure boundaries when the solution already uses them.
+- [`http-api.md`](https://github.com/svennijhuis/agentPacks/blob/main/shared/standards/http-api.md): named collection envelope for list APIs, not a root JSON array (shared across language packs).
 
 `standards.source.json` maps each document to the skills that need it. Generation copies selected
-documents into `references/standards/` — see [ADD-LANGUAGE-PACK.md](../../docs/ADD-LANGUAGE-PACK.md).
+documents into `references/standards/`: see [ADD-LANGUAGE-PACK.md](https://github.com/svennijhuis/agentPacks/blob/main/docs/ADD-LANGUAGE-PACK.md).
 
 ## Standards and repository conventions
 
@@ -33,7 +33,7 @@ document under `## Standards in force`; it does not look for another standards d
 Repositories still have a shape. The planner inspects project and formatter configuration,
 directory layout, test framework, existing tests, and nearby code, then records supported patterns
 under `## Repository conventions observed` with their evidence paths. Those conventions specialize
-choices the pack leaves open — such as the test framework already in use — while the plugin remains
+choices the pack leaves open, such as the test framework already in use, while the plugin remains
 the source of standards.
 
 ## Formatting
@@ -48,11 +48,11 @@ checks the whole solution with `--verify-no-changes`. See the
 
 Authored: `plugin.json`, `mcp.json` (empty scaffold), `standards.source.json`, `standards/`, and `skills/`.
 
-v1 ships no MCP server. Agents use `dotnet sln list` and `dotnet list <csproj> package` on the machine. See [ADD-MCP.md](../../docs/ADD-MCP.md) to add a server later.
+v1 ships no MCP server. Agents use `dotnet sln list` and `dotnet list <csproj> package` on the machine. See [ADD-MCP.md](https://github.com/svennijhuis/agentPacks/blob/main/docs/ADD-MCP.md) to add a server later.
 
 Generated on `marketplace` / `marketplace-beta` or in temporary validation output, never on `main`:
 `.cursor-plugin/`, `.codex-plugin/`, `com.anthropic.claude-code/`, `com.openai.codex/`,
 `com.github.copilot/`, and each skill's `references/standards/` directory.
 
-See [ADD-LANGUAGE-PACK.md](../../docs/ADD-LANGUAGE-PACK.md) and
-[ADD-SKILL.md](../../docs/ADD-SKILL.md).
+See [ADD-LANGUAGE-PACK.md](https://github.com/svennijhuis/agentPacks/blob/main/docs/ADD-LANGUAGE-PACK.md) and
+[ADD-SKILL.md](https://github.com/svennijhuis/agentPacks/blob/main/docs/ADD-SKILL.md).

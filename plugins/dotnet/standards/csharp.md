@@ -1,6 +1,6 @@
 # C# design standards
 
-Use established project configuration and repeated local patterns for choices this standard leaves open.
+Shared rules live in `design` and `engineering`. This file adds language specifics.
 
 ## Types and equality
 
@@ -17,8 +17,7 @@ Use established project configuration and repeated local patterns for choices th
 
 - Follow the repository nullable context. A non-nullable type is a promise; guard the boundary that
   establishes it instead of spreading null-forgiving operators.
-- Keep public surface area small. Prefer `internal` for implementation types and expose a type only
-  when another assembly is intended to depend on it.
+- Prefer `internal` for implementation types (`design.md` keeps public surface small).
 - Return the least-mutable interface that describes caller rights. Do not expose a mutable list when
   callers only need enumeration or indexed reading.
 - Prefer parameters that name intent over boolean switches at call sites.
@@ -30,8 +29,31 @@ Use established project configuration and repeated local patterns for choices th
 - Match existing project boundaries. A new project creates a compilation and dependency boundary;
   use a folder when that boundary buys nothing.
 - When the solution already uses Web / Application / Infrastructure (or equivalent) projects, follow
-  [layers.md](layers.md): thin controllers, use cases in Application, adapters in Infrastructure —
+  [layers.md](layers.md): thin controllers, use cases in Application, adapters in Infrastructure:
   never EF/`DbContext` or Infrastructure concretes inside Web controllers.
+- One top-level type per file: each class, record, interface, enum, and struct gets its own file
+  named after the type (`Order.cs`, `IOrderStore.cs`). Nested types stay with their parent.
+
+Bad:
+
+```csharp
+// Orders.cs
+public sealed record Order(Guid Id, decimal Total);
+public interface IOrderStore { Task SaveAsync(Order order, CancellationToken ct); }
+public enum OrderStatus { Open, Shipped }
+```
+
+Fix:
+
+```csharp
+// Order.cs
+public sealed record Order(Guid Id, decimal Total);
+// IOrderStore.cs
+public interface IOrderStore { Task SaveAsync(Order order, CancellationToken ct); }
+// OrderStatus.cs
+public enum OrderStatus { Open, Shipped }
+```
+
 - Match repository naming, analyzers, `.editorconfig`, and existing patterns before introducing a
   new idiom.
 
@@ -39,7 +61,7 @@ Use established project configuration and repeated local patterns for choices th
 
 - Keep extract method, extract interface, extract class, and pushing logic down into the domain.
 - Tests stay in place before a behavior-preserving refactor.
-- Never land a shape you know is worse just to finish faster.
+- Never land a shape you know is worse just to finish faster (`design.md`).
 
 Extract method.
 

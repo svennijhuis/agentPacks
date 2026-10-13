@@ -6,24 +6,33 @@
     "async-errors": "standards/async-errors.md",
     "testing": "standards/testing.md",
     "layers": "standards/layers.md",
-    "http-api": "shared/standards/http-api.md"
+    "http-api": "shared/standards/http-api.md",
+    "testing-principles": "shared/standards/testing-principles.md",
+    "engineering": "shared/standards/engineering.md",
+    "design": "shared/standards/design.md"
   },
   "consumers": {
     "dotnet-build": [
       "csharp",
       "async-errors",
       "layers",
-      "http-api"
+      "http-api",
+      "design",
+      "engineering"
     ],
     "dotnet-test-patterns": [
-      "testing"
+      "testing",
+      "testing-principles"
     ],
     "dotnet-review": [
       "csharp",
       "async-errors",
       "testing",
       "layers",
-      "http-api"
+      "http-api",
+      "testing-principles",
+      "design",
+      "engineering"
     ]
   }
 }

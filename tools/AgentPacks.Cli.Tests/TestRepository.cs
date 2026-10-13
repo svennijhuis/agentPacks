@@ -65,12 +65,14 @@ internal sealed class TestRepository : IDisposable
     public static readonly string[] SquadAgentNames =
     [
         "squad-planner",
+        "squad-architect",
         "squad-implementer",
         "squad-verifier",
         "squad-reviewer",
         "squad-security-reviewer",
         "squad-simplifier",
-        "squad-orchestrator"
+        "squad-orchestrator",
+        "squad-retro"
     ];
 
     /// <summary>Parses authored markdown frontmatter, failing the test with the parser error.</summary>

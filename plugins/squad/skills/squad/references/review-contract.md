@@ -38,12 +38,12 @@ and name every source.
 Classify each defect before writing Fix. Read the repo's own check first: lint / typecheck / test
 scripts, analyzer or compiler config, pre-commit hook, CI job.
 
-- **Mechanical** — a fixed syntactic pattern, banned API, import shape, or file-location rule. If
+- **Mechanical**: a fixed syntactic pattern, banned API, import shape, or file-location rule. If
   an existing check would have caught this, Fix names that check: run it, wire it, or stop silencing
   it. Do not invent a new prose standard for the next reviewer to re-derive. A `high` or `medium`
   instance still needs a code fix in this diff. Do not invent a new lint rule or CI job as the Fix
   unless that check already lives in the repo and was not run.
-- **Judgment call** — cross-file consistency, surrounding style, or anything that needs intent.
+- **Judgment call**: cross-file consistency, surrounding style, or anything that needs intent.
   Cite the plugin standard or repository convention. Fix is the code change.
 
 Default to the existing check over a new rule. A missing guardrail (no lint, typecheck, or test job)
@@ -55,10 +55,14 @@ Only report findings with confidence ≥ 80. Drop low-confidence noise. Do not e
 A guess, style nit without a standard, or an unevidenced "looks wrong" is below the bar and is
 omitted, not listed as `tiny`.
 
+## Environment block
+
+Environment block (at verify and fix rounds; a rejected linter call at a plan edit stops the same way, per the planning contract): when no shell is available at verify (calls rejected, or no `sh`/`pwsh`), the main agent stops before routing and reports `Environment block: no shell` with the rejected commands. It spends no fix round on it, and the verifier marks affected criteria `blocked: environment (no shell)` instead of `fail`.
+
 ## Security gate
 
 `squad-security-reviewer` only. The main agent records `ran` or `skipped` before spawn. This is a
-diff walk, not a full-repo audit — do not launch the security pack from `/squad` or `/squad-review`.
+diff walk, not a full-repo audit: do not launch the security pack from `/squad` or `/squad-review`.
 
 **Run** when the product diff touches authn/z, untrusted input, files, shell/commands, crypto,
 dependencies, credentials, or exceptional conditions. Record that reason. **Skip** only when none
@@ -74,7 +78,7 @@ Walk this table in order. Trace each changed surface from entry to the last trus
 
 | | Category |
 |---|---|
-| [A01](https://owasp.org/Top10/2025/A01_2025-Broken_Access_Control/) | A01_2025-Broken_Access_Control — deny-by-default, path traversal, SSRF |
+| [A01](https://owasp.org/Top10/2025/A01_2025-Broken_Access_Control/) | A01_2025-Broken_Access_Control: deny-by-default, path traversal, SSRF |
 | [A02](https://owasp.org/Top10/2025/A02_2025-Security_Misconfiguration/) | A02_2025-Security_Misconfiguration |
 | [A03](https://owasp.org/Top10/2025/A03_2025-Software_Supply_Chain_Failures/) | A03_2025-Software_Supply_Chain_Failures |
 | [A04](https://owasp.org/Top10/2025/A04_2025-Cryptographic_Failures/) | A04_2025-Cryptographic_Failures |
@@ -106,7 +110,7 @@ lists **run files** only when they appear in the diff. A run file that is absent
 and never `fix` or `replan`. `/squad-review` with no plan is expected.
 
 ```markdown
-## <agent-name> — round <n>
+## <agent-name>: round <n>
 
 **Examined:** <scope>
 **Not examined:** <omissions and reason; omit when empty>
@@ -127,28 +131,28 @@ still *reads* `docs/plans/` as spec. Findings target product paths only.
 |---|---|
 | `docs/plans/` | Plan; spec input, not a review target |
 | `docs/reviews/` | Saved `/squad-review` report |
-| `docs/learnings.md` | Append-only run log |
+| `docs/retros/` | One retro per run |
 | `docs/suggestions.md` | Append-only human-apply pack/skill/agent/command/contract proposals |
 | `docs/smoke/` | `/scenarios` output |
 | `docs/security-audit/` | Full-repo audit report |
 
-Pathspec when those paths are in the diff: `':(exclude)docs/plans' ':(exclude)docs/reviews' ':(exclude)docs/learnings.md' ':(exclude)docs/suggestions.md' ':(exclude)docs/smoke' ':(exclude)docs/security-audit'`.
+Pathspec when those paths are in the diff: `':(exclude)docs/plans' ':(exclude)docs/reviews' ':(exclude)docs/retros' ':(exclude)docs/suggestions.md' ':(exclude)docs/smoke' ':(exclude)docs/security-audit'`.
 If omitting them leaves nothing to review, stop.
 
 On merge, drop any finding whose location is a run file, and any finding that a run file is missing.
-Keep synthesized `squad-verifier` rows that use the plan path as `Location` — that path is an
+Keep synthesized `squad-verifier` rows that use the plan path as `Location`: that path is an
 identifier, not a review target.
 
 ## Verifier report
 
 ```markdown
-## squad-verifier — round <n>
+## squad-verifier: round <n>
 
 | Criterion | Result | Command | Evidence |
 |---|---|---|---|
 | 1 | pass | `dotnet test App.slnx --no-restore` | `10 passed, 0 failed` |
 | 2 | fail | `dotnet test App.slnx --no-restore` | `expected 401, got 200` |
-| 3 | not verified | — | No automated or safe manual check covers this criterion. |
+| 3 | not verified |: | No automated or safe manual check covers this criterion. |
 | 4 | blocked | `dotnet test App.slnx --filter Vault` | `Key Vault 403 on local; the check did not run` |
 
 **Suite:** <wider run; `pass` or `fail` plus `this-change` or `pre-existing` when it failed>
@@ -173,7 +177,7 @@ A verified `pass` is the outcome of the evaluator, not a hopeful reading of the 
 | Gate | Outcome |
 |---|---|
 | No confirmed plan | Stop. Do not verify. Not a pass. |
-| A criterion command is `—`, empty, or never covers the criterion | That row is `not verified`. Not a pass, even if the row says `pass`. |
+| A criterion command is `-`, empty, or never covers the criterion | That row is `not verified`. Not a pass, even if the row says `pass`. |
 | A criterion command exists but the environment or a missing secret stopped it | That row is `blocked`. Not a pass. The synthesized finding's Fix is to unblock and rerun that command, never to write a new check. |
 | The only command behind a `pass` row is a build, restore, format, or type-check (`dotnet build`, `cargo check`, `tsc --noEmit`) and the criterion is about behavior | That row is `not verified`. Compiling is evidence that it compiles, nothing more. A build-only pass counts only for a criterion whose stated outcome is that the code compiles. |
 | Plan command passes and the wider suite fails | Not a verified pass. |
@@ -198,7 +202,7 @@ The same synthesis applies to non-`None` **Evidence gaps** and **Assumptions cha
 ## Implementer report
 
 ```markdown
-## squad-implementer — round <n>
+## squad-implementer: round <n>
 
 **Criteria claimed:** <numbers>
 **Fix list entries resolved:** <numbers and deferred low/tiny entries>
@@ -221,7 +225,7 @@ The main agent supplies completed reviewer reports, verifier evidence, round num
 the recorded security-gate decision. The orchestrator normalizes usable inputs, validates their
 semantics, and merges them.
 
-**Invariant — merge only.** The orchestrator never launches agents, never retries a producer, never
+**Invariant: merge only.** The orchestrator never launches agents, never retries a producer, never
 edits product code, never plans, and never routes the next phase. It is not a global integrator or
 quality gate beyond the merge report. Retry belongs to the main agent (one re-ask), not here.
 
@@ -244,7 +248,7 @@ merge that returned the input-error. Do not increment the round for parse repair
 round resets the re-ask budget and is forbidden for this path.
 
 **Axis marker replaces the bad report:** when the budget is spent, the main agent passes
-`<producer>: accepted — malformed after re-ask` **instead of** the malformed/missing payload —
+`<producer>: accepted, malformed after re-ask` **instead of** the malformed/missing payload:
 not in addition to it. The marker is a conforming stand-in for that producer. The orchestrator must **not** emit input-error for an axis that has a marker; it records the skipped axis under
 **Handoff concerns** / **Notes carried forward** as non-blocking (no Fix-list row, no `high`/`medium`,
 does not force `fix` or block `pass` by itself), then completes the merge with the other usable
@@ -264,24 +268,24 @@ Sequence:
    the loop for this review phase.
 
 A later input-error for the same producer in the same round is not a new re-ask grant. If the marker
-was not yet supplied, supply the marker and merge once. If the marker was already supplied, stop —
+was not yet supplied, supply the marker and merge once. If the marker was already supplied, stop:
 never spawn P again this round and never merge-loop.
 
 Malformed or missing input on a merge attempt (no replacing marker for that producer) returns:
 
 ```markdown
-## Orchestrator input error — round <n>
+## Orchestrator input error: round <n>
 
 **Missing or malformed:** <report and violated requirement>
-**Re-ask budget:** one per producer per this round number — if this producer was already re-asked this round, do not re-ask; merge once with replacing axis marker `accepted — malformed after re-ask` (non-blocking). If the marker was already supplied, stop and surface — no further merge.
+**Re-ask budget:** one per producer per this round number, if this producer was already re-asked this round, do not re-ask; merge once with replacing axis marker `accepted, malformed after re-ask` (non-blocking). If the marker was already supplied, stop and surface: no further merge.
 **Action:** Re-ask only if this producer has not already been re-asked this round number. Otherwise marker merge once (same round number, marker replaces payload, non-blocking) or stop. Do not interpret this line as a new grant. Never a second re-ask. Never "keep fixing the report". Orchestrator must not retry, launch, or hand off.
 ```
 
 ```markdown
-## Fix list — round <n>
+## Fix list: round <n>
 
 **Verdict:** fix | pass | replan
-**Security gate:** ran — <reason> | skipped — no trust boundary changed
+**Security gate:** ran, <reason> | skipped, no trust boundary changed
 
 | # | Severity | Location | Problem | Fix | Found by |
 |---|---|---|---|---|---|
@@ -301,9 +305,9 @@ Otherwise keep it under **Handoff concerns** / plan `## Handoff notes` only.
 For standalone diff review, use round 1 and return this shape instead of the orchestrator report above:
 
 ```markdown
-## Merged review — round 1
+## Merged review: round 1
 
-**Security gate:** ran — <reason> | skipped — no trust boundary changed
+**Security gate:** ran, <reason> | skipped, no trust boundary changed
 
 | # | Severity | Location | Problem | Fix | Found by |
 |---|---|---|---|---|---|
@@ -313,4 +317,19 @@ For standalone diff review, use round 1 and return this shape instead of the orc
 
 There is no `Verdict`, plan append, verifier evidence, or fix round in this shape.
 
-After this shape is returned, the main agent shows it in the IDE/CLI and asks exactly one question: Save report as markdown? Yes writes `docs/reviews/<slug>.md` (never `docs/decisions.md`) and still shows the findings in the IDE/CLI. No writes no report file. No other question, grill, verdict, or fix round.
+After this shape is returned, the main agent shows it in the IDE/CLI and always writes `docs/reviews/<yyyy-mm-dd>-<slug>.md` (never `docs/decisions.md`). No question, grill, verdict, or fix round.
+
+## Judgment buckets
+
+The merged list sorts every finding into one bucket: **Act on** (real, in scope, fix now), **Consider** (real, judgment call), **Noted** (true, not worth a round), **Dismissed** (wrong or out of scope, with the reason). A second failed fix on the same premise is `Replan:`. So is a second `Plan gap:` on one slice (planning-contract Gap markers); the retro records it.
+
+## Spawning agents
+
+Every spawn instruction names the provider-neutral action "spawn `<agent>`". Each client maps it:
+
+| Client | Spawn tool |
+|---|---|
+| Claude Code | `Task` (Agent) with `subagent_type: <agent>` |
+| Cursor | `Task` with the agent name |
+| GitHub Copilot | the agent picker or `task` with the agent name |
+| Codex | `spawn_agent` with the agent name |

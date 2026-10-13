@@ -97,6 +97,98 @@ Do not add an Infrastructure class into the Web project to "keep it local." Do n
 controller to construct Infrastructure types. Prefer the existing Application seam; add a port in
 Application and an adapter in Infrastructure when one is missing.
 
+## Outbound HTTP clients use RestEase
+
+Call other HTTP APIs through a typed [RestEase](https://github.com/canton7/RestEase) interface. Do
+not hand-roll `HttpClient` wrappers that build URLs, serialize bodies, and check status codes in new
+code. Follow an existing client library when the repo already standardizes on one.
+
+The RestEase interface carries RestEase attributes, so it never lives in Application. One project
+per external system (not per package), so `<App>.Application` owns only the port
+and domain types, and `<App>.Infrastructure.<Vendor>` owns the RestEase interface, the wire DTOs,
+the adapter that maps DTOs to domain types, resilience, and one registration extension. The host only calls that
+extension (package `RestEase.HttpClientFactory`).
+
+Bad: `<App>.Application` references RestEase and `HttpClient`.
+
+```csharp
+// <App>.Application/WeatherClient.cs   (Application.csproj references RestEase)
+public sealed class WeatherClient(HttpClient http)
+{
+    public async Task<Forecast> GetAsync(string city, CancellationToken ct)
+    {
+        var response = await http.GetAsync($"forecast?city={city}", ct);
+        response.EnsureSuccessStatusCode();
+        return (await response.Content.ReadFromJsonAsync<Forecast>(ct))!;
+    }
+}
+```
+
+Fix: one type per file, split by project.
+
+```text
+<App>.Application/IWeatherService.cs                    port
+<App>.Application/Forecast.cs                           domain type
+<App>.Infrastructure.Weather/IWeatherApi.cs             RestEase interface
+<App>.Infrastructure.Weather/ForecastDto.cs             wire DTO
+<App>.Infrastructure.Weather/WeatherService.cs          adapter: IWeatherService, DTO to domain
+<App>.Infrastructure.Weather/WeatherServiceCollectionExtensions.cs   AddWeatherClient
+<App>.Api/Program.cs                                    calls AddWeatherClient only
+tests/<App>.Application.Tests                           use cases against IWeatherService
+tests/<App>.Infrastructure.Weather.Tests                adapter with a stub HttpMessageHandler
+```
+
+```csharp
+// <App>.Application/IWeatherService.cs
+public interface IWeatherService
+{
+    Task<Forecast> GetForecastAsync(string city, CancellationToken ct);
+}
+
+// <App>.Application/Forecast.cs
+public sealed record Forecast(string City, decimal TemperatureCelsius);
+
+// <App>.Infrastructure.Weather/IWeatherApi.cs
+public interface IWeatherApi
+{
+    [Get("forecast")]
+    Task<ForecastDto> GetForecastAsync([Query] string city, CancellationToken ct);
+}
+
+// <App>.Infrastructure.Weather/ForecastDto.cs
+public sealed record ForecastDto(string Name, double TempC);
+
+// <App>.Infrastructure.Weather/WeatherService.cs
+internal sealed class WeatherService(IWeatherApi api) : IWeatherService
+{
+    public async Task<Forecast> GetForecastAsync(string city, CancellationToken ct)
+    {
+        var dto = await api.GetForecastAsync(city, ct);
+        return new Forecast(dto.Name, (decimal)dto.TempC);
+    }
+}
+
+// <App>.Infrastructure.Weather/WeatherServiceCollectionExtensions.cs
+public static class WeatherServiceCollectionExtensions
+{
+    public static IServiceCollection AddWeatherClient(this IServiceCollection services, IConfiguration config)
+    {
+        services.AddTransient<WeatherAuthHandler>();
+        services.AddRestEaseClient<IWeatherApi>(config["Weather:BaseUrl"]!)
+            .AddHttpMessageHandler<WeatherAuthHandler>()
+            .AddStandardResilienceHandler();
+        services.AddScoped<IWeatherService, WeatherService>();
+        return services;
+    }
+}
+
+// <App>.Api/Program.cs
+builder.Services.AddWeatherClient(builder.Configuration);
+```
+
+`WeatherAuthHandler` is a `DelegatingHandler` in its own file in the same project; it reads the key
+from configuration, never from Application.
+
 ## Simplicity
 
 Use the layers the repo already has. Do not introduce Clean Architecture ceremony (extra projects,

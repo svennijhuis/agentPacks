@@ -1,6 +1,6 @@
 # Add an MCP server
 
-Each plugin may declare portable MCP configuration in `plugins/<plugin>/mcp.json`. The file lives at the plugin root, and the specification forbids declaring MCP anywhere else — not inline in `plugin.json`, not under an alternative path.
+Each plugin may declare portable MCP configuration in `plugins/<plugin>/mcp.json`. The file lives at the plugin root, and the specification forbids declaring MCP anywhere else: not inline in `plugin.json`, not under an alternative path.
 
 An empty scaffold is valid:
 
@@ -42,10 +42,10 @@ The `$schema` must match the specification version declared in `plugin.json`.
 
 **stdio**
 
-- `command` is one executable token: a bare name resolved by platform search rules, or a plugin-relative path starting with `./`. It is not a shell command — put arguments in `args`.
+- `command` is one executable token: a bare name resolved by platform search rules, or a plugin-relative path starting with `./`. It is not a shell command: put arguments in `args`.
 - No placeholder expansion applies to `command`.
 - `cwd` defaults to the plugin root. An explicit `cwd` must be plugin-relative or rooted at `${PLUGIN_ROOT}` / `${PLUGIN_DATA}`, and must stay inside it. `..` is rejected.
-- `${PLUGIN_ROOT}` and `${PLUGIN_DATA}` expand in `args`, `env` values and `cwd` only — never in environment keys, `command`, URLs or headers.
+- `${PLUGIN_ROOT}` and `${PLUGIN_DATA}` expand in `args`, `env` values and `cwd` only: never in environment keys, `command`, URLs or headers.
 - `PLUGIN_ROOT` and `PLUGIN_DATA` cannot be overridden in `env`.
 
 **Remote**

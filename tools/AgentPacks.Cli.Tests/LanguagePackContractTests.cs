@@ -253,7 +253,7 @@ public class LanguagePackContractTests
     }
 
     public const string InternalDoNotRunLine =
-        "Internal. Do not run directly — Squad loads by exact Skill name.";
+        "Internal. Do not run directly: Squad loads by exact Skill name.";
 
 
     /// <summary>Po 31: skill bodies cite generated references, never the authored standards tree.</summary>
@@ -336,8 +336,8 @@ public class LanguagePackContractTests
         var mapped = catalog["consumers"]!["dotnet-review"]!.AsArray()
             .Select(value => value!.GetValue<string>())
             .ToArray();
-        Assert.Equal(["csharp", "async-errors", "testing", "layers", "http-api"], mapped);
-        foreach (var document in mapped.Where(id => id != "http-api"))
+        Assert.Equal(["csharp", "async-errors", "testing", "layers", "http-api", "testing-principles", "design", "engineering"], mapped);
+        foreach (var document in mapped.Where(id => id is not ("http-api" or "testing-principles" or "design" or "engineering")))
         {
             Assert.Equal(
                 $"standards/{document}.md",
@@ -350,16 +350,16 @@ public class LanguagePackContractTests
         Assert.Contains("references/standards/", skill, StringComparison.Ordinal);
     }
 
-    /// <summary>Item 60: thin marketplace smoke entry shape in Squad learnings.</summary>
+    /// <summary>Item 60: thin marketplace smoke entry shape in the Squad retro contract.</summary>
     [Fact]
     public void Marketplace_smoke_entry_shape_is_documented()
     {
-        var learnings = File.ReadAllText(Path.Combine(
+        var retro = File.ReadAllText(Path.Combine(
             TestRepository.SourceRoot(),
-            "plugins", "squad", "skills", "squad", "references", "learnings.md"));
-        Assert.Contains("## Marketplace smoke entry shape", learnings, StringComparison.Ordinal);
-        Assert.Contains("- Client:", learnings, StringComparison.Ordinal);
-        Assert.Contains("- Plugins:", learnings, StringComparison.Ordinal);
+            "plugins", "squad", "skills", "squad", "references", "retro.md"));
+        Assert.Contains("## Marketplace smoke entry shape", retro, StringComparison.Ordinal);
+        Assert.Contains("- Client:", retro, StringComparison.Ordinal);
+        Assert.Contains("- Plugins:", retro, StringComparison.Ordinal);
     }
 
     /// <summary>Item 61: README Install-from-Source line uses #marketplace.</summary>
@@ -439,7 +439,6 @@ public class LanguagePackContractTests
         {
             Path.Combine("plugins", "pack-check", "skills", "pack-check", "SKILL.md"),
             Path.Combine("plugins", "squad", "skills", "squad", "SKILL.md"),
-            Path.Combine("plugins", "squad", "skills", "learnings-digest", "SKILL.md"),
             Path.Combine("plugins", "squad", "skills", "scenarios-md", "SKILL.md")
         })
         {

@@ -1,7 +1,7 @@
 ---
 name: security-recon
 description: Maps architecture, trust boundaries, input surfaces, and in-scope attack classes. Use as the first spawn of a security audit.
-model: fast
+model: standard
 readonly: true
 tools:
   - read

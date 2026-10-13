@@ -15,7 +15,7 @@ A scoped run (named paths, one subsystem, or a diff) seeds only in-scope surface
 
 Launch `security-recon` once against the target and scope. It returns the architecture summary: app type, stack, actors, authn/z, input surfaces with `path:line`, and in-scope attack classes.
 
-Do not hunt before that summary exists. If recon cannot name a surface, stop and say so — do not invent one.
+Do not hunt before that summary exists. If recon cannot name a surface, stop and say so: do not invent one.
 
 ## 2. Hunt
 
@@ -29,7 +29,7 @@ Hunters are isolated. Do not paste one hunter's transcript into another. A hunte
 
 ## 3. Validate
 
-Merge candidates that share location and cause. Launch `security-validator` in **one** parallel batch — one spawn per unique candidate. Each prompt includes only that candidate and the recon summary.
+Merge candidates that share location and cause. Launch `security-validator` in **one** parallel batch: one spawn per unique candidate. Each prompt includes only that candidate and the recon summary.
 
 The validator tries to **disprove** the claim. Parent never validates. Hunter never validates.
 

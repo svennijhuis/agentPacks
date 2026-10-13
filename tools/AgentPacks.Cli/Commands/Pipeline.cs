@@ -67,6 +67,7 @@ internal sealed class Pipeline(RepositoryContext context)
         var root = options.OutputRoot ?? context.Root;
 
         RemoveStaleFiles(files, root, options);
+        CopyAuthoredPlugins(root, options);
 
         foreach (var file in files)
         {
@@ -94,6 +95,35 @@ internal sealed class Pipeline(RepositoryContext context)
                     "does not match what the source generates. It is a generated file: " +
                     "run 'generate' and commit the result instead of editing it.");
             }
+        }
+    }
+
+    /// <summary>
+    /// An --out tree outside the repository must be installable on its own: clients load the
+    /// authored skills, references, commands, agents, and manifests next to the generated files.
+    /// Copy every authored plugin file first; generated files are written afterwards and win.
+    /// In place (out = repository root) and --check copy nothing.
+    /// </summary>
+    private void CopyAuthoredPlugins(string root, CommandOptions options)
+    {
+        if (options.Check || options.OutputRoot is null)
+            return;
+
+        var source = Path.GetFullPath(context.Root);
+        var target = Path.GetFullPath(root);
+        if (string.Equals(source.TrimEnd(Path.DirectorySeparatorChar), target.TrimEnd(Path.DirectorySeparatorChar), StringComparison.Ordinal))
+            return;
+
+        var plugins = Path.Combine(source, "plugins");
+        if (!Directory.Exists(plugins))
+            return;
+
+        foreach (var file in Directory.EnumerateFiles(plugins, "*", SearchOption.AllDirectories))
+        {
+            var relative = Path.GetRelativePath(source, file);
+            var destination = Path.Combine(target, relative);
+            Directory.CreateDirectory(Path.GetDirectoryName(destination)!);
+            File.Copy(file, destination, overwrite: true);
         }
     }
 

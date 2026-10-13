@@ -5,22 +5,31 @@
     "rust": "standards/rust.md",
     "errors-concurrency": "standards/errors-concurrency.md",
     "testing": "standards/testing.md",
-    "http-api": "shared/standards/http-api.md"
+    "http-api": "shared/standards/http-api.md",
+    "testing-principles": "shared/standards/testing-principles.md",
+    "engineering": "shared/standards/engineering.md",
+    "design": "shared/standards/design.md"
   },
   "consumers": {
     "rust-build": [
       "rust",
       "errors-concurrency",
-      "http-api"
+      "http-api",
+      "design",
+      "engineering"
     ],
     "rust-test-patterns": [
-      "testing"
+      "testing",
+      "testing-principles"
     ],
     "rust-review": [
       "rust",
       "errors-concurrency",
       "testing",
-      "http-api"
+      "http-api",
+      "testing-principles",
+      "design",
+      "engineering"
     ]
   }
 }

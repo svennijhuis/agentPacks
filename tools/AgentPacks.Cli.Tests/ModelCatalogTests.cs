@@ -19,8 +19,8 @@ public sealed class ModelCatalogTests
         Assert.Contains("\"default\": \"inherit\"", catalog, StringComparison.Ordinal);
         Assert.Contains("\"cursor\": \"grok-4.7\"", catalog, StringComparison.Ordinal);
         Assert.DoesNotContain("\"cursor\": \"claude-", catalog, StringComparison.Ordinal);
-        Assert.Contains("\"copilot\": \"claude-sonnet-5-5\"", catalog, StringComparison.Ordinal);
-        Assert.Contains("\"copilot\": \"claude-opus-5-5\"", catalog, StringComparison.Ordinal);
+        Assert.Contains("\"copilot\": \"claude-sonnet-5.5\"", catalog, StringComparison.Ordinal);
+        Assert.Contains("\"copilot\": \"claude-opus-5.5\"", catalog, StringComparison.Ordinal);
         Assert.Contains("\"claude\": \"sonnet\"", catalog, StringComparison.Ordinal);
         Assert.Contains("\"claude\": \"opus\"", catalog, StringComparison.Ordinal);
         Assert.Contains("\"codex\": \"gpt-6-luna\"", catalog, StringComparison.Ordinal);
@@ -68,7 +68,7 @@ public sealed class ModelCatalogTests
         var codex = run.File("plugins/engineering/com.openai.codex/agents/reviewer.toml").Text;
 
         Assert.Contains("model: \"sonnet\"", claude, StringComparison.Ordinal);
-        Assert.Contains("model: \"claude-sonnet-5-5\"", copilot, StringComparison.Ordinal);
+        Assert.Contains("model: \"claude-sonnet-5.5\"", copilot, StringComparison.Ordinal);
         Assert.Contains("model = \"gpt-6-sol\"", codex, StringComparison.Ordinal);
 
         var cursor = run.File("plugins/engineering/.cursor-plugin/agents/reviewer.md").Text;
@@ -120,7 +120,7 @@ public sealed class ModelCatalogTests
             run.File("plugins/engineering/com.anthropic.claude-code/agents/fast-agent.md").Text,
             StringComparison.Ordinal);
         Assert.Contains(
-            "model: \"claude-opus-5-5\"",
+            "model: \"claude-opus-5.5\"",
             run.File("plugins/engineering/com.github.copilot/agents/frontier-agent.agent.md").Text,
             StringComparison.Ordinal);
         Assert.Contains(
@@ -192,4 +192,28 @@ public sealed class ModelCatalogTests
         Assert.Equal("true", parsed!.Scalar("disable-model-invocation"));
     }
 
+
+    [Fact]
+    public void Every_pin_matches_its_provider_id_format()
+    {
+        using var document = JsonDocument.Parse(File.ReadAllText(Path.Combine(TestRepository.SourceRoot(), "models.source.json")));
+        var formats = new Dictionary<string, System.Text.RegularExpressions.Regex>
+        {
+            ["copilot"] = new(@"^(inherit|[a-z]+(-[a-z]+)*-\d+(\.\d+)+)$"),
+            ["claude"] = new(@"^(inherit|sonnet|opus|haiku|claude-[a-z]+-\d+(-\d+)*(-\d{8})?)$"),
+            ["cursor"] = new(@"^(inherit|grok-\d+(\.\d+)?)$"),
+            ["codex"] = new(@"^(inherit|gpt-\d+(\.\d+)?-[a-z]+)$")
+        };
+        foreach (var tier in document.RootElement.GetProperty("tiers").EnumerateObject())
+        {
+            foreach (var (provider, format) in formats)
+            {
+                var id = tier.Value.GetProperty(provider).GetString() ?? string.Empty;
+                Assert.True(format.IsMatch(id), $"{tier.Name}/{provider} pin '{id}' does not match the {provider} id format.");
+            }
+
+            var copilot = tier.Value.GetProperty("copilot").GetString() ?? string.Empty;
+            Assert.DoesNotMatch(@"-\d+-\d+$", copilot);
+        }
+    }
 }

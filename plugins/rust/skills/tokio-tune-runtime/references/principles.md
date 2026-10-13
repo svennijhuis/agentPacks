@@ -4,7 +4,7 @@ Default path after a metric is named. Co-locate each move with the check that pr
 
 ## Metric first
 
-Work backward from the metric in the skill. Long polls are common; most are benign. Schedule latency — time from a task becoming ready to Tokio polling it — is the usual Tokio-side symptom, not the cause.
+Work backward from the metric in the skill. Long polls are common; most are benign. Schedule latency, time from a task becoming ready to Tokio polling it, is the usual Tokio-side symptom, not the cause.
 
 How do I know: the change is a "Tokio hygiene" pass with no P99, throughput, or schedule-latency target.
 
@@ -25,13 +25,13 @@ How do I know: P99 is much greater than P50; a poll lasts longer than the work i
 
 ## Batch for throughput
 
-Fairness costs. More useful work per runtime event — task switch, poll, steal, thread hop — raises efficiency. Batch a series of filesystem or other blocking calls into one `spawn_blocking` (or a dedicated OS thread). `tokio::fs` without `io_uring` is one `spawn_blocking` per call plus a shared blocking pool. Spawn is cheap until it is hundreds or thousands of tasks; a ~10µs unit of work as its own task is usually anti-helpful.
+Fairness costs. More useful work per runtime event, task switch, poll, steal, thread hop, raises efficiency. Batch a series of filesystem or other blocking calls into one `spawn_blocking` (or a dedicated OS thread). `tokio::fs` without `io_uring` is one `spawn_blocking` per call plus a shared blocking pool. Spawn is cheap until it is hundreds or thousands of tasks; a ~10µs unit of work as its own task is usually anti-helpful.
 
 How do I know: `spawn_blocking` or Tokio APIs show up in flamegraphs; a tight loop issues many tiny filesystem or blocking calls; grouping the same work raises throughput.
 
 ## Global resources
 
-Workers scale across cores; some runtime resources do not. The blocking pool is currently a global bottleneck at high enough rates — ballpark 50,000 blocking tasks per second on a 32-core host, not a law. Short bounded CPU work can be cheaper left on the worker than pushed through `spawn_blocking`. Tasks also land on the global queue when a local queue overflows or when work is scheduled from outside a worker (a channel sender on a non-Tokio thread).
+Workers scale across cores; some runtime resources do not. The blocking pool is currently a global bottleneck at high enough rates: ballpark 50,000 blocking tasks per second on a 32-core host, not a law. Short bounded CPU work can be cheaper left on the worker than pushed through `spawn_blocking`. Tasks also land on the global queue when a local queue overflows or when work is scheduled from outside a worker (a channel sender on a non-Tokio thread).
 
 How do I know: `spawn_blocking` is prominent in flamegraphs; the global queue stays deep. In a healthy app it stays near empty.
 
@@ -49,6 +49,6 @@ How do I know: connection or request counts track task count with no cap.
 
 ## Isolate workers
 
-Tokio needs workers to wake quickly. A loaded kernel can take 10–20 ms to schedule a worker after unpark — fatal if P99 is single-digit milliseconds. Other processes (or Rust threads such as a `tracing_appender` that runs 100ms+ without yielding) delay that wake. Pin Tokio workers and other threads onto separate cores with `cgroups` or the same family of APIs. Reserve cores; using every core for Tokio is rarely the latency win.
+Tokio needs workers to wake quickly. A loaded kernel can take 10–20 ms to schedule a worker after unpark: fatal if P99 is single-digit milliseconds. Other processes (or Rust threads such as a `tracing_appender` that runs 100ms+ without yielding) delay that wake. Pin Tokio workers and other threads onto separate cores with `cgroups` or the same family of APIs. Reserve cores; using every core for Tokio is rarely the latency win.
 
 How do I know: a kernel scheduling delay sits between worker-unpark and the worker actually running.

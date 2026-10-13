@@ -3,7 +3,7 @@
 Write `docs/security-audit/<slug>.md`. Slug from the repo name and date. Same content in the IDE/CLI.
 
 ```markdown
-# Security audit — <slug>
+# Security audit: <slug>
 
 Target: <repo root>
 Scope: repo | path | diff
@@ -19,7 +19,7 @@ Source: <git rev-parse --short HEAD>, dirty | clean
 | Verdict | Severity | Location | Problem | Fix |
 |---|---|---|---|---|
 | confirmed | high | `path:line` | Boundary + attack + result | Narrowest source change |
-| needs_validation | — | `path:line` | Source-grounded hypothesis | Exact unresolved fact |
+| needs_validation |: | `path:line` | Source-grounded hypothesis | Exact unresolved fact |
 
 No confirmed or needs-validation rows → `No findings.` plus what recon examined.
 
@@ -43,9 +43,9 @@ In-scope classes and whether a hunter ran. Out of scope named, never implied cov
 | Fix | Imperative, at the last trusted decision point. The audit does not apply it. |
 | Confidence | Report only ≥ 80. Do not emit a confidence column. |
 
-`high` — unauthenticated takeover, cross-tenant read/write, or code execution.
-`medium` — a real boundary cross with limited blast radius or uncommon preconditions.
-`low` — confirmed, minimal impact.
+`high`: unauthenticated takeover, cross-tenant read/write, or code execution.
+`medium`: a real boundary cross with limited blast radius or uncommon preconditions.
+`low`: confirmed, minimal impact.
 
-Good: `confirmed` `high` `auth/token.ts:40` — unauthenticated caller reads any tenant by swapping `tenantId`.
+Good: `confirmed` `high` `auth/token.ts:40`: unauthenticated caller reads any tenant by swapping `tenantId`.
 Bad: severity on `needs_validation`; "add auth" with no location; live exploit steps against production.

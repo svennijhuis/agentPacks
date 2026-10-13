@@ -41,7 +41,7 @@ metadata:
   audience: loop
 ---
 
-Internal. Do not run directly — Squad loads by exact Skill name.
+Internal. Do not run directly: Squad loads by exact Skill name.
 
 # Title
 
@@ -78,7 +78,7 @@ Model-invoked helper: same shape, omit `disable-model-invocation`. The descripti
 
 Create the reference the router names. A link with no file fails validate.
 
-Description starts with `When `, ends with `.`, and stays at or under 120 characters. The router stays at or under 40 non-blank lines.
+Description starts with `When ` and ends with `.`. Aim for 120 characters and a 40-line router; past that the review warns, it does not fail.
 
 ## Agent stub
 
@@ -86,7 +86,7 @@ Description starts with `When `, ends with `.`, and stays at or under 120 charac
 ---
 name: example-reviewer
 description: What it does and when to delegate.
-model: fast
+model: standard
 readonly: true
 tools:
   - read

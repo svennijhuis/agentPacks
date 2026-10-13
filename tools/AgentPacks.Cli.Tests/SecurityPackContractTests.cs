@@ -18,7 +18,7 @@ public sealed class SecurityPackContractTests
     {
         var manifest = JsonNode.Parse(File.ReadAllText(Path.Combine(PackRoot(), "plugin.json")))!;
         Assert.Equal("security", manifest["name"]!.GetValue<string>());
-        Assert.Equal("0.1.3", manifest["version"]!.GetValue<string>());
+        Assert.Equal("0.1.4", manifest["version"]!.GetValue<string>());
 
         var keywords = manifest["keywords"]!.AsArray().Select(value => value!.GetValue<string>());
         Assert.Contains("security", keywords);
@@ -53,7 +53,7 @@ public sealed class SecurityPackContractTests
             var text = File.ReadAllText(Path.Combine(PackRoot(), "agents", $"{agent}.md"));
             var parsed = TestRepository.ParseFrontmatter(text);
             Assert.Equal(agent, parsed.Scalar("name"));
-            Assert.Equal("fast", parsed.Scalar("model"));
+            Assert.Equal("standard", parsed.Scalar("model"));
             Assert.Equal("true", parsed.Scalar("readonly"));
             var lines = TestRepository.NonEmptyBodyLines(text);
             Assert.True(lines <= 32, $"{agent} body is {lines} lines; cap is 32.");

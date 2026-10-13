@@ -15,7 +15,7 @@ A subagent is a focused reviewer or worker the main agent delegates to, with its
 ---
 name: squad-reviewer
 description: Reviews a change against its plan and verifier evidence when present, then reports correctness findings. Use in every review phase, in parallel with simplification and with security when its gate applies.
-model: fast
+model: standard
 readonly: true
 tools:
   - read
@@ -28,9 +28,9 @@ One job. Load skills with the Skill tool by exact name. Never write slash-prose.
 ```
 
 That is the production shape: short frontmatter, portable tier, `readonly`, closed tool list, one
-job, exact Skill-tool names. Squad agents are `squad-*`. Security pack agents are `security-*`. The implementer and planner are `standard`; reviewers, orchestrator, verifier, simplifier, and security-reviewer are `fast`. No agent defaults to `frontier`.
+job, exact Skill-tool names. Squad agents are `squad-*`. Security pack agents are `security-*`. Squad, security, and pack-author agents are `standard`, except `squad-architect` on `frontier`; no shipped agent uses `fast`.
 Bodies stay operational-but-short (28 non-empty lines after frontmatter;
-security reviewer 40). Numbered steps, required outputs, one Good/Bad pair — not essay soup.
+security reviewer 40). Numbered steps, required outputs, one Good/Bad pair: not essay soup.
 Copy from [`plugins/squad/agents/`](../plugins/squad/agents/); do not invent a public command
 per specialist.
 
@@ -50,13 +50,13 @@ Anything else is rejected: a key three of the four clients ignore looks like a w
 read   write   edit   grep   glob   bash   webfetch   websearch
 ```
 
-The list is closed, and a name outside it fails validation. That is not tidiness: it is the one authoring mistake no client reports. Claude renames these to `Read`, `WebFetch` and so on, and **drops any name it does not recognise**; the other three pass the list through untouched. So `websearchh`, or `Write` with a capital, generates cleanly, installs cleanly, and quietly leaves the agent without a capability it was granted on purpose — with nothing printed at any stage to say so.
+The list is closed, and a name outside it fails validation. That is not tidiness: it is the one authoring mistake no client reports. Claude renames these to `Read`, `WebFetch` and so on, and **drops any name it does not recognise**; the other three pass the list through untouched. So `websearchh`, or `Write` with a capital, generates cleanly, installs cleanly, and quietly leaves the agent without a capability it was granted on purpose: with nothing printed at any stage to say so.
 
 It is also what makes `readonly` enforceable. That check works by matching declared names against `write` and `edit`, so a misspelt writing tool would pass it while the client still makes of the name whatever it makes.
 
 The vocabulary lives in `tools/AgentPacks.Cli/Generation/NeutralTools.cs`, which the generator maps with and the validator rejects against, so a name can never be known to one and unknown to the other. Adding a tool is a line there.
 
-`readonly` is validated rather than generated, for the same reason. No client but Cursor has a read-only flag, so what actually carries the restriction into the other three is the tool list: an agent with no `tools` inherits everything the client has, and one that lists `write` gets `write`. Declaring `readonly: true` therefore commits you to a tool list that backs it up. Note that `bash` is not counted as a writing tool — a verifier needs it to run a test suite — so an agent that grants `bash` is trusting the prompt, not the tool list, for that part.
+`readonly` is validated rather than generated, for the same reason. No client but Cursor has a read-only flag, so what actually carries the restriction into the other three is the tool list: an agent with no `tools` inherits everything the client has, and one that lists `write` gets `write`. Declaring `readonly: true` therefore commits you to a tool list that backs it up. Note that `bash` is not counted as a writing tool, a verifier needs it to run a test suite, so an agent that grants `bash` is trusting the prompt, not the tool list, for that part.
 
 ## Writing the prompt
 
@@ -113,10 +113,10 @@ Collapse these. One reader or the compiler already has the twin:
 | Path | For |
 |---|---|
 | `agents/<name>.md` | Authored portable tier (source) |
-| `.cursor-plugin/agents/<name>.md` | Cursor — remapped id (`inherit`, `grok-4.7` on fast, standard, and frontier). `.cursor-plugin/plugin.json` points here so Cursor does not scan root `agents/` |
-| `com.anthropic.claude-code/agents/<name>.md` | Claude — remapped alias (`inherit`, `sonnet`, `opus`), tool names in PascalCase |
-| `com.github.copilot/agents/<name>.agent.md` | Copilot — remapped id (`inherit`, `claude-sonnet-5-5`, `claude-opus-5-5`); `model` is never dropped |
-| `com.openai.codex/agents/<name>.toml` | Codex — `model` is emitted from the catalog (`gpt-6-luna` / `gpt-6-sol` / `gpt-6.1-sol`) |
+| `.cursor-plugin/agents/<name>.md` | Cursor: remapped id (`inherit`, `grok-4.7` on fast, standard, and frontier). `.cursor-plugin/plugin.json` points here so Cursor does not scan root `agents/` |
+| `com.anthropic.claude-code/agents/<name>.md` | Claude: remapped alias (`inherit`, `sonnet`, `opus`), tool names in PascalCase |
+| `com.github.copilot/agents/<name>.agent.md` | Copilot: remapped id with a dotted version (`inherit`, `claude-sonnet-5.5`, `claude-opus-5.5`); `model` is never dropped |
+| `com.openai.codex/agents/<name>.toml` | Codex: `model` is emitted from the catalog (`gpt-6-luna` / `gpt-6-sol` / `gpt-6.1-sol`) |
 
 ## The Codex gap
 
@@ -131,9 +131,8 @@ Codex generation emits the catalog Codex id into `model =`. `fast` → `gpt-6-lu
 
 If Codex gains plugin-shipped agents, only the generated manifest needs a field.
 
-Cost-first: catalog default is `inherit`. The implementer and the planner use `standard`.
-Reviewers, orchestrator, verifier, simplifier, and security-reviewer use `fast`. No agent
-defaults to `frontier` (escalate only). Generation remaps those portable tiers for every
+Cost-first: catalog default is `inherit`. Squad agents use `standard`; none
+uses `fast`. Only `squad-architect` runs on `frontier`. Generation remaps those portable tiers for every
 client. Cursor loads the remapped copies because `.cursor-plugin/plugin.json` sets `agents`.
 Cursor emit is Grok only: `fast`, `standard`, and `frontier` all map to `grok-4.7`.
 Do not author `sonnet` to mean Cursor.

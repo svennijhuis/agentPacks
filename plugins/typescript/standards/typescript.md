@@ -10,4 +10,8 @@ Use the repository `tsconfig`, package manager, and module kind. Do not invent a
 - Exhaust `switch` on discriminated unions. A missing variant is a correctness defect, not a style note.
 - Do not fire-and-forget a `Promise`. Await it, return it, or void it at a documented boundary.
 - Keep `tsconfig` paths, `jsx`, and `lib` as the repo set them. A local override that only the new file needs is a finding.
-- Never land a shape you know is worse just to finish faster.
+- Cast with `as` only after validation. Prefer `satisfies` to check a literal without widening it.
+- A type guard must verify every property it claims. Name it `isX` or `hasX`. When the repo has a runtime schema library, infer the type from the schema instead of hand-writing the guard.
+- Brand primitives that callers can mix up (ids, units) and validate them once at the boundary.
+- Prefer one object argument over several positional ones, except on hot paths.
+- Shipped code logs through the repo's structured logger, not `console.log`.

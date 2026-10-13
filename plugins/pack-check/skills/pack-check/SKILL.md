@@ -46,3 +46,12 @@ command. Report an installer failure as-is; do not try another provider's comman
 
 After a successful install, stop and ask the user to reload or start a new session. Plugin discovery
 already happened, so do not claim the new skills are available in the current session.
+
+## Plan lint
+
+Lint a Squad plan with `sh scripts/check-plan.sh <plan>`, or `pwsh scripts/check-plan.ps1 <plan>` when
+no `sh` exists: date-slug name, required sections for its `## Status`, no em dash. Local files only.
+Errors (exit 1) block: Squad fixes the plan and reruns until exit 0. Warnings only report. Neither shell available: say so; Squad reports an environment block.
+
+Lint a Squad retro with `sh scripts/check-retro.sh <retro>`, or `pwsh scripts/check-retro.ps1 <retro>`:
+date-slug name and no em dash (U+2014), reported per line. The main agent fixes every finding before Done.

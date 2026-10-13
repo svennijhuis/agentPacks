@@ -7,7 +7,7 @@ metadata:
   audience: loop
 ---
 
-Internal. Do not run directly — Squad loads by exact Skill name.
+Internal. Do not run directly: Squad loads by exact Skill name.
 
 # .NET test patterns
 
@@ -16,7 +16,7 @@ Loop-only; not as a user entrypoint. How a test is written *in this stack*. What
 When loaded by exact Skill tool name `dotnet-test-patterns` during implement or verify:
 1. Read every file in `references/standards/`.
 2. Read every file in `references/examples/`.
-3. Standards in force: `testing.md`.
+3. Standards in force: `testing.md`, `testing-principles.md`.
 4. Cite `testing.md` when choosing a fixture, boundary, or command.
 
 Read [shape, boundary, and commands](references/commands.md).

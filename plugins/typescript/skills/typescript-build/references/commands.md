@@ -33,7 +33,7 @@ If `package.json` already has `build` / `typecheck`, run that script instead:
 <pm> run build
 ```
 
-Target the repo's `tsconfig*.json`. Do not pass `--strict` flags the config already owns. Do not introduce Vite/Next/React as a slot — those are frameworks, reached through this skill when the repo already uses them.
+Target the repo's `tsconfig*.json`. Do not pass `--strict` flags the config already owns. Do not introduce Vite/Next/React as a slot: those are frameworks, reached through this skill when the repo already uses them.
 
 ### Targeted verify first
 

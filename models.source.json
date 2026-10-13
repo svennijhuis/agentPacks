@@ -12,19 +12,19 @@
     "fast": {
       "claude": "sonnet",
       "cursor": "grok-4.7",
-      "copilot": "claude-sonnet-5-5",
+      "copilot": "claude-sonnet-5.5",
       "codex": "gpt-6-luna"
     },
     "standard": {
       "claude": "sonnet",
       "cursor": "grok-4.7",
-      "copilot": "claude-sonnet-5-5",
+      "copilot": "claude-sonnet-5.5",
       "codex": "gpt-6-sol"
     },
     "frontier": {
       "claude": "opus",
       "cursor": "grok-4.7",
-      "copilot": "claude-opus-5-5",
+      "copilot": "claude-opus-5.5",
       "codex": "gpt-6.1-sol"
     }
   }

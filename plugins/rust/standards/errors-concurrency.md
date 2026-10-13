@@ -1,6 +1,6 @@
 # Rust error and concurrency standards
 
-Use established workspace dependencies and repeated local patterns for choices this standard leaves open.
+Shared rules live in `design` and `engineering`. This file adds language specifics.
 
 ## Errors and panic boundaries
 

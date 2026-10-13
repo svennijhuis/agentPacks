@@ -39,12 +39,12 @@ metadata:
   audience: loop
 ---
 
-Internal. Do not run directly — Squad loads by exact Skill name.
+Internal. Do not run directly: Squad loads by exact Skill name.
 
 Loop-only; not as a user entrypoint.
 ```
 
-A user-invoked entrypoint (`squad`, `pack-check`, `learnings-digest`, `scenarios-md`, `security-audit-md`, `pack-author-md`) adds
+A user-invoked entrypoint (`squad`, `pack-check`, `scenarios-md`, `security-audit-md`, `pack-author-md`) adds
 `disable-model-invocation: true` and omits `audience: loop`. Load either kind with the Skill tool
 by exact name, never slash-prose.
 
@@ -58,7 +58,7 @@ Poor: `Helps with PDFs. Extracts text and tables, fills forms, merges files. Do 
 
 ## Writing the body
 
-- Keep `SKILL.md` a thin router. Move operational detail into `references/` and link to it — agents load those files only when needed. The specification allows up to roughly 500 lines; shipped skills stay Matt-tiny.
+- Keep `SKILL.md` a thin router. Move operational detail into `references/` and link to it: agents load those files only when needed. The specification allows up to roughly 500 lines; shipped skills stay Matt-tiny.
 - Put runnable code in `scripts/`, static resources in `assets/`.
 - Reference other files with paths relative to the skill root, one level deep.
 - A language-pack slot names its canonical docs under `Standards in force:` and tells the agent to cite the filename during review and build. Load the slot with the Skill tool by exact name.
@@ -88,7 +88,7 @@ dotnet test tools/AgentPacks.slnx
 dotnet run --project tools/AgentPacks.Cli -- validate-all --out /tmp/agentpacks-marketplace
 ```
 
-4. Install the generated copy locally — three client paths, no merge to `main`:
+4. Install the generated copy locally: three client paths, no merge to `main`:
 
 ```bash
 claude --plugin-dir /tmp/agentpacks-marketplace/plugins/squad
@@ -96,6 +96,21 @@ ln -sfn /tmp/agentpacks-marketplace/plugins/squad ~/.cursor/plugins/local/squad
 copilot plugin marketplace add /tmp/agentpacks-marketplace
 copilot plugin install squad@agentpacks
 ```
+
+`validate-all --out` writes a self-contained tree: every authored plugin file (skills, references,
+commands, agents, manifests) plus the generated client files, so it installs on its own.
+
+Headless Cursor (`cursor-agent -p`) loads plugin skills and agents from `--plugin-dir` but does not
+resolve plugin slash commands, and the Squad skills are hidden (`user-invocable: false`). Copy the
+command files into the workspace once (keep `.cursor/commands/` out of commits), then run:
+
+```bash
+mkdir -p .cursor/commands && cp /tmp/agentpacks-marketplace/plugins/squad/commands/*.md .cursor/commands/
+for f in .cursor/commands/*.md; do grep -q '^Squad plugin root: /' "$f" || { awk -v r=/tmp/agentpacks-marketplace/plugins/squad '{print} /^---$/ && ++n==2 {print "Squad plugin root: " r}' "$f" > "$f.tmp" && mv "$f.tmp" "$f"; }; done
+cursor-agent -p --trust -f --plugin-dir /tmp/agentpacks-marketplace/plugins/squad --plugin-dir /tmp/agentpacks-marketplace/plugins/pack-check --plugin-dir /tmp/agentpacks-marketplace/plugins/dotnet "/squad <ask>"
+```
+
+Replace `dotnet` with the language pack pack-check detects for the repository (`rust`, `typescript`); without it the pack gate stops the run. `-f` lets the agent run shell steps (check-plan, check-retro, tests, `git diff`); without it every shell call is rejected.
 
 5. Reload, then smoke `/squad` or `/squad-review` once.
 

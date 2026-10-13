@@ -6,7 +6,7 @@
 |---|---|
 | `global.json` | The SDK version is pinned. A different installed SDK fails at restore, not at build |
 | `Directory.Packages.props` | Central Package Management is on. **Package versions live here, not in the `.csproj`** |
-| `Directory.Build.props` | Settings every project inherits — `TargetFramework`, `LangVersion`, nullable, analyzers |
+| `Directory.Build.props` | Settings every project inherits: `TargetFramework`, `LangVersion`, nullable, analyzers |
 | `*.slnx` | The XML solution format. Newer than `.sln`, and what `dotnet` commands should target |
 | `packages.lock.json` | Restore is locked. A new package needs the lock file regenerated, or CI fails |
 
@@ -35,7 +35,7 @@ dotnet build <solution> -c Release
 
 During implement, build the touched project (or its test project) first. Reserve full-solution
 build for verifier / CI-shaped checks. Do not `dotnet clean` mid-loop unless the failure is a
-stale-artifact diagnosis — cleaning under contention forces full rebuilds and thrash.
+stale-artifact diagnosis: cleaning under contention forces full rebuilds and thrash.
 
 ### Contention constraints
 
@@ -48,7 +48,7 @@ stale-artifact diagnosis — cleaning under contention forces full rebuilds and 
 Two edits, and both are required:
 
 1. `Directory.Packages.props` gains `<PackageVersion Include="Foo" Version="1.2.3" />`.
-2. The consuming `.csproj` gains `<PackageReference Include="Foo" />` — **with no `Version` attribute.**
+2. The consuming `.csproj` gains `<PackageReference Include="Foo" />`: **with no `Version` attribute.**
 
 A `Version` on the `PackageReference` is an error under CPM, not an override. If the repository has `packages.lock.json` files, regenerate them:
 
