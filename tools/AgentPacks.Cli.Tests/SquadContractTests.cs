@@ -1106,6 +1106,14 @@ public class SquadContractTests
     }
 
     [Fact]
+    public void Plan_gap_step_allows_the_save_reset_and_bans_only_destructive_git()
+    {
+        var command = Squad("commands", "squad.md");
+        Assert.Contains("which ends with `git reset -q`; no `reset --hard`, `clean`, `checkout`, or `restore`", command, StringComparison.Ordinal);
+        Assert.DoesNotContain("no reset or clean", command, StringComparison.Ordinal);
+    }
+
+    [Fact]
     public void Multi_project_change_needs_two_slices_or_a_reason()
     {
         Assert.Contains("More than one project touched: at least 2 slices, or a `Single slice because: <reason>` line", Squad("agents", "squad-planner.md"), StringComparison.Ordinal);
