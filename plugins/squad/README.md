@@ -14,7 +14,7 @@ The numbered flow below is locked v1 and is copied verbatim into the
 /squad (user-invoked orchestrator)
 1. Newest docs/plans/ file still Status: draft with no matching retro → spawn squad-retro on it first (reason: interrupted). Then read the latest same-entrypoint docs/retros/ file: carry its Lessons and Improvements as facts; never auto-apply
 2. Orient codebase (applicable stacks only)
-3. Small change? → main agent only, spawn nobody → tiny plan (goal, decision, verify cmd) → verify (no retro; + suggestions if pack/skill/agent/command/contract evidenced) → hand off uncommitted
+3. Small change? → main agent only, spawn nobody → tiny plan (goal, decision, verify cmd) → verify (verify cmd, then the wider unit suite once; no retro; + suggestions if pack/skill/agent/command/contract evidenced) → hand off uncommitted
 4. Else grill/plan rounds (facts via subagent; decisions = human); draft plan file from round 1 (check-plan it at once, fix findings), each round appended → architect rule fired? main agent spawns squad-architect for Design + Map (planner Design gap → ≤1 architect rerun) → confirm sets Status: confirmed
 5. Gate spins: sequential implementers (missing/one ## Slices → one whole-plan implementer; else one fresh implementer per slice in order; Plan gap → planner next-round on that gap → fresh implementer redoes the slice; 2nd Plan gap on a slice → Replan) → then one verifier → reviewers in parallel (correctness + plan/spec; security ONLY if trust boundary)
 6. Orchestrator merges ≤2 fix rounds; ≤1 re-ask per producer per review round then accept marker (non-blocking); optional residual fixup → hand off uncommitted → squad-retro writes the retro, also on stop or fail (+ suggestions if pack/skill/agent/command/contract evidenced)
@@ -129,7 +129,7 @@ contract prose, restated in Squad's shape rather than copied:
 
 | Squad item | From `orchestrate` | What Squad does with it |
 |---|---|---|
-| 65 `blocked` verifier result | `verifier-blocked`: env failure is not a thin verification | Fourth Result value next to `pass` / `fail` / `not verified`. Unproven, never a pass; the synthesized Fix is unblock and rerun. Reading the diff is not verification. Ties into the local-secrets ask. |
+| 65 `blocked` / `skipped` / `not run` verifier results | `verifier-blocked`: env failure is not a thin verification | Result values beside `pass` / `fail` / `not verified`. `blocked`: hard secret/env stop, unproven, Fix is unblock and rerun. `skipped`: failed `needs:` Doctor only, does not block. `not run`: undriven touched work, blocks. Reading the diff is not verification. Ties into the local-secrets ask. |
 | 66 quantitative criteria re-measured | worker `## Measurements` + script re-run with drift flag | Plan writes metric, operator, bound and the measuring command. `squad-verifier` re-measures and quotes `<measured> <op> <bound>`. A green test name is not a measurement. |
 | 67 `## Request` verbatim in the plan | `goal` kept verbatim, `summary` separate; minimal-goal discipline | The ask as typed sits between the outcome title and `## Problem`, so ask-vs-plan drift is visible without the chat transcript. Scope still lives in In scope / Out of scope / Non-goals. |
 | 68 build or type-check is not behavioral evidence | `type-check-only` verification tier: "only type-check / build passes; weak" | A `pass` row whose only command is a build, restore, format, or type-check is `not verified` unless the criterion is about compiling. Compiling proves compiling. `dotnet build && dotnet test` is not compile-only. |

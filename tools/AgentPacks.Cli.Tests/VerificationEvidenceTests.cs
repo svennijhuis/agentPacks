@@ -89,8 +89,9 @@ public sealed class VerificationEvidenceTests
     }
 
     /// <summary>
-    /// Item 65: a check that exists but could not run (environment, missing secret) is
-    /// <c>blocked</c> — distinct from <c>not verified</c> (no check) and <c>fail</c>, and never a pass.
+    /// Item 65: a hard secret path left unrun is <c>blocked</c>, distinct from <c>not verified</c>
+    /// (no check) and <c>fail</c>, and never a pass. A <c>needs:</c> Doctor 403 is <c>skipped</c>
+    /// (see <see cref="Skipped_needs_row_is_parsed_and_does_not_block_pass"/>).
     /// </summary>
     [Fact]
     public void Blocked_row_is_parsed_distinct_from_not_verified_and_is_not_a_pass()
@@ -99,7 +100,7 @@ public sealed class VerificationEvidenceTests
             | Criterion | Result | Command | Evidence |
             |---|---|---|---|
             | 1 | pass | `dotnet test App.slnx` | `2 passed` |
-            | 2 | blocked | `dotnet test App.slnx --filter Vault` | `Key Vault 403 on local; the check did not run` |
+            | 2 | blocked | `dotnet test App.slnx --filter Vault` | `hard secret path left unrun; missing local credential` |
 
             **Suite:** pass
             **Stacks:** dotnet
@@ -111,9 +112,86 @@ public sealed class VerificationEvidenceTests
         Assert.Equal(VerificationEvidence.Blocked, blocked.Criteria[1].Result);
         Assert.NotEqual(VerificationEvidence.NotVerified, blocked.Criteria[1].Result);
         Assert.NotEqual(VerificationEvidence.Fail, blocked.Criteria[1].Result);
+        Assert.NotEqual(VerificationEvidence.Skipped, blocked.Criteria[1].Result);
         Assert.True(VerificationEvidence.IsCoveringCommand(blocked.Criteria[1].Command));
         Assert.Equal(VerificationOutcome.NotPass,
             VerificationEvidence.Evaluate(new VerificationContext(true, ["dotnet"], blocked)));
+    }
+
+    /// <summary>
+    /// Item 65: a failed <c>needs:</c> Doctor check is <c>skipped</c> with reason and does not block
+    /// a verified pass when every other gate is green.
+    /// </summary>
+    [Fact]
+    public void Skipped_needs_row_is_parsed_and_does_not_block_pass()
+    {
+        var report = VerificationEvidence.Parse("""
+            | Criterion | Result | Command | Evidence |
+            |---|---|---|---|
+            | 1 | pass | `dotnet test App.slnx` | `2 passed` |
+            | 2 | skipped | `curl -s -o /dev/null -w "%{http_code}" "$KV_URL"` | `needs: kv, 403` |
+
+            **Suite:** pass
+            **Stacks:** dotnet
+            **Boundary:** not covered
+            **Coverage:** empty input and duplicate id
+            """);
+
+        Assert.Equal(2, report.Criteria.Count);
+        Assert.Equal(VerificationEvidence.Skipped, report.Criteria[1].Result);
+        Assert.NotEqual(VerificationEvidence.Blocked, report.Criteria[1].Result);
+        Assert.NotEqual(VerificationEvidence.NotRun, report.Criteria[1].Result);
+        Assert.Equal(VerificationOutcome.Pass,
+            VerificationEvidence.Evaluate(new VerificationContext(true, ["dotnet"], report)));
+    }
+
+    /// <summary>
+    /// Item 65: a touched scenario that was not driven is <c>not run</c> and blocks a pass.
+    /// </summary>
+    [Fact]
+    public void Not_run_row_is_parsed_and_blocks_pass()
+    {
+        var report = VerificationEvidence.Parse("""
+            | Criterion | Result | Command | Evidence |
+            |---|---|---|---|
+            | 1 | pass | `dotnet test App.slnx` | `2 passed` |
+            | 2 | not run | `curl -s http://localhost:5000/orders` | `touched scenario not driven` |
+
+            **Suite:** pass
+            **Stacks:** dotnet
+            **Boundary:** not covered
+            **Coverage:** empty input and duplicate id
+            """);
+
+        Assert.Equal(2, report.Criteria.Count);
+        Assert.Equal(VerificationEvidence.NotRun, report.Criteria[1].Result);
+        Assert.NotEqual(VerificationEvidence.Skipped, report.Criteria[1].Result);
+        Assert.Equal(VerificationOutcome.NotPass,
+            VerificationEvidence.Evaluate(new VerificationContext(true, ["dotnet"], report)));
+    }
+
+    /// <summary>
+    /// Item 65: an unknown Result value must stay in the parsed table and force NotPass, not vanish.
+    /// </summary>
+    [Fact]
+    public void Unknown_result_value_row_is_not_silently_dropped_and_is_not_a_pass()
+    {
+        var report = VerificationEvidence.Parse("""
+            | Criterion | Result | Command | Evidence |
+            |---|---|---|---|
+            | 1 | pass | `dotnet test App.slnx` | `2 passed` |
+            | 2 | flaky | `dotnet test App.slnx --filter Orders` | `reran until green` |
+
+            **Suite:** pass
+            **Stacks:** dotnet
+            **Boundary:** not covered
+            **Coverage:** empty input and duplicate id
+            """);
+
+        Assert.Equal(2, report.Criteria.Count);
+        Assert.Equal("flaky", report.Criteria[1].Result);
+        Assert.Equal(VerificationOutcome.NotPass,
+            VerificationEvidence.Evaluate(new VerificationContext(true, ["dotnet"], report)));
     }
 
     /// <summary>

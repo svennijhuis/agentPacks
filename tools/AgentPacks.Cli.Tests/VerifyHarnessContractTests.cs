@@ -78,10 +78,12 @@ public sealed class VerifyHarnessContractTests
         var verifier = File.ReadAllText(Path.Combine(
             TestRepository.SourceRoot(), "plugins", "squad", "agents", "squad-verifier.md"));
         Assert.Contains("Hard Doctor fail → `blocked`, never `pass`", verifier, StringComparison.Ordinal);
-        Assert.Contains("needs: kv|secret|auth|local-resource", verifier, StringComparison.Ordinal);
-        Assert.Contains("needs: kv 403", verifier, StringComparison.Ordinal);
-        Assert.Contains("`skipped` with reason; rest runs", verifier, StringComparison.Ordinal);
-        Assert.Contains("dependent Drive → `skipped`", verifier, StringComparison.Ordinal);
+        Assert.Contains("references/doctor-tags.md", verifier, StringComparison.Ordinal);
+        var tags = File.ReadAllText(Path.Combine(VerifyHarnessDir(), "references", "doctor-tags.md"));
+        Assert.Contains("needs: kv|secret|auth|local-resource", tags, StringComparison.Ordinal);
+        Assert.Contains("403", tags, StringComparison.Ordinal);
+        Assert.Contains("the rest keeps running", tags, StringComparison.Ordinal);
+        Assert.Contains("depends on a failed tagged check: `skipped`", tags, StringComparison.Ordinal);
         Assert.Contains("Cleanup (always)", verifier, StringComparison.Ordinal);
         Assert.Contains("Missing file → today's behavior", verifier, StringComparison.Ordinal);
         Assert.DoesNotContain('\u2014', verifier);
@@ -199,15 +201,39 @@ public sealed class VerifyHarnessContractTests
     public void Later_runs_drive_every_touched_scenario()
     {
         Assert.Contains("Every later run (verifier, or `/scenarios` with an existing verify.md) drives every touched scenario", VerifyHarnessBody(), StringComparison.Ordinal);
-        Assert.Contains("Drive for every touched scenario (not only the one-feature creation proof)", File.ReadAllText(Path.Combine(TestRepository.SourceRoot(), "plugins", "squad", "agents", "squad-verifier.md")), StringComparison.Ordinal);
+        Assert.Contains("Drive for every touched scenario, then Cleanup", File.ReadAllText(Path.Combine(TestRepository.SourceRoot(), "plugins", "squad", "agents", "squad-verifier.md")), StringComparison.Ordinal);
     }
 
     [Fact]
     public void Skill_and_verifier_run_check_verify_on_both_files()
     {
-        const string cmd = "check-verify.sh docs/verify.md docs/smoke-report.md";
-        Assert.Contains(cmd, File.ReadAllText(Path.Combine(VerifyHarnessDir(), "SKILL.md")), StringComparison.Ordinal);
-        Assert.Contains(cmd, File.ReadAllText(Path.Combine(TestRepository.SourceRoot(), "plugins", "squad", "agents", "squad-verifier.md")), StringComparison.Ordinal);
+        const string both = "check-verify.sh docs/verify.md docs/smoke-report.md";
+        Assert.Contains(both, File.ReadAllText(Path.Combine(VerifyHarnessDir(), "SKILL.md")), StringComparison.Ordinal);
+        var verifier = File.ReadAllText(Path.Combine(
+            TestRepository.SourceRoot(), "plugins", "squad", "agents", "squad-verifier.md"));
+        Assert.Contains("check-verify.sh docs/verify.md", verifier, StringComparison.Ordinal);
+        Assert.DoesNotContain(both, verifier, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void Verifier_lints_smoke_report_only_when_it_exists_and_does_not_fix()
+    {
+        var verifier = File.ReadAllText(Path.Combine(
+            TestRepository.SourceRoot(), "plugins", "squad", "agents", "squad-verifier.md"));
+        Assert.Contains("adding `docs/smoke-report.md` only if it exists. A finding is `fail`.", verifier, StringComparison.Ordinal);
+        Assert.Contains("Read-only: never write these files", verifier, StringComparison.Ordinal);
+        Assert.DoesNotContain("a finding is a fix", verifier, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void Squad_skill_lists_verify_harness_in_load_only_allowed()
+    {
+        var skill = File.ReadAllText(Path.Combine(
+            TestRepository.SourceRoot(), "plugins", "squad", "skills", "squad", "SKILL.md"));
+        Assert.Contains(
+            "Load only with the Skill tool by exact name: `squad`, `caveman`, `verify-harness`,",
+            skill,
+            StringComparison.Ordinal);
     }
 
     [Fact]
@@ -222,7 +248,7 @@ public sealed class VerifyHarnessContractTests
     public void Skipped_is_only_for_failed_needs_and_not_run_is_separate()
     {
         Assert.Contains("drives every touched scenario; `skipped` only for a failed `needs:` check, `not run` for anything else not driven", VerifyHarnessBody(), StringComparison.Ordinal);
-        Assert.Contains("not driven → `not run`", File.ReadAllText(Path.Combine(TestRepository.SourceRoot(), "plugins", "squad", "agents", "squad-verifier.md")), StringComparison.Ordinal);
+        Assert.Contains("a touched scenario not driven is `not run`, which blocks", File.ReadAllText(Path.Combine(VerifyHarnessDir(), "references", "doctor-tags.md")), StringComparison.Ordinal);
     }
 
     [Fact]
@@ -248,6 +274,14 @@ public sealed class VerifyHarnessContractTests
         var command = File.ReadAllText(Path.Combine(TestRepository.SourceRoot(), "plugins", "squad", "commands", "scenarios.md"));
         Assert.Contains("`<Squad plugin root>/skills/scenarios-md/SKILL.md`", command, StringComparison.Ordinal);
         Assert.Contains("never run `find` for it", command, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void Small_change_verify_runs_wider_unit_suite_once()
+    {
+        var skill = File.ReadAllText(Path.Combine(TestRepository.SourceRoot(), "plugins", "squad", "skills", "squad", "SKILL.md"));
+        Assert.Contains("verify (verify cmd, then the wider unit suite once;", skill, StringComparison.Ordinal);
+        Assert.Contains("Verify runs that command, then the wider unit suite once.", skill, StringComparison.Ordinal);
     }
 
     private static string VerifyHarnessDir() => Path.Combine(

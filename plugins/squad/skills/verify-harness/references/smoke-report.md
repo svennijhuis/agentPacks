@@ -18,4 +18,4 @@ Example:
 - Outcome: `pass`
 - Evidence: .git/squad/verify/pets-api/20261013-2300/unknown-id.txt (local to the run machine)
 
-No em dashes in the report.
+No em dashes in `docs/verify.md` or `docs/smoke-report.md`; step 4 lint fails on them.

@@ -68,7 +68,21 @@ public static partial class VerificationEvidence
     /// </summary>
     public const string Blocked = "blocked";
 
-    [GeneratedRegex(@"^\|\s*(\d+)\s*\|\s*(pass|fail|not verified|blocked)\s*\|\s*(.*?)\s*\|\s*(.*?)\s*\|",
+    /// <summary>
+    /// A <c>needs:</c>-tagged Doctor check failed (with reason). Does not block a pass; the rest of
+    /// the run continues. Never a stand-in for an undriven scenario (<see cref="NotRun"/>).
+    /// </summary>
+    public const string Skipped = "skipped";
+
+    /// <summary>
+    /// A touched scenario or check was not driven. Blocks a pass. Distinct from <see cref="Skipped"/>.
+    /// </summary>
+    public const string NotRun = "not run";
+
+    // Known Result values first; final alternative keeps unknown values so Evaluate can reject them
+    // instead of silently dropping the row.
+    [GeneratedRegex(
+        @"^\|\s*(\d+)\s*\|\s*(pass|fail|not verified|blocked|skipped|not run|[^|\n]+?)\s*\|\s*(.*?)\s*\|\s*(.*?)\s*\|",
         RegexOptions.IgnoreCase | RegexOptions.Multiline)]
     private static partial Regex CriterionRow { get; }
 
@@ -152,8 +166,21 @@ public static partial class VerificationEvidence
 
         foreach (var criterion in report.Criteria)
         {
+            // Failed needs: Doctor check: visible, non-blocking. Undriven work is NotRun, not this.
+            if (criterion.Result == Skipped)
+            {
+                continue;
+            }
+
+            // Unknown Result must not be dropped at parse time; treat as malformed here.
+            if (criterion.Result is not (Pass or Fail or NotVerified or Blocked or NotRun))
+            {
+                return VerificationOutcome.NotPass;
+            }
+
             // A dash, empty cell, or "none" never covers a criterion. Claiming `pass` there is
             // the exact lie this gate exists to catch; `not verified` is honest and still not a pass.
+            // `fail`, `not verified`, `blocked`, and `not run` all block a pass.
             if (!IsCoveringCommand(criterion.Command) || criterion.Result != Pass)
             {
                 return VerificationOutcome.NotPass;
@@ -171,9 +198,19 @@ public static partial class VerificationEvidence
         foreach (var number in context.QuantitativeCriteria ?? [])
         {
             // Only the verifier's own number quoted against the bound is evidence;
-            // `2 passed` says nothing about a bound.
+            // `2 passed` says nothing about a bound. A skipped needs: row does not block.
             var row = report.Criteria.FirstOrDefault(criterion => criterion.Number == number);
-            if (row is null || !IsMeasuredAgainstBound(row.Evidence))
+            if (row is null)
+            {
+                return VerificationOutcome.NotPass;
+            }
+
+            if (row.Result == Skipped)
+            {
+                continue;
+            }
+
+            if (!IsMeasuredAgainstBound(row.Evidence))
             {
                 return VerificationOutcome.NotPass;
             }

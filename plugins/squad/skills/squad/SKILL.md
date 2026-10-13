@@ -16,7 +16,7 @@ Two entrypoints only: `/squad` and `/squad-review`. Type the command.
 /squad (user-invoked orchestrator)
 1. Newest docs/plans/ file still Status: draft with no matching retro → spawn squad-retro on it first (reason: interrupted). Then read the latest same-entrypoint docs/retros/ file: carry its Lessons and Improvements as facts; never auto-apply
 2. Orient codebase (applicable stacks only)
-3. Small change? → main agent only, spawn nobody → tiny plan (goal, decision, verify cmd) → verify (no retro; + suggestions if pack/skill/agent/command/contract evidenced) → hand off uncommitted
+3. Small change? → main agent only, spawn nobody → tiny plan (goal, decision, verify cmd) → verify (verify cmd, then the wider unit suite once; no retro; + suggestions if pack/skill/agent/command/contract evidenced) → hand off uncommitted
 4. Else grill/plan rounds (facts via subagent; decisions = human); draft plan file from round 1 (check-plan it at once, fix findings), each round appended → architect rule fired? main agent spawns squad-architect for Design + Map (planner Design gap → ≤1 architect rerun) → confirm sets Status: confirmed
 5. Gate spins: sequential implementers (missing/one ## Slices → one whole-plan implementer; else one fresh implementer per slice in order; Plan gap → planner next-round on that gap → fresh implementer redoes the slice; 2nd Plan gap on a slice → Replan) → then one verifier → reviewers in parallel (correctness + plan/spec; security ONLY if trust boundary)
 6. Orchestrator merges ≤2 fix rounds; ≤1 re-ask per producer per review round then accept marker (non-blocking); optional residual fixup → hand off uncommitted → squad-retro writes the retro, also on stop or fail (+ suggestions if pack/skill/agent/command/contract evidenced)
@@ -46,7 +46,7 @@ are rewritten in place; do not append forever inside the plan.
 
 | Work | Route |
 |---|---|
-| Typo, rename, one-line change | The main agent implements and verifies directly. Do not call `squad-planner`, `squad-implementer`, `squad-verifier`, or any review agent. Write a tiny plan (goal, decision, verify command). Small changes spawn nobody. |
+| Typo, rename, one-line change | The main agent implements and verifies directly. Do not call `squad-planner`, `squad-implementer`, `squad-verifier`, or any review agent. Write a tiny plan (goal, decision, verify command). Verify runs that command, then the wider unit suite once. Small changes spawn nobody. |
 | Behavior or design change | Full loop. |
 | Trust-boundary / irreversible | Full loop; record the human decision first. |
 | Existing diff, no plan | `/squad-review`. No verifier report, plan write, verdict, or fix round. Always saves the report. |
@@ -71,12 +71,12 @@ Small change: spawn none of these; no retro. Do not add a tester agent. Do not s
 
 ## Skills
 
-Load only with the Skill tool by exact name: `squad`, `caveman`, `<lang>-build`,
+Load only with the Skill tool by exact name: `squad`, `caveman`, `verify-harness`, `<lang>-build`,
 `<lang>-test-patterns`, `<lang>-review`, `<lang>-security-review`, and `<lang>-solution` when it exists.
 Load `caveman` with the Skill tool by exact name `caveman`. Never write `/caveman` as prose to load it.
 Never write slash-prose. Language-pack slots are internals (`metadata.audience: loop`).
 Authored `mcp.json` files are empty scaffolds. No shipped MCP server. No new command. No credentials. No remote service.
-Local-secrets rule: unauthorized Key Vault / secret store on local is often expected: not a product fail. Mention it and ask: continue? (workaround / mock / skip secret path). Do not invent tokens. Do not hard-fail the whole run without ask. A criterion the skipped secret path leaves unrun is `blocked`, never `pass`.
+Local-secrets rule: unauthorized Key Vault / secret store on local is often expected: not a product fail. Mention it and ask: continue? (workaround / mock / skip secret path). Do not invent tokens. Do not hard-fail the whole run without ask. A hard secret path left unrun is `blocked`, never `pass`. A `needs:`-tagged Doctor check that fails is `skipped`, with reason; it does not block.
 
 Grill stays here. Do not load an external grilling catalog.
 

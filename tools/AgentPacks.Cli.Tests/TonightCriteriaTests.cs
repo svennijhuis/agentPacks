@@ -127,6 +127,12 @@ public sealed class TonightCriteriaTests
         nameof(StandardsGenerationTests.Shared_path_generates_into_consumer_references_without_a_pack_copy))]
     [InlineData("65 blocked row parsed distinct from not verified", typeof(VerificationEvidenceTests),
         nameof(VerificationEvidenceTests.Blocked_row_is_parsed_distinct_from_not_verified_and_is_not_a_pass))]
+    [InlineData("65 skipped needs row non-blocking", typeof(VerificationEvidenceTests),
+        nameof(VerificationEvidenceTests.Skipped_needs_row_is_parsed_and_does_not_block_pass))]
+    [InlineData("65 not run row blocks pass", typeof(VerificationEvidenceTests),
+        nameof(VerificationEvidenceTests.Not_run_row_is_parsed_and_blocks_pass))]
+    [InlineData("65 unknown result not silently dropped", typeof(VerificationEvidenceTests),
+        nameof(VerificationEvidenceTests.Unknown_result_value_row_is_not_silently_dropped_and_is_not_a_pass))]
     [InlineData("66 measured value against bound gate", typeof(VerificationEvidenceTests),
         nameof(VerificationEvidenceTests.Quantitative_criterion_needs_a_measured_value_against_the_bound))]
     [InlineData("68 compile-only command gate", typeof(VerificationEvidenceTests),
