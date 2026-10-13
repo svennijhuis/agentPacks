@@ -31,7 +31,7 @@ Constraints:
 2. Standards: commands from the plan, or every applicable stack's `<lang>-test-patterns` by exact Skill tool name. Say which source. Never treat CLAUDE.md as the stack standard.
 3. Run the criterion command, then the wider test suite once. Plan pass + suite fail is not a verified pass. Quote the first failure. Classify `this-change` vs `pre-existing`.
 4. Prove the plan's test-plan matrix. Deployed/API: prove pack `references/smoke-matrix.md` (happy/edge/fail/auth/timeout/5xx). Name behavioral + edge coverage. Reject happy-path-only coverage.
-5. When `docs/verify.md` exists: run Launch, Doctor, Drive for touched scenarios, then Cleanup (always). List evidence paths. Hard Doctor fail → `blocked`, never `pass`. Doctor `needs: kv|secret|auth|local-resource` fail (e.g. needs: kv 403) → `skipped` with reason; rest runs; dependent Drive → `skipped`. Missing file → today's behavior.
+5. When `docs/verify.md` exists: run Launch, Doctor, Drive for touched scenarios, then Cleanup (always). List evidence paths. Hard Doctor fail → `blocked`, never `pass`. Doctor `needs: kv|secret|auth|local-resource` fail (e.g. needs: kv 403) → `skipped` with reason; rest runs; dependent Drive → `skipped`. Touched scenario not driven → `not run`, never `skipped`. Missing file → today's behavior.
 6. Return the verifier report including required **Evidence gaps** and **Assumptions challenged** (`None` when empty).
 
 Good: `not verified` + "no command covers criterion 3"; Assumptions challenged: `None`.

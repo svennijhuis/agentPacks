@@ -16,18 +16,20 @@ Internal. Do not run directly: Squad loads this by exact Skill name.
 
 1. **Interview the repo.** Read `package.json`, `*.csproj`, `Dockerfile`, `Makefile` and `README*` via `git ls-files` and `rg`, never `find`, so the launch command is found, not guessed.
 2. **Generate or extend `docs/verify.md`.** Five H2 sections in order: `## Launch`, `## Doctor`, `## Drive`, `## Evidence`, `## Cleanup`.
-3. **Prove it.** Run Launch, Doctor, Drive for ONE feature, Cleanup. Hand over only if that run passes, and quote its output.
+3. **Prove it.** Run Launch, Doctor, Drive for every touched scenario, Cleanup. Hand over only if that run passes, and quote its output.
 4. **Write the smoke report.** Follow [smoke report](references/smoke-report.md).
 
 Sections:
-- **Launch: exact command, ready signal (port or log line), timeout**, because a hung dev server must not stall the loop.
-- **Doctor: read-only checks only**, because checking must never change state. Hard check fails means `blocked`; tagged checks follow [doctor tags](references/doctor-tags.md).
+- **Launch: exact command, ready signal (port or health endpoint first, else a log line), timeout**, because a hung dev server must not stall the loop. Follow [process rules](references/process.md).
+- **Doctor: read-only checks only, port or health endpoint first**, because checking must never change state. Hard check fails means `blocked`; tagged checks follow [doctor tags](references/doctor-tags.md).
 - **Drive: one entry per scenario, named like the smoke Case**, so the verifier can pick the touched ones.
-- **Evidence: `$(git rev-parse --git-dir)/squad/verify/<slug>/`, one file per scenario**, because it stays out of git without touching the product `.gitignore`.
+- **Drive defaults to API: HTTP calls with curl or the repo's existing http client on real endpoints, checking status code, key payload fields and one error case**, because most changes are APIs. UI tools only if the repo has them.
+- **Evidence: `$(git rev-parse --git-dir)/squad/verify/<slug>/<run-id>/`, one file per scenario**, because it stays out of git and earlier runs are never overwritten.
 - **Cleanup: stop command, keep evidence**, because proof outlives the process.
 
 Rules:
 - **Extend an existing verify.md, never overwrite it**, because hand edits must survive a rerun; change a line only where the app now contradicts it.
+- **Drive every touched scenario; `skipped` only for a failed `needs:` check, `not run` for anything else not driven**, so gaps stay visible.
 - **Drive the real user path, not test-only endpoints**, because a side door proves nothing.
 - **Capture action and result, and check side effects in files, rows or logs**, because a 200 alone can hide a lost write.
 - **Mock only at an existing external boundary**, because a mocked core is not the app.
@@ -35,6 +37,7 @@ Rules:
 - **Stop only what this run started (track PIDs), never kill by name**, because other work may share the box.
 - **Run Cleanup on failure too, and confirm evidence still exists after it**, because the proof is the point.
 - **No app: Launch and Doctor say none, Drive uses the CLI or tests**, so libraries still get a harness.
+- **No em dashes in `docs/verify.md` or `docs/smoke-report.md`**, because repo style bans them.
 - **Secrets: follow the local-secrets rule in [squad skill](../squad/SKILL.md)**, because invented tokens are worse than a skip.
 
 Out of scope: maintaining this skill, browser tooling installs, anything that needs secrets.

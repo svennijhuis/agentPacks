@@ -145,7 +145,7 @@ public sealed class VerifyHarnessContractTests
         Assert.True(File.ReadAllLines(path).Length <= 50);
         var skill = File.ReadAllText(path);
         Assert.Contains("Write for the next agent: it arrives cold, mid-task", skill, StringComparison.Ordinal);
-        Assert.Contains("Drive for ONE feature", skill, StringComparison.Ordinal);
+        Assert.Contains("Drive for every touched scenario", skill, StringComparison.Ordinal);
         Assert.Contains("Run Cleanup on failure too", skill, StringComparison.Ordinal);
         Assert.DoesNotContain("|---", skill, StringComparison.Ordinal);
     }
@@ -182,10 +182,36 @@ public sealed class VerifyHarnessContractTests
         Assert.Contains("`docs/verify.md` is missing", text, StringComparison.Ordinal);
     }
 
+    [Fact]
+    public void Verify_harness_drive_defaults_to_api_curl()
+    {
+        var skill = File.ReadAllText(Path.Combine(VerifyHarnessDir(), "SKILL.md"));
+        Assert.Contains("Drive defaults to API: HTTP calls with curl", skill, StringComparison.Ordinal);
+        Assert.Contains("status code, key payload fields and one error case", skill, StringComparison.Ordinal);
+        Assert.Contains("port or health endpoint first", skill, StringComparison.Ordinal);
+        Assert.Contains("curl -s -w", File.ReadAllText(Path.Combine(VerifyHarnessDir(), "references", "smoke-report.md")), StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void Tester_fixes_not_run_needs_non_2xx_pgid_run_id_find_path_no_em_dash()
+    {
+        var body = VerifyHarnessBody();
+        Assert.Contains("`not run` for anything else not driven", body, StringComparison.Ordinal);
+        Assert.Contains("A 403, any other non-2xx status, or any error means the check failed", body, StringComparison.Ordinal);
+        Assert.Contains("`exec` or `setsid`", body, StringComparison.Ordinal);
+        Assert.Contains("kills that process group", body, StringComparison.Ordinal);
+        Assert.Contains("check every Launch port is free", body, StringComparison.Ordinal);
+        Assert.Contains("squad/verify/<slug>/<run-id>/", body, StringComparison.Ordinal);
+        Assert.Contains("No em dashes in `docs/verify.md` or `docs/smoke-report.md`", body, StringComparison.Ordinal);
+        var root = TestRepository.SourceRoot();
+        Assert.Contains("`<Squad plugin root>/skills/scenarios-md/SKILL.md`", File.ReadAllText(Path.Combine(root, "plugins", "squad", "commands", "scenarios.md")), StringComparison.Ordinal);
+        Assert.Contains("not driven → `not run`", File.ReadAllText(Path.Combine(root, "plugins", "squad", "agents", "squad-verifier.md")), StringComparison.Ordinal);
+    }
+
     private static string VerifyHarnessDir() => Path.Combine(
         TestRepository.SourceRoot(), "plugins", "squad", "skills", "verify-harness");
 
     private static string VerifyHarnessBody() => string.Join("\n",
-        new[] { "SKILL.md", "references/smoke-report.md", "references/doctor-tags.md" }
+        new[] { "SKILL.md", "references/smoke-report.md", "references/doctor-tags.md", "references/process.md" }
             .Select(f => File.ReadAllText(Path.Combine(VerifyHarnessDir(), f))));
 }
