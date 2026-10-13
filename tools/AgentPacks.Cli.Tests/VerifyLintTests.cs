@@ -75,6 +75,27 @@ public sealed class VerifyLintTests : IDisposable
         Assert.Contains($"missing ## {section}", output, StringComparison.Ordinal);
     }
 
+    private const string Dash = "\u2014";
+
+    [Fact]
+    public void Em_dash_in_verify_md_fails_with_identical_twins_output()
+    {
+        var (exit, output) = Lint("verify.md", Good.Replace("cmd: none", "cmd: none " + Dash + " later", StringComparison.Ordinal));
+        Assert.Equal(1, exit);
+        Assert.Contains(":4: em dash", output, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void Em_dash_in_smoke_report_fails_and_clean_report_passes()
+    {
+        var bad = Lint("verify.md", Good, "smoke-report.md", "# Smoke report\n\nOutcome: pass " + Dash + " ok\n");
+        Assert.Equal(1, bad.Exit);
+        Assert.Contains("smoke-report.md:3: em dash", bad.Output, StringComparison.Ordinal);
+        var clean = Lint("verify.md", Good, "smoke-report.md", "# Smoke report\n\nOutcome: pass\n");
+        Assert.Equal(0, clean.Exit);
+        Assert.Equal(string.Empty, clean.Output);
+    }
+
     [Fact]
     public void Posix_and_powershell_twins_exist()
     {
@@ -93,14 +114,21 @@ public sealed class VerifyLintTests : IDisposable
     /// <summary>
     /// Runs check-verify.sh and, when pwsh is on PATH, check-verify.ps1 on the same file.
     /// </summary>
-    private (int Exit, string Output) Lint(string name, string text)
+    private (int Exit, string Output) Lint(string name, string text, string? reportName = null, string? reportText = null)
     {
         var path = Path.Combine(_directory, name);
         File.WriteAllText(path, text);
-        var posix = Run("sh", [Script("check-verify.sh"), path], name);
+        string[] files = [path];
+        if (reportName is not null)
+        {
+            var report = Path.Combine(_directory, reportName);
+            File.WriteAllText(report, reportText);
+            files = [path, report];
+        }
+        var posix = Run("sh", [Script("check-verify.sh"), .. files], name);
         if (PwshAvailable.Value)
         {
-            var powerShell = Run("pwsh", ["-NoProfile", "-NonInteractive", "-File", Script("check-verify.ps1"), path], name);
+            var powerShell = Run("pwsh", ["-NoProfile", "-NonInteractive", "-File", Script("check-verify.ps1"), .. files], name);
             Assert.Equal(posix.Exit, powerShell.Exit);
             Assert.Equal(
                 posix.Output.Replace("\r", "", StringComparison.Ordinal),

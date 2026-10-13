@@ -203,6 +203,14 @@ public sealed class VerifyHarnessContractTests
     }
 
     [Fact]
+    public void Skill_and_verifier_run_check_verify_on_both_files()
+    {
+        const string cmd = "check-verify.sh docs/verify.md docs/smoke-report.md";
+        Assert.Contains(cmd, File.ReadAllText(Path.Combine(VerifyHarnessDir(), "SKILL.md")), StringComparison.Ordinal);
+        Assert.Contains(cmd, File.ReadAllText(Path.Combine(TestRepository.SourceRoot(), "plugins", "squad", "agents", "squad-verifier.md")), StringComparison.Ordinal);
+    }
+
+    [Fact]
     public void Generated_docs_ban_em_dashes()
         => Assert.Contains("No em dashes in `docs/verify.md` or `docs/smoke-report.md`", VerifyHarnessBody(), StringComparison.Ordinal);
 
