@@ -169,7 +169,7 @@ No evidence means `not verified`, never `pass`. Result is exactly `pass`, `fail`
 `blocked`, `skipped`, or `not run`. `not verified` means no check covers the criterion. `blocked`
 means a check exists but the environment or a missing secret stopped it from running: the change is
 unproven, not failed, and the next action is to unblock and rerun, not to write a check. `skipped`
-is only for a failed `needs:` Doctor check, with reason; it does not block `pass`. `not run` means a
+is only for a failed `needs:` Doctor check, Evidence starting `needs:`; it does not block `pass`, but a report needs at least one `pass` row. `not run` means a
 touched scenario or check was not driven; it blocks `pass`. An unknown Result value is malformed,
 not a silent drop. Reading the diff is not verification: a result written without running anything
 is `blocked` or `not verified`, never `pass`. The suite, stacks, boundary, coverage, evidence-gaps,

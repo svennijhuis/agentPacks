@@ -145,6 +145,41 @@ public sealed class VerificationEvidenceTests
             VerificationEvidence.Evaluate(new VerificationContext(true, ["dotnet"], report)));
     }
 
+    [Fact]
+    public void All_skipped_report_is_not_a_pass()
+    {
+        var report = VerificationEvidence.Parse("""
+            | Criterion | Result | Command | Evidence |
+            |---|---|---|---|
+            | 1 | skipped | `curl -s "$KV_URL"` | `needs: kv, 403` |
+
+            **Suite:** pass
+            **Stacks:** dotnet
+            **Boundary:** not covered
+            **Coverage:** empty input and duplicate id
+            """);
+        Assert.Equal(VerificationOutcome.NotPass,
+            VerificationEvidence.Evaluate(new VerificationContext(true, ["dotnet"], report)));
+    }
+
+    [Fact]
+    public void Skipped_without_needs_reason_is_not_a_pass()
+    {
+        var report = VerificationEvidence.Parse("""
+            | Criterion | Result | Command | Evidence |
+            |---|---|---|---|
+            | 1 | pass | `dotnet test App.slnx` | `2 passed` |
+            | 2 | skipped | `curl -s http://localhost:5000/orders` | `ran out of time` |
+
+            **Suite:** pass
+            **Stacks:** dotnet
+            **Boundary:** not covered
+            **Coverage:** empty input and duplicate id
+            """);
+        Assert.Equal(VerificationOutcome.NotPass,
+            VerificationEvidence.Evaluate(new VerificationContext(true, ["dotnet"], report)));
+    }
+
     /// <summary>
     /// Item 65: a touched scenario that was not driven is <c>not run</c> and blocks a pass.
     /// </summary>

@@ -164,11 +164,23 @@ public static partial class VerificationEvidence
             return VerificationOutcome.NotPass;
         }
 
+        // A report with no `pass` row proves nothing, even when every row is `skipped`.
+        if (!report.Criteria.Any(criterion => criterion.Result == Pass))
+        {
+            return VerificationOutcome.NotPass;
+        }
+
         foreach (var criterion in report.Criteria)
         {
             // Failed needs: Doctor check: visible, non-blocking. Undriven work is NotRun, not this.
+            // A skip without a `needs:` reason is not a sanctioned skip.
             if (criterion.Result == Skipped)
             {
+                if (!IsNeedsSkip(criterion.Evidence))
+                {
+                    return VerificationOutcome.NotPass;
+                }
+
                 continue;
             }
 
@@ -205,7 +217,7 @@ public static partial class VerificationEvidence
                 return VerificationOutcome.NotPass;
             }
 
-            if (row.Result == Skipped)
+            if (row.Result == Skipped && IsNeedsSkip(row.Evidence))
             {
                 continue;
             }
@@ -245,6 +257,12 @@ public static partial class VerificationEvidence
         var value = Unwrap(command);
         return value.Length > 0 && value != "—" && value != "-" && value != "none";
     }
+
+    /// <summary>
+    /// A sanctioned skip: Evidence starts with <c>needs:</c> (optional backticks allowed).
+    /// </summary>
+    private static bool IsNeedsSkip(string evidence) =>
+        evidence.TrimStart('`', ' ').StartsWith("needs:", StringComparison.OrdinalIgnoreCase);
 
     /// <summary>
     /// Evidence for a quantitative criterion: the verifier's measured value compared to the bound
