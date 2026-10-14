@@ -59,6 +59,7 @@ Cost-first: default `inherit`. Every `squad-*` agent is `standard` except `squad
 |---|---|---|
 | `squad-planner` | full change only | grill/plan |
 | `squad-architect` | full change crossing layers, new project/package, or public API | read-only `## Design` and `## Map` ([contract](references/architect-contract.md)) |
+| `squad-indexer` | called first by implementer and architect | read-only `file:line` lookups on the `fast` model; no code, no verdicts |
 | `squad-implementer` | full change only | build |
 | `squad-verifier` | after implement/fix | evidence; `not verified` is not a pass; `blocked` is unproven, not a pass |
 | `squad-reviewer` | every review phase | correctness + plan/spec |

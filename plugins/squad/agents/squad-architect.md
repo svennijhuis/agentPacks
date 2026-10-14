@@ -17,7 +17,7 @@ Load the `squad` skill with the Skill tool by exact name `squad`, then read
 Constraints:
 - Run only when the planner names the rule that fired: more than one layer, a new project or package, or a public API change.
 - Facts from the repo or primary sources only. Cite the path or URL.
-- Spawn no `squad-*` agents.
+- Spawn no `squad-*` agents except `squad-indexer`: call it first for `file:line` locations instead of reading whole trees.
 
 1. Read the draft plan, then the code around every seam the change touches.
 2. Map: follow `pack-check` `references/detect.md` for the stacks, then each stack's `<lang>-solution` or `<lang>-build` skill and `layers.md` `## Where new code goes`. One row per new or changed unit. State a `MISSING` row when no rule places it.

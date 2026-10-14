@@ -25,7 +25,7 @@ public class SquadContractTests
         File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "Fixtures", "squad", name));
 
     [Fact]
-    public void All_nine_agents_are_preserved_in_every_generated_agent_client()
+    public void All_ten_agents_are_preserved_in_every_generated_agent_client()
     {
         using var repo = new TestRepository().WithPlugin("squad", Manifest);
         foreach (var agent in AgentNames)
@@ -34,7 +34,7 @@ public class SquadContractTests
         var run = repo.ValidateAndGenerate();
 
         Assert.False(run.HasErrors, run.Text);
-        Assert.Equal(9, AgentNames.Length);
+        Assert.Equal(10, AgentNames.Length);
         foreach (var agent in AgentNames)
         {
             Assert.Equal(agent, TestRepository.ParseFrontmatter(Fixture($"{agent}.md")).Scalar("name"));
@@ -103,6 +103,7 @@ public class SquadContractTests
         [
             "squad-architect",
             "squad-implementer",
+            "squad-indexer",
             "squad-orchestrator",
             "squad-planner",
             "squad-retro",
@@ -259,7 +260,7 @@ public class SquadContractTests
         Assert.Equal("standard", TestRepository.ParseFrontmatter(Fixture("squad-implementer.md")).Scalar("model"));
         Assert.Equal("standard", TestRepository.ParseFrontmatter(Fixture("squad-planner.md")).Scalar("model"));
         Assert.Equal("true", TestRepository.ParseFrontmatter(Fixture("squad-simplifier.md")).Scalar("readonly"));
-        foreach (var agent in AgentNames.Where(name => name is not ("squad-implementer" or "squad-planner" or "squad-architect")))
+        foreach (var agent in AgentNames.Where(name => name is not ("squad-implementer" or "squad-planner" or "squad-architect" or "squad-indexer")))
         {
             Assert.Equal("standard", TestRepository.ParseFrontmatter(Fixture($"{agent}.md")).Scalar("model"));
         }

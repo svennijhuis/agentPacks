@@ -66,6 +66,7 @@ internal sealed class TestRepository : IDisposable
     [
         "squad-planner",
         "squad-architect",
+        "squad-indexer",
         "squad-implementer",
         "squad-verifier",
         "squad-reviewer",

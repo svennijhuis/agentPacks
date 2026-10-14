@@ -17,6 +17,12 @@ Classify each defect before writing Fix (squad review contract: Mechanical vs ju
 Always flag an external client package (RestEase, Refit, a vendor SDK, an `HttpClient` typed client)
 referenced from Application or Domain (`layers.md`, `design.md`: one project per external system).
 
+Always flag, for every new file in the diff (`layers.md` `## Folders`, `csharp.md`):
+
+- a new `.cs` file in a project root other than `Program.cs` or `GlobalUsings.cs` (or `DependencyInjection.cs` at the Infrastructure project root);
+- `set` where `init` works;
+- `public` where `internal` works.
+
 Process findings in this order:
 
 1. reachable correctness defects and boundary conditions;
