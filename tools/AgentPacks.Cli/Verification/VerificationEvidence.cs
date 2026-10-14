@@ -259,8 +259,9 @@ public static partial class VerificationEvidence
     }
 
     /// <summary>
-    /// The harness Outcome form <c>skipped (needs: kv, 403)</c> becomes Result <c>skipped</c> with the
-    /// <c>needs:</c> reason moved to the front of Evidence, so both stated forms gate the same way.
+    /// The harness Outcome form <c>skipped (needs: kv, 403)</c> or <c>skipped (needs: auth)</c>
+    /// becomes Result <c>skipped</c> with the <c>needs:</c> tag moved to the front of Evidence,
+    /// so both stated forms gate the same way.
     /// </summary>
     private static VerificationCriterion Criterion(int number, string result, string command, string evidence)
     {
@@ -276,8 +277,9 @@ public static partial class VerificationEvidence
 
     /// <summary>
     /// A sanctioned skip: Evidence starts with <c>needs:</c> (optional backticks allowed).
+    /// Tag-only forms such as <c>needs: auth</c> or <c>needs: kv</c> count; a free-text status is optional.
     /// </summary>
-    private static bool IsNeedsSkip(string evidence) =>
+    internal static bool IsNeedsSkip(string evidence) =>
         evidence.TrimStart('`', ' ').StartsWith("needs:", StringComparison.OrdinalIgnoreCase);
 
     /// <summary>

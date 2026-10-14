@@ -260,6 +260,50 @@ public sealed class VerifyLintTests : IDisposable
         Assert.Equal(string.Empty, output);
     }
 
+    [Theory]
+    [InlineData("skipped (needs: auth)")]
+    [InlineData("skipped (needs: kv)")]
+    public void Tag_only_skipped_needs_outcome_passes_lint_in_both_twins(string outcome)
+    {
+        var report = $"""
+            # Smoke report
+
+            Local access: DefaultAzureCredential failed to retrieve a token from the included credentials.
+            Hint: `az login`
+
+            ### create
+            - Outcome: `{outcome}`
+            - Evidence: .git/squad/verify/demo/create.txt (local to the run machine)
+            """;
+        var (exit, output) = Lint("verify.md", Good, "smoke-report.md", report);
+        Assert.Equal(0, exit);
+        Assert.Equal(string.Empty, output);
+    }
+
+    [Fact]
+    public void Two_skipped_rows_with_hint_once_pass_lint_in_both_twins()
+    {
+        var report = """
+            # Smoke report
+
+            Local access: DefaultAzureCredential failed to retrieve a token from the included credentials.
+            Hint: `az login`
+
+            ### create (needs auth)
+            - Outcome: `skipped (needs: auth)`
+            - Evidence: .git/squad/verify/demo/create.txt (local to the run machine)
+
+            ### me (needs auth)
+            - Outcome: `skipped (needs: auth)`
+            - Evidence: .git/squad/verify/demo/me.txt (local to the run machine)
+            """;
+        Assert.Equal(1, report.Split('\n').Count(line => line.TrimStart().StartsWith("Hint:", StringComparison.Ordinal)));
+        Assert.Equal(2, report.Split('\n').Count(line => line.Contains("Outcome: `skipped (needs:", StringComparison.Ordinal)));
+        var (exit, output) = Lint("verify.md", Good, "smoke-report.md", report);
+        Assert.Equal(0, exit);
+        Assert.Equal(string.Empty, output);
+    }
+
     [Fact]
     public void Evidence_path_and_git_sha_pass_long_base64_fails()
     {

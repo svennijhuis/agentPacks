@@ -171,6 +171,30 @@ public sealed class VerificationEvidenceTests
             VerificationEvidence.Evaluate(new VerificationContext(true, ["dotnet"], report)));
     }
 
+    [Theory]
+    [InlineData("skipped (needs: auth)", "needs: auth")]
+    [InlineData("skipped (needs: kv)", "needs: kv")]
+    public void Tag_only_skipped_needs_result_is_needs_skip_not_not_pass(string resultCell, string needsPrefix)
+    {
+        var report = VerificationEvidence.Parse($"""
+            | Criterion | Result | Command | Evidence |
+            |---|---|---|---|
+            | 1 | pass | `dotnet test App.slnx` | `2 passed` |
+            | 2 | `{resultCell}` | `curl -s http://localhost:5000/protected` | .git/squad/verify/demo/protected.txt |
+
+            **Suite:** pass
+            **Stacks:** dotnet
+            **Boundary:** not covered
+            **Coverage:** empty input and duplicate id
+            """);
+
+        Assert.Equal(VerificationEvidence.Skipped, report.Criteria[1].Result);
+        Assert.StartsWith(needsPrefix, report.Criteria[1].Evidence, StringComparison.Ordinal);
+        Assert.True(VerificationEvidence.IsNeedsSkip(report.Criteria[1].Evidence));
+        Assert.Equal(VerificationOutcome.Pass,
+            VerificationEvidence.Evaluate(new VerificationContext(true, ["dotnet"], report)));
+    }
+
     [Fact]
     public void Skipped_paren_without_needs_is_not_a_pass()
     {
