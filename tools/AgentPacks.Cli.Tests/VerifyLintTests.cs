@@ -26,6 +26,31 @@ public sealed class VerifyLintTests : IDisposable
         none; keep evidence
         """;
 
+    private const string GoodWithInlineToken = """
+        # Verify
+
+        ## Launch
+        cmd: none
+
+        ## Doctor
+        none
+
+        ## Drive
+        1. list: curl -sS -H "Authorization: Bearer $(az account get-access-token --scope https://vault.azure.net/.default --query accessToken -o tsv)" http://localhost/pets
+
+        ## Evidence
+        $(git rev-parse --git-dir)/squad/verify/demo/
+
+        ## Cleanup
+        none; keep evidence
+
+        ## Local access
+        provider: azure
+        scope: https://vault.azure.net/.default
+        vault: my-app-kv
+        secret: app-connection-string
+        """;
+
     private readonly string _directory = Directory.CreateTempSubdirectory("verify-lint-").FullName;
 
     public void Dispose() => Directory.Delete(_directory, recursive: true);
@@ -109,21 +134,106 @@ public sealed class VerifyLintTests : IDisposable
             Assert.Contains(section, sh, StringComparison.Ordinal);
             Assert.Contains(section, ps1, StringComparison.Ordinal);
         }
+        Assert.Contains("secret-looking value", sh, StringComparison.Ordinal);
+        Assert.Contains("secret-looking value", ps1, StringComparison.Ordinal);
+        Assert.Contains("get-access-token outside", sh, StringComparison.Ordinal);
+        Assert.Contains("get-access-token outside", ps1, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void Optional_local_access_section_without_secrets_passes()
+    {
+        var (exit, output) = Lint("verify.md", GoodWithInlineToken);
+        Assert.Equal(0, exit);
+        Assert.Equal(string.Empty, output);
+    }
+
+    [Fact]
+    public void Fake_jwt_in_local_access_fails_without_printing_secret()
+    {
+        const string fake = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.e30.fakesig";
+        var text = GoodWithInlineToken + "\ntoken: " + fake + "\n";
+        var (exit, output) = Lint("verify.md", text);
+        Assert.Equal(1, exit);
+        Assert.Contains("secret-looking value", output, StringComparison.Ordinal);
+        Assert.DoesNotContain(fake, output, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void Fake_token_in_smoke_report_fails()
+    {
+        const string fake = "AKIAIOSFODNN7EXAMPLE0";
+        var (exit, output) = Lint(
+            "verify.md",
+            Good,
+            "smoke-report.md",
+            "# Smoke\n\nOutcome: skipped key=" + fake + "\n");
+        Assert.Equal(1, exit);
+        Assert.Contains("smoke-report.md:", output, StringComparison.Ordinal);
+        Assert.Contains("secret-looking value", output, StringComparison.Ordinal);
+        Assert.DoesNotContain(fake, output, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void Fake_token_in_evidence_file_fails()
+    {
+        const string fake = "ya29.a0AfH6SMCfaketokengoogleoauth";
+        var (exit, output) = Lint(
+            "verify.md",
+            Good,
+            "smoke-report.md",
+            "# Smoke\nOutcome: pass\n",
+            ("transcript.txt", "startup: " + fake + "\n"));
+        Assert.Equal(1, exit);
+        Assert.Contains("transcript.txt:", output, StringComparison.Ordinal);
+        Assert.Contains("secret-looking value", output, StringComparison.Ordinal);
+        Assert.DoesNotContain(fake, output, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void Get_access_token_outside_command_substitution_fails()
+    {
+        var text = Good.Replace(
+            "1. list: curl /pets → 200",
+            "1. list: az account get-access-token --scope x",
+            StringComparison.Ordinal);
+        var (exit, output) = Lint("verify.md", text);
+        Assert.Equal(1, exit);
+        Assert.Contains("get-access-token outside $(", output, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void Inline_get_access_token_in_command_substitution_passes()
+    {
+        var (exit, output) = Lint("verify.md", GoodWithInlineToken);
+        Assert.Equal(0, exit);
+        Assert.Equal(string.Empty, output);
     }
 
     /// <summary>
     /// Runs check-verify.sh and, when pwsh is on PATH, check-verify.ps1 on the same file.
     /// </summary>
-    private (int Exit, string Output) Lint(string name, string text, string? reportName = null, string? reportText = null)
+    private (int Exit, string Output) Lint(
+        string name,
+        string text,
+        string? reportName = null,
+        string? reportText = null,
+        params (string Name, string Text)[] evidence)
     {
         var path = Path.Combine(_directory, name);
         File.WriteAllText(path, text);
-        string[] files = [path];
+        var files = new List<string> { path };
         if (reportName is not null)
         {
             var report = Path.Combine(_directory, reportName);
             File.WriteAllText(report, reportText);
-            files = [path, report];
+            files.Add(report);
+        }
+        foreach (var (evidenceName, evidenceText) in evidence)
+        {
+            var evidencePath = Path.Combine(_directory, evidenceName);
+            File.WriteAllText(evidencePath, evidenceText);
+            files.Add(evidencePath);
         }
         var posix = Run("sh", [Script("check-verify.sh"), .. files], name);
         if (PwshAvailable.Value)

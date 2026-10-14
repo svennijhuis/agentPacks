@@ -269,6 +269,128 @@ public sealed class VerifyHarnessContractTests
     }
 
     [Fact]
+    public void Local_access_absent_means_ask_once_after_harness_yes()
+    {
+        var body = VerifyHarnessBody();
+        Assert.Contains("ask once after harness yes", body, StringComparison.Ordinal);
+        Assert.Contains("provider and API scope the repo does not say", body, StringComparison.Ordinal);
+        Assert.Contains("Optional sixth: `## Local access`", body, StringComparison.Ordinal);
+        Assert.Contains("section present or `provider: skip` means never re-ask", body, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void Local_access_section_present_means_no_re_ask()
+    {
+        var local = File.ReadAllText(Path.Combine(VerifyHarnessDir(), "references", "local-access.md"));
+        Assert.Contains("Section present → no re-ask", local, StringComparison.Ordinal);
+        Assert.Contains("Ask once, only after harness yes", local, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void Local_access_skip_is_saved_as_provider_skip()
+    {
+        var local = File.ReadAllText(Path.Combine(VerifyHarnessDir(), "references", "local-access.md"));
+        Assert.Contains("Answer `skip` → `provider: skip`", local, StringComparison.Ordinal);
+        Assert.Contains("`provider: skip` alone is valid and stops further asks", local, StringComparison.Ordinal);
+        Assert.Contains("## Local access", File.ReadAllText(Path.Combine(VerifyHarnessDir(), "SKILL.md")), StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void CredentialUnavailable_fixture_maps_to_skipped_not_blocked()
+    {
+        var local = File.ReadAllText(Path.Combine(VerifyHarnessDir(), "references", "local-access.md"));
+        const string fixture =
+            "DefaultAzureCredential failed to retrieve a token from the included credentials. CredentialUnavailableException (Status: 401)";
+        Assert.Contains("CredentialUnavailable", local, StringComparison.Ordinal);
+        Assert.Contains(fixture, local, StringComparison.Ordinal);
+        Assert.Contains($"skipped (needs: auth, {fixture})", local, StringComparison.Ordinal);
+        Assert.Contains("Non-access startup failure stays `blocked`", local, StringComparison.Ordinal);
+        Assert.Contains("System.IO.FileNotFoundException", local, StringComparison.Ordinal);
+        Assert.Contains("→ Outcome: `blocked`", local, StringComparison.Ordinal);
+        Assert.Contains("non-access startup failure stays `blocked`", File.ReadAllText(Path.Combine(VerifyHarnessDir(), "references", "doctor-tags.md")), StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void Aws_fixture_log_skips_with_aws_sso_login_hint()
+    {
+        var local = File.ReadAllText(Path.Combine(VerifyHarnessDir(), "references", "local-access.md"));
+        Assert.Contains("Unable to locate credentials", local, StringComparison.Ordinal);
+        Assert.Contains("aws sso login", local, StringComparison.Ordinal);
+        Assert.Contains("→ Hint: `aws sso login`", local, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void Missing_token_is_skipped()
+    {
+        var body = VerifyHarnessBody();
+        Assert.Contains("Missing token → `skipped`", body, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void Five_auth_scenarios_one_attempt_five_skipped_one_report_one_retro()
+    {
+        var report = File.ReadAllText(Path.Combine(VerifyHarnessDir(), "references", "smoke-report.md"));
+        Assert.Contains("one try only across the whole run", report, StringComparison.Ordinal);
+        Assert.Contains("mark every scenario that needs that access `skipped` at once", report, StringComparison.Ordinal);
+        Assert.Contains("Write the skip reason once in this report", report, StringComparison.Ordinal);
+        Assert.Contains("one retro line", report, StringComparison.Ordinal);
+        Assert.Contains("Five scenarios needing the same auth skip with one attempt: five `skipped` Outcomes, one shared reason line in the report, one retro line", report, StringComparison.Ordinal);
+        Assert.Contains("Verify never blocks `/squad`", report, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void Local_access_redaction_masks_secrets_and_cuts_at_120()
+    {
+        var local = File.ReadAllText(Path.Combine(VerifyHarnessDir(), "references", "local-access.md"));
+        Assert.Contains("Cut at 120 chars", local, StringComparison.Ordinal);
+        Assert.Contains("cut -c1-120", local, StringComparison.Ordinal);
+        Assert.Contains("[redacted]", local, StringComparison.Ordinal);
+        const string fakeJwt =
+            "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.e30.faketokensigforlocalaccesstestonly";
+        var line =
+            $"Authorization Bearer {fakeJwt} and padding to exceed one hundred twenty characters in the redacted startup log line XX";
+        Assert.True(line.Length > 120);
+        const string redact = """
+            printf '%s' "$1" | sed -E \
+              -e 's/eyJ[A-Za-z0-9_-]*\.[A-Za-z0-9_-]*\.[A-Za-z0-9_-]*/[redacted]/g' \
+              -e 's/(AKIA|ASIA)[A-Z0-9]{16}/[redacted]/g' \
+              -e 's/ya29\.[A-Za-z0-9_-]+/[redacted]/g' \
+              -e 's/(key|password|secret)=[^[:space:]]+/[redacted]/g' \
+              -e 's/aws_secret_access_key[^[:space:]]*/[redacted]/g' \
+              -e 's/X-Amz-Security-Token[^[:space:]]*/[redacted]/g' \
+              -e 's/[A-Za-z0-9+\/=_-]{40,}/[redacted]/g' \
+              | cut -c1-120
+            """;
+        var start = new System.Diagnostics.ProcessStartInfo
+        {
+            FileName = "sh",
+            RedirectStandardOutput = true,
+            UseShellExecute = false,
+        };
+        start.ArgumentList.Add("-c");
+        start.ArgumentList.Add(redact);
+        start.ArgumentList.Add("redact");
+        start.ArgumentList.Add(line);
+        using var process = System.Diagnostics.Process.Start(start)!;
+        var output = process.StandardOutput.ReadToEnd();
+        Assert.True(process.WaitForExit(TimeSpan.FromSeconds(10)));
+        Assert.Equal(0, process.ExitCode);
+        Assert.DoesNotContain(fakeJwt, output, StringComparison.Ordinal);
+        Assert.Contains("[redacted]", output, StringComparison.Ordinal);
+        Assert.True(output.TrimEnd().Length <= 120, $"redacted length {output.Length}: {output}");
+    }
+
+    [Fact]
+    public void Drive_uses_inline_token_or_sigv4_never_stored()
+    {
+        var local = File.ReadAllText(Path.Combine(VerifyHarnessDir(), "references", "local-access.md"));
+        Assert.Contains("$(az account get-access-token --scope <s> --query accessToken -o tsv)", local, StringComparison.Ordinal);
+        Assert.Contains("SigV4", local, StringComparison.Ordinal);
+        Assert.Contains("no echo, no stored variable, no `-v`/`--trace`", local, StringComparison.Ordinal);
+        Assert.Contains("Tokens never in any markdown, never shown to the model", local, StringComparison.Ordinal);
+    }
+
+    [Fact]
     public void Scenarios_command_names_full_skill_path_never_find()
     {
         var command = File.ReadAllText(Path.Combine(TestRepository.SourceRoot(), "plugins", "squad", "commands", "scenarios.md"));
@@ -300,6 +422,13 @@ public sealed class VerifyHarnessContractTests
         TestRepository.SourceRoot(), "plugins", "squad", "skills", "verify-harness");
 
     private static string VerifyHarnessBody() => string.Join("\n",
-        new[] { "SKILL.md", "references/smoke-report.md", "references/doctor-tags.md", "references/process.md" }
+        new[]
+        {
+            "SKILL.md",
+            "references/smoke-report.md",
+            "references/doctor-tags.md",
+            "references/process.md",
+            "references/local-access.md",
+        }
             .Select(f => File.ReadAllText(Path.Combine(VerifyHarnessDir(), f))));
 }
