@@ -301,9 +301,11 @@ public sealed class VerifyHarnessContractTests
         var local = File.ReadAllText(Path.Combine(VerifyHarnessDir(), "references", "local-access.md"));
         const string fixture =
             "DefaultAzureCredential failed to retrieve a token from the included credentials. CredentialUnavailableException (Status: 401)";
+        const string cut =
+            "DefaultAzureCredential failed to retrieve a token from the included credentials.";
         Assert.Contains("CredentialUnavailable", local, StringComparison.Ordinal);
         Assert.Contains(fixture, local, StringComparison.Ordinal);
-        Assert.Contains($"skipped (needs: auth, {fixture})", local, StringComparison.Ordinal);
+        Assert.Contains($"skipped (needs: auth, {cut})", local, StringComparison.Ordinal);
         Assert.Contains("Non-access startup failure stays `blocked`", local, StringComparison.Ordinal);
         Assert.Contains("System.IO.FileNotFoundException", local, StringComparison.Ordinal);
         Assert.Contains("→ Outcome: `blocked`", local, StringComparison.Ordinal);
@@ -311,7 +313,7 @@ public sealed class VerifyHarnessContractTests
     }
 
     [Fact]
-    public void Aws_fixture_log_skips_with_aws_sso_login_hint()
+    public void Contract_Aws_fixture_log_skips_with_aws_sso_login_hint()
     {
         var local = File.ReadAllText(Path.Combine(VerifyHarnessDir(), "references", "local-access.md"));
         Assert.Contains("Unable to locate credentials", local, StringComparison.Ordinal);
@@ -327,7 +329,7 @@ public sealed class VerifyHarnessContractTests
     }
 
     [Fact]
-    public void Five_auth_scenarios_one_attempt_five_skipped_one_report_one_retro()
+    public void Contract_Five_auth_scenarios_one_attempt_five_skipped_one_report_one_retro()
     {
         var report = File.ReadAllText(Path.Combine(VerifyHarnessDir(), "references", "smoke-report.md"));
         Assert.Contains("one try only across the whole run", report, StringComparison.Ordinal);
@@ -336,6 +338,43 @@ public sealed class VerifyHarnessContractTests
         Assert.Contains("one retro line", report, StringComparison.Ordinal);
         Assert.Contains("Five scenarios needing the same auth skip with one attempt: five `skipped` Outcomes, one shared reason line in the report, one retro line", report, StringComparison.Ordinal);
         Assert.Contains("Verify never blocks `/squad`", report, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void Contract_Local_access_example_has_exactly_provider_and_scope()
+    {
+        var local = File.ReadAllText(Path.Combine(VerifyHarnessDir(), "references", "local-access.md"));
+        var start = local.IndexOf("```markdown\n## Local access\n", StringComparison.Ordinal);
+        Assert.True(start >= 0);
+        var blockStart = start + "```markdown\n".Length;
+        var end = local.IndexOf("\n```", blockStart, StringComparison.Ordinal);
+        Assert.True(end > blockStart);
+        var block = local[blockStart..end];
+        Assert.Equal(
+            "## Local access\nprovider: azure\nscope: https://vault.azure.net/.default",
+            block);
+        Assert.DoesNotContain("vault:", block, StringComparison.Ordinal);
+        Assert.DoesNotContain("secret:", block, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void Contract_Example_outcome_lines_are_at_most_120_chars()
+    {
+        foreach (var relative in new[] { "references/local-access.md", "references/smoke-report.md" })
+        {
+            var path = Path.Combine(VerifyHarnessDir(), relative);
+            var n = 0;
+            foreach (var line in File.ReadLines(path))
+            {
+                n++;
+                if (!line.Contains("Outcome:", StringComparison.Ordinal)
+                    && !line.Contains("skipped (needs:", StringComparison.Ordinal))
+                    continue;
+                Assert.True(
+                    line.Length <= 120,
+                    $"{relative}:{n} length {line.Length}: {line}");
+            }
+        }
     }
 
     [Fact]

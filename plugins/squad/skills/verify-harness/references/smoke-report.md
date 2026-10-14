@@ -5,7 +5,11 @@ Write tracked `docs/smoke-report.md`, fully rewritten each run (never appended),
 Per scenario, one heading named like the smoke Case, then:
 - Manual steps: what a human can follow without the harness.
 - Expected: the result that counts as pass.
-- Outcome: `pass`, `fail`, `skipped (needs: <tag>, <status>)`, e.g. `skipped (needs: kv, 403)` (failed `needs:` check only; the verifier copies this form into its Result cell), `not run`, or `blocked`. Access-error skips use a redacted log line as `<status>`: `skipped (needs: kv|auth, <redacted line>)`.
+- Outcome: `pass`, `fail`, `not run`, or `blocked`.
+- Outcome skip form: `skipped (needs: <tag>, <status>)`, e.g. `skipped (needs: kv, 403)`.
+- That skip form is for a failed `needs:` check only; the verifier copies it into its Result cell.
+- Access-error skips use a redacted log line as `<status>`:
+  `skipped (needs: kv|auth, <redacted line>)`.
 - Evidence: the path as plain text, marked local to the run machine. No clickable link; it would be dead on GitHub.
 
 Access errors (see [local access](local-access.md)): one try only across the whole run. When a startup or Drive access error hits, mark every scenario that needs that access `skipped` at once. Write the skip reason once in this report (shared Outcome text or one shared note), plus one retro line. Do not retry login. Verify never blocks `/squad`.
@@ -23,7 +27,7 @@ Example:
 ### create (needs auth)
 - Manual steps: POST /pets with auth.
 - Expected: status 201.
-- Outcome: `skipped (needs: auth, DefaultAzureCredential failed to retrieve a token from the included credentials. CredentialUnavailableException (Status: 401))`
+- Outcome: `skipped (needs: auth, DefaultAzureCredential failed to retrieve a token from the included credentials.)`
 - Hint: `az login`
 - Evidence: .git/squad/verify/pets-api/20261013-2300/create.txt (local to the run machine)
 

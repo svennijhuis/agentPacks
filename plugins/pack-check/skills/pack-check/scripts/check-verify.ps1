@@ -43,16 +43,10 @@ function Test-SecretLine([string]$line) {
     return $false
 }
 
-function Scan-Secrets([string]$file, [string]$sectionOnly = '') {
+function Scan-Secrets([string]$file) {
     $n = 0
-    $inSection = $false
     foreach ($line in @(Get-Content -LiteralPath $file -Encoding UTF8)) {
         $n++
-        if ($sectionOnly) {
-            if ($line -ceq "## $sectionOnly") { $inSection = $true; continue }
-            if ($line.StartsWith('## ')) { $inSection = $false; continue }
-            if (-not $inSection) { continue }
-        }
         if (Test-SecretLine $line) {
             Write-Output "${file}:${n}: secret-looking value"
             $script:errors++
@@ -72,8 +66,11 @@ function Scan-GetAccessToken([string]$file) {
     }
 }
 
-Scan-Secrets $Verify 'Local access'
+Scan-Secrets $Verify
 Scan-GetAccessToken $Verify
-foreach ($f in $Rest) { Scan-Secrets $f }
+foreach ($f in $Rest) {
+    Scan-Secrets $f
+    Scan-GetAccessToken $f
+}
 
 if ($script:errors -eq 0) { exit 0 } else { exit 1 }

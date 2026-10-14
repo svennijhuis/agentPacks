@@ -43,18 +43,9 @@ secret_line() {
 
 scan_secrets() {
   file=$1
-  section_only=${2:-}
-  in_section=0
   n=0
   while IFS= read -r line || [ -n "$line" ]; do
     n=$((n + 1))
-    if [ -n "$section_only" ]; then
-      case "$line" in
-        "## $section_only") in_section=1; continue ;;
-        "## "*) in_section=0; continue ;;
-      esac
-      [ "$in_section" -eq 1 ] || continue
-    fi
     if secret_line "$line"; then
       echo "$file:$n: secret-looking value"
       errors=$((errors + 1))
@@ -75,8 +66,11 @@ scan_get_access_token() {
   done < "$file"
 }
 
-scan_secrets "$verify" "Local access"
+scan_secrets "$verify"
 scan_get_access_token "$verify"
-for f in "$@"; do scan_secrets "$f"; done
+for f in "$@"; do
+  scan_secrets "$f"
+  scan_get_access_token "$f"
+done
 
 [ "$errors" -eq 0 ]

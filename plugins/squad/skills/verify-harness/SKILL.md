@@ -26,7 +26,7 @@ Sections:
 - **Drive defaults to API: HTTP calls with curl or the repo's existing http client on real endpoints, checking status code, key payload fields and one error case**, because most changes are APIs. UI tools only if the repo has them.
 - **Evidence: `$(git rev-parse --git-dir)/squad/verify/<slug>/<run-id>/`, one file per scenario**, because it stays out of git and earlier runs are never overwritten.
 - **Cleanup: stop command, keep evidence**, because proof outlives the process.
-- **Local access: ask once after harness yes for provider and API scope the repo does not say; save names only; section present or `provider: skip` means never re-ask**, because a cold agent must not probe vaults or invent tokens. Follow [local access](references/local-access.md).
+- **Local access: ask once after harness yes for provider and API scope the repo does not say; save provider and scope only; section present or `provider: skip` means never re-ask**, because a cold agent must not probe vaults or invent tokens. Follow [local access](references/local-access.md).
 
 Rules:
 - **Extend an existing verify.md, never overwrite it**, because hand edits must survive a rerun; change a line only where the app now contradicts it.

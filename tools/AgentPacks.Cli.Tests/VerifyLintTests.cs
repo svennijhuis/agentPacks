@@ -47,8 +47,6 @@ public sealed class VerifyLintTests : IDisposable
         ## Local access
         provider: azure
         scope: https://vault.azure.net/.default
-        vault: my-app-kv
-        secret: app-connection-string
         """;
 
     private readonly string _directory = Directory.CreateTempSubdirectory("verify-lint-").FullName;
@@ -160,6 +158,20 @@ public sealed class VerifyLintTests : IDisposable
     }
 
     [Fact]
+    public void Fake_jwt_in_drive_section_fails_in_both_twins()
+    {
+        const string fake = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.e30.fakesig";
+        var text = Good.Replace(
+            "1. list: curl /pets → 200",
+            "1. list: curl /pets Authorization: Bearer " + fake,
+            StringComparison.Ordinal);
+        var (exit, output) = Lint("verify.md", text);
+        Assert.Equal(1, exit);
+        Assert.Contains("secret-looking value", output, StringComparison.Ordinal);
+        Assert.DoesNotContain(fake, output, StringComparison.Ordinal);
+    }
+
+    [Fact]
     public void Fake_token_in_smoke_report_fails()
     {
         const string fake = "AKIAIOSFODNN7EXAMPLE0";
@@ -199,6 +211,33 @@ public sealed class VerifyLintTests : IDisposable
             StringComparison.Ordinal);
         var (exit, output) = Lint("verify.md", text);
         Assert.Equal(1, exit);
+        Assert.Contains("get-access-token outside $(", output, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void Get_access_token_outside_substitution_in_smoke_report_fails()
+    {
+        var (exit, output) = Lint(
+            "verify.md",
+            Good,
+            "smoke-report.md",
+            "# Smoke\n\nManual: az account get-access-token --scope x\n");
+        Assert.Equal(1, exit);
+        Assert.Contains("smoke-report.md:", output, StringComparison.Ordinal);
+        Assert.Contains("get-access-token outside $(", output, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void Get_access_token_outside_substitution_in_evidence_file_fails()
+    {
+        var (exit, output) = Lint(
+            "verify.md",
+            Good,
+            "smoke-report.md",
+            "# Smoke\nOutcome: pass\n",
+            ("transcript.txt", "cmd: az account get-access-token --scope x\n"));
+        Assert.Equal(1, exit);
+        Assert.Contains("transcript.txt:", output, StringComparison.Ordinal);
         Assert.Contains("get-access-token outside $(", output, StringComparison.Ordinal);
     }
 

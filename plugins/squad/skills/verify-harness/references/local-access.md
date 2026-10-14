@@ -1,8 +1,10 @@
 # Local access
 
-Ask once, only after harness yes, only for what the repo does not say: `provider` (`azure`|`aws`|`gcp`|`other`) and token/API `scope` if Drive calls a protected API. No tenant or subscription questions. Save under optional `## Local access` in `docs/verify.md` (names only, never values). Answer `skip` → `provider: skip` and never ask again; human can edit later. Section present → no re-ask.
+Ask once, only after harness yes, only for what the repo does not say: `provider` (`azure`|`aws`|`gcp`|`other`) and token/API `scope` if Drive calls a protected API. No tenant or subscription questions. Save under optional `## Local access` in `docs/verify.md` (provider and scope only, never values). Answer `skip` → `provider: skip` and never ask again; human can edit later. Section present → no re-ask.
 
-No up-front vault or cloud CLI probe. Doctor launches the app as usual, greps the startup log for access errors (table below). Match → affected scenarios `skipped (needs: kv|auth, <redacted line>)` plus one hint line. Non-access startup failure stays `blocked`. Missing token → `skipped`. One try only: no retries, no login-fix attempts; same access error on another scenario → mark all scenarios needing it skipped at once. Reason once in `docs/smoke-report.md` and one retro line. Verify never blocks `/squad`.
+No up-front vault or cloud CLI probe. Doctor launches the app as usual, greps the startup log for access errors (table below). Match → affected scenarios
+`skipped (needs: kv|auth, <redacted line>)` plus one hint line.
+Non-access startup failure stays `blocked`. Missing token → `skipped`. One try only: no retries, no login-fix attempts; same access error on another scenario → mark all scenarios needing it skipped at once. Reason once in `docs/smoke-report.md` and one retro line. Verify never blocks `/squad`.
 
 Tokens never in any markdown, never shown to the model. App authenticates itself via the existing login. Drive API calls create the token inline inside a single curl line: `curl -sS -H "Authorization: Bearer $(az account get-access-token --scope <s> --query accessToken -o tsv)" ...`; no echo, no stored variable, no `-v`/`--trace`. AWS uses aws CLI/SDK (SigV4), never a key in curl. Model sees only the response body, cut at 120 chars and masked.
 
@@ -34,8 +36,6 @@ printf '%s' "$line" | sed -E \
 ## Local access
 provider: azure
 scope: https://vault.azure.net/.default
-vault: my-app-kv
-secret: app-connection-string
 ```
 
 `provider: skip` alone is valid and stops further asks.
@@ -43,7 +43,7 @@ secret: app-connection-string
 ## Example log → skipped
 
 Azure log: `DefaultAzureCredential failed to retrieve a token from the included credentials. CredentialUnavailableException (Status: 401)`
-→ Outcome: `skipped (needs: auth, DefaultAzureCredential failed to retrieve a token from the included credentials. CredentialUnavailableException (Status: 401))`
+→ Outcome: `skipped (needs: auth, DefaultAzureCredential failed to retrieve a token from the included credentials.)`
 → Hint: `az login`
 
 AWS log: `Unable to locate credentials. NoCredentialProviders: no valid providers in chain`
