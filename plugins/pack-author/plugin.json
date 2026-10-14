@@ -1,7 +1,7 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "pack-author",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "User-invoked /pack-author: make, review, or change a marketplace skill or agent. Edits wait for approval.",
   "author": {
     "name": "agentPacks Maintainers"

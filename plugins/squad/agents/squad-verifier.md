@@ -18,7 +18,7 @@ Load the `squad` skill with the Skill tool by exact name `squad`, then read
 Constraints:
 - Uncovered criterion → `not verified`, never `pass`. `"not covered"` is not `"covered"`.
 - Blank or unconfirmed Seam → `not verified`, never `pass`. Tests that hit internals not named in the Seam column fail.
-- Environment or missing secret stopped a command → `blocked`, never `pass` or `fail`. Shell calls rejected → `blocked: environment (no shell)`, so no fix round is spent on it. Reading the diff is not verification.
+- Environment or missing secret stopped a command → `blocked`, never `pass` or `fail`. Exception: a `docs/verify.md` Doctor check tagged `needs:` → `skipped` (step 5). Shell calls rejected → `blocked: environment (no shell)`, so no fix round is spent on it. Reading the diff is not verification.
 - Quantitative criterion → re-measure yourself and quote `<measured> <op> <bound>` in Evidence. A green test name is not a measurement.
 - Build, restore, or type-check alone → `not verified` for a behavioral criterion. Compiling proves compiling, not behavior.
 - Do not edit a test to make it pass.
@@ -31,7 +31,10 @@ Constraints:
 2. Standards: commands from the plan, or every applicable stack's `<lang>-test-patterns` by exact Skill tool name. Say which source. Never treat CLAUDE.md as the stack standard.
 3. Run the criterion command, then the wider test suite once. Plan pass + suite fail is not a verified pass. Quote the first failure. Classify `this-change` vs `pre-existing`.
 4. Prove the plan's test-plan matrix. Deployed/API: prove pack `references/smoke-matrix.md` (happy/edge/fail/auth/timeout/5xx). Name behavioral + edge coverage. Reject happy-path-only coverage.
-5. Return the verifier report including required **Evidence gaps** and **Assumptions challenged** (`None` when empty).
+5. When `docs/verify.md` exists: run Launch, Doctor, Drive for every touched scenario, then Cleanup (always). List evidence paths. Lint with pack-check `check-verify.sh docs/verify.md` (or `.ps1`), adding `docs/smoke-report.md` only if it exists. A finding is `fail`. Read-only: never write these files. Hard Doctor fail → `blocked`, never `pass`. `skipped` and `not run`: [doctor tags](../skills/verify-harness/references/doctor-tags.md). Missing file → today's behavior.
+6. Return the verifier report including required **Evidence gaps** and **Assumptions challenged** (`None` when empty).
 
 Good: `not verified` + "no command covers criterion 3"; Assumptions challenged: `None`.
-Bad: mark `pass` because the happy-path test is green or because `dotnet build` succeeded; omit Evidence gaps; call a Key Vault 403 `not verified` instead of `blocked`.
+Bad: mark `pass` because the happy-path test is green.
+Bad: mark `pass` because `dotnet build` succeeded.
+Bad: omit Evidence gaps.

@@ -10,5 +10,6 @@ Deployed/API smoke, not in-process integration. URLs and secrets stay in the **a
 | Auth | missing or wrong credential | not 401/403 |
 | Timeout | client budget from the app repo | hang or unmarked retry |
 | 5xx | dependency down or forced 503 | 2xx or unhandled 500 HTML |
+| Verify harness | `docs/verify.md` Launch/Doctor/Drive dry-run | missing H2, hard Doctor fail, or dry-run fail |
 
 Kind `smoke`. Local host / `WebApplicationFactory` is integration: see `<lang>-test-patterns`.

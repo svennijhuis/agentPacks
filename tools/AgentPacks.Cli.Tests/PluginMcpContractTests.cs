@@ -109,7 +109,17 @@ public sealed class PluginMcpContractTests
             if (isLoopAudience)
             {
                 loopSkills++;
-                Assert.Null(parsed.Scalar("disable-model-invocation"));
+                // Language-pack slots omit disable-model-invocation. Hidden Squad helpers
+                // (verify-harness) may set it true with user-invocable: false.
+                if (directoryName.Equals("verify-harness", StringComparison.Ordinal))
+                {
+                    Assert.Equal("true", parsed.Scalar("disable-model-invocation"));
+                    Assert.Equal("false", parsed.Scalar("user-invocable"));
+                }
+                else
+                {
+                    Assert.Null(parsed.Scalar("disable-model-invocation"));
+                }
             }
         }
 

@@ -60,7 +60,7 @@ public sealed class TonightCriteriaTests
     [InlineData("39 friendlier command blurbs still squad and squad-review", typeof(SquadContractTests),
         nameof(SquadContractTests.Squad_and_squad_review_command_blurbs_are_short_user_friendly))]
     [InlineData("39 retro agent writes only retros", typeof(SquadContractTests),
-        nameof(SquadContractTests.Retro_agent_is_standard_without_shell_and_squad_ships_two_skills))]
+        nameof(SquadContractTests.Retro_agent_is_standard_without_shell_and_squad_ships_three_skills))]
     [InlineData("41 Copilot factory command name differs from plugin name", typeof(SquadContractTests),
         nameof(SquadContractTests.Copilot_factory_command_name_differs_from_plugin_name))]
     [InlineData("42 dotnet-review examples standards.source kept", typeof(LanguagePackContractTests),
@@ -77,8 +77,8 @@ public sealed class TonightCriteriaTests
         nameof(ClaudeMarketplaceHooksTests.Claude_plugin_root_hooks_json_is_claude_shaped))]
     [InlineData("47 Copilot ships scenarios command", typeof(HttpScenariosContractTests),
         nameof(HttpScenariosContractTests.Copilot_ships_http_scenarios_command))]
-    [InlineData("48 all plugins version 0.1.4", typeof(PluginVersionContractTests),
-        nameof(PluginVersionContractTests.All_plugins_version_0_1_4))]
+    [InlineData("48 all plugins version 0.1.5", typeof(PluginVersionContractTests),
+        nameof(PluginVersionContractTests.All_plugins_version_0_1_5))]
     [InlineData("49 Copilot_http_scenarios_renamed_to_scenarios", typeof(HttpScenariosContractTests),
         nameof(HttpScenariosContractTests.Copilot_http_scenarios_renamed_to_scenarios))]
     [InlineData("49 All_trees_command_is_scenarios", typeof(HttpScenariosContractTests),
@@ -127,6 +127,12 @@ public sealed class TonightCriteriaTests
         nameof(StandardsGenerationTests.Shared_path_generates_into_consumer_references_without_a_pack_copy))]
     [InlineData("65 blocked row parsed distinct from not verified", typeof(VerificationEvidenceTests),
         nameof(VerificationEvidenceTests.Blocked_row_is_parsed_distinct_from_not_verified_and_is_not_a_pass))]
+    [InlineData("65 skipped needs row non-blocking", typeof(VerificationEvidenceTests),
+        nameof(VerificationEvidenceTests.Skipped_needs_row_is_parsed_and_does_not_block_pass))]
+    [InlineData("65 not run row blocks pass", typeof(VerificationEvidenceTests),
+        nameof(VerificationEvidenceTests.Not_run_row_is_parsed_and_blocks_pass))]
+    [InlineData("65 unknown result not silently dropped", typeof(VerificationEvidenceTests),
+        nameof(VerificationEvidenceTests.Unknown_result_value_row_is_not_silently_dropped_and_is_not_a_pass))]
     [InlineData("66 measured value against bound gate", typeof(VerificationEvidenceTests),
         nameof(VerificationEvidenceTests.Quantitative_criterion_needs_a_measured_value_against_the_bound))]
     [InlineData("68 compile-only command gate", typeof(VerificationEvidenceTests),
