@@ -6,14 +6,15 @@ Per scenario, one heading named like the smoke Case, then:
 - Manual steps: what a human can follow without the harness.
 - Expected: the result that counts as pass.
 - Outcome: `pass`, `fail`, `not run`, or `blocked`.
-- Outcome skip form: `skipped (needs: <tag>)` or with status, e.g. `skipped (needs: kv, 403)`.
-- That skip form is for a failed `needs:` check only; the verifier copies it into its Result cell.
-- Access-error skips use tag-only Outcomes (`skipped (needs: auth)`); reason lives in one shared note:
+- Outcome skip form: tag-only `skipped (needs: <tag>)`. Never put status or reason in the Outcome.
+- That skip form is for a failed `needs:` check only; the verifier copies the tag-only form into its Result cell.
+- Access-error skips: tag-only Outcome (`skipped (needs: auth)`). Harness writer shared note:
   `Local access: <redacted line>`
   `Hint: <login command>`
+- Verifier (read-only): write its own one-line `Local access:` note in its report, never here.
 - Evidence: the path as plain text, marked local to the run machine. No clickable link; it would be dead on GitHub.
 
-Access errors (see [local access](local-access.md)): one try only across the whole run. After a startup access error or the first token failure, every scenario that hits the same protected path or needs the same tag (`kv` or `auth`) is skipped up front. No second token or getToken attempt of any scope (a vault-scope try at startup and then an api-scope token for a Drive call to a 401 path counts as two tries). Write the skip reason once as the shared `Local access:` note plus one `Hint:` line, plus one retro line. Do not retry login. Verify never blocks `/squad`.
+Access errors (see [local access](local-access.md)): one try only across the whole run. After a startup access error or the first token failure, every scenario that hits the same protected path or needs the same tag (`kv` or `auth`) is skipped up front. No second token or getToken attempt of any scope (a vault-scope try at startup and then an api-scope token for a Drive call to a 401 path counts as two tries). Harness writer: write the skip reason once as the shared `Local access:` note plus one `Hint:` line, plus one retro line. Do not retry login. Verify never blocks `/squad`.
 
 Evidence files stay under `$(git rev-parse --git-dir)/squad/verify/<slug>/<run-id>/` and are never tracked.
 

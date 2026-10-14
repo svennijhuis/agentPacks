@@ -8,7 +8,7 @@ Write the redacted reason once as a shared note in `docs/smoke-report.md`:
 `Local access: <redacted line>`
 `Hint: <login command>`
 Non-access startup failure stays `blocked`.
-Missing token → `skipped (needs: auth)` with reason in that shared note.
+Missing token → `skipped (needs: auth)` with reason in that `Local access:` note.
 One try only across the whole run: after a startup access error or the first token failure, every scenario that hits the same protected path or needs the same tag (`kv` or `auth`) is skipped up front; no second token or getToken attempt of any scope (a vault-scope try at startup and then an api-scope token for a Drive call to a 401 path counts as two tries). Reason once in `docs/smoke-report.md` and one retro line. Verify never blocks `/squad`.
 
 Tokens never in any markdown, never shown to the model. App authenticates itself via the existing login. Drive API calls create the token inline inside a single curl line: `curl -sS -H "Authorization: Bearer $(az account get-access-token --scope <s> --query accessToken -o tsv)" ...`; no echo, no stored variable, no `-v`/`--trace`. AWS uses aws CLI/SDK (SigV4), never a key in curl. Model sees only the response body, cut at 120 chars and masked.

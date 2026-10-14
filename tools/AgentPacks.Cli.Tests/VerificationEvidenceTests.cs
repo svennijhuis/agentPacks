@@ -119,8 +119,9 @@ public sealed class VerificationEvidenceTests
     }
 
     /// <summary>
-    /// Item 65: a failed <c>needs:</c> Doctor check is <c>skipped</c> with reason and does not block
-    /// a verified pass when every other gate is green.
+    /// Item 65: a failed <c>needs:</c> Doctor check is <c>skipped</c> and does not block
+    /// a verified pass when every other gate is green. Legacy Evidence <c>needs:</c> with status
+    /// is still accepted for backward compatibility.
     /// </summary>
     [Fact]
     public void Skipped_needs_row_is_parsed_and_does_not_block_pass()
@@ -146,11 +147,11 @@ public sealed class VerificationEvidenceTests
     }
 
     /// <summary>
-    /// Real rows from Tester's run (logs-ec67203/b1-smoke-report.md): the harness Outcome form
-    /// <c>skipped (needs: kv, 403)</c> in the Result cell is a sanctioned skip and does not block.
+    /// Legacy Result cell with status after the tag (from older harness runs) is still accepted
+    /// for backward compatibility and does not block.
     /// </summary>
     [Fact]
-    public void Harness_outcome_form_skipped_needs_is_parsed_and_does_not_block_pass()
+    public void Legacy_skipped_needs_with_status_in_result_is_parsed_and_does_not_block_pass()
     {
         var report = VerificationEvidence.Parse("""
             | Criterion | Result | Command | Evidence |

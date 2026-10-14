@@ -83,7 +83,7 @@ public sealed class VerifyHarnessContractTests
         Assert.Contains("needs: kv|secret|auth|local-resource", tags, StringComparison.Ordinal);
         Assert.Contains("403", tags, StringComparison.Ordinal);
         Assert.Contains("the rest keeps running", tags, StringComparison.Ordinal);
-        Assert.Contains("depends on a failed tagged check: `skipped (needs: <tag>, <status>)`", tags, StringComparison.Ordinal);
+        Assert.Contains("depends on a failed tagged check: `skipped (needs: <tag>)`", tags, StringComparison.Ordinal);
         Assert.Contains("Cleanup (always)", verifier, StringComparison.Ordinal);
         Assert.Contains("Missing file → today's behavior", verifier, StringComparison.Ordinal);
         Assert.DoesNotContain('\u2014', verifier);
@@ -169,7 +169,7 @@ public sealed class VerifyHarnessContractTests
         var commands = Path.Combine(root, "plugins", "squad", "commands");
         Assert.Contains("Make a runnable verify harness too? (yes/no)", File.ReadAllText(Path.Combine(commands, "squad.md")), StringComparison.Ordinal);
         Assert.Contains("also writes `docs/verify.md` and `docs/smoke-report.md`", File.ReadAllText(Path.Combine(commands, "scenarios.md")), StringComparison.Ordinal);
-        Assert.Contains("tagged `needs:` → `skipped`", File.ReadAllText(Path.Combine(root, "plugins", "squad", "agents", "squad-verifier.md")), StringComparison.Ordinal);
+        Assert.Contains("tagged `needs:` → Result tag-only `skipped (needs: <tag>)`", File.ReadAllText(Path.Combine(root, "plugins", "squad", "agents", "squad-verifier.md")), StringComparison.Ordinal);
     }
 
     [Theory]
@@ -237,13 +237,48 @@ public sealed class VerifyHarnessContractTests
     }
 
     [Fact]
-    public void Smoke_report_documents_tag_only_and_status_skip_forms()
+    public void Smoke_report_documents_tag_only_skip_and_shared_local_access_note()
     {
         var report = File.ReadAllText(Path.Combine(VerifyHarnessDir(), "references", "smoke-report.md"));
-        Assert.Contains("`skipped (needs: kv, 403)`", report, StringComparison.Ordinal);
+        Assert.Contains("tag-only `skipped (needs: <tag>)`", report, StringComparison.Ordinal);
         Assert.Contains("`skipped (needs: auth)`", report, StringComparison.Ordinal);
+        Assert.DoesNotContain("needs: kv, 403", report, StringComparison.Ordinal);
         Assert.Contains("Local access: <redacted line>", report, StringComparison.Ordinal);
         Assert.Contains("Hint: <login command>", report, StringComparison.Ordinal);
+        Assert.Contains("write its own one-line `Local access:` note", report, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void Contract_Verifier_result_is_tag_only_with_local_access_note_in_own_report()
+    {
+        var root = TestRepository.SourceRoot();
+        var reviewContract = File.ReadAllText(Path.Combine(
+            root, "plugins", "squad", "skills", "squad", "references", "review-contract.md"));
+        var squadSkill = File.ReadAllText(Path.Combine(
+            root, "plugins", "squad", "skills", "squad", "SKILL.md"));
+        var verifier = File.ReadAllText(Path.Combine(
+            root, "plugins", "squad", "agents", "squad-verifier.md"));
+        foreach (var (name, text) in new[]
+        {
+            ("review-contract.md", reviewContract),
+            ("SKILL.md", squadSkill),
+            ("squad-verifier.md", verifier),
+        })
+        {
+            Assert.DoesNotContain("skipped, with reason", text, StringComparison.Ordinal);
+            Assert.DoesNotContain("skipped` with reason", text, StringComparison.Ordinal);
+            Assert.False(
+                System.Text.RegularExpressions.Regex.IsMatch(
+                    text, @"skipped \(needs: [a-z|]+, "),
+                $"{name} must not put a reason inside the Result cell (tag-only skipped (needs: <tag>))");
+        }
+        Assert.Contains("`skipped (needs: <tag>)`", reviewContract, StringComparison.Ordinal);
+        Assert.Contains("`skipped (needs: <tag>)`", squadSkill, StringComparison.Ordinal);
+        Assert.Contains("`skipped (needs: <tag>)`", verifier, StringComparison.Ordinal);
+        Assert.Contains("one-line `Local access:` note", reviewContract, StringComparison.Ordinal);
+        Assert.Contains("one-line `Local access:` note", verifier, StringComparison.Ordinal);
+        Assert.Contains("never in `docs/smoke-report.md`", reviewContract, StringComparison.Ordinal);
+        Assert.Contains("never in `docs/smoke-report.md`", verifier, StringComparison.Ordinal);
     }
 
     [Fact]
@@ -332,7 +367,7 @@ public sealed class VerifyHarnessContractTests
     public void Missing_token_is_skipped()
     {
         var body = VerifyHarnessBody();
-        Assert.Contains("Missing token → `skipped (needs: auth)` with reason in that shared note", body, StringComparison.Ordinal);
+        Assert.Contains("Missing token → `skipped (needs: auth)` with reason in that `Local access:` note", body, StringComparison.Ordinal);
     }
 
     [Fact]
