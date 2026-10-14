@@ -57,6 +57,18 @@ public sealed class SimplicityAndFoldersContractTests
     }
 
     [Fact]
+    public void Docs_name_the_indexer_as_the_only_fast_agent()
+    {
+        var skill = Squad("SKILL.md");
+        var readme = Source("README.md");
+        Assert.Contains("`squad-indexer` (`fast`, the only `fast` agent)", skill, StringComparison.Ordinal);
+        Assert.DoesNotContain("none uses `fast`", skill, StringComparison.Ordinal);
+        Assert.Contains("`squad-indexer` on `fast` (the only `fast` agent)", readme, StringComparison.Ordinal);
+        Assert.Contains("`squad-indexer` (`fast`, the only `fast` agent)", Source("plugins", "squad", "README.md"), StringComparison.Ordinal);
+        Assert.DoesNotContain("none uses `fast`", Source("plugins", "squad", "README.md"), StringComparison.Ordinal);
+    }
+
+    [Fact]
     public void Layers_has_no_single_project_skip_and_folders_comes_first()
     {
         var layers = Layers();

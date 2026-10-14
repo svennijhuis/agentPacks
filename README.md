@@ -268,7 +268,7 @@ Step 1 reads the latest same-entrypoint retro (Lessons and Improvements) as inpu
 suggestions are human-apply only. Neither rewrites skills.
 
 Portable model tiers live in [`models.source.json`](models.source.json) (default `inherit`;
-every squad agent `standard` except `squad-architect` on `frontier`; Copilot ids use dotted versions such
+every squad agent `standard` except `squad-architect` on `frontier` and `squad-indexer` on `fast` (the only `fast` agent); Copilot ids use dotted versions such
 as `claude-sonnet-5.5`). Test a skill on a feature branch without
 merging to `main`: [docs/ADD-SKILL.md](docs/ADD-SKILL.md#test-a-skill-locally).
 

@@ -115,7 +115,7 @@ Authored: `plugin.json`, `mcp.json` (empty scaffold), `skills/`, `rules/`, `agen
 Generated only in validation output or on `marketplace` / `marketplace-beta`: client manifests and `com.*` provider trees.
 
 Portable model tiers are authored on each agent (`model:` tier); the repo maps them to client ids at build time.
-Default `inherit`. Every squad agent is `standard` except `squad-architect` (`frontier`); none uses `fast`. Copilot ids use dotted versions (`claude-sonnet-5.5`, `claude-opus-5.5`).
+Default `inherit`. Every squad agent is `standard` except `squad-architect` (`frontier`) and `squad-indexer` (`fast`, the only `fast` agent). Copilot ids use dotted versions (`claude-sonnet-5.5`, `claude-opus-5.5`).
 
 Test changes on a feature branch without merging to `main`:
 [ADD-SKILL.md: Test a skill locally](https://github.com/svennijhuis/agentPacks/blob/main/docs/ADD-SKILL.md#test-a-skill-locally).

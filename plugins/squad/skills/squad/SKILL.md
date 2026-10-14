@@ -51,7 +51,7 @@ are rewritten in place; do not append forever inside the plan.
 | Trust-boundary / irreversible | Full loop; record the human decision first. |
 | Existing diff, no plan | `/squad-review`. No verifier report, plan write, verdict, or fix round. Always saves the report. |
 
-Cost-first: default `inherit`. Every `squad-*` agent is `standard` except `squad-architect` (`frontier`); none uses `fast`. Copilot ids use dotted versions (`claude-sonnet-5.5`).
+Cost-first: default `inherit`. Every `squad-*` agent is `standard` except `squad-architect` (`frontier`) and `squad-indexer` (`fast`, the only `fast` agent). Copilot ids use dotted versions (`claude-sonnet-5.5`).
 
 ## Gated agents
 
