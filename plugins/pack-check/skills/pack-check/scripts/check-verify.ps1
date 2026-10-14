@@ -34,7 +34,9 @@ foreach ($f in $Rest) { NoDash $f }
 
 function Test-SecretLine([string]$line) {
     if ($line -match '(^|[^A-Za-z0-9_])(key|password|secret)=(\S+)') { return $true }
-    if ($line -match '[A-Za-z0-9+/=_-]{40,}') { return $true }
+    foreach ($m in [regex]::Matches($line, '[A-Za-z0-9+=_-]{40,}')) {
+        if ($m.Value -notmatch '^[0-9A-Fa-f]{40}$') { return $true }
+    }
     if ($line.Contains('eyJ')) { return $true }
     if ($line -match '(AKIA|ASIA)[A-Z0-9]{16}') { return $true }
     if ($line.Contains('aws_secret_access_key')) { return $true }

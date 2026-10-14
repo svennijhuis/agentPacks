@@ -4,7 +4,9 @@ Ask once, only after harness yes, only for what the repo does not say: `provider
 
 No up-front vault or cloud CLI probe. Doctor launches the app as usual, greps the startup log for access errors (table below). Match → affected scenarios
 `skipped (needs: kv|auth, <redacted line>)` plus one hint line.
-Non-access startup failure stays `blocked`. Missing token → `skipped`. One try only: no retries, no login-fix attempts; same access error on another scenario → mark all scenarios needing it skipped at once. Reason once in `docs/smoke-report.md` and one retro line. Verify never blocks `/squad`.
+Non-access startup failure stays `blocked`.
+Missing token → `skipped (needs: auth, missing token)`.
+One try only: no retries, no login-fix attempts; same access error on another scenario → mark all scenarios needing it skipped at once. Reason once in `docs/smoke-report.md` and one retro line. Verify never blocks `/squad`.
 
 Tokens never in any markdown, never shown to the model. App authenticates itself via the existing login. Drive API calls create the token inline inside a single curl line: `curl -sS -H "Authorization: Bearer $(az account get-access-token --scope <s> --query accessToken -o tsv)" ...`; no echo, no stored variable, no `-v`/`--trace`. AWS uses aws CLI/SDK (SigV4), never a key in curl. Model sees only the response body, cut at 120 chars and masked.
 

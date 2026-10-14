@@ -33,7 +33,7 @@ for f in "$@"; do nodash "$f"; done
 secret_line() {
   printf '%s\n' "$1" | grep -Eq \
     '(^|[^A-Za-z0-9_])(key|password|secret)=[^[:space:]]+' \
-    || printf '%s\n' "$1" | grep -Eq '[A-Za-z0-9+/=_-]{40,}' \
+    || { printf '%s\n' "$1" | grep -Eo '[A-Za-z0-9+=_-]{40,}' | grep -Eqv '^[0-9A-Fa-f]{40}$'; } \
     || printf '%s\n' "$1" | grep -Fq 'eyJ' \
     || printf '%s\n' "$1" | grep -Eq '(AKIA|ASIA)[A-Z0-9]{16}' \
     || printf '%s\n' "$1" | grep -Fq 'aws_secret_access_key' \

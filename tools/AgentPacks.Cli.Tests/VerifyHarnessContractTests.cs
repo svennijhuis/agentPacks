@@ -325,7 +325,7 @@ public sealed class VerifyHarnessContractTests
     public void Missing_token_is_skipped()
     {
         var body = VerifyHarnessBody();
-        Assert.Contains("Missing token → `skipped`", body, StringComparison.Ordinal);
+        Assert.Contains("Missing token → `skipped (needs: auth, missing token)`", body, StringComparison.Ordinal);
     }
 
     [Fact]

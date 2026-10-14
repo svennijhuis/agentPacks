@@ -56,5 +56,5 @@ Errors (exit 1) block: Squad fixes the plan and reruns until exit 0. Warnings on
 Lint a Squad retro with `sh scripts/check-retro.sh <retro>`, or `pwsh scripts/check-retro.ps1 <retro>`:
 date-slug name and no em dash (U+2014), reported per line. The main agent fixes every finding before Done.
 
-Lint a Squad verify harness with `sh scripts/check-verify.sh <verify> [<smoke-report>]`, or `pwsh scripts/check-verify.ps1 <verify> [<smoke-report>]` (five headings; no em dash in either file):
-required `## Launch`, `## Doctor`, `## Drive`, `## Evidence`, `## Cleanup`. Local files only. Exit 1 lists each missing heading.
+Lint a Squad verify harness with `sh scripts/check-verify.sh <verify> [<smoke-report>] [evidence...]`, or `pwsh scripts/check-verify.ps1 <verify> [<smoke-report>] [evidence...]`:
+required `## Launch`, `## Doctor`, `## Drive`, `## Evidence`, `## Cleanup`; no em dash; secret-looking value lint across verify.md, smoke report, and evidence files; `get-access-token` outside `$(` is a finding. Local files only. Exit 1 lists each finding.

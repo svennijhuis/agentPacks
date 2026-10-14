@@ -249,6 +249,36 @@ public sealed class VerifyLintTests : IDisposable
         Assert.Equal(string.Empty, output);
     }
 
+    [Fact]
+    public void Good_verify_md_plus_skill_smoke_report_passes_in_both_twins()
+    {
+        var report = File.ReadAllText(Path.Combine(
+            TestRepository.SourceRoot(),
+            "plugins", "squad", "skills", "verify-harness", "references", "smoke-report.md"));
+        var (exit, output) = Lint("verify.md", Good, "smoke-report.md", report);
+        Assert.Equal(0, exit);
+        Assert.Equal(string.Empty, output);
+    }
+
+    [Fact]
+    public void Evidence_path_and_git_sha_pass_long_base64_fails()
+    {
+        const string sha = "abcdef0123456789abcdef0123456789abcdef01";
+        var withPathAndSha = Good.Replace(
+            "$(git rev-parse --git-dir)/squad/verify/demo/",
+            ".git/squad/verify/pets-api/20261013-2300/scenario-name-long-enough.txt\ncommit: " + sha,
+            StringComparison.Ordinal);
+        var clean = Lint("verify.md", withPathAndSha);
+        Assert.Equal(0, clean.Exit);
+        Assert.Equal(string.Empty, clean.Output);
+
+        const string fake = "dGhpc2lzYWZha2Vsb25nYmFzZTY0dG9rZW5mb3JsaW50dGVzdA==";
+        var dirty = Lint("verify.md", withPathAndSha + "\ntoken: " + fake + "\n");
+        Assert.Equal(1, dirty.Exit);
+        Assert.Contains("secret-looking value", dirty.Output, StringComparison.Ordinal);
+        Assert.DoesNotContain(fake, dirty.Output, StringComparison.Ordinal);
+    }
+
     /// <summary>
     /// Runs check-verify.sh and, when pwsh is on PATH, check-verify.ps1 on the same file.
     /// </summary>
