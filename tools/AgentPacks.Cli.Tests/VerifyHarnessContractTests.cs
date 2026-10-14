@@ -384,39 +384,32 @@ public sealed class VerifyHarnessContractTests
         Assert.Contains("Cut at 120 chars", local, StringComparison.Ordinal);
         Assert.Contains("cut -c1-120", local, StringComparison.Ordinal);
         Assert.Contains("[redacted]", local, StringComparison.Ordinal);
+        var fence = local.IndexOf("```sh\n", StringComparison.Ordinal);
+        Assert.True(fence >= 0);
+        var scriptStart = fence + "```sh\n".Length;
+        var scriptEnd = local.IndexOf("\n```", scriptStart, StringComparison.Ordinal);
+        Assert.True(scriptEnd > scriptStart);
+        var script = local[scriptStart..scriptEnd];
+        Assert.Contains("-e 's/[A-Za-z0-9+=_-]{40,}/[redacted]/g'", script, StringComparison.Ordinal);
         const string fakeJwt =
             "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.e30.faketokensigforlocalaccesstestonly";
         var line =
             $"Authorization Bearer {fakeJwt} and padding to exceed one hundred twenty characters in the redacted startup log line XX";
         Assert.True(line.Length > 120);
-        const string redact = """
-            printf '%s' "$1" | sed -E \
-              -e 's/eyJ[A-Za-z0-9_-]*\.[A-Za-z0-9_-]*\.[A-Za-z0-9_-]*/[redacted]/g' \
-              -e 's/(AKIA|ASIA)[A-Z0-9]{16}/[redacted]/g' \
-              -e 's/ya29\.[A-Za-z0-9_-]+/[redacted]/g' \
-              -e 's/(key|password|secret)=[^[:space:]]+/[redacted]/g' \
-              -e 's/aws_secret_access_key[^[:space:]]*/[redacted]/g' \
-              -e 's/X-Amz-Security-Token[^[:space:]]*/[redacted]/g' \
-              -e 's/[A-Za-z0-9+\/=_-]{40,}/[redacted]/g' \
-              | cut -c1-120
-            """;
-        var start = new System.Diagnostics.ProcessStartInfo
-        {
-            FileName = "sh",
-            RedirectStandardOutput = true,
-            UseShellExecute = false,
-        };
-        start.ArgumentList.Add("-c");
-        start.ArgumentList.Add(redact);
-        start.ArgumentList.Add("redact");
-        start.ArgumentList.Add(line);
-        using var process = System.Diagnostics.Process.Start(start)!;
-        var output = process.StandardOutput.ReadToEnd();
-        Assert.True(process.WaitForExit(TimeSpan.FromSeconds(10)));
-        Assert.Equal(0, process.ExitCode);
+        var output = RunLocalAccessRedaction(script, line);
         Assert.DoesNotContain(fakeJwt, output, StringComparison.Ordinal);
         Assert.Contains("[redacted]", output, StringComparison.Ordinal);
         Assert.True(output.TrimEnd().Length <= 120, $"redacted length {output.Length}: {output}");
+        const string sha = "0123456789abcdef0123456789abcdef01234567";
+        var pathLine =
+            $".git/squad/verify/pets-api/20261013-2300/scenario-name-long-enough.txt commit {sha}";
+        var pathOut = RunLocalAccessRedaction(script, pathLine);
+        Assert.Contains(
+            ".git/squad/verify/pets-api/20261013-2300/scenario-name-long-enough.txt",
+            pathOut,
+            StringComparison.Ordinal);
+        Assert.DoesNotContain(sha, pathOut, StringComparison.Ordinal);
+        Assert.Contains("[redacted]", pathOut, StringComparison.Ordinal);
     }
 
     [Fact]
@@ -455,6 +448,25 @@ public sealed class VerifyHarnessContractTests
         Assert.Contains("Exception: public API doc comments a pack standard asks for stay (C# `///` XML docs, rustdoc `///`, TSDoc on exported symbols); an inline or workaround comment needs that reason.", File.ReadAllText(Path.Combine(agents, "squad-implementer.md")), StringComparison.Ordinal);
         Assert.Contains("List every comment added in the diff by `file:line` with `kept` or `not kept` and the reason.", File.ReadAllText(Path.Combine(agents, "squad-simplifier.md")), StringComparison.Ordinal);
         Assert.Contains("- A comment in the diff without a stated reason a test, type or lint can't hold is a finding. Keep one for something we can't change (an external API quirk, a vendor bug) when it says why. Public API doc comments a pack standard asks for (C# `///` XML docs, rustdoc `///`, TSDoc on exported symbols) are not findings.", File.ReadAllText(Path.Combine(agents, "squad-simplifier.md")), StringComparison.Ordinal);
+    }
+
+    private static string RunLocalAccessRedaction(string script, string line)
+    {
+        var start = new System.Diagnostics.ProcessStartInfo
+        {
+            FileName = "sh",
+            RedirectStandardOutput = true,
+            UseShellExecute = false,
+        };
+        start.ArgumentList.Add("-c");
+        start.ArgumentList.Add("line=$1; " + script);
+        start.ArgumentList.Add("redact");
+        start.ArgumentList.Add(line);
+        using var process = System.Diagnostics.Process.Start(start)!;
+        var output = process.StandardOutput.ReadToEnd();
+        Assert.True(process.WaitForExit(TimeSpan.FromSeconds(10)));
+        Assert.Equal(0, process.ExitCode);
+        return output;
     }
 
     private static string VerifyHarnessDir() => Path.Combine(
