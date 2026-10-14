@@ -64,6 +64,10 @@ public sealed class SimplicityAndFoldersContractTests
         Assert.Contains("`squad-indexer` (`fast`, the only `fast` agent)", skill, StringComparison.Ordinal);
         Assert.DoesNotContain("none uses `fast`", skill, StringComparison.Ordinal);
         Assert.Contains("`squad-indexer` on `fast` (the only `fast` agent)", readme, StringComparison.Ordinal);
+        var addAgent = Source("docs", "ADD-AGENT.md");
+        Assert.Contains("`squad-indexer` on `fast` (the only `fast` agent)", addAgent, StringComparison.Ordinal);
+        Assert.Contains("only\n`squad-indexer` uses `fast`", addAgent.ReplaceLineEndings("\n"), StringComparison.Ordinal);
+        Assert.DoesNotContain("no shipped agent uses `fast`", addAgent, StringComparison.Ordinal);
         Assert.Contains("`squad-indexer` (`fast`, the only `fast` agent)", Source("plugins", "squad", "README.md"), StringComparison.Ordinal);
         Assert.DoesNotContain("none uses `fast`", Source("plugins", "squad", "README.md"), StringComparison.Ordinal);
     }
