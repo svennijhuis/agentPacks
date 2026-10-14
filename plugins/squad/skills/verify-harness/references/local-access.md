@@ -8,8 +8,7 @@ Write the redacted reason once as a shared note in `docs/smoke-report.md`:
 `Local access: <redacted line>`
 `Hint: <login command>`
 Non-access startup failure stays `blocked`.
-Missing token → `skipped (needs: auth)` with reason in that `Local access:` note.
-One try only across the whole run: after a startup access error or the first token failure, every scenario that hits the same protected path or needs the same tag (`kv` or `auth`) is skipped up front; no second token or getToken attempt of any scope (a vault-scope try at startup and then an api-scope token for a Drive call to a 401 path counts as two tries). Reason once in `docs/smoke-report.md` and one retro line. Verify never blocks `/squad`.
+One try only across the whole run: a missing or failed token gives `skipped (needs: auth)`, not `blocked`; after a startup access error or the first token failure, every scenario that hits the same protected path or needs the same tag (`kv` or `auth`) is skipped up front; no second token or getToken attempt of any scope (a vault-scope try at startup and then an api-scope token for a Drive call to a 401 path counts as two tries). Reason once in `docs/smoke-report.md` and one retro line. Verify never blocks `/squad`.
 
 Tokens never in any markdown, never shown to the model. App authenticates itself via the existing login. Drive API calls create the token inline inside a single curl line: `curl -sS -H "Authorization: Bearer $(az account get-access-token --scope <s> --query accessToken -o tsv)" ...`; no echo, no stored variable, no `-v`/`--trace`. AWS uses aws CLI/SDK (SigV4), never a key in curl. Model sees only the response body, cut at 120 chars and masked.
 
@@ -21,7 +20,9 @@ Tokens never in any markdown, never shown to the model. App authenticates itself
 
 ## Redaction
 
-Cut at 120 chars. Mask anything the secret lint matches. Apply to matched log lines before writing the shared `Local access:` note or retro:
+Cut at 120 chars for the shared harness `Local access:` reason line alone. Mask anything the secret lint matches. Apply to matched log lines before writing the shared `Local access:` note or retro.
+
+For the verifier's one-line note `Local access: <redacted reason>; <login hint>`, the whole line must be <=120 chars: truncate the redacted reason to fit after the prefix and hint (do not cut the reason to 120 first). Shell for the shared reason line:
 
 ```sh
 printf '%s' "$line" | sed -E \

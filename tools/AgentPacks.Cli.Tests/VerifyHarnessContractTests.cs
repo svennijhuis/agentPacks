@@ -275,10 +275,17 @@ public sealed class VerifyHarnessContractTests
         Assert.Contains("`skipped (needs: <tag>)`", reviewContract, StringComparison.Ordinal);
         Assert.Contains("`skipped (needs: <tag>)`", squadSkill, StringComparison.Ordinal);
         Assert.Contains("`skipped (needs: <tag>)`", verifier, StringComparison.Ordinal);
-        Assert.Contains("one-line `Local access:` note", reviewContract, StringComparison.Ordinal);
-        Assert.Contains("one-line `Local access:` note", verifier, StringComparison.Ordinal);
-        Assert.Contains("never in `docs/smoke-report.md`", reviewContract, StringComparison.Ordinal);
-        Assert.Contains("never in `docs/smoke-report.md`", verifier, StringComparison.Ordinal);
+        Assert.Contains("one-line `Local access: <redacted reason>; <login hint>` note", reviewContract, StringComparison.Ordinal);
+        Assert.Contains("one-line `Local access: <redacted reason>; <login hint>` note", verifier, StringComparison.Ordinal);
+        Assert.Contains("truncate the redacted reason to fit after the prefix and hint", reviewContract, StringComparison.Ordinal);
+        Assert.Contains("truncate the redacted reason to fit after the prefix and hint", verifier, StringComparison.Ordinal);
+        Assert.Contains("do not cut the reason to 120 first", reviewContract, StringComparison.Ordinal);
+        Assert.Contains("do not cut the reason to 120 first", verifier, StringComparison.Ordinal);
+        Assert.Contains("Dependent Drive rows are `skipped (needs: <tag>)` too.", reviewContract, StringComparison.Ordinal);
+        Assert.Contains("Result is exactly `pass`, `fail`, `not verified`,\n`blocked`, `skipped (needs: <tag>)`, or `not run`", reviewContract, StringComparison.Ordinal);
+        Assert.DoesNotContain("`blocked`, `skipped`, `skipped (needs: <tag>)`", reviewContract, StringComparison.Ordinal);
+        Assert.Contains("Never in `docs/smoke-report.md`", reviewContract, StringComparison.Ordinal);
+        Assert.Contains("Never in `docs/smoke-report.md`", verifier, StringComparison.Ordinal);
     }
 
     [Fact]
@@ -364,35 +371,30 @@ public sealed class VerifyHarnessContractTests
     }
 
     [Fact]
-    public void Missing_token_is_skipped()
-    {
-        var body = VerifyHarnessBody();
-        Assert.Contains("Missing token → `skipped (needs: auth)` with reason in that `Local access:` note", body, StringComparison.Ordinal);
-    }
-
-    [Fact]
     public void Contract_Five_auth_scenarios_one_attempt_five_skipped_one_report_one_retro()
     {
         var report = File.ReadAllText(Path.Combine(VerifyHarnessDir(), "references", "smoke-report.md"));
-        Assert.Contains("one try only across the whole run", report, StringComparison.Ordinal);
-        Assert.Contains("every scenario that hits the same protected path or needs the same tag", report, StringComparison.Ordinal);
-        Assert.Contains("skipped up front", report, StringComparison.Ordinal);
-        Assert.Contains("No second token or getToken attempt of any scope", report, StringComparison.Ordinal);
+        var local = File.ReadAllText(Path.Combine(VerifyHarnessDir(), "references", "local-access.md"));
+        Assert.Contains("One try only across the whole run", local, StringComparison.Ordinal);
+        Assert.Contains("a missing or failed token gives `skipped (needs: auth)`, not `blocked`", local, StringComparison.Ordinal);
+        Assert.Contains("every scenario that hits the same protected path or needs the same tag", local, StringComparison.Ordinal);
+        Assert.Contains("skipped up front", local, StringComparison.Ordinal);
+        Assert.Contains("no second token or getToken attempt of any scope", local, StringComparison.Ordinal);
         Assert.Contains("shared `Local access:` note", report, StringComparison.Ordinal);
         Assert.Contains("one retro line", report, StringComparison.Ordinal);
         Assert.Contains("Five scenarios needing the same auth skip with one attempt: five `skipped` Outcomes, one shared `Local access:` note, one `Hint:` line, one retro line", report, StringComparison.Ordinal);
-        Assert.Contains("Verify never blocks `/squad`", report, StringComparison.Ordinal);
+        Assert.Contains("Verify never blocks `/squad`", local, StringComparison.Ordinal);
     }
 
     [Fact]
     public void Contract_Startup_access_error_skips_401_path_with_zero_further_token_attempts()
     {
-        var body = VerifyHarnessBody();
-        Assert.Contains("after a startup access error or the first token failure", body, StringComparison.OrdinalIgnoreCase);
-        Assert.Contains("same protected path", body, StringComparison.Ordinal);
-        Assert.Contains("no second token or getToken attempt of any scope", body, StringComparison.OrdinalIgnoreCase);
-        Assert.Contains("vault-scope try at startup and then an api-scope token for a Drive call to a 401 path counts as two tries", body, StringComparison.Ordinal);
-        Assert.Contains("skipped up front", body, StringComparison.Ordinal);
+        var local = File.ReadAllText(Path.Combine(VerifyHarnessDir(), "references", "local-access.md"));
+        Assert.Contains("after a startup access error or the first token failure", local, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("same protected path", local, StringComparison.Ordinal);
+        Assert.Contains("no second token or getToken attempt of any scope", local, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("vault-scope try at startup and then an api-scope token for a Drive call to a 401 path counts as two tries", local, StringComparison.Ordinal);
+        Assert.Contains("skipped up front", local, StringComparison.Ordinal);
     }
 
     [Fact]
@@ -443,26 +445,62 @@ public sealed class VerifyHarnessContractTests
     [Fact]
     public void Contract_Example_outcome_and_shared_note_lines_are_at_most_120_chars()
     {
-        foreach (var relative in new[] { "references/local-access.md", "references/smoke-report.md" })
+        var paths = new[]
         {
-            var path = Path.Combine(VerifyHarnessDir(), relative);
+            Path.Combine(VerifyHarnessDir(), "references", "local-access.md"),
+            Path.Combine(VerifyHarnessDir(), "references", "smoke-report.md"),
+            Path.Combine(
+                TestRepository.SourceRoot(),
+                "plugins", "squad", "skills", "squad", "references", "review-contract.md"),
+        };
+        foreach (var path in paths)
+        {
+            var relative = Path.GetFileName(path);
             var n = 0;
             foreach (var line in File.ReadLines(path))
             {
                 n++;
                 var trimmed = line.TrimStart();
                 if (!line.Contains("Outcome:", StringComparison.Ordinal)
-                    && !line.Contains("skipped (needs:", StringComparison.Ordinal)
                     && !trimmed.StartsWith("Local access:", StringComparison.Ordinal)
                     && !trimmed.StartsWith("Hint:", StringComparison.Ordinal)
                     && !trimmed.StartsWith("→ Shared note:", StringComparison.Ordinal)
-                    && !trimmed.StartsWith("→ Hint:", StringComparison.Ordinal))
+                    && !trimmed.StartsWith("→ Hint:", StringComparison.Ordinal)
+                    && !trimmed.StartsWith("→ Outcome:", StringComparison.Ordinal))
                     continue;
                 Assert.True(
                     line.Length <= 120,
                     $"{relative}:{n} length {line.Length}: {line}");
             }
         }
+    }
+
+    [Fact]
+    public void Contract_Verifier_local_access_line_truncates_reason_to_fit_120_with_longest_hint()
+    {
+        const string prefix = "Local access: ";
+        const string separator = "; ";
+        const string hint = "gcloud auth application-default login";
+        var longReason =
+            "DefaultAzureCredential failed to retrieve a token from the included credentials after CredentialUnavailableException and further padding so the fake reason exceeds the budget";
+        Assert.True(longReason.Length > 80);
+        var reasonBudget = 120 - prefix.Length - separator.Length - hint.Length;
+        Assert.True(reasonBudget > 0);
+        var reason = longReason.Length <= reasonBudget
+            ? longReason
+            : longReason[..reasonBudget];
+        var line = prefix + reason + separator + hint;
+        Assert.True(line.Length <= 120, $"line length {line.Length}: {line}");
+        Assert.Equal(120, line.Length);
+        Assert.EndsWith(separator + hint, line, StringComparison.Ordinal);
+        Assert.DoesNotContain(longReason, line, StringComparison.Ordinal);
+        Assert.Contains(hint, line, StringComparison.Ordinal);
+        var local = File.ReadAllText(Path.Combine(VerifyHarnessDir(), "references", "local-access.md"));
+        Assert.Contains(hint, local, StringComparison.Ordinal);
+        Assert.Contains(
+            "truncate the redacted reason to fit after the prefix and hint",
+            local,
+            StringComparison.Ordinal);
     }
 
     [Fact]

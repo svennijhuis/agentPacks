@@ -197,6 +197,31 @@ public sealed class VerificationEvidenceTests
     }
 
     [Fact]
+    public void Dependent_drive_row_with_tag_only_skipped_needs_and_evidence_path_is_skip_not_not_pass()
+    {
+        var report = VerificationEvidence.Parse("""
+            | Criterion | Result | Command | Evidence |
+            |---|---|---|---|
+            | 1 | pass | `dotnet test App.slnx` | `2 passed` |
+            | 2 | skipped (needs: kv) | `curl -s -o /dev/null -w "%{http_code}" "$KV_URL"` | .git/squad/verify/demo/kv.txt |
+
+            **Suite:** pass
+            **Stacks:** dotnet
+            **Boundary:** not covered
+            **Coverage:** empty input and duplicate id
+            """);
+
+        Assert.Equal(VerificationEvidence.Skipped, report.Criteria[1].Result);
+        Assert.NotEqual(VerificationEvidence.Blocked, report.Criteria[1].Result);
+        Assert.True(VerificationEvidence.IsNeedsSkip(report.Criteria[1].Evidence));
+        Assert.Contains(".git/squad/verify/demo/kv.txt", report.Criteria[1].Evidence, StringComparison.Ordinal);
+        Assert.Equal(VerificationOutcome.Pass,
+            VerificationEvidence.Evaluate(new VerificationContext(true, ["dotnet"], report)));
+        Assert.NotEqual(VerificationOutcome.NotPass,
+            VerificationEvidence.Evaluate(new VerificationContext(true, ["dotnet"], report)));
+    }
+
+    [Fact]
     public void Skipped_paren_without_needs_is_not_a_pass()
     {
         var report = VerificationEvidence.Parse("""

@@ -18,7 +18,7 @@ Load the `squad` skill with the Skill tool by exact name `squad`, then read
 Constraints:
 - Uncovered criterion → `not verified`, never `pass`. `"not covered"` is not `"covered"`.
 - Blank or unconfirmed Seam → `not verified`, never `pass`. Tests that hit internals not named in the Seam column fail.
-- Environment or missing secret stopped a command → `blocked`, never `pass` or `fail`. Exception: a `docs/verify.md` Doctor check tagged `needs:` → Result tag-only `skipped (needs: <tag>)` (step 5); put the redacted reason once in a one-line `Local access:` note in this report (redacted reason + login hint, <=120 chars), never in `docs/smoke-report.md`. Shell calls rejected → `blocked: environment (no shell)`, so no fix round is spent on it. Reading the diff is not verification.
+- Environment or missing secret stopped a command → `blocked`, never `pass` or `fail`. Exception: a `docs/verify.md` Doctor check tagged `needs:` → Result tag-only `skipped (needs: <tag>)` (step 5); put the redacted reason once in a one-line `Local access: <redacted reason>; <login hint>` note in this report. The whole line must be <=120 chars: truncate the redacted reason to fit after the prefix and hint (do not cut the reason to 120 first). Never in `docs/smoke-report.md`. Shell calls rejected → `blocked: environment (no shell)`, so no fix round is spent on it. Reading the diff is not verification.
 - Quantitative criterion → re-measure yourself and quote `<measured> <op> <bound>` in Evidence. A green test name is not a measurement.
 - Build, restore, or type-check alone → `not verified` for a behavioral criterion. Compiling proves compiling, not behavior.
 - Do not edit a test to make it pass.
