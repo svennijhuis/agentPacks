@@ -21,7 +21,7 @@ Constraints:
 - A fix must preserve behaviour. Clarity > fewer lines. Ban over-simplify and nested-clever.
 - Prefer simple, clean, client-friendly code; flag unnecessary difficulty or premature abstraction.
 - Name the existing path when calling out duplication.
-- A comment in the diff is a finding. Keep it only for something we can't change (an external API quirk, a vendor bug) and say why. A workaround comment is always a finding.
+- A comment in the diff without a stated reason a test, type or lint can't hold is a finding. Keep one for something we can't change (an external API quirk, a vendor bug) when it says why. Public API doc comments a pack standard asks for (C# `///` XML docs, rustdoc `///`, TSDoc on exported symbols) are not findings.
 - Internal API with no external users: migrate every caller and delete the old path in the same change; a compat shim is a finding.
 - Subtract before you add; 30-second test: can a reader find where X comes from and what changes X? (`engineering.md` Minimize reader load).
 

@@ -290,10 +290,10 @@ public sealed class VerifyHarnessContractTests
     public void Implementer_writes_no_comments_and_simplifier_flags_them()
     {
         var agents = Path.Combine(TestRepository.SourceRoot(), "plugins", "squad", "agents");
-        Assert.Contains("- Write no new comments. Put a constraint in a test, type or lint instead, because agents copy comments.", File.ReadAllText(Path.Combine(agents, "squad-implementer.md")), StringComparison.Ordinal);
-        Assert.Contains("Exception: public API doc comments a pack standard asks for stay (C# `///` XML docs, rustdoc `///`, TSDoc on exported symbols); only inline and workaround comments are banned.", File.ReadAllText(Path.Combine(agents, "squad-implementer.md")), StringComparison.Ordinal);
+        Assert.Contains("- Prefer no new comments. Put a constraint in a test, type or lint instead, because agents copy comments. Write a comment only when none of those can hold it, and say why in it.", File.ReadAllText(Path.Combine(agents, "squad-implementer.md")), StringComparison.Ordinal);
+        Assert.Contains("Exception: public API doc comments a pack standard asks for stay (C# `///` XML docs, rustdoc `///`, TSDoc on exported symbols); an inline or workaround comment needs that reason.", File.ReadAllText(Path.Combine(agents, "squad-implementer.md")), StringComparison.Ordinal);
         Assert.Contains("List every comment added in the diff by `file:line` with `kept` or `not kept` and the reason.", File.ReadAllText(Path.Combine(agents, "squad-simplifier.md")), StringComparison.Ordinal);
-        Assert.Contains("- A comment in the diff is a finding. Keep it only for something we can't change (an external API quirk, a vendor bug) and say why. A workaround comment is always a finding.", File.ReadAllText(Path.Combine(agents, "squad-simplifier.md")), StringComparison.Ordinal);
+        Assert.Contains("- A comment in the diff without a stated reason a test, type or lint can't hold is a finding. Keep one for something we can't change (an external API quirk, a vendor bug) when it says why. Public API doc comments a pack standard asks for (C# `///` XML docs, rustdoc `///`, TSDoc on exported symbols) are not findings.", File.ReadAllText(Path.Combine(agents, "squad-simplifier.md")), StringComparison.Ordinal);
     }
 
     private static string VerifyHarnessDir() => Path.Combine(
