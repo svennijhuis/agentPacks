@@ -28,7 +28,7 @@ printf '%s' "$line" | sed -E \
   -e 's/(key|password|secret)=[^[:space:]]+/[redacted]/g' \
   -e 's/aws_secret_access_key[^[:space:]]*/[redacted]/g' \
   -e 's/X-Amz-Security-Token[^[:space:]]*/[redacted]/g' \
-  -e 's/[A-Za-z0-9+\/=_-]{40,}/[redacted]/g' \
+  -e 's/[A-Za-z0-9+=_-]{40,}/[redacted]/g' \
   | cut -c1-120
 ```
 
