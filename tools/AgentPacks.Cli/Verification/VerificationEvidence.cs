@@ -69,7 +69,7 @@ public static partial class VerificationEvidence
     public const string Blocked = "blocked";
 
     /// <summary>
-    /// A <c>needs:</c>-tagged Doctor check failed (with reason). Does not block a pass; the rest of
+    /// A <c>needs:</c>-tagged Doctor check failed. Does not block a pass; the rest of
     /// the run continues. Never a stand-in for an undriven scenario (<see cref="NotRun"/>).
     /// </summary>
     public const string Skipped = "skipped";
@@ -259,8 +259,10 @@ public static partial class VerificationEvidence
     }
 
     /// <summary>
-    /// The harness Outcome form <c>skipped (needs: kv, 403)</c> becomes Result <c>skipped</c> with the
-    /// <c>needs:</c> reason moved to the front of Evidence, so both stated forms gate the same way.
+    /// Documented Result form is tag-only <c>skipped (needs: auth)</c> (or <c>kv</c>).
+    /// Legacy Result cells with a status or reason after the tag are still accepted for
+    /// backward compatibility and become Result <c>skipped</c> with the <c>needs:</c> text
+    /// moved to the front of Evidence, so both forms gate the same way.
     /// </summary>
     private static VerificationCriterion Criterion(int number, string result, string command, string evidence)
     {
@@ -276,8 +278,9 @@ public static partial class VerificationEvidence
 
     /// <summary>
     /// A sanctioned skip: Evidence starts with <c>needs:</c> (optional backticks allowed).
+    /// Tag-only forms such as <c>needs: auth</c> or <c>needs: kv</c> count; a free-text status is optional.
     /// </summary>
-    private static bool IsNeedsSkip(string evidence) =>
+    internal static bool IsNeedsSkip(string evidence) =>
         evidence.TrimStart('`', ' ').StartsWith("needs:", StringComparison.OrdinalIgnoreCase);
 
     /// <summary>

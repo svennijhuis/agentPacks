@@ -26,6 +26,29 @@ public sealed class VerifyLintTests : IDisposable
         none; keep evidence
         """;
 
+    private const string GoodWithInlineToken = """
+        # Verify
+
+        ## Launch
+        cmd: none
+
+        ## Doctor
+        none
+
+        ## Drive
+        1. list: curl -sS -H "Authorization: Bearer $(az account get-access-token --scope https://vault.azure.net/.default --query accessToken -o tsv)" http://localhost/pets
+
+        ## Evidence
+        $(git rev-parse --git-dir)/squad/verify/demo/
+
+        ## Cleanup
+        none; keep evidence
+
+        ## Local access
+        provider: azure
+        scope: https://vault.azure.net/.default
+        """;
+
     private readonly string _directory = Directory.CreateTempSubdirectory("verify-lint-").FullName;
 
     public void Dispose() => Directory.Delete(_directory, recursive: true);
@@ -109,21 +132,221 @@ public sealed class VerifyLintTests : IDisposable
             Assert.Contains(section, sh, StringComparison.Ordinal);
             Assert.Contains(section, ps1, StringComparison.Ordinal);
         }
+        Assert.Contains("secret-looking value", sh, StringComparison.Ordinal);
+        Assert.Contains("secret-looking value", ps1, StringComparison.Ordinal);
+        Assert.Contains("get-access-token outside", sh, StringComparison.Ordinal);
+        Assert.Contains("get-access-token outside", ps1, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void Optional_local_access_section_without_secrets_passes()
+    {
+        var (exit, output) = Lint("verify.md", GoodWithInlineToken);
+        Assert.Equal(0, exit);
+        Assert.Equal(string.Empty, output);
+    }
+
+    [Fact]
+    public void Fake_jwt_in_local_access_fails_without_printing_secret()
+    {
+        const string fake = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.e30.fakesig";
+        var text = GoodWithInlineToken + "\ntoken: " + fake + "\n";
+        var (exit, output) = Lint("verify.md", text);
+        Assert.Equal(1, exit);
+        Assert.Contains("secret-looking value", output, StringComparison.Ordinal);
+        Assert.DoesNotContain(fake, output, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void Fake_jwt_in_drive_section_fails_in_both_twins()
+    {
+        const string fake = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.e30.fakesig";
+        var text = Good.Replace(
+            "1. list: curl /pets → 200",
+            "1. list: curl /pets Authorization: Bearer " + fake,
+            StringComparison.Ordinal);
+        var (exit, output) = Lint("verify.md", text);
+        Assert.Equal(1, exit);
+        Assert.Contains("secret-looking value", output, StringComparison.Ordinal);
+        Assert.DoesNotContain(fake, output, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void Fake_token_in_smoke_report_fails()
+    {
+        const string fake = "AKIAIOSFODNN7EXAMPLE0";
+        var (exit, output) = Lint(
+            "verify.md",
+            Good,
+            "smoke-report.md",
+            "# Smoke\n\nOutcome: skipped key=" + fake + "\n");
+        Assert.Equal(1, exit);
+        Assert.Contains("smoke-report.md:", output, StringComparison.Ordinal);
+        Assert.Contains("secret-looking value", output, StringComparison.Ordinal);
+        Assert.DoesNotContain(fake, output, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void Fake_token_in_evidence_file_fails()
+    {
+        const string fake = "ya29.a0AfH6SMCfaketokengoogleoauth";
+        var (exit, output) = Lint(
+            "verify.md",
+            Good,
+            "smoke-report.md",
+            "# Smoke\nOutcome: pass\n",
+            ("transcript.txt", "startup: " + fake + "\n"));
+        Assert.Equal(1, exit);
+        Assert.Contains("transcript.txt:", output, StringComparison.Ordinal);
+        Assert.Contains("secret-looking value", output, StringComparison.Ordinal);
+        Assert.DoesNotContain(fake, output, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void Get_access_token_outside_command_substitution_fails()
+    {
+        var text = Good.Replace(
+            "1. list: curl /pets → 200",
+            "1. list: az account get-access-token --scope x",
+            StringComparison.Ordinal);
+        var (exit, output) = Lint("verify.md", text);
+        Assert.Equal(1, exit);
+        Assert.Contains("get-access-token outside $(", output, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void Get_access_token_outside_substitution_in_smoke_report_fails()
+    {
+        var (exit, output) = Lint(
+            "verify.md",
+            Good,
+            "smoke-report.md",
+            "# Smoke\n\nManual: az account get-access-token --scope x\n");
+        Assert.Equal(1, exit);
+        Assert.Contains("smoke-report.md:", output, StringComparison.Ordinal);
+        Assert.Contains("get-access-token outside $(", output, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void Get_access_token_outside_substitution_in_evidence_file_fails()
+    {
+        var (exit, output) = Lint(
+            "verify.md",
+            Good,
+            "smoke-report.md",
+            "# Smoke\nOutcome: pass\n",
+            ("transcript.txt", "cmd: az account get-access-token --scope x\n"));
+        Assert.Equal(1, exit);
+        Assert.Contains("transcript.txt:", output, StringComparison.Ordinal);
+        Assert.Contains("get-access-token outside $(", output, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void Inline_get_access_token_in_command_substitution_passes()
+    {
+        var (exit, output) = Lint("verify.md", GoodWithInlineToken);
+        Assert.Equal(0, exit);
+        Assert.Equal(string.Empty, output);
+    }
+
+    [Fact]
+    public void Good_verify_md_plus_skill_smoke_report_passes_in_both_twins()
+    {
+        var report = File.ReadAllText(Path.Combine(
+            TestRepository.SourceRoot(),
+            "plugins", "squad", "skills", "verify-harness", "references", "smoke-report.md"));
+        var (exit, output) = Lint("verify.md", Good, "smoke-report.md", report);
+        Assert.Equal(0, exit);
+        Assert.Equal(string.Empty, output);
+    }
+
+    [Theory]
+    [InlineData("skipped (needs: auth)")]
+    [InlineData("skipped (needs: kv)")]
+    public void Tag_only_skipped_needs_outcome_passes_lint_in_both_twins(string outcome)
+    {
+        var report = $"""
+            # Smoke report
+
+            Local access: DefaultAzureCredential failed to retrieve a token from the included credentials.
+            Hint: `az login`
+
+            ### create
+            - Outcome: `{outcome}`
+            - Evidence: .git/squad/verify/demo/create.txt (local to the run machine)
+            """;
+        var (exit, output) = Lint("verify.md", Good, "smoke-report.md", report);
+        Assert.Equal(0, exit);
+        Assert.Equal(string.Empty, output);
+    }
+
+    [Fact]
+    public void Two_skipped_rows_with_hint_once_pass_lint_in_both_twins()
+    {
+        var report = """
+            # Smoke report
+
+            Local access: DefaultAzureCredential failed to retrieve a token from the included credentials.
+            Hint: `az login`
+
+            ### create (needs auth)
+            - Outcome: `skipped (needs: auth)`
+            - Evidence: .git/squad/verify/demo/create.txt (local to the run machine)
+
+            ### me (needs auth)
+            - Outcome: `skipped (needs: auth)`
+            - Evidence: .git/squad/verify/demo/me.txt (local to the run machine)
+            """;
+        Assert.Equal(1, report.Split('\n').Count(line => line.TrimStart().StartsWith("Hint:", StringComparison.Ordinal)));
+        Assert.Equal(2, report.Split('\n').Count(line => line.Contains("Outcome: `skipped (needs:", StringComparison.Ordinal)));
+        var (exit, output) = Lint("verify.md", Good, "smoke-report.md", report);
+        Assert.Equal(0, exit);
+        Assert.Equal(string.Empty, output);
+    }
+
+    [Fact]
+    public void Evidence_path_and_git_sha_pass_long_base64_fails()
+    {
+        const string sha = "abcdef0123456789abcdef0123456789abcdef01";
+        var withPathAndSha = Good.Replace(
+            "$(git rev-parse --git-dir)/squad/verify/demo/",
+            ".git/squad/verify/pets-api/20261013-2300/scenario-name-long-enough.txt\ncommit: " + sha,
+            StringComparison.Ordinal);
+        var clean = Lint("verify.md", withPathAndSha);
+        Assert.Equal(0, clean.Exit);
+        Assert.Equal(string.Empty, clean.Output);
+
+        const string fake = "dGhpc2lzYWZha2Vsb25nYmFzZTY0dG9rZW5mb3JsaW50dGVzdA==";
+        var dirty = Lint("verify.md", withPathAndSha + "\ntoken: " + fake + "\n");
+        Assert.Equal(1, dirty.Exit);
+        Assert.Contains("secret-looking value", dirty.Output, StringComparison.Ordinal);
+        Assert.DoesNotContain(fake, dirty.Output, StringComparison.Ordinal);
     }
 
     /// <summary>
     /// Runs check-verify.sh and, when pwsh is on PATH, check-verify.ps1 on the same file.
     /// </summary>
-    private (int Exit, string Output) Lint(string name, string text, string? reportName = null, string? reportText = null)
+    private (int Exit, string Output) Lint(
+        string name,
+        string text,
+        string? reportName = null,
+        string? reportText = null,
+        params (string Name, string Text)[] evidence)
     {
         var path = Path.Combine(_directory, name);
         File.WriteAllText(path, text);
-        string[] files = [path];
+        var files = new List<string> { path };
         if (reportName is not null)
         {
             var report = Path.Combine(_directory, reportName);
             File.WriteAllText(report, reportText);
-            files = [path, report];
+            files.Add(report);
+        }
+        foreach (var (evidenceName, evidenceText) in evidence)
+        {
+            var evidencePath = Path.Combine(_directory, evidenceName);
+            File.WriteAllText(evidencePath, evidenceText);
+            files.Add(evidencePath);
         }
         var posix = Run("sh", [Script("check-verify.sh"), .. files], name);
         if (PwshAvailable.Value)

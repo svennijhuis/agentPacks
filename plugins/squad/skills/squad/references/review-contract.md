@@ -153,9 +153,11 @@ identifier, not a review target.
 | 1 | pass | `dotnet test App.slnx --no-restore` | `10 passed, 0 failed` |
 | 2 | fail | `dotnet test App.slnx --no-restore` | `expected 401, got 200` |
 | 3 | not verified |: | No automated or safe manual check covers this criterion. |
-| 4 | skipped | `curl -s -o /dev/null -w "%{http_code}" "$KV_URL"` | `needs: kv, 403` |
+| 4 | skipped (needs: kv) | `curl -s -o /dev/null -w "%{http_code}" "$KV_URL"` | `.git/squad/verify/demo/kv.txt` |
 | 5 | blocked | `dotnet test App.slnx --filter Vault` | `hard secret path left unrun; missing local credential` |
 | 6 | not run | `curl -s http://localhost:5000/orders` | `touched scenario not driven` |
+
+Local access: Key Vault check returned 403; az login
 
 **Suite:** <wider run; `pass` or `fail` plus `this-change` or `pre-existing` when it failed>
 **Stacks:** <dotnet | rust | both>
@@ -166,10 +168,13 @@ identifier, not a review target.
 ```
 
 No evidence means `not verified`, never `pass`. Result is exactly `pass`, `fail`, `not verified`,
-`blocked`, `skipped`, or `not run`. `not verified` means no check covers the criterion. `blocked`
+`blocked`, `skipped (needs: <tag>)`, or `not run`. `not verified` means no check covers the criterion. `blocked`
 means a check exists but the environment or a missing secret stopped it from running: the change is
 unproven, not failed, and the next action is to unblock and rerun, not to write a check. `skipped`
-is only for a failed `needs:` Doctor check, written `skipped (needs: kv, 403)` (or Result `skipped` with Evidence starting `needs:`); it does not block `pass`, but a report needs at least one `pass` row. `not run` means a
+is only for a failed `needs:` Doctor check; Result cell is tag-only `skipped (needs: <tag>)`. Put the
+redacted reason once in a one-line `Local access: <redacted reason>; <login hint>` note in this report.
+The whole line must be <=120 chars: truncate the redacted reason to fit after the prefix and hint
+(do not cut the reason to 120 first). Never in `docs/smoke-report.md`. It does not block `pass`, but a report needs at least one `pass` row. `not run` means a
 touched scenario or check was not driven; it blocks `pass`. An unknown Result value is malformed,
 not a silent drop. Reading the diff is not verification: a result written without running anything
 is `blocked` or `not verified`, never `pass`. The suite, stacks, boundary, coverage, evidence-gaps,
@@ -183,7 +188,7 @@ A verified `pass` is the outcome of the evaluator, not a hopeful reading of the 
 | No confirmed plan | Stop. Do not verify. Not a pass. |
 | A criterion command is `-`, empty, or never covers the criterion | That row is `not verified`. Not a pass, even if the row says `pass`. |
 | A criterion command exists but the environment or a missing secret stopped it | That row is `blocked`. Not a pass. The synthesized finding's Fix is to unblock and rerun that command, never to write a new check. |
-| A `needs:`-tagged Doctor check failed | That row is `skipped` with reason. Does not block `pass`. Dependent Drive rows are `skipped` too. |
+| A `needs:`-tagged Doctor check failed | That row is `skipped (needs: <tag>)` (tag only); reason once in a `Local access:` note. Does not block `pass`. Dependent Drive rows are `skipped (needs: <tag>)` too. |
 | A touched scenario or check was not driven | That row is `not run`. Blocks `pass`. Never use `skipped` for this. |
 | An unknown Result value | Malformed. Not a pass. |
 | The only command behind a `pass` row is a build, restore, format, or type-check (`dotnet build`, `cargo check`, `tsc --noEmit`) and the criterion is about behavior | That row is `not verified`. Compiling is evidence that it compiles, nothing more. A build-only pass counts only for a criterion whose stated outcome is that the code compiles. |

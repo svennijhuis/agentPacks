@@ -83,7 +83,7 @@ public sealed class VerifyHarnessContractTests
         Assert.Contains("needs: kv|secret|auth|local-resource", tags, StringComparison.Ordinal);
         Assert.Contains("403", tags, StringComparison.Ordinal);
         Assert.Contains("the rest keeps running", tags, StringComparison.Ordinal);
-        Assert.Contains("depends on a failed tagged check: `skipped (needs: <tag>, <status>)`", tags, StringComparison.Ordinal);
+        Assert.Contains("depends on a failed tagged check: `skipped (needs: <tag>)`", tags, StringComparison.Ordinal);
         Assert.Contains("Cleanup (always)", verifier, StringComparison.Ordinal);
         Assert.Contains("Missing file → today's behavior", verifier, StringComparison.Ordinal);
         Assert.DoesNotContain('\u2014', verifier);
@@ -169,7 +169,7 @@ public sealed class VerifyHarnessContractTests
         var commands = Path.Combine(root, "plugins", "squad", "commands");
         Assert.Contains("Make a runnable verify harness too? (yes/no)", File.ReadAllText(Path.Combine(commands, "squad.md")), StringComparison.Ordinal);
         Assert.Contains("also writes `docs/verify.md` and `docs/smoke-report.md`", File.ReadAllText(Path.Combine(commands, "scenarios.md")), StringComparison.Ordinal);
-        Assert.Contains("tagged `needs:` → `skipped`", File.ReadAllText(Path.Combine(root, "plugins", "squad", "agents", "squad-verifier.md")), StringComparison.Ordinal);
+        Assert.Contains("tagged `needs:` → Result tag-only `skipped (needs: <tag>)`", File.ReadAllText(Path.Combine(root, "plugins", "squad", "agents", "squad-verifier.md")), StringComparison.Ordinal);
     }
 
     [Theory]
@@ -237,8 +237,56 @@ public sealed class VerifyHarnessContractTests
     }
 
     [Fact]
-    public void Smoke_report_outcome_line_carries_skip_reason()
-        => Assert.Contains("`skipped (needs: kv, 403)`", File.ReadAllText(Path.Combine(VerifyHarnessDir(), "references", "smoke-report.md")), StringComparison.Ordinal);
+    public void Smoke_report_documents_tag_only_skip_and_shared_local_access_note()
+    {
+        var report = File.ReadAllText(Path.Combine(VerifyHarnessDir(), "references", "smoke-report.md"));
+        Assert.Contains("tag-only `skipped (needs: <tag>)`", report, StringComparison.Ordinal);
+        Assert.Contains("`skipped (needs: auth)`", report, StringComparison.Ordinal);
+        Assert.DoesNotContain("needs: kv, 403", report, StringComparison.Ordinal);
+        Assert.Contains("Local access: <redacted line>", report, StringComparison.Ordinal);
+        Assert.Contains("Hint: <login command>", report, StringComparison.Ordinal);
+        Assert.Contains("write its own one-line `Local access:` note", report, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void Contract_Verifier_result_is_tag_only_with_local_access_note_in_own_report()
+    {
+        var root = TestRepository.SourceRoot();
+        var reviewContract = File.ReadAllText(Path.Combine(
+            root, "plugins", "squad", "skills", "squad", "references", "review-contract.md"));
+        var squadSkill = File.ReadAllText(Path.Combine(
+            root, "plugins", "squad", "skills", "squad", "SKILL.md"));
+        var verifier = File.ReadAllText(Path.Combine(
+            root, "plugins", "squad", "agents", "squad-verifier.md"));
+        foreach (var (name, text) in new[]
+        {
+            ("review-contract.md", reviewContract),
+            ("SKILL.md", squadSkill),
+            ("squad-verifier.md", verifier),
+        })
+        {
+            Assert.DoesNotContain("skipped, with reason", text, StringComparison.Ordinal);
+            Assert.DoesNotContain("skipped` with reason", text, StringComparison.Ordinal);
+            Assert.False(
+                System.Text.RegularExpressions.Regex.IsMatch(
+                    text, @"skipped \(needs: [a-z|]+, "),
+                $"{name} must not put a reason inside the Result cell (tag-only skipped (needs: <tag>))");
+        }
+        Assert.Contains("`skipped (needs: <tag>)`", reviewContract, StringComparison.Ordinal);
+        Assert.Contains("`skipped (needs: <tag>)`", squadSkill, StringComparison.Ordinal);
+        Assert.Contains("`skipped (needs: <tag>)`", verifier, StringComparison.Ordinal);
+        Assert.Contains("one-line `Local access: <redacted reason>; <login hint>` note", reviewContract, StringComparison.Ordinal);
+        Assert.Contains("one-line `Local access: <redacted reason>; <login hint>` note", verifier, StringComparison.Ordinal);
+        Assert.Contains("truncate the redacted reason to fit after the prefix and hint", reviewContract, StringComparison.Ordinal);
+        Assert.Contains("truncate the redacted reason to fit after the prefix and hint", verifier, StringComparison.Ordinal);
+        Assert.Contains("do not cut the reason to 120 first", reviewContract, StringComparison.Ordinal);
+        Assert.Contains("do not cut the reason to 120 first", verifier, StringComparison.Ordinal);
+        Assert.Contains("Dependent Drive rows are `skipped (needs: <tag>)` too.", reviewContract, StringComparison.Ordinal);
+        Assert.Contains("Result is exactly `pass`, `fail`, `not verified`,\n`blocked`, `skipped (needs: <tag>)`, or `not run`", reviewContract, StringComparison.Ordinal);
+        Assert.DoesNotContain("`blocked`, `skipped`, `skipped (needs: <tag>)`", reviewContract, StringComparison.Ordinal);
+        Assert.Contains("Never in `docs/smoke-report.md`", reviewContract, StringComparison.Ordinal);
+        Assert.Contains("Never in `docs/smoke-report.md`", verifier, StringComparison.Ordinal);
+    }
 
     [Fact]
     public void Generated_docs_ban_em_dashes()
@@ -269,6 +317,238 @@ public sealed class VerifyHarnessContractTests
     }
 
     [Fact]
+    public void Local_access_absent_means_ask_once_after_harness_yes()
+    {
+        var body = VerifyHarnessBody();
+        Assert.Contains("ask once after harness yes", body, StringComparison.Ordinal);
+        Assert.Contains("provider and API scope the repo does not say", body, StringComparison.Ordinal);
+        Assert.Contains("Optional sixth: `## Local access`", body, StringComparison.Ordinal);
+        Assert.Contains("section present or `provider: skip` means never re-ask", body, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void Local_access_section_present_means_no_re_ask()
+    {
+        var local = File.ReadAllText(Path.Combine(VerifyHarnessDir(), "references", "local-access.md"));
+        Assert.Contains("Section present → no re-ask", local, StringComparison.Ordinal);
+        Assert.Contains("Ask once, only after harness yes", local, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void Local_access_skip_is_saved_as_provider_skip()
+    {
+        var local = File.ReadAllText(Path.Combine(VerifyHarnessDir(), "references", "local-access.md"));
+        Assert.Contains("Answer `skip` → `provider: skip`", local, StringComparison.Ordinal);
+        Assert.Contains("`provider: skip` alone is valid and stops further asks", local, StringComparison.Ordinal);
+        Assert.Contains("## Local access", File.ReadAllText(Path.Combine(VerifyHarnessDir(), "SKILL.md")), StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void CredentialUnavailable_fixture_maps_to_skipped_not_blocked()
+    {
+        var local = File.ReadAllText(Path.Combine(VerifyHarnessDir(), "references", "local-access.md"));
+        const string fixture =
+            "DefaultAzureCredential failed to retrieve a token from the included credentials. CredentialUnavailableException (Status: 401)";
+        const string cut =
+            "DefaultAzureCredential failed to retrieve a token from the included credentials.";
+        Assert.Contains("CredentialUnavailable", local, StringComparison.Ordinal);
+        Assert.Contains(fixture, local, StringComparison.Ordinal);
+        Assert.Contains($"Local access: {cut}", local, StringComparison.Ordinal);
+        Assert.Contains("→ Outcome: `skipped (needs: auth)`", local, StringComparison.Ordinal);
+        Assert.Contains("Non-access startup failure stays `blocked`", local, StringComparison.Ordinal);
+        Assert.Contains("System.IO.FileNotFoundException", local, StringComparison.Ordinal);
+        Assert.Contains("→ Outcome: `blocked`", local, StringComparison.Ordinal);
+        Assert.Contains("Non-access startup failure stays `blocked`", File.ReadAllText(Path.Combine(VerifyHarnessDir(), "references", "doctor-tags.md")), StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void Contract_Aws_fixture_log_skips_with_aws_sso_login_hint()
+    {
+        var local = File.ReadAllText(Path.Combine(VerifyHarnessDir(), "references", "local-access.md"));
+        Assert.Contains("Unable to locate credentials", local, StringComparison.Ordinal);
+        Assert.Contains("aws sso login", local, StringComparison.Ordinal);
+        Assert.Contains("→ Hint: `aws sso login`", local, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void Contract_Five_auth_scenarios_one_attempt_five_skipped_one_report_one_retro()
+    {
+        var report = File.ReadAllText(Path.Combine(VerifyHarnessDir(), "references", "smoke-report.md"));
+        var local = File.ReadAllText(Path.Combine(VerifyHarnessDir(), "references", "local-access.md"));
+        Assert.Contains("One try only across the whole run", local, StringComparison.Ordinal);
+        Assert.Contains("a missing or failed token gives `skipped (needs: auth)`, not `blocked`", local, StringComparison.Ordinal);
+        Assert.Contains("every scenario that hits the same protected path or needs the same tag", local, StringComparison.Ordinal);
+        Assert.Contains("skipped up front", local, StringComparison.Ordinal);
+        Assert.Contains("no second token or getToken attempt of any scope", local, StringComparison.Ordinal);
+        Assert.Contains("shared `Local access:` note", report, StringComparison.Ordinal);
+        Assert.Contains("one retro line", report, StringComparison.Ordinal);
+        Assert.Contains("Five scenarios needing the same auth skip with one attempt: five `skipped` Outcomes, one shared `Local access:` note, one `Hint:` line, one retro line", report, StringComparison.Ordinal);
+        Assert.Contains("Verify never blocks `/squad`", local, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void Contract_Startup_access_error_skips_401_path_with_zero_further_token_attempts()
+    {
+        var local = File.ReadAllText(Path.Combine(VerifyHarnessDir(), "references", "local-access.md"));
+        Assert.Contains("after a startup access error or the first token failure", local, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("same protected path", local, StringComparison.Ordinal);
+        Assert.Contains("no second token or getToken attempt of any scope", local, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("vault-scope try at startup and then an api-scope token for a Drive call to a 401 path counts as two tries", local, StringComparison.Ordinal);
+        Assert.Contains("skipped up front", local, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void Contract_Two_skipped_rows_share_one_hint_in_smoke_report_template()
+    {
+        var report = File.ReadAllText(Path.Combine(VerifyHarnessDir(), "references", "smoke-report.md"));
+        var exampleStart = report.IndexOf("Example:", StringComparison.Ordinal);
+        Assert.True(exampleStart >= 0);
+        var example = report[exampleStart..];
+        var five = example.IndexOf("Five scenarios", StringComparison.Ordinal);
+        if (five >= 0)
+            example = example[..five];
+        var skippedOutcomes = 0;
+        var hints = 0;
+        var localAccessNotes = 0;
+        foreach (var line in example.Split('\n'))
+        {
+            if (line.Contains("Outcome: `skipped (needs:", StringComparison.Ordinal))
+                skippedOutcomes++;
+            if (line.TrimStart().StartsWith("Hint:", StringComparison.Ordinal))
+                hints++;
+            if (line.TrimStart().StartsWith("Local access:", StringComparison.Ordinal))
+                localAccessNotes++;
+        }
+        Assert.True(skippedOutcomes >= 2, $"expected >=2 skipped Outcomes in example, got {skippedOutcomes}");
+        Assert.Equal(1, hints);
+        Assert.Equal(1, localAccessNotes);
+        Assert.DoesNotContain("Outcome: `skipped (needs: auth,", example, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void Contract_Local_access_example_has_exactly_provider_and_scope()
+    {
+        var local = File.ReadAllText(Path.Combine(VerifyHarnessDir(), "references", "local-access.md"));
+        var start = local.IndexOf("```markdown\n## Local access\n", StringComparison.Ordinal);
+        Assert.True(start >= 0);
+        var blockStart = start + "```markdown\n".Length;
+        var end = local.IndexOf("\n```", blockStart, StringComparison.Ordinal);
+        Assert.True(end > blockStart);
+        var block = local[blockStart..end];
+        Assert.Equal(
+            "## Local access\nprovider: azure\nscope: https://vault.azure.net/.default",
+            block);
+        Assert.DoesNotContain("vault:", block, StringComparison.Ordinal);
+        Assert.DoesNotContain("secret:", block, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void Contract_Example_outcome_and_shared_note_lines_are_at_most_120_chars()
+    {
+        var paths = new[]
+        {
+            Path.Combine(VerifyHarnessDir(), "references", "local-access.md"),
+            Path.Combine(VerifyHarnessDir(), "references", "smoke-report.md"),
+            Path.Combine(
+                TestRepository.SourceRoot(),
+                "plugins", "squad", "skills", "squad", "references", "review-contract.md"),
+        };
+        foreach (var path in paths)
+        {
+            var relative = Path.GetFileName(path);
+            var n = 0;
+            foreach (var line in File.ReadLines(path))
+            {
+                n++;
+                var trimmed = line.TrimStart();
+                if (!line.Contains("Outcome:", StringComparison.Ordinal)
+                    && !trimmed.StartsWith("Local access:", StringComparison.Ordinal)
+                    && !trimmed.StartsWith("Hint:", StringComparison.Ordinal)
+                    && !trimmed.StartsWith("→ Shared note:", StringComparison.Ordinal)
+                    && !trimmed.StartsWith("→ Hint:", StringComparison.Ordinal)
+                    && !trimmed.StartsWith("→ Outcome:", StringComparison.Ordinal))
+                    continue;
+                Assert.True(
+                    line.Length <= 120,
+                    $"{relative}:{n} length {line.Length}: {line}");
+            }
+        }
+    }
+
+    [Fact]
+    public void Contract_Verifier_local_access_line_truncates_reason_to_fit_120_with_longest_hint()
+    {
+        const string prefix = "Local access: ";
+        const string separator = "; ";
+        const string hint = "gcloud auth application-default login";
+        var longReason =
+            "DefaultAzureCredential failed to retrieve a token from the included credentials after CredentialUnavailableException and further padding so the fake reason exceeds the budget";
+        Assert.True(longReason.Length > 80);
+        var reasonBudget = 120 - prefix.Length - separator.Length - hint.Length;
+        Assert.True(reasonBudget > 0);
+        var reason = longReason.Length <= reasonBudget
+            ? longReason
+            : longReason[..reasonBudget];
+        var line = prefix + reason + separator + hint;
+        Assert.True(line.Length <= 120, $"line length {line.Length}: {line}");
+        Assert.Equal(120, line.Length);
+        Assert.EndsWith(separator + hint, line, StringComparison.Ordinal);
+        Assert.DoesNotContain(longReason, line, StringComparison.Ordinal);
+        Assert.Contains(hint, line, StringComparison.Ordinal);
+        var local = File.ReadAllText(Path.Combine(VerifyHarnessDir(), "references", "local-access.md"));
+        Assert.Contains(hint, local, StringComparison.Ordinal);
+        Assert.Contains(
+            "truncate the redacted reason to fit after the prefix and hint",
+            local,
+            StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void Local_access_redaction_masks_secrets_and_cuts_at_120()
+    {
+        var local = File.ReadAllText(Path.Combine(VerifyHarnessDir(), "references", "local-access.md"));
+        Assert.Contains("Cut at 120 chars", local, StringComparison.Ordinal);
+        Assert.Contains("cut -c1-120", local, StringComparison.Ordinal);
+        Assert.Contains("[redacted]", local, StringComparison.Ordinal);
+        var fence = local.IndexOf("```sh\n", StringComparison.Ordinal);
+        Assert.True(fence >= 0);
+        var scriptStart = fence + "```sh\n".Length;
+        var scriptEnd = local.IndexOf("\n```", scriptStart, StringComparison.Ordinal);
+        Assert.True(scriptEnd > scriptStart);
+        var script = local[scriptStart..scriptEnd];
+        Assert.Contains("-e 's/[A-Za-z0-9+=_-]{40,}/[redacted]/g'", script, StringComparison.Ordinal);
+        const string fakeJwt =
+            "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.e30.faketokensigforlocalaccesstestonly";
+        var line =
+            $"Authorization Bearer {fakeJwt} and padding to exceed one hundred twenty characters in the redacted startup log line XX";
+        Assert.True(line.Length > 120);
+        var output = RunLocalAccessRedaction(script, line);
+        Assert.DoesNotContain(fakeJwt, output, StringComparison.Ordinal);
+        Assert.Contains("[redacted]", output, StringComparison.Ordinal);
+        Assert.True(output.TrimEnd().Length <= 120, $"redacted length {output.Length}: {output}");
+        const string sha = "0123456789abcdef0123456789abcdef01234567";
+        var pathLine =
+            $".git/squad/verify/pets-api/20261013-2300/scenario-name-long-enough.txt commit {sha}";
+        var pathOut = RunLocalAccessRedaction(script, pathLine);
+        Assert.Contains(
+            ".git/squad/verify/pets-api/20261013-2300/scenario-name-long-enough.txt",
+            pathOut,
+            StringComparison.Ordinal);
+        Assert.DoesNotContain(sha, pathOut, StringComparison.Ordinal);
+        Assert.Contains("[redacted]", pathOut, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void Drive_uses_inline_token_or_sigv4_never_stored()
+    {
+        var local = File.ReadAllText(Path.Combine(VerifyHarnessDir(), "references", "local-access.md"));
+        Assert.Contains("$(az account get-access-token --scope <s> --query accessToken -o tsv)", local, StringComparison.Ordinal);
+        Assert.Contains("SigV4", local, StringComparison.Ordinal);
+        Assert.Contains("no echo, no stored variable, no `-v`/`--trace`", local, StringComparison.Ordinal);
+        Assert.Contains("Tokens never in any markdown, never shown to the model", local, StringComparison.Ordinal);
+    }
+
+    [Fact]
     public void Scenarios_command_names_full_skill_path_never_find()
     {
         var command = File.ReadAllText(Path.Combine(TestRepository.SourceRoot(), "plugins", "squad", "commands", "scenarios.md"));
@@ -296,10 +576,36 @@ public sealed class VerifyHarnessContractTests
         Assert.Contains("- A comment in the diff without a stated reason a test, type or lint can't hold is a finding. Keep one for something we can't change (an external API quirk, a vendor bug) when it says why. Public API doc comments a pack standard asks for (C# `///` XML docs, rustdoc `///`, TSDoc on exported symbols) are not findings.", File.ReadAllText(Path.Combine(agents, "squad-simplifier.md")), StringComparison.Ordinal);
     }
 
+    private static string RunLocalAccessRedaction(string script, string line)
+    {
+        var start = new System.Diagnostics.ProcessStartInfo
+        {
+            FileName = "sh",
+            RedirectStandardOutput = true,
+            UseShellExecute = false,
+        };
+        start.ArgumentList.Add("-c");
+        start.ArgumentList.Add("line=$1; " + script);
+        start.ArgumentList.Add("redact");
+        start.ArgumentList.Add(line);
+        using var process = System.Diagnostics.Process.Start(start)!;
+        var output = process.StandardOutput.ReadToEnd();
+        Assert.True(process.WaitForExit(TimeSpan.FromSeconds(10)));
+        Assert.Equal(0, process.ExitCode);
+        return output;
+    }
+
     private static string VerifyHarnessDir() => Path.Combine(
         TestRepository.SourceRoot(), "plugins", "squad", "skills", "verify-harness");
 
     private static string VerifyHarnessBody() => string.Join("\n",
-        new[] { "SKILL.md", "references/smoke-report.md", "references/doctor-tags.md", "references/process.md" }
+        new[]
+        {
+            "SKILL.md",
+            "references/smoke-report.md",
+            "references/doctor-tags.md",
+            "references/process.md",
+            "references/local-access.md",
+        }
             .Select(f => File.ReadAllText(Path.Combine(VerifyHarnessDir(), f))));
 }

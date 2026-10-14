@@ -119,8 +119,9 @@ public sealed class VerificationEvidenceTests
     }
 
     /// <summary>
-    /// Item 65: a failed <c>needs:</c> Doctor check is <c>skipped</c> with reason and does not block
-    /// a verified pass when every other gate is green.
+    /// Item 65: a failed <c>needs:</c> Doctor check is <c>skipped</c> and does not block
+    /// a verified pass when every other gate is green. Legacy Evidence <c>needs:</c> with status
+    /// is still accepted for backward compatibility.
     /// </summary>
     [Fact]
     public void Skipped_needs_row_is_parsed_and_does_not_block_pass()
@@ -146,11 +147,11 @@ public sealed class VerificationEvidenceTests
     }
 
     /// <summary>
-    /// Real rows from Tester's run (logs-ec67203/b1-smoke-report.md): the harness Outcome form
-    /// <c>skipped (needs: kv, 403)</c> in the Result cell is a sanctioned skip and does not block.
+    /// Legacy Result cell with status after the tag (from older harness runs) is still accepted
+    /// for backward compatibility and does not block.
     /// </summary>
     [Fact]
-    public void Harness_outcome_form_skipped_needs_is_parsed_and_does_not_block_pass()
+    public void Legacy_skipped_needs_with_status_in_result_is_parsed_and_does_not_block_pass()
     {
         var report = VerificationEvidence.Parse("""
             | Criterion | Result | Command | Evidence |
@@ -168,6 +169,55 @@ public sealed class VerificationEvidenceTests
         Assert.Equal(VerificationEvidence.Skipped, report.Criteria[1].Result);
         Assert.StartsWith("needs: kv, 403", report.Criteria[1].Evidence, StringComparison.Ordinal);
         Assert.Equal(VerificationOutcome.Pass,
+            VerificationEvidence.Evaluate(new VerificationContext(true, ["dotnet"], report)));
+    }
+
+    [Theory]
+    [InlineData("skipped (needs: auth)", "needs: auth")]
+    [InlineData("skipped (needs: kv)", "needs: kv")]
+    public void Tag_only_skipped_needs_result_is_needs_skip_not_not_pass(string resultCell, string needsPrefix)
+    {
+        var report = VerificationEvidence.Parse($"""
+            | Criterion | Result | Command | Evidence |
+            |---|---|---|---|
+            | 1 | pass | `dotnet test App.slnx` | `2 passed` |
+            | 2 | `{resultCell}` | `curl -s http://localhost:5000/protected` | .git/squad/verify/demo/protected.txt |
+
+            **Suite:** pass
+            **Stacks:** dotnet
+            **Boundary:** not covered
+            **Coverage:** empty input and duplicate id
+            """);
+
+        Assert.Equal(VerificationEvidence.Skipped, report.Criteria[1].Result);
+        Assert.StartsWith(needsPrefix, report.Criteria[1].Evidence, StringComparison.Ordinal);
+        Assert.True(VerificationEvidence.IsNeedsSkip(report.Criteria[1].Evidence));
+        Assert.Equal(VerificationOutcome.Pass,
+            VerificationEvidence.Evaluate(new VerificationContext(true, ["dotnet"], report)));
+    }
+
+    [Fact]
+    public void Dependent_drive_row_with_tag_only_skipped_needs_and_evidence_path_is_skip_not_not_pass()
+    {
+        var report = VerificationEvidence.Parse("""
+            | Criterion | Result | Command | Evidence |
+            |---|---|---|---|
+            | 1 | pass | `dotnet test App.slnx` | `2 passed` |
+            | 2 | skipped (needs: kv) | `curl -s -o /dev/null -w "%{http_code}" "$KV_URL"` | .git/squad/verify/demo/kv.txt |
+
+            **Suite:** pass
+            **Stacks:** dotnet
+            **Boundary:** not covered
+            **Coverage:** empty input and duplicate id
+            """);
+
+        Assert.Equal(VerificationEvidence.Skipped, report.Criteria[1].Result);
+        Assert.NotEqual(VerificationEvidence.Blocked, report.Criteria[1].Result);
+        Assert.True(VerificationEvidence.IsNeedsSkip(report.Criteria[1].Evidence));
+        Assert.Contains(".git/squad/verify/demo/kv.txt", report.Criteria[1].Evidence, StringComparison.Ordinal);
+        Assert.Equal(VerificationOutcome.Pass,
+            VerificationEvidence.Evaluate(new VerificationContext(true, ["dotnet"], report)));
+        Assert.NotEqual(VerificationOutcome.NotPass,
             VerificationEvidence.Evaluate(new VerificationContext(true, ["dotnet"], report)));
     }
 
