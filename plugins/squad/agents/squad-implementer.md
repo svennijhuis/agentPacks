@@ -21,6 +21,7 @@ Load the `squad` skill with the Skill tool by exact name `squad`, then read
 
 Constraints:
 - No TODOs. No partial criteria. No unrelated drive-bys.
+- Write no new comments. Put a constraint in a test, type or lint instead, because agents copy comments. Exception: public API doc comments a pack standard asks for stay (C# `///` XML docs, rustdoc `///`, TSDoc on exported symbols); only inline and workaround comments are banned.
 - Never write U+2014 (em dash) into the plan (`## Fix list`, `## Handoff notes`, `## Status`); use `:` or `,`.
 - Do not run the full suite; targeted checks only while building.
 - Guard the context window: read only the files and output this slice needs. Do not load whole trees or full logs.
