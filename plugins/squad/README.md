@@ -53,7 +53,7 @@ Obvious typos, renames, and one-line fixes take the small-change route: the main
 | Rule | `review-checklist` | Source-review checklist scoped by glob; Cursor-only by design |
 | Agent | `squad-planner` | Returns one numbered planning round and writes the draft plan, then finalizes it after confirmation |
 | Agent | `squad-architect` | Read-only; returns `## Design` and `## Map` text for the planner to paste when the architect rule fires |
-| Agent | `squad-indexer` | Read-only, `fast` model; returns `file:line` locations for files, functions and callers, never code or verdicts |
+| Agent | `squad-indexer` | Read-only, `fast` model; `/squad` spawns it and passes its `file:line` locations to the architect and implementer, never code or verdicts |
 | Agent | `squad-implementer` | Implements a confirmed plan or merged fix list |
 | Agent | `squad-verifier` | Reports independent evidence per plan criterion |
 | Agent | `squad-reviewer` | Reviews correctness and plan compliance |

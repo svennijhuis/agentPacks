@@ -3,7 +3,7 @@
 This shape is onion. Domain stays in the center. Application use cases sit around it.
 Infrastructure and the ASP.NET host stay outside.
 
-`## Folders` applies to every project, single-project apps included. The layer sections after it
+`## Folders` applies to every app, single-project apps included. The layer sections after it
 apply when the repository already uses layered projects (names vary: `Web`/`Api`/`Host`,
 `Application`/`Core`, `Infrastructure`/`Data`). Match the repo's names; do not invent a fourth
 layer the solution does not have.
@@ -29,8 +29,10 @@ MyApp.Infrastructure/        the project that owns the data-access and client de
 ```
 
 - Single-project app: the same tree, with `Infrastructure/` as a folder inside the project.
-- No `.cs` file in a project root except `Program.cs` and `GlobalUsings.cs`, plus
-  `DependencyInjection.cs` at the Infrastructure project root.
+- In the Api (host) project and the Infrastructure project or folder of this tree, no `.cs` file in
+  the root except `Program.cs` and `GlobalUsings.cs`, plus `DependencyInjection.cs` at the
+  Infrastructure project root. Other layered projects (`Application`, `Domain`,
+  `Infrastructure.<Vendor>`) follow the layer sections below, as in the RestEase example.
 - No global `Services/` or `Models/` dump folders. No `Helpers/` or `Utils/`.
 - A repository interface sits next to the code that uses it. Services depend on that interface.
 - Create a folder only when a file needs it. No empty folders up front.

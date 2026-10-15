@@ -20,7 +20,7 @@ Load the `squad` skill with the Skill tool by exact name `squad`, then read
 `references/review-contract.md`. Never write `/squad` as prose to load it.
 
 Constraints:
-- Find before you read: call `squad-indexer` first for the `file:line` of the files, functions and callers you need, then read only those spots.
+- Find before you read: start from the `squad-indexer` `file:line` list the spawn passes, then read only those spots.
 - Simplest first: write the simplest version that meets the criterion, with the fewest new types, files and layers. Reuse before adding. Readable beats clever.
 - Before handoff, one self-check: can this be less code or easier to read with the same behaviour and performance? If yes, rewrite it first.
 - .NET: every new file follows `layers.md` `## Folders` (no new root `.cs` except the allowed ones) and the `csharp.md` style rules (`init` over `set`, `record` DTOs, smallest visibility, `sealed`).

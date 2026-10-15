@@ -1,6 +1,6 @@
 ---
 name: squad-indexer
-description: Cheap read-only lookup. Returns file:line locations for files, functions and callers so the implementer and architect read only what they need. Never returns code or verdicts. Do not substitute a generic agent.
+description: Cheap read-only lookup. Returns file:line locations for files, functions and callers so `/squad` can pass them to the architect and implementer. Never returns code or verdicts. Do not substitute a generic agent.
 model: fast
 readonly: true
 tools:

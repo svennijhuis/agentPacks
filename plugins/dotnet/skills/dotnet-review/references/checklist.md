@@ -19,7 +19,7 @@ referenced from Application or Domain (`layers.md`, `design.md`: one project per
 
 Always flag, for every new file in the diff (`layers.md` `## Folders`, `csharp.md`):
 
-- a new `.cs` file in a project root other than `Program.cs` or `GlobalUsings.cs` (or `DependencyInjection.cs` at the Infrastructure project root);
+- a new `.cs` file in the Api (host) or Infrastructure project root other than `Program.cs` or `GlobalUsings.cs` (or `DependencyInjection.cs` at the Infrastructure project root);
 - `set` where `init` works;
 - `public` where `internal` works.
 

@@ -19,7 +19,8 @@ public sealed class SimplicityAndFoldersContractTests
         var implementer = Squad("squad-implementer.md");
         Assert.Contains("write the simplest version that meets the criterion, with the fewest new types, files and layers. Reuse before adding. Readable beats clever.", implementer, StringComparison.Ordinal);
         Assert.Contains("can this be less code or easier to read with the same behaviour and performance? If yes, rewrite it first.", implementer, StringComparison.Ordinal);
-        Assert.Contains("call `squad-indexer` first", implementer, StringComparison.Ordinal);
+        Assert.Contains("start from the `squad-indexer` `file:line` list the spawn passes", implementer, StringComparison.Ordinal);
+        Assert.Contains("Do not spawn peers.", implementer, StringComparison.Ordinal);
     }
 
     [Fact]
@@ -44,7 +45,9 @@ public sealed class SimplicityAndFoldersContractTests
         foreach (var tool in new[] { "edit", "write", "bash", "shell" })
             Assert.DoesNotContain($"\n  - {tool}\n", text, StringComparison.Ordinal);
         Assert.Contains("Never return code bodies, opinions, fixes, or verdicts.", text, StringComparison.Ordinal);
-        Assert.Contains("`squad-indexer`", Squad("squad-architect.md"), StringComparison.Ordinal);
+        Assert.Contains("- Spawn no `squad-*` agents. Start from the `squad-indexer` `file:line` list the spawn passes", Squad("squad-architect.md"), StringComparison.Ordinal);
+        Assert.Contains("`/squad` spawns it before `squad-architect` and each `squad-implementer`", Squad("SKILL.md"), StringComparison.Ordinal);
+        Assert.Contains("workers never spawn it", Squad("SKILL.md"), StringComparison.Ordinal);
     }
 
     [Fact]
@@ -80,9 +83,10 @@ public sealed class SimplicityAndFoldersContractTests
         var folders = layers.IndexOf("\n## Folders\n", StringComparison.Ordinal);
         var firstLayer = layers.IndexOf("\n## Dependency rule\n", StringComparison.Ordinal);
         Assert.True(folders > 0 && folders < firstLayer, "## Folders must come before the first layer section");
-        Assert.Contains("`## Folders` applies to every project, single-project apps included.", layers, StringComparison.Ordinal);
+        Assert.Contains("`## Folders` applies to every app, single-project apps included.", layers, StringComparison.Ordinal);
         Assert.Contains("Single-project app: the same tree, with `Infrastructure/` as a folder inside the project.", layers, StringComparison.Ordinal);
-        Assert.Contains("No `.cs` file in a project root except `Program.cs` and `GlobalUsings.cs`", layers, StringComparison.Ordinal);
+        Assert.Contains("In the Api (host) project and the Infrastructure project or folder of this tree, no `.cs` file in\n  the root except `Program.cs` and `GlobalUsings.cs`", layers.ReplaceLineEndings("\n"), StringComparison.Ordinal);
+        Assert.Contains("follow the layer sections below, as in the RestEase example.", layers, StringComparison.Ordinal);
         Assert.Contains("No global `Services/` or `Models/` dump folders. No `Helpers/` or `Utils/`.", layers, StringComparison.Ordinal);
         Assert.Contains("Create a folder only when a file needs it.", layers, StringComparison.Ordinal);
     }
@@ -98,7 +102,7 @@ public sealed class SimplicityAndFoldersContractTests
     [Theory]
     [InlineData("- `set` where `init` works;")]
     [InlineData("- `public` where `internal` works.")]
-    [InlineData("a new `.cs` file in a project root other than `Program.cs` or `GlobalUsings.cs`")]
+    [InlineData("a new `.cs` file in the Api (host) or Infrastructure project root other than `Program.cs` or `GlobalUsings.cs`")]
     public void Reviewer_checklist_flags_style_and_root_files(string rule) =>
         Assert.Contains(rule, Source("plugins", "dotnet", "skills", "dotnet-review", "references", "checklist.md"), StringComparison.Ordinal);
 
