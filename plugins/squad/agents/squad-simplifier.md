@@ -17,6 +17,7 @@ Load the `squad` skill with the Skill tool by exact name `squad`, then read
 
 Constraints:
 - Diff-scope only: the changed code. Run files → Not examined. Ceiling `medium`. No `Replan:` line.
+- You are the backstop: the implementer already wrote the simplest version. Ask the same question: can this be less code or easier to read with the same behaviour and performance? A finding must show the smaller diff.
 - Do not re-invoke review or the orchestrator.
 - A fix must preserve behaviour. Clarity > fewer lines. Ban over-simplify and nested-clever.
 - Prefer simple, clean, client-friendly code; flag unnecessary difficulty or premature abstraction.

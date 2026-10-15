@@ -53,6 +53,7 @@ Obvious typos, renames, and one-line fixes take the small-change route: the main
 | Rule | `review-checklist` | Source-review checklist scoped by glob; Cursor-only by design |
 | Agent | `squad-planner` | Returns one numbered planning round and writes the draft plan, then finalizes it after confirmation |
 | Agent | `squad-architect` | Read-only; returns `## Design` and `## Map` text for the planner to paste when the architect rule fires |
+| Agent | `squad-indexer` | Read-only, `fast` model; `/squad` spawns it and passes its `file:line` locations to the architect and implementer, never code or verdicts |
 | Agent | `squad-implementer` | Implements a confirmed plan or merged fix list |
 | Agent | `squad-verifier` | Reports independent evidence per plan criterion |
 | Agent | `squad-reviewer` | Reviews correctness and plan compliance |
@@ -64,7 +65,7 @@ Obvious typos, renames, and one-line fixes take the small-change route: the main
 | Command | `squad-review` | Reviews a PR, uncommitted work, or a diff versus main, without a plan, verdict, or fix round |
 | Command | `scenarios` | From changed code (OpenAPI optional), writes only `docs/smoke/<slug>.md`. Copilot picker: `/squad:scenarios` |
 
-All nine agents remain portable across supported generated clients.
+All ten agents remain portable across supported generated clients.
 
 ## Planning
 
@@ -114,7 +115,7 @@ Authored: `plugin.json`, `mcp.json` (empty scaffold), `skills/`, `rules/`, `agen
 Generated only in validation output or on `marketplace` / `marketplace-beta`: client manifests and `com.*` provider trees.
 
 Portable model tiers are authored on each agent (`model:` tier); the repo maps them to client ids at build time.
-Default `inherit`. Every squad agent is `standard` except `squad-architect` (`frontier`); none uses `fast`. Copilot ids use dotted versions (`claude-sonnet-5.5`, `claude-opus-5.5`).
+Default `inherit`. Every squad agent is `standard` except `squad-architect` (`frontier`) and `squad-indexer` (`fast`, the only `fast` agent). Copilot ids use dotted versions (`claude-sonnet-5.5`, `claude-opus-5.5`).
 
 Test changes on a feature branch without merging to `main`:
 [ADD-SKILL.md: Test a skill locally](https://github.com/svennijhuis/agentPacks/blob/main/docs/ADD-SKILL.md#test-a-skill-locally).

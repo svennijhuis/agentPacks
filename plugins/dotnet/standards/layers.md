@@ -3,9 +3,40 @@
 This shape is onion. Domain stays in the center. Application use cases sit around it.
 Infrastructure and the ASP.NET host stay outside.
 
-Apply when the repository already uses layered projects (names vary: `Web`/`Api`/`Host`,
+`## Folders` applies to every app, single-project apps included. The layer sections after it
+apply when the repository already uses layered projects (names vary: `Web`/`Api`/`Host`,
 `Application`/`Core`, `Infrastructure`/`Data`). Match the repo's names; do not invent a fourth
-layer the solution does not have. Skip this document for a single-project app or a tiny script.
+layer the solution does not have.
+
+## Folders
+
+Every new file in a user project goes in a folder by concern. The implementer places each new file
+by this tree; the reviewer checks each new file against it. The folder names are one editable list.
+
+```text
+MyApp.Api/
+  Program.cs                 only root .cs, plus GlobalUsings.cs
+  Features/<Name>/           endpoint, service or handler, DTO records for one feature
+  Extensions/                DI registration and pipeline setup
+  Middleware/                only when needed
+  Filters/                   only when needed
+  Options/                   options classes, only when needed
+MyApp.Infrastructure/        the project that owns the data-access and client dependencies
+  DependencyInjection.cs     allowed at this project root
+  Data/                      DbContext, Configurations/, Migrations/
+  Repositories/              only when the DbContext is not enough
+  Clients/                   external adapters
+```
+
+- Single-project app: the same tree, with `Infrastructure/` as a folder inside the project.
+- In the Api (host) project and the Infrastructure project or folder of this tree, no `.cs` file in
+  the root except `Program.cs` and `GlobalUsings.cs`, plus `DependencyInjection.cs` at the
+  Infrastructure project root. Other layered projects (`Application`, `Domain`,
+  `Infrastructure.<Vendor>`) follow the layer sections below, as in the RestEase example.
+- No global `Services/` or `Models/` dump folders. No `Helpers/` or `Utils/`.
+- A repository interface sits next to the code that uses it. Services depend on that interface.
+- Create a folder only when a file needs it. No empty folders up front.
+- The `.csproj` and `.sln` stay where they are. Layered multi-project solutions keep their projects.
 
 ## Dependency rule
 
