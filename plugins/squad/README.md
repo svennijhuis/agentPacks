@@ -65,7 +65,7 @@ Obvious typos, renames, and one-line fixes take the small-change route: the main
 | Command | `squad-review` | Reviews a PR, uncommitted work, or a diff versus main, without a plan, verdict, or fix round |
 | Command | `scenarios` | From changed code (OpenAPI optional), writes only `docs/smoke/<slug>.md`. Copilot picker: `/squad:scenarios` |
 
-All nine agents remain portable across supported generated clients.
+All ten agents remain portable across supported generated clients.
 
 ## Planning
 

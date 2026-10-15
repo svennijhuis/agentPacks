@@ -48,6 +48,12 @@ public sealed class SimplicityAndFoldersContractTests
         Assert.Contains("- Spawn no `squad-*` agents. Start from the `squad-indexer` `file:line` list the spawn passes", Squad("squad-architect.md"), StringComparison.Ordinal);
         Assert.Contains("`/squad` spawns it before `squad-architect` and each `squad-implementer`", Squad("SKILL.md"), StringComparison.Ordinal);
         Assert.Contains("workers never spawn it", Squad("SKILL.md"), StringComparison.Ordinal);
+        var command = Squad("squad.md");
+        Assert.Contains("the main agent spawns `squad-indexer` for `file:line` locations, then the main agent spawns `squad-architect`", command, StringComparison.Ordinal);
+        Assert.Contains("Before each `squad-implementer` (whole-plan, slice, Plan-gap redo, and `fix-list`), spawn `squad-indexer`", command, StringComparison.Ordinal);
+        Assert.Contains("spawn `squad-indexer` first; spawn passes the slice name, the plan path, and the `file:line` list", Squad("SKILL.md"), StringComparison.Ordinal);
+        Assert.Contains("All ten agents remain portable", Source("plugins", "squad", "README.md"), StringComparison.Ordinal);
+        Assert.DoesNotContain("All nine agents remain portable", Source("plugins", "squad", "README.md"), StringComparison.Ordinal);
     }
 
     [Fact]
@@ -112,16 +118,25 @@ public sealed class SimplicityAndFoldersContractTests
         var diff = File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "Fixtures", "dotnet-folders", "loose-root.diff"));
         var added = Regex.Matches(diff, @"^\+\+\+ b/(.+)$", RegexOptions.Multiline).Select(match => match.Groups[1].Value.Trim());
         Assert.Equal(["src/MyApp.Api/OrderService.cs"], added.Where(IsLooseRootFile).ToArray());
+        Assert.False(IsLooseRootFile("src/MyApp.Application/IWeatherService.cs"));
+        Assert.False(IsLooseRootFile("src/MyApp.Application/Forecast.cs"));
+        Assert.False(IsLooseRootFile("src/MyApp.Infrastructure.Weather/IWeatherApi.cs"));
+        Assert.False(IsLooseRootFile("src/MyApp.Infrastructure/DependencyInjection.cs"));
+        Assert.True(IsLooseRootFile("src/MyApp.Infrastructure/LooseRepo.cs"));
     }
 
-    // Mirrors the checklist rule: the file sits directly under a project folder and is not an allowed root file.
+    // Mirrors the checklist: only Api (host) and Infrastructure project roots, not Application / vendor-infra.
     private static bool IsLooseRootFile(string path)
     {
         var parts = path.Split('/');
         var project = parts[^2];
         var file = parts[^1];
-        if (!project.StartsWith("MyApp", StringComparison.Ordinal)) return false;
+        var isApi = project.EndsWith(".Api", StringComparison.Ordinal)
+            || project.EndsWith(".Web", StringComparison.Ordinal)
+            || project.EndsWith(".Host", StringComparison.Ordinal);
+        var isInfra = project.EndsWith(".Infrastructure", StringComparison.Ordinal);
+        if (!isApi && !isInfra) return false;
         if (file is "Program.cs" or "GlobalUsings.cs") return false;
-        return !(file == "DependencyInjection.cs" && project.EndsWith(".Infrastructure", StringComparison.Ordinal));
+        return !(file == "DependencyInjection.cs" && isInfra);
     }
 }

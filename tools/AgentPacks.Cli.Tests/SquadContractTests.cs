@@ -238,8 +238,8 @@ public class SquadContractTests
             Fixture("squad-planner.md"), StringComparison.Ordinal);
         var skill = File.ReadAllText(Path.Combine(root, "plugins", "squad", "skills", "squad", "SKILL.md"));
         var squad = File.ReadAllText(Path.Combine(root, "plugins", "squad", "commands", "squad.md"));
-        Assert.Contains("spawn passes the slice name and the plan path;", skill, StringComparison.Ordinal);
-        Assert.Contains("passes the slice name (or `whole-plan`) and the plan path;", squad, StringComparison.Ordinal);
+        Assert.Contains("spawn passes the slice name, the plan path, and the `file:line` list;", skill, StringComparison.Ordinal);
+        Assert.Contains("passes the slice name (or `whole-plan`) and the plan path and the indexer `file:line` list;", squad, StringComparison.Ordinal);
     }
 
     [Fact]
