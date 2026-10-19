@@ -87,6 +87,9 @@ Keep these copies. Subagents and separately installed packs start without the pa
 | Language-pack `testing.md` "don't grep README" bullet | Each pack installs alone |
 | Security pack agents' skill-load + constraints | Empty subagent context; not Squad's per-change gate |
 | Security SKILL numbered steps vs `workflow.md` | Main agent follows the skill; workflow.md is the expanded reference |
+| `/squad` and `/scenarios` verify-harness ask + output file names | Main agent follows the command; the skill still carries the full flow |
+| verify-harness SKILL section and rule summaries | Loaded by exact Skill name into empty writer/verifier context |
+| Local-access 120-char rule in review-contract and `squad-verifier` | Empty verifier context; contract is the wire format |
 
 Collapse these. One reader or the compiler already has the twin:
 
@@ -107,6 +110,12 @@ Collapse these. One reader or the compiler already has the twin:
 | `/scenarios` command restating the skill's numbered flow | Thin command: load skill, run its flow (same shape as `/pack-check` / `/security-audit`) |
 | `/pack-author` command restating make/review/change | Thin command: load skill, run the named mode |
 | Root README `/scenarios` essay restating the skill | Short blurb + link to `scenarios-md` / smoke-matrix |
+| Pack-check lint POSIX/PowerShell twin runner | `PackCheckScriptTwin` |
+| Markdown table-cell backtick unwrap | `MarkdownCells.Unwrap` |
+| Hook document version stamp | `HookGenerator.HookDocument` |
+| Security pack agent names | `TestRepository.SecurityAgentNames` |
+| `validate-all --out` process spawn | `TestRepository.RunValidateAllOut` |
+| Raw frontmatter fence helpers | `TestRepository.FrontmatterYaml` / `RawFrontmatterBlock` |
 
 ## What gets generated
 

@@ -298,7 +298,8 @@ internal sealed class ClientTreeGenerator(RepositoryContext context, ModelCatalo
             manifest,
             "version", "description", "author", "homepage", "repository", "license", "keywords");
 
-        if (plugin.HasSkillsDirectory)
+        var hasSkills = plugin.HasSkillsDirectory;
+        if (hasSkills)
         {
             codex["skills"] = "./skills/";
         }
@@ -326,7 +327,7 @@ internal sealed class ClientTreeGenerator(RepositoryContext context, ModelCatalo
 
         var capabilities = new JsonArray();
 
-        if (plugin.HasSkillsDirectory)
+        if (hasSkills)
         {
             capabilities.Add("Skills");
         }
