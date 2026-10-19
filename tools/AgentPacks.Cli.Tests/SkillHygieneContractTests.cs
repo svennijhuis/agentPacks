@@ -112,7 +112,7 @@ public sealed class SkillHygieneContractTests
             var text = File.ReadAllText(path);
             var frontmatter = TestRepository.ParseFrontmatter(text, RelativeToPlugins(path));
             var body = frontmatter.Body;
-            var lines = body.Split('\n').Count(line => !string.IsNullOrWhiteSpace(line));
+            var lines = TestRepository.NonEmptyBodyLines(text);
             var relative = RelativeToPlugins(path);
 
             if (skillName.Equals("squad", StringComparison.Ordinal))

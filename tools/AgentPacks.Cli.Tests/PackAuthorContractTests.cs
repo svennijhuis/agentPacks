@@ -39,7 +39,8 @@ public sealed class PackAuthorContractTests
     public void Skill_is_a_user_invoked_router_for_three_modes()
     {
         var skillPath = Path.Combine(PackRoot(), "skills", "pack-author-md", "SKILL.md");
-        var skill = TestRepository.ParseFrontmatter(File.ReadAllText(skillPath));
+        var skillText = File.ReadAllText(skillPath);
+        var skill = TestRepository.ParseFrontmatter(skillText);
         var description = skill.Scalar("description") ?? string.Empty;
 
         Assert.Equal("true", skill.Scalar("disable-model-invocation"));
@@ -49,7 +50,7 @@ public sealed class PackAuthorContractTests
         Assert.EndsWith(".", description, StringComparison.Ordinal);
         Assert.True(description.Length <= AgentPluginSpec.SkillDescriptionMaxLength, $"description is {description.Length} characters.");
 
-        var lines = skill.Body.Split('\n').Count(line => !string.IsNullOrWhiteSpace(line));
+        var lines = TestRepository.NonEmptyBodyLines(skillText);
         Assert.True(lines <= 150, $"router is {lines} non-blank lines.");
         Assert.Contains("`make`", skill.Body, StringComparison.Ordinal);
         Assert.Contains("`review`", skill.Body, StringComparison.Ordinal);
@@ -135,7 +136,7 @@ public sealed class PackAuthorContractTests
         var agent = TestRepository.ParseFrontmatter(agentText);
         Assert.Equal("standard", agent.Scalar("model"));
         Assert.Equal("true", agent.Scalar("readonly"));
-        var lines = agent.Body.Split('\n').Count(line => !string.IsNullOrWhiteSpace(line));
+        var lines = TestRepository.NonEmptyBodyLines(agentText);
         Assert.True(lines <= 32, $"reviewer body is {lines} lines.");
         Assert.DoesNotContain("\n  - write\n", agentText, StringComparison.Ordinal);
         Assert.DoesNotContain("\n  - edit\n", agentText, StringComparison.Ordinal);

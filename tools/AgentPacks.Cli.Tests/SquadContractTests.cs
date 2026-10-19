@@ -1102,7 +1102,7 @@ public class SquadContractTests
         var contract = Squad("skills", "squad", "references", "planning-contract.md");
         Assert.Contains("`skills/pack-check/scripts/check-plan.sh` and `skills/pack-check/scripts/check-plan.ps1`", contract, StringComparison.Ordinal);
         foreach (var f in new[] { "check-plan.sh", "check-plan.ps1" })
-            Assert.True(File.Exists(Path.Combine(TestRepository.SourceRoot(), "plugins", "pack-check", "skills", "pack-check", "scripts", f)), f);
+            Assert.True(File.Exists(Path.Combine(TestRepository.PackCheckSkillScriptsRoot(), f)), f);
     }
 
     [Fact]

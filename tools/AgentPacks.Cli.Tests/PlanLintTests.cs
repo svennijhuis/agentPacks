@@ -1,5 +1,3 @@
-using System.Diagnostics;
-
 namespace AgentPacks.Cli.Tests;
 
 /// <summary>
@@ -83,7 +81,7 @@ public sealed class PlanLintTests : IDisposable
     [Fact]
     public void Posix_and_powershell_twins_exist_and_check_the_same_sections()
     {
-        var scripts = Path.Combine(TestRepository.SourceRoot(), "plugins", "pack-check", "skills", "pack-check", "scripts");
+        var scripts = PackCheckScriptTwin.ScriptsRoot();
         var sh = File.ReadAllText(Path.Combine(scripts, "check-plan.sh"));
         var ps1 = File.ReadAllText(Path.Combine(scripts, "check-plan.ps1"));
         foreach (var section in new[]
@@ -162,7 +160,7 @@ public sealed class PlanLintTests : IDisposable
     [Fact]
     public void One_slice_needs_a_single_slice_reason_in_both_twins()
     {
-        Assert.True(PwshAvailable.Value, "pwsh must be on PATH so both twins run.");
+        Assert.True(PackCheckScriptTwin.PwshAvailable, "pwsh must be on PATH so both twins run.");
         var plan = Confirmed + "\nDesign: skipped (small)\n\n## Slices\n1. Client. Files: src/Api/A.cs, src/Infra/B.cs. Done when A_works is green.\n";
         var (exit, output) = Lint("2026-10-13-add-x.md", plan);
         Assert.Equal(0, exit);
@@ -195,7 +193,7 @@ public sealed class PlanLintTests : IDisposable
     [Fact]
     public void Retro_with_an_em_dash_fails_in_both_twins()
     {
-        Assert.True(PwshAvailable.Value, "pwsh must be on PATH so both twins run.");
+        Assert.True(PackCheckScriptTwin.PwshAvailable, "pwsh must be on PATH so both twins run.");
         var (exit, output) = Lint("2026-10-13-add-x.md", CleanRetro + "\nOne lesson \u2014 quoted from a vendor.\n", "check-retro");
         Assert.Equal(1, exit);
         Assert.Contains("line 9 contains an em dash", output, StringComparison.Ordinal);
@@ -204,7 +202,7 @@ public sealed class PlanLintTests : IDisposable
     [Fact]
     public void Clean_retro_passes_in_both_twins()
     {
-        Assert.True(PwshAvailable.Value, "pwsh must be on PATH so both twins run.");
+        Assert.True(PackCheckScriptTwin.PwshAvailable, "pwsh must be on PATH so both twins run.");
         Assert.Equal((0, string.Empty), Lint("2026-10-13-add-x.md", CleanRetro, "check-retro"));
         Assert.Equal(1, Lint("retro.md", CleanRetro, "check-retro").Exit);
         Assert.Equal((0, string.Empty), Lint("2026-10-13-add-x-interrupted.md", CleanRetro, "check-retro"));
@@ -218,45 +216,6 @@ public sealed class PlanLintTests : IDisposable
     {
         var path = Path.Combine(_directory, name);
         File.WriteAllText(path, text);
-        var posix = Run("sh", [Script(script + ".sh"), path], name);
-        if (PwshAvailable.Value)
-        {
-            var powerShell = Run("pwsh", ["-NoProfile", "-NonInteractive", "-File", Script(script + ".ps1"), path], name);
-            Assert.Equal(posix.Exit, powerShell.Exit);
-            Assert.Equal(posix.Output.Replace("\r", "", StringComparison.Ordinal), powerShell.Output.Replace("\r", "", StringComparison.Ordinal));
-        }
-        return posix;
-    }
-
-    private static readonly Lazy<bool> PwshAvailable = new(() =>
-    {
-        try
-        {
-            using var probe = Process.Start(new ProcessStartInfo("pwsh", "-NoProfile -Command exit") { RedirectStandardOutput = true, UseShellExecute = false })!;
-            probe.WaitForExit(20000);
-            return probe.ExitCode == 0;
-        }
-        catch (System.ComponentModel.Win32Exception)
-        {
-            return false;
-        }
-    });
-
-    private static string Script(string file) => Path.Combine(TestRepository.SourceRoot(),
-        "plugins", "pack-check", "skills", "pack-check", "scripts", file);
-
-    private static (int Exit, string Output) Run(string shell, string[] arguments, string name)
-    {
-        var start = new ProcessStartInfo(shell) { RedirectStandardOutput = true, UseShellExecute = false };
-        foreach (var argument in arguments)
-            start.ArgumentList.Add(argument);
-        using var process = Process.Start(start)!;
-        var read = process.StandardOutput.ReadToEndAsync();
-        if (!process.WaitForExit(TimeSpan.FromSeconds(20)))
-        {
-            process.Kill(entireProcessTree: true);
-            Assert.Fail($"{shell} check-plan did not finish within 20 s on {name}.");
-        }
-        return (process.ExitCode, read.Result);
+        return PackCheckScriptTwin.Run(script, [path], name);
     }
 }
