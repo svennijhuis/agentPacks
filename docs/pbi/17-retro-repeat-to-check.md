@@ -9,7 +9,7 @@ door: two-way
 
 ## Goal
 
-Retro repeat to check: when the same lesson text appears 2+ times across `docs/retros/*` `## Lessons` tables, check-retro flags the current retro unless it has a `Proposed check:` (gist points 8, 18, 28). Repeat detection lives only in check-retro; the retro agent does not read older retros or decide the count.
+Retro repeat to check: check-retro finds the lesson that appears 2+ times in the `docs/retros/*` `## Lessons` tables and flags it unless the current retro has a `Proposed check:` for it (gist points 8, 18, 28). The retro itself does not detect repeats.
 
 ## Context
 
@@ -17,14 +17,14 @@ Gist point 8: a repeated mistake becomes a lint. Point 18: findings buffer, act 
 
 ## Steps
 
-1. In `retro.md`, add a `## Repeats` rule for this run only: document the `Proposed check:` shape (rule id, enforcer location, one bad example that must fail). Do not tell the retro to detect repeats or to rewrite a row when a lesson would be appended again. Do not change Inputs to scrape older retros.
-2. Extend `check-retro.sh` and `.ps1`: scan all `docs/retros/*.md` `## Lessons` table cells; a lesson text seen 2+ times across retros without a `Proposed check:` in the current retro is a finding.
+1. In `retro.md`, add a `## Repeats` rule: document the `Proposed check:` shape (rule id, enforcer location, one bad example that must fail). The retro writes `Proposed check:` only when this run's input (check-retro output or a human note) names the repeat. The retro does not detect repeats itself. Do not change Inputs to scrape older retros.
+2. Extend `check-retro.sh` and `.ps1`: scan all `docs/retros/*.md` `## Lessons` table cells; a lesson text seen 2+ times in those tables without a `Proposed check:` in the current retro is a finding.
 3. Add a fixture pair to `PackCheckContractTests`: repeat without proposed check (must fail), repeat with proposed check (must pass).
 
 ## DoD
 
-- `retro.md` defines the `Proposed check:` shape only (no retro-side repeat scan).
-- Same as `proof:`: check-retro flags lesson text seen 2+ times across `docs/retros/*` with no `Proposed check:` in the current retro.
+- `retro.md` defines the `Proposed check:` shape and writes it only when this run's input (check-retro output or a human note) names the repeat; no retro-side repeat scan.
+- Same as `proof:`: check-retro flags lesson text seen 2+ times in the `docs/retros/*` `## Lessons` tables with no `Proposed check:` in the current retro.
 - Contract test has one bad fixture that fails and one good fixture that passes.
 - Docs updated; no em or en dashes.
 
@@ -37,10 +37,13 @@ Gist point 8: a repeated mistake becomes a lint. Point 18: findings buffer, act 
 
 ```mermaid
 flowchart LR
-  R[Retro run] --> P[This-run Lessons or Proposed check shape]
-  P --> C[check-retro scans docs/retros Lessons]
-  C -->|text seen 2+ times, no Proposed check| F[finding]
-  C -->|ok| H[Human applies check if proposed]
+  R[Retro run] --> P[This-run Lessons]
+  P --> C{"check-retro: lesson seen 2+ times in docs/retros Lessons?"}
+  C -->|no| OK[ok]
+  C -->|yes, no Proposed check| F[finding]
+  F --> N[next run input names the repeat]
+  N --> W[Retro writes Proposed check]
+  W --> H[Human applies check]
 ```
 
 ## Named asks
