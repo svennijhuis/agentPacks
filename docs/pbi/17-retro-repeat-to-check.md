@@ -9,7 +9,7 @@ door: two-way
 
 ## Goal
 
-Retro repeat to check: when the same lesson text appears in 2+ prior `docs/retros/*` `## Lessons` tables, the retro proposes a check and stops appending that prose lesson again (gist points 8, 18, 28). Repeat detection lives in check-retro, not in the retro agent reading older retros.
+Retro repeat to check: when the same lesson text appears 2+ times across `docs/retros/*` `## Lessons` tables, check-retro flags the current retro unless it has a `Proposed check:` (gist points 8, 18, 28). Repeat detection lives only in check-retro; the retro agent does not read older retros or decide the count.
 
 ## Context
 
@@ -17,14 +17,14 @@ Gist point 8: a repeated mistake becomes a lint. Point 18: findings buffer, act 
 
 ## Steps
 
-1. In `retro.md`, add a `## Repeats` rule for this run only: document the `Proposed check:` shape (rule id, enforcer location, one bad example that must fail). When the same lesson would be appended again, the retro writes `Proposed check:` instead of another prose row. Do not change Inputs to scrape older retros.
+1. In `retro.md`, add a `## Repeats` rule for this run only: document the `Proposed check:` shape (rule id, enforcer location, one bad example that must fail). Do not tell the retro to detect repeats or to rewrite a row when a lesson would be appended again. Do not change Inputs to scrape older retros.
 2. Extend `check-retro.sh` and `.ps1`: scan all `docs/retros/*.md` `## Lessons` table cells; a lesson text seen 2+ times across retros without a `Proposed check:` in the current retro is a finding.
 3. Add a fixture pair to `PackCheckContractTests`: repeat without proposed check (must fail), repeat with proposed check (must pass).
 
 ## DoD
 
-- `retro.md` defines a repeat and the `Proposed check:` shape.
-- check-retro flags a prose-only repeat.
+- `retro.md` defines the `Proposed check:` shape only (no retro-side repeat scan).
+- Same as `proof:`: check-retro flags lesson text seen 2+ times across `docs/retros/*` with no `Proposed check:` in the current retro.
 - Contract test has one bad fixture that fails and one good fixture that passes.
 - Docs updated; no em or en dashes.
 
@@ -37,11 +37,10 @@ Gist point 8: a repeated mistake becomes a lint. Point 18: findings buffer, act 
 
 ```mermaid
 flowchart LR
-  R[Retro run] --> L{Learning seen 2+ times?}
-  L -->|no| P[Append learning]
-  L -->|yes| C[Proposed check: rule id + bad example]
-  C --> H[Human applies check PBI]
-  L -. yes, prose only .-> F[check-retro finding]
+  R[Retro run] --> P[This-run Lessons or Proposed check shape]
+  P --> C[check-retro scans docs/retros Lessons]
+  C -->|text seen 2+ times, no Proposed check| F[finding]
+  C -->|ok| H[Human applies check if proposed]
 ```
 
 ## Named asks
