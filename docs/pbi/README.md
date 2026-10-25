@@ -11,7 +11,7 @@ Docs-only backlog for the cloud + local agentPacks track. One authored source on
 | 03 | [One repo-wide version](03-one-repo-version.md) | A contract and release | todo | - | G4 | - | Q4 | two-way |
 | 04 | [First release](04-first-release.md) | A contract and release | todo | 02, 03 | G3 | - | Q2, Q10 | one-way |
 | 05 | [Plugin pin rule](05-plugin-pin-rule.md) | A contract and release | todo | 04 | G1 | point 8 | Q10 | two-way |
-| 06 | [Contract tests for every allowlisted file](06-contract-tests-allowlist.md) | A contract and release | todo | 01 | G13 | point 8 (#79 fold-in), point 10 | - | two-way |
+| 06 | [Contract tests for every allowlisted file](06-contract-tests-allowlist.md) | A contract and release | todo | 01, #79 | G13 | point 8 (#79 fold-in), point 10 | - | two-way |
 | 07 | [Skills reach cloud via plugin, not `skills:` import](07-skills-via-plugin-doc.md) | A contract and release | todo | 01 | G5 | point 8 | - | two-way |
 | 08 | [Split squad-review and slim review-contract](08-split-squad-review.md) | B slim cloud cost | todo | 06 | G6 | candidate 1 (points 4-6), point 32 | Q7, T1 | two-way |
 | 09 | [Generated per-stack bundles](09-per-stack-bundles.md) | B slim cloud cost | todo | 08 | G7 | points 29, 32 | Q8 | two-way |
@@ -21,9 +21,9 @@ Docs-only backlog for the cloud + local agentPacks track. One authored source on
 | 13 | [README install clarity](13-readme-install-clarity.md) | C cloud agents and local polish | todo | 12 | G14 | - | - | two-way |
 | 14 | [License](14-license.md) | C cloud agents and local polish | todo | - | G15 | - | Q9 | one-way |
 | 15 | [Door field on every plan and PBI](15-door-field.md) | D gist | todo | - | - | point 23 | - | two-way |
-| 16 | [Repro-first contract test](16-repro-first-test.md) | D gist | todo | - | - | point 17 | - | two-way |
+| 16 | [Repro-first contract test](16-repro-first-test.md) | D gist | todo | 15 | - | point 17 | - | two-way |
 | 17 | [Retro repeat becomes a check](17-retro-repeat-to-check.md) | D gist | todo | - | - | points 8, 18, 28 | - | two-way |
-| 18 | [Skill impact record (value vs cost)](18-skill-impact-record.md) | D gist | todo | - | - | point 31 | - | two-way |
+| 18 | [Skill impact record (value vs cost)](18-skill-impact-record.md) | D gist | todo | 17 | - | point 31 | - | two-way |
 | 19 | [Determinism sweep](19-determinism-sweep.md) | D gist | todo | - | - | points 4, 5, 6, E3 | - | two-way |
 | 20 | [Verify-harness drift check](20-harness-drift-check.md) | D gist | todo | 19 | - | point 3 | - | two-way |
 
@@ -59,7 +59,7 @@ One-way = token spend, writes outside the repo, tags or releases, secrets, rules
 | G11 | Medium | consumer import cache / `inlined-imports` | 10 |
 | G12 | Low | tier names, fast = standard | none |
 | G13 | Low | contract tests standards-only | 06 |
-| G14 | Low | install.sh is dev bootstrap, README 8 cmds/client | 13 |
+| G14 | Low | install.sh is dev bootstrap, README 8 labeled add+update blocks (2x4 clients) | 13 |
 | G15 | Low | UNLICENSED on public repo | 14 |
 
 G12 stays in #77.

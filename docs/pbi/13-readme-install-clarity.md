@@ -4,21 +4,21 @@ Status: todo
 Phase: C cloud agents and local polish
 Depends on: 12
 Gap(s): G14
-proof: `grep -c 'marketplace add' README.md`
+proof: `test $(grep -cE '^\*\*(Copilot CLI|Codex|Claude Code|Cursor): (marketplace add|marketplace update)\*\*$' README.md) -eq 8`
 door: two-way
 
 ## Goal
 
-Clarify that `.cursor/install.sh` bootstraps agentPacks repo .NET tooling for Cursor Cloud dev, not end-user pack install. Document eight install commands per client in README.
+Clarify that `.cursor/install.sh` bootstraps agentPacks repo .NET tooling for Cursor Cloud dev, not end-user pack install. Document eight labeled marketplace blocks in README: one **marketplace add** and one **marketplace update** per client (Copilot CLI, Codex, Claude Code, Cursor).
 
 ## Context
 
-`.cursor/install.sh:2-4,27` and `.cursor/environment.json` serve Cursor Cloud environment for this repo's builds. `README.md:24-104` lists marketplace adds but blurs bootstrap vs consumer install. Eight commands = two per client (Copilot CLI, Codex, Claude, Cursor) or one install + one update each; align with actual README structure when editing.
+`.cursor/install.sh:2-4,27` and `.cursor/environment.json` serve Cursor Cloud environment for this repo's builds. `README.md:24-104` lists marketplace adds and updates but blurs bootstrap vs consumer install and lacks eight explicit labeled add/update headings (two per client). Raw `marketplace add` grep counts are already high (beta/local variants included); the target is exactly eight labeled blocks, not a loose count.
 
 ## Steps
 
 1. Add README subsection "Install vs dev bootstrap" pointing `.cursor/install.sh` at repo contributors only.
-2. List eight explicit commands (copy-paste blocks) for Copilot CLI, Codex, Claude Code, Cursor local marketplace add using `#marketplace` or `#vX.Y.Z`.
+2. Add eight labeled copy-paste blocks: `**Copilot CLI: marketplace add**`, `**Copilot CLI: marketplace update**`, and the same pair for Codex, Claude Code, and Cursor (add uses `#marketplace` or `#vX.Y.Z` as today).
 3. Mention gh-aw consumers use pins in workflow yaml, not install.sh.
 4. Mention `agentpacks vendor` for cloud agent repos after PBI 11.
 5. Keep commands token-free for public repo.
@@ -26,7 +26,7 @@ Clarify that `.cursor/install.sh` bootstraps agentPacks repo .NET tooling for Cu
 ## DoD
 
 - README calls out `.cursor/install.sh` purpose in one short paragraph.
-- README contains eight numbered or labeled client commands (grep `marketplace add` or client equivalents count >= 8 in install section).
+- Same as `proof:`: README has exactly eight lines `**<client>: marketplace add**` or `**<client>: marketplace update**` (two each for Copilot CLI, Codex, Claude Code, Cursor).
 - No instruction tells pack users to run `.cursor/install.sh` for squad install.
 - Docs updated; no em or en dashes.
 

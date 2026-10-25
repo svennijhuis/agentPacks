@@ -4,7 +4,7 @@ Status: todo
 Phase: A contract and release
 Depends on: -
 Gap(s): G10
-proof: `grep -nE '@v[0-9]+\.[0-9]+\.[0-9]+|@[0-9a-f]{40}' docs/GITHUB-AGENTIC-WORKFLOWS.md`
+proof: `bash -c '! grep -qE "stay in the application repositories|do not belong here" docs/GITHUB-AGENTIC-WORKFLOWS.md && test $(grep -cE "\\*\\*(Pins|Inputs|Allowlist|Caps|Semver)" docs/GITHUB-AGENTIC-WORKFLOWS.md) -eq 5'`
 door: two-way
 
 ## Goal
@@ -30,7 +30,7 @@ Today `docs/GITHUB-AGENTIC-WORKFLOWS.md:3` implies workflows stay in app repos a
 - `docs/GITHUB-AGENTIC-WORKFLOWS.md` lists all five C12 v1.1 rules and allowlist v1.
 - Doc contains at least one import example with `@vX.Y.Z` or tagged SHA, not `@main` or branch name.
 - Semver bump MAJOR/MINOR/PATCH table present in the doc.
-- `grep -E 'stay in (app|consumer) repos only' docs/GITHUB-AGENTIC-WORKFLOWS.md` returns 0 hits if that contradicted central catalog (or equivalent old contradiction removed).
+- Same as `proof:`: old central-catalog contradiction gone (`stay in the application repositories` / `do not belong here`) and all five C12 v1.1 rule headings present in `docs/GITHUB-AGENTIC-WORKFLOWS.md`.
 - Docs updated; no em or en dashes.
 
 ## Evidence

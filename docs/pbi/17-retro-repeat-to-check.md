@@ -4,23 +4,22 @@ Status: todo
 Phase: D gist
 Depends on: -
 Gap(s): gist points 8, 18, 28
-proof: `dotnet test tools/AgentPacks.Cli.Tests --filter PackCheckContractTests && bash plugins/pack-check/skills/pack-check/scripts/check-retro.sh <repeat fixture>` (check-retro must report the prose-only repeat)
+proof: `dotnet test tools/AgentPacks.Cli.Tests --filter PackCheckContractTests && bash plugins/pack-check/skills/pack-check/scripts/check-retro.sh <cross-retro repeat fixture>` (check-retro must report the cross-retro Lessons repeat without `Proposed check:`)
 door: two-way
 
 ## Goal
 
-Retro repeat to check: same learning 2+ times in learnings.md, retro proposes the check and stops appending prose (gist points 8, 18, 28).
+Retro repeat to check: when the same lesson text appears in 2+ prior `docs/retros/*` `## Lessons` tables, the retro proposes a check and stops appending that prose lesson again (gist points 8, 18, 28). Repeat detection lives in check-retro, not in the retro agent reading older retros.
 
 ## Context
 
-Gist point 8: a repeated mistake becomes a lint. Point 18: findings buffer, act in batches. Point 28: mine transcripts for corrections. Today `squad-retro` writes one retro per run under `docs/retros/` (see `plugins/squad/skills/squad/references/retro.md`); the same lesson can show up run after run as prose. Retro writes nothing outside `docs/retros/` and a human applies it, so the retro proposes the check; it does not write it.
+Gist point 8: a repeated mistake becomes a lint. Point 18: findings buffer, act in batches. Point 28: mine transcripts for corrections. Today `squad-retro` writes one retro per run under `docs/retros/` (see `plugins/squad/skills/squad/references/retro.md`); the same lesson can show up run after run as prose. `retro.md` Inputs forbid scraping older retros (`Do not scrape older retros or transcripts.`); `learnings.md` was removed in #73. Lessons live in each retro's `## Lessons` table only. Retro stays scoped to this run's inputs; check-retro scans `docs/retros/*` `## Lessons` rows for 2+ repeats. Retro writes nothing outside `docs/retros/` and a human applies the check.
 
 ## Steps
 
-1. In `retro.md`, add a `## Repeats` rule: the retro reads the learnings list (learnings.md, or the learnings sections of earlier retros in `docs/retros/`). A learning seen 2+ times is a repeat.
-2. For a repeat, the retro writes a `Proposed check:` entry (rule id, where it lives: contract test, pack-check script, or standard lint, plus one bad example that must fail) and does not append the prose lesson again.
-3. Extend `check-retro.sh` and `.ps1`: a retro that repeats a learning already listed twice without a `Proposed check:` is a finding.
-4. Add a fixture pair to `PackCheckContractTests`: repeat without proposed check (must fail), repeat with proposed check (must pass).
+1. In `retro.md`, add a `## Repeats` rule for this run only: document the `Proposed check:` shape (rule id, enforcer location, one bad example that must fail). When the same lesson would be appended again, the retro writes `Proposed check:` instead of another prose row. Do not change Inputs to scrape older retros.
+2. Extend `check-retro.sh` and `.ps1`: scan all `docs/retros/*.md` `## Lessons` table cells; a lesson text seen 2+ times across retros without a `Proposed check:` in the current retro is a finding.
+3. Add a fixture pair to `PackCheckContractTests`: repeat without proposed check (must fail), repeat with proposed check (must pass).
 
 ## DoD
 
