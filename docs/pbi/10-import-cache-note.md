@@ -4,6 +4,8 @@ Status: todo
 Phase: B slim cloud cost
 Depends on: 09
 Gap(s): G11
+proof: `grep -nE 'inlined-imports: true|\.github/aw/imports/' docs/GITHUB-AGENTIC-WORKFLOWS.md`
+door: two-way (the doc note; named trial T2 spends credits and is a one-way ask that waits for Sven's yes)
 
 ## Goal
 

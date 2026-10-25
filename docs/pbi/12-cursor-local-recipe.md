@@ -4,6 +4,8 @@ Status: todo
 Phase: C cloud agents and local polish
 Depends on: 11
 Gap(s): G9
+proof: `grep -n '~/.cursor/plugins/local/agentPacks' README.md`
+door: two-way
 
 ## Goal
 

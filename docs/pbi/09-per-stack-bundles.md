@@ -4,6 +4,8 @@ Status: todo
 Phase: B slim cloud cost
 Depends on: 08
 Gap(s): G7
+proof: `dotnet test tools/AgentPacks.Cli.Tests && wc -c gh-aw/review-*.md`
+door: two-way
 
 ## Goal
 

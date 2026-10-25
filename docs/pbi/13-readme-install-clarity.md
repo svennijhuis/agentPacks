@@ -4,6 +4,8 @@ Status: todo
 Phase: C cloud agents and local polish
 Depends on: 12
 Gap(s): G14
+proof: `grep -c 'marketplace add' README.md`
+door: two-way
 
 ## Goal
 

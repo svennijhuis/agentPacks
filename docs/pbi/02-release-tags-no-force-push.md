@@ -4,6 +4,8 @@ Status: todo
 Phase: A contract and release
 Depends on: 01
 Gap(s): G2
+proof: `grep -nE -- '--force|\+refs|push -f' .github/workflows/*.yml` returns 0 hits
+door: one-way (changes release automation and creates tags; Sven's yes in Q2, Q3, Q10; rollback: revert the workflow commit, a pushed tag is never moved, cut the next patch tag instead)
 
 ## Goal
 

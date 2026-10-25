@@ -4,6 +4,8 @@ Status: todo
 Phase: A contract and release
 Depends on: 04
 Gap(s): G1
+proof: `dotnet test tools/AgentPacks.Cli.Tests --filter PluginPinContractTests`
+door: two-way
 
 ## Goal
 

@@ -4,6 +4,8 @@ Status: todo
 Phase: B slim cloud cost
 Depends on: 06
 Gap(s): G6
+proof: `grep -nE '^## (Review|Local output)$' plugins/squad/commands/squad-review.md && dotnet test tools/AgentPacks.Cli.Tests`
+door: two-way (the split; named trial T1 spends credits and is a one-way ask that waits for Sven's yes)
 
 ## Goal
 

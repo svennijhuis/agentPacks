@@ -4,6 +4,8 @@ Status: todo
 Phase: C cloud agents and local polish
 Depends on: 04
 Gap(s): G8
+proof: `dotnet test tools/AgentPacks.Cli.Tests --filter Vendor && dotnet run --project tools/AgentPacks.Cli -- vendor --help`
+door: two-way (the command; named trials T3, T4, T5 spend credits and are one-way asks that wait for Sven's yes)
 
 ## Goal
 

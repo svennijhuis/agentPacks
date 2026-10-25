@@ -4,6 +4,8 @@ Status: todo
 Phase: A contract and release
 Depends on: 01
 Gap(s): G13
+proof: `dotnet test tools/AgentPacks.Cli.Tests --filter StandardsGhAwImportContractTests`
+door: two-way
 
 ## Goal
 

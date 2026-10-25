@@ -4,6 +4,8 @@ Status: todo
 Phase: C cloud agents and local polish
 Depends on: -
 Gap(s): G15
+proof: `grep -n '"license"' plugins/*/plugin.json`
+door: one-way (a license grant on a public repo cannot be withdrawn for published commits; Sven's yes in Q9; rollback: a new license applies forward only)
 
 ## Goal
 

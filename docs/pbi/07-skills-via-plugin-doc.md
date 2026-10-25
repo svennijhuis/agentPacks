@@ -4,6 +4,8 @@ Status: todo
 Phase: A contract and release
 Depends on: 01
 Gap(s): G5
+proof: `grep -n 'skills:' docs/GITHUB-AGENTIC-WORKFLOWS.md`
+door: two-way (the doc change; no trial in this PBI)
 
 ## Goal
 

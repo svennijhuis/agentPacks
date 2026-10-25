@@ -4,6 +4,8 @@ Status: todo
 Phase: A contract and release
 Depends on: -
 Gap(s): G10
+proof: `grep -nE '@v[0-9]+\.[0-9]+\.[0-9]+|@[0-9a-f]{40}' docs/GITHUB-AGENTIC-WORKFLOWS.md`
+door: two-way
 
 ## Goal
 

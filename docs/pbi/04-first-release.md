@@ -4,6 +4,8 @@ Status: todo
 Phase: A contract and release
 Depends on: 02, 03
 Gap(s): G3
+proof: `git ls-remote --tags origin 'v*' && git cat-file -p vX.Y.Z`
+door: one-way (creates the first release tag; Sven's yes in Q2, Q10; rollback: tag stays, cut the next patch tag, consumers keep their previous pin)
 
 ## Goal
 
