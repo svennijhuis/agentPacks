@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using AgentPacks.Cli.Commands;
 using AgentPacks.Cli.Generation;
 using AgentPacks.Cli.Io;
@@ -74,6 +75,63 @@ internal sealed class TestRepository : IDisposable
         "squad-orchestrator",
         "squad-retro"
     ];
+
+    public static readonly string[] SecurityAgentNames =
+        ["security-hunter", "security-recon", "security-validator"];
+
+    public static string PackCheckSkillScriptsRoot(string? root = null) =>
+        Path.Combine(root ?? SourceRoot(), "plugins", "pack-check", "skills", "pack-check", "scripts");
+
+    /// <summary>Runs <c>validate-all --out</c> against the authored tree and fails on a non-zero exit.</summary>
+    public static void RunValidateAllOut(string outputDir)
+    {
+        var info = new ProcessStartInfo("dotnet", [typeof(GeneratedFile).Assembly.Location, "validate-all", "--out", outputDir])
+        {
+            WorkingDirectory = SourceRoot(),
+            RedirectStandardOutput = true,
+            RedirectStandardError = true,
+        };
+        using var process = Process.Start(info)!;
+        var stdout = process.StandardOutput.ReadToEnd();
+        var stderr = process.StandardError.ReadToEnd();
+        process.WaitForExit();
+        Assert.True(process.ExitCode == 0, stdout + stderr);
+    }
+
+    /// <summary>YAML between the opening and closing <c>---</c> fences, without the fences.</summary>
+    public static string FrontmatterYaml(string text)
+    {
+        text = text.Replace("\r", "", StringComparison.Ordinal);
+        if (!text.StartsWith("---\n", StringComparison.Ordinal))
+        {
+            return string.Empty;
+        }
+
+        var end = text.IndexOf("\n---", 4, StringComparison.Ordinal);
+        return end < 0 ? string.Empty : text[4..end];
+    }
+
+    /// <summary>Opening fence through the last character before the closing fence.</summary>
+    public static string RawFrontmatterBlock(string text)
+    {
+        const string fence = "---";
+        var start = text.IndexOf(fence, StringComparison.Ordinal);
+        Assert.True(start >= 0, "missing opening frontmatter fence");
+        var end = text.IndexOf(fence, start + fence.Length, StringComparison.Ordinal);
+        Assert.True(end > start, "missing closing frontmatter fence");
+        return text[start..end];
+    }
+
+    /// <summary>Markdown after the closing frontmatter fence.</summary>
+    public static string BodyAfterFrontmatter(string text)
+    {
+        const string fence = "---";
+        var start = text.IndexOf(fence, StringComparison.Ordinal);
+        Assert.True(start >= 0, "missing opening frontmatter fence");
+        var end = text.IndexOf(fence, start + fence.Length, StringComparison.Ordinal);
+        Assert.True(end > start, "missing closing frontmatter fence");
+        return text[(end + fence.Length)..];
+    }
 
     /// <summary>Parses authored markdown frontmatter, failing the test with the parser error.</summary>
     public static Frontmatter ParseFrontmatter(string text, string? context = null)

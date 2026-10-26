@@ -139,8 +139,8 @@ public class LanguagePackContractTests
         })
         {
             var skill = File.ReadAllText(Path.Combine(root, relative));
-            Assert.Contains("audience: loop", FrontmatterBlock(skill), StringComparison.Ordinal);
-            Assert.DoesNotContain("disable-model-invocation: true", FrontmatterBlock(skill), StringComparison.Ordinal);
+            Assert.Contains("audience: loop", TestRepository.RawFrontmatterBlock(skill), StringComparison.Ordinal);
+            Assert.DoesNotContain("disable-model-invocation: true", TestRepository.RawFrontmatterBlock(skill), StringComparison.Ordinal);
         }
     }
 
@@ -176,8 +176,8 @@ public class LanguagePackContractTests
         foreach (var skill in new[] { "typescript-build", "typescript-test-patterns", "typescript-review" })
         {
             var text = File.ReadAllText(Path.Combine(plugin, "skills", skill, "SKILL.md"));
-            Assert.Contains("audience: loop", FrontmatterBlock(text), StringComparison.Ordinal);
-            Assert.DoesNotContain("disable-model-invocation: true", FrontmatterBlock(text), StringComparison.Ordinal);
+            Assert.Contains("audience: loop", TestRepository.RawFrontmatterBlock(text), StringComparison.Ordinal);
+            Assert.DoesNotContain("disable-model-invocation: true", TestRepository.RawFrontmatterBlock(text), StringComparison.Ordinal);
             Assert.NotNull(standards["consumers"]![skill]);
         }
 
@@ -263,7 +263,7 @@ public class LanguagePackContractTests
         var root = TestRepository.SourceRoot();
         foreach (var path in TestRepository.AuthoredSkillFiles(root))
         {
-            var body = BodyAfterFrontmatter(File.ReadAllText(path));
+            var body = TestRepository.BodyAfterFrontmatter(File.ReadAllText(path));
             Assert.DoesNotContain("../../standards", body, StringComparison.Ordinal);
         }
 
@@ -424,13 +424,13 @@ public class LanguagePackContractTests
         foreach (var path in TestRepository.AuthoredSkillFiles(root))
         {
             var text = File.ReadAllText(path);
-            if (!FrontmatterBlock(text).Contains("audience: loop", StringComparison.Ordinal))
+            if (!TestRepository.RawFrontmatterBlock(text).Contains("audience: loop", StringComparison.Ordinal))
             {
                 continue;
             }
 
             loopCount++;
-            Assert.Contains("audience: loop", FrontmatterBlock(text), StringComparison.Ordinal);
+            Assert.Contains("audience: loop", TestRepository.RawFrontmatterBlock(text), StringComparison.Ordinal);
         }
 
         Assert.True(loopCount >= 10, $"expected authored loop skills, found {loopCount}.");
@@ -443,7 +443,7 @@ public class LanguagePackContractTests
         })
         {
             var text = File.ReadAllText(Path.Combine(root, relative));
-            Assert.DoesNotContain("audience: loop", FrontmatterBlock(text), StringComparison.Ordinal);
+            Assert.DoesNotContain("audience: loop", TestRepository.RawFrontmatterBlock(text), StringComparison.Ordinal);
         }
     }
 
@@ -487,27 +487,5 @@ public class LanguagePackContractTests
             .Where(File.Exists)
             .Select(path => TestRepository.ParseFrontmatter(File.ReadAllText(path)).Scalar("name")!)
             .ToHashSet(StringComparer.Ordinal);
-    }
-
-    private static (int Start, int End) FrontmatterFence(string text)
-    {
-        const string fence = "---";
-        var start = text.IndexOf(fence, StringComparison.Ordinal);
-        Assert.True(start >= 0, "missing opening frontmatter fence");
-        var end = text.IndexOf(fence, start + fence.Length, StringComparison.Ordinal);
-        Assert.True(end > start, "missing closing frontmatter fence");
-        return (start, end);
-    }
-
-    private static string FrontmatterBlock(string text)
-    {
-        var (start, end) = FrontmatterFence(text);
-        return text[start..end];
-    }
-
-    private static string BodyAfterFrontmatter(string text)
-    {
-        var (_, end) = FrontmatterFence(text);
-        return text[(end + "---".Length)..];
     }
 }

@@ -8,8 +8,7 @@ namespace AgentPacks.Cli.Tests;
 /// </summary>
 public sealed class SecurityPackContractTests
 {
-    private static readonly string[] AgentNames =
-        ["security-hunter", "security-recon", "security-validator"];
+    private static readonly string[] AgentNames = TestRepository.SecurityAgentNames;
 
     private static string PackRoot() => TestRepository.PluginRoot("security");
 

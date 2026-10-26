@@ -43,7 +43,7 @@ public static partial class TestPlanSeam
             var six = SixColumnRow.Match(line);
             if (six.Success)
             {
-                rows.Add(Row(six, Unwrap(six.Groups[6].Value)));
+                rows.Add(Row(six, MarkdownCells.Unwrap(six.Groups[6].Value)));
                 continue;
             }
 
@@ -74,7 +74,7 @@ public static partial class TestPlanSeam
     /// </summary>
     public static bool IsConfirmed(string seam)
     {
-        var value = Unwrap(seam);
+        var value = MarkdownCells.Unwrap(seam);
         if (value.Length == 0)
         {
             return false;
@@ -152,20 +152,8 @@ public static partial class TestPlanSeam
             || seam.Contains(hit, StringComparison.OrdinalIgnoreCase));
 
     private static IEnumerable<string> SplitSeams(string seam) =>
-        Unwrap(seam)
+        MarkdownCells.Unwrap(seam)
             .Split([',', ';', '|'], StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
-            .Select(Unwrap)
+            .Select(MarkdownCells.Unwrap)
             .Where(part => part.Length > 0);
-
-    private static string Unwrap(string value)
-    {
-        var trimmed = value.Trim();
-
-        if (trimmed.Length >= 2 && trimmed[0] == '`' && trimmed[^1] == '`')
-        {
-            return trimmed[1..^1].Trim();
-        }
-
-        return trimmed;
-    }
 }
