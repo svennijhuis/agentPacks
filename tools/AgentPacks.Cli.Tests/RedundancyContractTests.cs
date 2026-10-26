@@ -9,7 +9,8 @@ public sealed class RedundancyContractTests
 {
     /// <summary>
     /// One <c>SourceRoot</c> implementation, shared JSON copy, agent/command markdown emit,
-    /// marketplace catalog shell, hooks declaration, and catalog entry identity checks.
+    /// marketplace catalog shell, hooks declaration, catalog entry identity checks,
+    /// pack-check lint twin runner, and markdown cell unwrap.
     /// </summary>
     [Fact]
     public void Compiler_and_same_file_copies_are_collapsed()
@@ -23,6 +24,15 @@ public sealed class RedundancyContractTests
         Assert.Empty(ClonedHelpers(tests, "private static int " + "Occurrences("));
         Assert.Empty(ClonedHelpers(tests, "private static IEnumerable<string> " + "AuthoredSkillFiles"));
         Assert.Empty(ClonedHelpers(tests, "private static string " + "FrontmatterName"));
+        Assert.Empty(ClonedHelpers(tests, "private static readonly Lazy<bool> " + "PwshAvailable"));
+        Assert.Empty(ClonedHelpers(tests, "private static string " + "Script(string file)"));
+        Assert.Empty(ClonedHelpers(tests, "private static string " + "FrontmatterText"));
+        Assert.Empty(ClonedHelpers(tests, "private static string " + "FrontmatterBlock"));
+        Assert.Empty(ClonedHelpers(tests, "private static string " + "BodyAfterFrontmatter"));
+        Assert.Empty(ClonedHelpers(tests, "private static void " + "Generate(string root"));
+        Assert.Empty(ClonedHelpers(
+            Path.Combine(root, "tools", "AgentPacks.Cli"),
+            "private static string " + "Unwrap(string value)"));
 
         var jsonFile = File.ReadAllText(Path.Combine(root, "tools", "AgentPacks.Cli", "Io", "JsonFile.cs"));
         Assert.Contains("public static void CopyProperties", jsonFile, StringComparison.Ordinal);
@@ -57,8 +67,25 @@ public sealed class RedundancyContractTests
         var testRepository = File.ReadAllText(Path.Combine(tests, "TestRepository.cs"));
         Assert.Contains("public static readonly string[] ShippedPluginNames", testRepository, StringComparison.Ordinal);
         Assert.Contains("public static readonly string[] SquadAgentNames", testRepository, StringComparison.Ordinal);
+        Assert.Contains("public static readonly string[] SecurityAgentNames", testRepository, StringComparison.Ordinal);
         Assert.Contains("public static string PluginRoot", testRepository, StringComparison.Ordinal);
+        Assert.Contains("public static string PackCheckSkillScriptsRoot", testRepository, StringComparison.Ordinal);
+        Assert.Contains("public static void RunValidateAllOut", testRepository, StringComparison.Ordinal);
+        Assert.Contains("public static string FrontmatterYaml", testRepository, StringComparison.Ordinal);
+        Assert.Contains("public static string RawFrontmatterBlock", testRepository, StringComparison.Ordinal);
         Assert.Equal(1, TestRepository.CountOccurrences(testRepository, "[\"dotnet\", \"git\", \"pack-author\""));
+
+        var twin = File.ReadAllText(Path.Combine(tests, "PackCheckScriptTwin.cs"));
+        Assert.Contains("internal static class PackCheckScriptTwin", twin, StringComparison.Ordinal);
+        Assert.Contains("public static (int Exit, string Output) Run", twin, StringComparison.Ordinal);
+
+        var cells = File.ReadAllText(Path.Combine(root, "tools", "AgentPacks.Cli", "Verification", "MarkdownCells.cs"));
+        Assert.Contains("public static string Unwrap", cells, StringComparison.Ordinal);
+
+        var hookGenerator = File.ReadAllText(Path.Combine(
+            root, "tools", "AgentPacks.Cli", "Generation", "HookGenerator.cs"));
+        Assert.Contains("private static JsonObject HookDocument", hookGenerator, StringComparison.Ordinal);
+        Assert.Equal(1, TestRepository.CountOccurrences(hookGenerator, "HookDocumentVersion is { } version"));
 
         var model = File.ReadAllText(Path.Combine(root, "tools", "AgentPacks.Cli", "Loading", "Model.cs"));
         Assert.Contains("public string CanonicalName", model, StringComparison.Ordinal);
@@ -125,6 +152,13 @@ public sealed class RedundancyContractTests
         Assert.Contains("/squad:scenarios", readme, StringComparison.Ordinal);
         Assert.DoesNotContain("TOKEN_VALID", readme, StringComparison.Ordinal);
         Assert.DoesNotContain("OpenAPI/Swagger fills", readme, StringComparison.Ordinal);
+
+        var squadReadme = File.ReadAllText(Path.Combine(root, "plugins", "squad", "README.md"));
+        Assert.Contains("Small change: Locked v1 step 3 above.", squadReadme, StringComparison.Ordinal);
+        Assert.DoesNotContain(
+            "Obvious typos, renames, and one-line fixes take the small-change route",
+            squadReadme,
+            StringComparison.Ordinal);
     }
 
     private static string[] ClonedHelpers(string tests, string token) =>
