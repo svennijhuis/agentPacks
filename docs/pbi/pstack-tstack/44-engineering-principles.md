@@ -74,6 +74,20 @@ Plus one line each:
 - Module boundary: one standards file, cited by name from agents and rules.
 - Rules: SQD04.
 
+## Update 2026-10-26 (poteto talk and podcast)
+
+Two more sections from the talk (audit [audit M2](https://github.com/svennijhuis/agentPacks/blob/f537b585ee09b291afcd78c64cf5c62e8c93f1d6/docs/pbi/pstack-tstack/sources/fleet-podcast-audit.md#L85)). Both are short and cited by id from [AP62](62-patterns-catalog.md) (PA01, PB18):
+
+```markdown
+## Easy path is the right path
+- Agents take shortcuts. Shape the code so the shortest change that compiles is also the correct one.
+
+## The codebase is memory
+- Agents copy the nearest example. Leave only code you would be happy to see copied; fix or fence the rest.
+```
+
+Sources: [talk 19:04](https://github.com/svennijhuis/agentPacks/blob/f537b585ee09b291afcd78c64cf5c62e8c93f1d6/docs/pbi/pstack-tstack/sources/poteto-2500prs-transcript.md#L57) ("agents love taking shortcuts ... the easy path is the right path"), [talk 15:56](https://github.com/svennijhuis/agentPacks/blob/f537b585ee09b291afcd78c64cf5c62e8c93f1d6/docs/pbi/pstack-tstack/sources/poteto-2500prs-transcript.md#L49) (code base is the best form of memory), [talk 25:50](https://github.com/svennijhuis/agentPacks/blob/f537b585ee09b291afcd78c64cf5c62e8c93f1d6/docs/pbi/pstack-tstack/sources/poteto-2500prs-transcript.md#L73) ("happy if an agent were to copy it").
+
 ## Sources
 
 - pstack `principle-build-the-lever`, `principle-foundational-thinking`, `principle-migrate-callers-then-delete-legacy-apis`, `principle-outcome-oriented-execution`, `principle-never-block-on-the-human`, `principle-guard-the-context-window`, `principle-type-system-discipline` (each `SKILL.md`), [`poteto-mode/SKILL.md:89,117-119`](https://github.com/cursor/plugins/blob/9e88dad267e8991d26a6debc0db0d943d437104b/pstack/skills/poteto-mode/SKILL.md#L89), [`docs/guide/08-principles.md`](https://github.com/cursor/plugins/blob/9e88dad267e8991d26a6debc0db0d943d437104b/pstack/docs/guide/08-principles.md).

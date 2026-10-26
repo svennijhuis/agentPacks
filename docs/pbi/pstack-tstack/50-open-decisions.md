@@ -1,10 +1,10 @@
-# PBI-50 (AP50): Open decisions for Sven (L1, L2, L3)
+# PBI-50 (AP50): Open decisions for Sven (L1 to L5)
 - Status: besluit Sven open
 - Area: squad
 - Phase: G review loop (gate before AP46 to AP48)
 - Lane: Sven (decision), then Product Owner updates the PBIs
 - Depends on: none. Blocks [AP46](46-review-loop-budget.md), [AP47](47-review-ledger.md), [AP48](48-review-pr-line.md) (L1, L2) and the Source lines of AP37 to AP49 (L3)
-- proof: Sven's answer per question (L1 A or B or C, L2 A or B or C, L3 A or B) is written into this file under `## Decision`, and the PBIs it names are updated in the same PR
+- proof: Sven's answer per question (L1 A or B or C, L2 A or B or C, L3 A or B, L4 A or B or C, L5 A or B) is written into this file under `## Decision`, and the PBIs it names are updated in the same PR
 - door: two-way (docs); L1 option B is one-way for the room charter until changed back
 - triage: decide (Sven asked 2026-10-26 for one PBI holding the three open questions)
 - feedback: Product Owner checks that every PBI this file names matches the chosen option (grep in Definition of Done)
@@ -84,6 +84,44 @@ A. Same meaning, no rewrite, and the linter can check both spellings. The alias 
 ### Advice
 
 A. D ids are external sources by design, and these are external repos.
+
+## L4. File size limit for DIFF01 and DIFF02 (AP57)
+
+### Context
+
+- [AP57](57-paved-path-size-guard.md) warns on a new file over N lines and on a file that grows past N. poteto: early Grok Bot had "eight god files ... at least 10,000 lines long" ([podcast, after 27:09](https://www.youtube.com/watch?v=MN9dGgmLyso)).
+- The number is one constant in `check-diff.sh`. It is a warning, not a block.
+
+### Options
+
+| Option | What | Consequences |
+|---|---|---|
+| A (advice) | 400 lines | Catches real god files, few false alarms in test files. |
+| B | 300 lines | More warnings; pushes small files early. |
+| C | 600 lines | Fewer warnings; god files grow longer before a warning. |
+
+### Advice
+
+A. A warning at 400 is cheap to ignore once and loud when it repeats in the weed log (AP59).
+
+## L5. Which repos may reach trust level T3 (AP56)
+
+### Context
+
+- [AP56](56-trust-level.md) T3 = agents merge after full gates, only on `door: two-way` PRs. Today the room rules allow bot merges only for Chatmarkt and agentic-workflows after full gates and PO GO.
+- T3 is a decision, never computed from files.
+
+### Options
+
+| Option | What | Consequences |
+|---|---|---|
+| A (advice) | T3 list = today's two repos, written in the room charter; agentPacks stays T2 max | No change to merge rights; the file only makes today's rule visible. |
+| B | No T3 anywhere until AP52 to AP58 are built | Stricter than today; Chatmarkt and agentic-workflows lose bot merges. |
+
+### Advice
+
+A. It writes down what already holds and keeps agentPacks merges with Sven.
+
 
 ## Example decision block (Sven fills it in)
 

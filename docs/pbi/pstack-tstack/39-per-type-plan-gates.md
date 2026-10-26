@@ -78,6 +78,25 @@ Exit 1 when any line prints.
 - Module boundary: check-plan reads 4 line prefixes after `Task type:`. The planner writes them; the verifier reads them (AP40).
 - Rules: PLAN13 to PLAN17.
 
+## Update 2026-10-26 (poteto talk and podcast)
+
+Sharpened for hill climbing (audit [audit G4](https://github.com/svennijhuis/agentPacks/blob/f537b585ee09b291afcd78c64cf5c62e8c93f1d6/docs/pbi/pstack-tstack/sources/fleet-podcast-audit.md#L109)). A perf plan may say `Loop: hillclimb`. Then it also needs `Target: <metric> <op> <number>`, `Max iterations: <n>` with n at most 5, and `Log: <path to decision.tsv>`. One change, one measurement, keep or revert; never claim a win from reading code.
+
+Rule PLAN18 (error): `perf plan with Loop: hillclimb needs Target:, Max iterations: (<= 5) and Log: (fix: add the three lines)`.
+
+```markdown
+Task type: perf
+Baseline: cli `./scripts/verify bench validate` mean seconds
+Loop: hillclimb
+Target: mean <= 2.5 s
+Max iterations: 5
+Log: docs/plans/2026-10-26-validate-speed.decision.tsv
+```
+
+DoD addition: `bash plugins/pack-check/skills/pack-check/scripts/check-plan.sh tools/AgentPacks.Cli.Tests/Fixtures/plan/bad-hillclimb-no-target.md` prints one PLAN18 line and exits 1.
+
+Sources: [talk 03:56](https://github.com/svennijhuis/agentPacks/blob/f537b585ee09b291afcd78c64cf5c62e8c93f1d6/docs/pbi/pstack-tstack/sources/poteto-2500prs-transcript.md#L19) (agent takes traces and hill climbs performance), [podcast about 18:01](https://www.youtube.com/watch?v=MN9dGgmLyso), pstack [`playbooks/hillclimb.md:3-16`](https://github.com/cursor/plugins/blob/9e88dad267e8991d26a6debc0db0d943d437104b/pstack/skills/poteto-mode/playbooks/hillclimb.md#L3-L16). CHECKLIST row 95 (hillclimb.md) changes from overslaan to aanpassen (PLAN18 only, no hillclimb playbook file).
+
 ## Sources
 
 - pstack [`playbooks/bug-fix.md:7`](https://github.com/cursor/plugins/blob/9e88dad267e8991d26a6debc0db0d943d437104b/pstack/skills/poteto-mode/playbooks/bug-fix.md#L7) (reproduce on the matching surface), [`refactoring.md:7`](https://github.com/cursor/plugins/blob/9e88dad267e8991d26a6debc0db0d943d437104b/pstack/skills/poteto-mode/playbooks/refactoring.md#L7) (pin first; type check and lint are not a pin), [`perf-issue.md:5`](https://github.com/cursor/plugins/blob/9e88dad267e8991d26a6debc0db0d943d437104b/pstack/skills/poteto-mode/playbooks/perf-issue.md#L5) (baseline first), [`feature.md:12`](https://github.com/cursor/plugins/blob/9e88dad267e8991d26a6debc0db0d943d437104b/pstack/skills/poteto-mode/playbooks/feature.md#L12) (named data shape), [`principle-model-the-domain/SKILL.md`](https://github.com/cursor/plugins/blob/9e88dad267e8991d26a6debc0db0d943d437104b/pstack/skills/principle-model-the-domain/SKILL.md).

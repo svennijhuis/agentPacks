@@ -1,4 +1,6 @@
-# Unified ruleset (AP37 to AP49)
+# Unified ruleset (AP37 to AP63)
+
+AP63 moves this table to `shared/standards/rules.md` (ids unchanged). Until then this file is the home.
 
 One home per rule, one output format, stable ids. Index: [README.md](README.md).
 
@@ -15,6 +17,9 @@ One home per rule, one output format, stable ids. Index: [README.md](README.md).
 | REV | `.../scripts/check-review.sh` + `.ps1` (new in AP47) | `/squad-review`; `ReviewLoopTests` (new) |
 | VCLI | [`tools/AgentPacks.Cli/Validation/VerifyCliValidator.cs`](../../../tools/AgentPacks.Cli/Validation/VerifyCliValidator.cs) (AP33) | `agentpacks validate`; `VerifyCliContractTests` |
 | SQD | [`tools/AgentPacks.Cli.Tests/SquadContractTests.cs`](https://github.com/svennijhuis/agentPacks/blob/34e1dec3535baa1d77cb441ea8c98498dc9b3684/tools/AgentPacks.Cli.Tests/SquadContractTests.cs) (rules about our own pack files) | `dotnet test` |
+| DIFF | `.../scripts/check-diff.sh` + `.ps1` (new in AP57) | `/squad` verifier on the working diff; `DiffLintTests` (new) |
+| BND | [`tools/AgentPacks.Cli.Tests/LanguagePackContractTests.cs`](https://github.com/svennijhuis/agentPacks/blob/34e1dec3535baa1d77cb441ea8c98498dc9b3684/tools/AgentPacks.Cli.Tests/LanguagePackContractTests.cs) (AP55) | `dotnet test` |
+| PAT, RUL | `tools/AgentPacks.Cli.Tests/StandardsCatalogTests.cs` (new in AP62) | `dotnet test` |
 | TPL, ARC, A, DONE, LINK | `scripts/check-pbi-template.sh`, `scripts/check-pbi-docs.sh` (AP36, ported from agentic-workflows, names kept so both repos match) | CI step `PBI checks` |
 
 [`docs/GUARDS.md`](../../../docs/GUARDS.md) (AP34) lists these ids. It does not make new ones.
@@ -78,6 +83,26 @@ Rule severity (error, warn) is not finding severity (high, medium, low, tiny). R
 | SQD05 | error | SquadContractTests | handoff.md lacks one of Why, What changed, Scope, Blast radius, Verification | add the heading | AP45 |
 | VCLI01 to VCLI06 | error | VerifyCliValidator | see AP33 | see AP33 | AP33 (unchanged) |
 | TPL01, TPL02, ARC08, A1, DONE, LINK | error | PBI checks | see AP36 | see AP36 | AP36 (unchanged) |
+| PLAN18 | error | check-plan | perf plan with Loop: hillclimb needs Target:, Max iterations: (<= 5) and Log: | add the three lines | AP39 (update) |
+| PLAN19 | warn | check-plan | slice creates a file under a concern with no Example in docs/paved-paths.md | add Example to the row | AP60 |
+| VER09 | error | check-verify | trace Drive entry needs Artifact: and Metric: | add both | AP41 (update) |
+| VER10 | warn, later error | check-verify | missing ## Features or a feature row without Reach, Drive, Proof or Source | add the table or fill the row | AP52 |
+| VER11 | warn | check-verify | Drive entry has more than 3 lines of inline shell | move it into the verify CLI | AP52 |
+| VER12 | error | check-verify | Features Source path does not exist | update the row | AP53 |
+| VER13 | error | check-verify | budget row needs Metric, Limit, Command and Runs >= 3 | fill the row | AP54 |
+| VER14 | error | check-verify | trust level claims evidence that is missing | lower the level or add the evidence | AP56 |
+| REV12 | error | check-review | finding has no Guard: | add Guard: <layer> | AP51 |
+| REV13 | warn | check-review | Guard: rule or skill without why not lint: | add the reason or pick a stronger layer | AP51 |
+| RETRO04 | error | check-retro | weeds row needs Date, PR, file:line, Smell, Guard, Seen | fill the row | AP59 |
+| DIFF01 | warn | check-diff | new file over 400 lines | split by feature folder | AP57 |
+| DIFF02 | warn | check-diff | file grew past 400 lines | split by feature folder | AP57 |
+| DIFF03 | error | check-diff | workaround comment added | move the constraint into a test, type or lint, or add keep: <reason> <link> | AP58 |
+| DIFF04 | error | check-diff | guard baseline grew | fix the new case instead | AP58 |
+| DIFF05 | warn | check-diff | new file in a folder no paved-paths row covers | move the file or add a row | AP57 |
+| BND01 | error | LanguagePackContractTests | pack declares a dependency rule but ships no boundary test template | add templates/boundary-test | AP55 |
+| SQD06 | error | SquadContractTests | squad-repro missing, user-invocable, or verdicts not named | fix the skill file | AP61 |
+| PAT01 to PAT03 | error | StandardsCatalogTests | pattern row shape, unique id, enforcement named | fix the row | AP62 |
+| RUL01 to RUL03 | error | StandardsCatalogTests | rule row shape, unique id, enforcement named | fix the row | AP63 |
 
 ## Old to new
 

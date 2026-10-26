@@ -82,6 +82,22 @@ docs/verify.md:31 VER07 ui Drive entry installs browser tooling or has no screen
 - Module boundary: [`docs/verify.md`](../../../docs/verify.md) text in, check-verify findings out. Skills reached by exact name, never by slash.
 - Rules: VER05 to VER07. VER08 stays reserved for PBI-20.
 
+## Update 2026-10-26 (poteto talk and podcast)
+
+Sharpened with a fourth kind, `trace`, for performance evidence (audit [audit M12](https://github.com/svennijhuis/agentPacks/blob/f537b585ee09b291afcd78c64cf5c62e8c93f1d6/docs/pbi/pstack-tstack/sources/fleet-podcast-audit.md#L95), [audit G6](https://github.com/svennijhuis/agentPacks/blob/f537b585ee09b291afcd78c64cf5c62e8c93f1d6/docs/pbi/pstack-tstack/sources/fleet-podcast-audit.md#L111)). poteto's first skill drove the app over the Chrome DevTools Protocol to take traces and heap snapshots ([talk 03:09](https://github.com/svennijhuis/agentPacks/blob/f537b585ee09b291afcd78c64cf5c62e8c93f1d6/docs/pbi/pstack-tstack/sources/poteto-2500prs-transcript.md#L17), [talk 07:05](https://github.com/svennijhuis/agentPacks/blob/f537b585ee09b291afcd78c64cf5c62e8c93f1d6/docs/pbi/pstack-tstack/sources/poteto-2500prs-transcript.md#L27), [talk 08:40](https://github.com/svennijhuis/agentPacks/blob/f537b585ee09b291afcd78c64cf5c62e8c93f1d6/docs/pbi/pstack-tstack/sources/poteto-2500prs-transcript.md#L31)).
+
+A `Kind: trace` Drive entry names `Artifact:` (the trace, profile or heap snapshot path) and `Metric:` (what is read from it). It feeds `## Budgets` ([AP54](54-measured-budgets.md)).
+
+```markdown
+### open-chat (trace)
+Kind: trace
+Run: `./scripts/verify trace open-chat`
+Artifact: `.verify/traces/open-chat.json`
+Metric: longest renderer task in ms
+```
+
+Rule VER09 (error): `trace Drive entry needs Artifact: and Metric: (fix: add both)`. DoD addition: `bash plugins/pack-check/skills/pack-check/scripts/check-verify.sh tools/AgentPacks.Cli.Tests/Fixtures/verify/bad-trace.md` prints one VER09 line and exits 1.
+
 ## Sources
 
 - cursor-team-kit [`control-cli/SKILL.md:18-27`](https://github.com/cursor/plugins/blob/9e88dad267e8991d26a6debc0db0d943d437104b/cursor-team-kit/skills/control-cli/SKILL.md#L18-L27) (harness loop), [`:105`](https://github.com/cursor/plugins/blob/9e88dad267e8991d26a6debc0db0d943d437104b/cursor-team-kit/skills/control-cli/SKILL.md#L105) (deterministic waits over sleeps); [`control-ui/SKILL.md:25`](https://github.com/cursor/plugins/blob/9e88dad267e8991d26a6debc0db0d943d437104b/cursor-team-kit/skills/control-ui/SKILL.md#L25) (stable selectors), [`:42`](https://github.com/cursor/plugins/blob/9e88dad267e8991d26a6debc0db0d943d437104b/cursor-team-kit/skills/control-ui/SKILL.md#L42) (do not add Playwright for a probe), [`:75-82`](https://github.com/cursor/plugins/blob/9e88dad267e8991d26a6debc0db0d943d437104b/cursor-team-kit/skills/control-ui/SKILL.md#L75-L82) (one action, fresh snapshot); pstack [`poteto-mode/SKILL.md:30`](https://github.com/cursor/plugins/blob/9e88dad267e8991d26a6debc0db0d943d437104b/pstack/skills/poteto-mode/SKILL.md#L30).
