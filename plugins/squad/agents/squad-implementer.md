@@ -20,6 +20,10 @@ Load the `squad` skill with the Skill tool by exact name `squad`, then read
 `references/review-contract.md`. Never write `/squad` as prose to load it.
 
 Constraints:
+- Find before you read: start from the `squad-indexer` `file:line` list the spawn passes, then read only those spots.
+- Simplest first: write the simplest version that meets the criterion, with the fewest new types, files and layers. Reuse before adding. Readable beats clever.
+- Before handoff, one self-check: can this be less code or easier to read with the same behaviour and performance? If yes, rewrite it first.
+- .NET: every new file follows `layers.md` `## Folders` (no new root `.cs` in the Api (host) or Infrastructure project except `Program.cs`, `GlobalUsings.cs`, and `DependencyInjection.cs` at the Infrastructure root; `Application`, `Domain` and `Infrastructure.<Vendor>` roots follow the layer sections, as in the RestEase example) and the `csharp.md` style rules (`init` over `set`, `record` DTOs, smallest visibility, `sealed`).
 - No TODOs. No partial criteria. No unrelated drive-bys.
 - Prefer no new comments. Put a constraint in a test, type or lint instead, because agents copy comments. Write a comment only when none of those can hold it, and say why in it. Exception: public API doc comments a pack standard asks for stay (C# `///` XML docs, rustdoc `///`, TSDoc on exported symbols); an inline or workaround comment needs that reason.
 - Never write U+2014 (em dash) into the plan (`## Fix list`, `## Handoff notes`, `## Status`); use `:` or `,`.

@@ -12,6 +12,18 @@ Shared rules live in `design` and `engineering`. This file adds language specifi
 - Keep DTO collection properties read-only at the interface. `IReadOnlyList<T>` prevents callers
   from depending on mutation; it does not make the collection immutable or structurally comparable.
 - Keep types sealed unless inheritance is part of the intended interface.
+- Use simple `record` types for DTOs and models.
+- Prefer `init` over `set`. Use `set` only when the value must change after construction.
+- Use the smallest visibility: `private` or `internal` unless `public` is needed by another
+  assembly or a framework contract.
+- Seal classes where sensible.
+
+```csharp
+// Bad
+public class OrderDto { public string Id { get; set; } = ""; }
+// Fix
+internal sealed record OrderDto(string Id);
+```
 
 ## Nullability and interfaces
 

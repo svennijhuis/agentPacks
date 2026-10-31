@@ -1,0 +1,16 @@
+diff --git a/src/MyApp.Api/OrderService.cs b/src/MyApp.Api/OrderService.cs
+new file mode 100644
++++ b/src/MyApp.Api/OrderService.cs
++public class OrderService { public string Name { get; set; } = ""; }
+diff --git a/src/MyApp.Api/Program.cs b/src/MyApp.Api/Program.cs
+new file mode 100644
++++ b/src/MyApp.Api/Program.cs
++var app = WebApplication.Create(args);
+diff --git a/src/MyApp.Api/Features/Orders/PlaceOrder.cs b/src/MyApp.Api/Features/Orders/PlaceOrder.cs
+new file mode 100644
++++ b/src/MyApp.Api/Features/Orders/PlaceOrder.cs
++internal sealed record PlaceOrder(string Id);
+diff --git a/src/MyApp.Infrastructure/DependencyInjection.cs b/src/MyApp.Infrastructure/DependencyInjection.cs
+new file mode 100644
++++ b/src/MyApp.Infrastructure/DependencyInjection.cs
++internal static class DependencyInjection { }
