@@ -27,6 +27,7 @@ Docs-only backlog for the cloud + local agentPacks track. One authored source on
 | 19 | [Determinism sweep](19-determinism-sweep.md) | D gist | todo | - | - | points 4, 5, 6, E3 | - | two-way |
 | 20 | [Verify-harness drift check](20-harness-drift-check.md) | D gist | todo | 19 | - | point 3 | - | two-way |
 | 64 | [Squad session split, one task per run](64-squad-session-split.md) | D gist | todo | - | - | - | - | two-way |
+| 65 | [Squad split open-plan guard and write-plan branch](65-squad-split-open-plan-guard.md) | D gist | todo | 64 | - | - | - | two-way |
 
 ## PBI template
 
