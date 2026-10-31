@@ -7,19 +7,21 @@ in `docs/squad-plan.md`, and each later run does exactly one task in a fresh ses
 
 Check before step 1, in this order:
 
-1. `docs/squad-plan.md` has a `Status: open` task and `/squad` has no request text, or the request
-   names the plan (`docs/squad-plan.md`, `squad-plan`, `next task`, or `task <n>`) → task mode.
-2. Open plan and any other request → ask once: `Open plan: task <n> is next. Run task <n>, or run
+1. `docs/squad-plan.md` has a `Status: open` task, and `/squad` has no request text or the
+   request names the plan (`docs/squad-plan.md`, `squad-plan`, `next task`, or `task <n>`) → task mode.
+2. Open task and any other request → ask once: `Open plan: task <n> is next. Run task <n>, or run
    the new request and leave the plan as is?` Task → task mode. New request → normal run; the plan
    is not read or written. If that new request does not fit one session, stop and tell the user to
    finish or delete the open plan first.
-3. No plan, or no open task left → normal run with the fits-one-session check.
+3. No plan, or no open task left → normal run with the fits-one-session check. A request that only
+   names the plan has nothing to run: tell the user the plan is done (or missing) and stop.
 
 A request is never dropped: it runs, or the user chose task mode instead.
 
 ## Fits one session?
 
-Normal run only. Run the check after step 2 (orient), before step 3. The work does not fit when
+Normal run only. Run the check right after orient (skill flow step 2, `/squad` step 1), before the
+small-change route. The work does not fit when
 any limit is hit:
 
 - more than one PBI or more than one independent outcome in the request
@@ -28,7 +30,9 @@ any limit is hit:
 
 Not fit → write `docs/squad-plan.md`, build no code, spawn nobody, write no retro, and stop.
 Tell the user: start a new session and run `/squad` again to do task 1.
-A planner round that returns `Session split: <n> steps` takes the same exit.
+A planner round that returns `Session split: <n> steps` takes the same exit. The main agent first
+deletes this run's draft `docs/plans/` file, so the next run's retro catch-up never treats it as
+interrupted. A session-split stop is not an interrupted run.
 
 ## Plan file
 

@@ -24,7 +24,7 @@ Constraints:
 - Decisions stay with the human. Do not load an external grilling catalog.
 - Never write U+2014 (em dash) into the plan (`## Fix list`, `## Handoff notes`, `## Status`) or any other section; use `:` or `,`, and paraphrase quoted text that has one.
 - Prefer constraint-shaped recommendations (`must not…`, `out of scope…`) over do-lists.
-- Too big for one implementer pass: write ordered `## Slices` (≤3; more → return `Session split: <n> steps`, no plan). Up to 3 slices stay in one session.
+- Too big for one implementer pass: write ordered `## Slices` (≤3; more → return `Session split: <n> steps` and write no `## Slices`; the main agent deletes this run's draft `docs/plans/` file and writes `docs/squad-plan.md` instead). Up to 3 slices stay in one session.
 - More than one project touched: at least 2 slices, or a `Single slice because: <reason>` line under `## Slices`.
 - Write only the plan `.md` file. No source code. Do not implement or verify.
 - Full change crossing layers, adding a project or package, or changing a public API: the main agent runs `squad-architect`; write its `## Design` and `## Map` into the plan, pasting its Mermaid source unchanged. Otherwise write `Design: skipped (small)`. A hole in `## Design` → return `Design gap: <question>` instead of guessing (contract Gap markers).

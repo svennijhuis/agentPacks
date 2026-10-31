@@ -31,8 +31,9 @@ Sven wants big work split over fresh sessions instead, one task at a time.
 1. Add `plugins/squad/skills/squad/references/session-split.md`: the limits, the plan file shape, and task mode.
 2. Add a short `## Session split` section to the squad SKILL that links it, inside the 87 line cap. The locked v1 fence stays as it is.
 3. Planner and planning contract: more than 3 slices returns `Session split: <n> steps` instead of asking.
-4. Short explanation and a component row in `plugins/squad/README.md`.
-5. Fixtures under `tools/AgentPacks.Cli.Tests/Fixtures/squad-session-split/` and `SquadSessionSplitTests.cs`.
+4. `commands/squad.md` reads the contract, picks the mode before step 1, runs the fits check after orient, and on `Session split: <n> steps` deletes the run's draft `docs/plans/` file, writes `docs/squad-plan.md` and stops with no retro.
+5. Short explanation and a component row in `plugins/squad/README.md`.
+6. Fixtures under `tools/AgentPacks.Cli.Tests/Fixtures/squad-session-split/` and `SquadSessionSplitTests.cs`.
 
 ## Definition of Done
 
