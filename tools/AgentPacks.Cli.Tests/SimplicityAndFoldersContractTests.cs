@@ -55,7 +55,12 @@ public sealed class SimplicityAndFoldersContractTests
         Assert.Contains("spawn `squad-indexer` with that gap question", command, StringComparison.Ordinal);
         Assert.Contains("Before each `squad-implementer` (whole-plan, slice, Plan-gap redo, and `fix-list`), spawn `squad-indexer` with the concrete question for that slice", command, StringComparison.Ordinal);
         Assert.Contains("spawn `squad-indexer` first with the fix-list question", command, StringComparison.Ordinal);
+        Assert.Contains("for a design gap only, spawn `squad-indexer` with the gap question (the files, functions, types or callers it names) then rerun `squad-architect`", command, StringComparison.Ordinal);
         Assert.DoesNotContain("spawns `squad-indexer` for `file:line` locations", command, StringComparison.Ordinal);
+        Assert.DoesNotMatch(new Regex("spawns? `squad-indexer`(?! (with|first with))"), command);
+        var contract = Source("plugins", "squad", "skills", "squad", "references", "planning-contract.md");
+        Assert.Contains("The main agent spawns `squad-indexer` with that gap question (the files, functions, types or callers it names), then reruns `squad-architect` once", contract, StringComparison.Ordinal);
+        Assert.DoesNotMatch(new Regex("spawns? `squad-indexer`(?! (with|first with))"), contract);
         Assert.Contains("spawn `squad-indexer` first with the slice's files, functions, types or callers to locate; spawn passes the slice name, the plan path, and the `file:line` list", Squad("SKILL.md"), StringComparison.Ordinal);
         Assert.Contains("All ten agents remain portable", Source("plugins", "squad", "README.md"), StringComparison.Ordinal);
         Assert.DoesNotContain("All nine agents remain portable", Source("plugins", "squad", "README.md"), StringComparison.Ordinal);
