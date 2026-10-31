@@ -37,7 +37,7 @@ Do not rewrite skills, and do not grow a graph from it.
 
 The main agent owns user interaction, invokes `squad-planner` once per question round, launches applicable reviewers in parallel, and routes the merged verdict. `squad-orchestrator` only merges completed reports and verifier evidence. No phase commits, merges, or pushes.
 
-Small change: Locked v1 step 3 above.
+Small change: Locked v1 step 3 above. Examples: typos, renames, one-line fixes.
 
 ## Components
 
