@@ -17,16 +17,16 @@ public sealed partial class SquadSessionSplitTests
     private static string Source(params string[] parts) =>
         File.ReadAllText(Path.Combine([TestRepository.SourceRoot(), "plugins", "squad", .. parts]));
 
-    private sealed record PlanTask(string Number, string Title, string Goal, string DoneCheck, string Status);
+    private sealed record PlanTask(string Number, string Title, string Goal, string DoneCheck, string Status, string Depends = "");
 
-    [GeneratedRegex(@"^### (\d+(?:\.\d+)?)\. (.+)\n- Goal: (.+)\n- Done-check: (`.+`)\n- Status: (open|done)$", RegexOptions.Multiline)]
+    [GeneratedRegex(@"^### (\d+(?:\.\d+)?)\. (.+)\n- Goal: (.+)\n- Done-check: (`.+`)\n(?:- Depends: (\d+(?:\.\d+)?(?:, \d+(?:\.\d+)?)*)\n)?- Status: (open|started|done)$", RegexOptions.Multiline)]
     private static partial Regex TaskPattern();
 
     private static List<PlanTask> Parse(string plan)
     {
         plan = plan.Replace("\r", "", StringComparison.Ordinal);
         var tasks = TaskPattern().Matches(plan)
-            .Select(m => new PlanTask(m.Groups[1].Value, m.Groups[2].Value, m.Groups[3].Value, m.Groups[4].Value, m.Groups[5].Value))
+            .Select(m => new PlanTask(m.Groups[1].Value, m.Groups[2].Value, m.Groups[3].Value, m.Groups[4].Value, m.Groups[6].Value, m.Groups[5].Value))
             .ToList();
         Assert.Equal(Regex.Matches(plan, @"^### ", RegexOptions.Multiline).Count, tasks.Count);
         Assert.Equal(tasks.Count, tasks.Select(t => t.Number).Distinct().Count());
@@ -51,11 +51,12 @@ public sealed partial class SquadSessionSplitTests
         Assert.Contains("references/session-split.md", skill, StringComparison.Ordinal);
         Assert.Contains("more than one PBI or outcome, more than 3 steps, more than 10 files", skill, StringComparison.Ordinal);
         Assert.Contains("build no code, spawn nobody, stop", skill, StringComparison.Ordinal);
-        Assert.Contains("lowest open task only", skill, StringComparison.Ordinal);
+        Assert.Contains("that one task only", skill, StringComparison.Ordinal);
+        Assert.Contains("`/squad split <request>` → forced split", skill, StringComparison.Ordinal);
 
         var contract = Source("skills", "squad", "references", "session-split.md");
         Assert.Contains("Not fit → write `docs/squad-plan.md`, build no code, spawn nobody, write no retro, and stop.", contract, StringComparison.Ordinal);
-        Assert.Contains("Take the lowest open task in file order.", contract, StringComparison.Ordinal);
+        Assert.Contains("Take the offered task the user said yes to.", contract, StringComparison.Ordinal);
         Assert.Contains("A request is never dropped", contract, StringComparison.Ordinal);
         Assert.Contains("edited in place, never rewritten", contract, StringComparison.Ordinal);
         Assert.Contains("Never rewrite an existing plan.", skill, StringComparison.Ordinal);
@@ -63,6 +64,8 @@ public sealed partial class SquadSessionSplitTests
         Parse(contract.Replace("<n>", "1", StringComparison.Ordinal)); // the template block is itself a valid task
 
         Assert.Contains("skills/squad/references/session-split.md", Source("README.md"), StringComparison.Ordinal);
+        Assert.Contains("`/squad split <request>`", Source("README.md"), StringComparison.Ordinal);
+        Assert.Contains("`/squad split <request>`", File.ReadAllText(Path.Combine(TestRepository.SourceRoot(), "README.md")), StringComparison.Ordinal);
         Assert.Contains("Session split: <n> steps", Source("agents", "squad-planner.md"), StringComparison.Ordinal);
     }
 
@@ -103,8 +106,9 @@ public sealed partial class SquadSessionSplitTests
     public void New_request_with_an_open_plan_asks_and_leaves_the_plan_untouched()
     {
         var contract = Source("skills", "squad", "references", "session-split.md");
-        Assert.Contains("Open task and any other request → ask once", contract, StringComparison.Ordinal);
-        Assert.Contains("New request → normal run; the plan\n   is not read or written.", contract.Replace("\r", "", StringComparison.Ordinal), StringComparison.Ordinal);
+        Assert.Contains("Any other request → the status line plus the new request\n   question; new request → normal run, and the plan is not read or written again.", contract.Replace("\r", "", StringComparison.Ordinal), StringComparison.Ordinal);
+        Assert.Equal("Plan health and version endpoints: task 1 open. Do task 1, or run the new request?",
+            Question(BeforePlan("new-request")!, RequestOf("new-request")));
 
         var request = File.ReadAllText(Root("new-request", "request.md")).Trim();
         Assert.NotEqual("/squad", request);
@@ -141,29 +145,99 @@ public sealed partial class SquadSessionSplitTests
         Assert.Equal(before.Skip(index + 1), after.Skip(index + subtasks.Count));
     }
 
-    private enum Mode { Task, Ask, Normal, NothingToRun }
+    private enum Mode { Split, SplitAsk, Status, Ask, Close, Blocked, Normal, NothingToRun }
 
-    /// <summary>
-    /// The mode table of session-split.md "Which mode", with the plan-naming words read from the
-    /// contract itself, so a contract edit changes what the fixtures must show.
-    /// </summary>
-    private static Mode ModeFor(string? plan, string request)
+    private static string Contract() =>
+        Source("skills", "squad", "references", "session-split.md").Replace("\r", "", StringComparison.Ordinal);
+
+    /// <summary>The words that make a request name the plan, read from the contract itself.</summary>
+    private static List<string> PlanNames()
     {
-        var contract = Source("skills", "squad", "references", "session-split.md").Replace("\r", "", StringComparison.Ordinal);
-        var rule1 = Regex.Match(contract, @"^1\. .+?→ task mode\.", RegexOptions.Multiline | RegexOptions.Singleline).Value;
-        var names = Regex.Matches(Regex.Match(rule1, @"names the plan \((.+?)\)", RegexOptions.Singleline).Groups[1].Value, "`([^`]+)`")
+        var names = Regex.Matches(Regex.Match(Contract(), @"names the plan \((.+?)\)", RegexOptions.Singleline).Groups[1].Value, "`([^`]+)`")
             .Select(m => Regex.Escape(m.Groups[1].Value).Replace("<n>", @"\d+", StringComparison.Ordinal))
             .ToList();
         Assert.Equal(4, names.Count);
+        return names;
+    }
 
+    private static string SplitWord()
+    {
+        var word = Regex.Match(Contract(), @"starts with the split word `(\w+)` \(`/squad (\w+) <request>`\)");
+        Assert.True(word.Success, "the contract names the split word once");
+        Assert.Equal(word.Groups[1].Value, word.Groups[2].Value);
+        return word.Groups[1].Value;
+    }
+
+    private static string RequestText(string request)
+    {
         var text = request.Trim();
-        text = text.StartsWith("/squad", StringComparison.Ordinal) ? text["/squad".Length..].Trim() : text;
-        var namesPlan = text.Length > 0 && Regex.IsMatch(text, string.Join('|', names), RegexOptions.IgnoreCase);
-        var openTask = plan is not null && Parse(plan).Any(t => t.Status == "open");
+        return text.StartsWith("/squad", StringComparison.Ordinal) ? text["/squad".Length..].Trim() : text;
+    }
 
-        if (openTask)
-            return text.Length == 0 || namesPlan ? Mode.Task : Mode.Ask;
-        return text.Length == 0 || namesPlan ? Mode.NothingToRun : Mode.Normal;
+    /// <summary>Status refresh: a passing Done-check flips the task to done, edited in place.</summary>
+    private static string Refresh(string plan, ISet<string> passing)
+    {
+        plan = plan.Replace("\r", "", StringComparison.Ordinal);
+        foreach (var task in Parse(plan).Where(t => t.Status != "done" && passing.Contains(t.Number)))
+        {
+            var block = new Regex($@"(^### {Regex.Escape(task.Number)}\. [\s\S]+?^- Status: )(open|started)$", RegexOptions.Multiline);
+            plan = block.Replace(plan, "${1}done", 1);
+        }
+        return plan;
+    }
+
+    private static bool IsDone(List<PlanTask> tasks, string number)
+    {
+        var own = tasks.Where(t => t.Number == number || t.Number.StartsWith(number + ".", StringComparison.Ordinal)).ToList();
+        return own.Count > 0 && own.All(t => t.Status == "done");
+    }
+
+    private static string? WaitsOn(List<PlanTask> tasks, PlanTask task) =>
+        task.Depends.Length == 0 ? null : task.Depends.Split(", ").FirstOrDefault(d => !IsDone(tasks, d));
+
+    private static PlanTask? Offered(List<PlanTask> tasks) =>
+        tasks.FirstOrDefault(t => t.Status != "done" && WaitsOn(tasks, t) is null);
+
+    private static Mode ModeFor(string? plan, string request, ISet<string>? passing = null)
+    {
+        var text = RequestText(request);
+        if (Regex.IsMatch(text, $@"^{SplitWord()}\b"))
+            return plan is null ? Mode.Split : Mode.SplitAsk;
+        var namesPlan = text.Length == 0 || Regex.IsMatch(text, string.Join('|', PlanNames()), RegexOptions.IgnoreCase);
+        if (plan is null)
+            return namesPlan && text.Length > 0 ? Mode.NothingToRun : Mode.Normal;
+        var tasks = Parse(Refresh(plan, passing ?? new HashSet<string>()));
+        if (tasks.All(t => t.Status == "done"))
+            return Mode.Close;
+        if (Offered(tasks) is null)
+            return Mode.Blocked;
+        return namesPlan ? Mode.Status : Mode.Ask;
+    }
+
+    /// <summary>The question squad asks first, built from the templates in the contract.</summary>
+    private static string Question(string plan, string request, ISet<string>? passing = null)
+    {
+        var contract = Contract();
+        string Template(string label) => Regex.Match(contract, $@"^- {label}: `(.+)`$", RegexOptions.Multiline).Groups[1].Value;
+        var tasks = Parse(Refresh(plan, passing ?? new HashSet<string>()));
+        var outcome = Regex.Match(plan, @"^# Squad plan: (.+)$", RegexOptions.Multiline).Groups[1].Value.TrimEnd('\r');
+        var mode = ModeFor(plan, request, passing);
+        if (mode == Mode.SplitAsk)
+            return Regex.Match(contract, @"ask once: `(Plan <outcome> exists\..+?)`").Groups[1].Value.Replace("<outcome>", outcome, StringComparison.Ordinal);
+        if (mode == Mode.Close)
+            return Template("Close").Replace("<outcome>", outcome, StringComparison.Ordinal);
+
+        var offered = Offered(tasks)!;
+        var states = tasks.Take(tasks.IndexOf(offered) + 1).Select(t =>
+            WaitsOn(tasks, t) is { } m ? $"task {t.Number} skipped (waits on task {m})"
+            : t.Status == "started" ? $"task {t.Number} half done"
+            : $"task {t.Number} {t.Status}");
+        var label = mode == Mode.Ask ? "New request" : offered.Status == "started" ? "Half done" : "Status";
+        return Template(label)
+            .Replace("<outcome>", outcome, StringComparison.Ordinal)
+            .Replace("<states>", string.Join(", ", states), StringComparison.Ordinal)
+            .Replace("<n>", offered.Number, StringComparison.Ordinal)
+            .Replace("Task <n>", $"Task {offered.Number}", StringComparison.Ordinal);
     }
 
     private static string RequestOf(string fixture)
@@ -178,39 +252,163 @@ public sealed partial class SquadSessionSplitTests
         return File.Exists(path) ? File.ReadAllText(path) : null;
     }
 
+    private static HashSet<string> PassingOf(string fixture)
+    {
+        var path = Root(fixture, "passing.md");
+        return File.Exists(path) ? File.ReadAllLines(path).Select(l => l.Trim()).Where(l => l.Length > 0).ToHashSet() : [];
+    }
+
+    private static string QuestionOf(string fixture) => File.ReadAllText(Root(fixture, "question.md")).Trim();
+
     [Theory]
     [InlineData("big-task", "Normal")]
-    [InlineData("existing-plan", "Task")]
-    [InlineData("task-split", "Task")]
+    [InlineData("existing-plan", "Status")]
+    [InlineData("task-split", "Status")]
     [InlineData("new-request", "Ask")]
-    [InlineData("all-done", "NothingToRun")]
+    [InlineData("all-done", "Close")]
+    [InlineData("forced-split", "Split")]
+    [InlineData("split-existing", "SplitAsk")]
+    [InlineData("status-question", "Status")]
+    [InlineData("already-done", "Status")]
+    [InlineData("half-done", "Status")]
+    [InlineData("dependency-skip", "Status")]
     public void Each_fixture_follows_the_mode_table(string fixture, string expected) =>
-        Assert.Equal(Enum.Parse<Mode>(expected), ModeFor(BeforePlan(fixture), RequestOf(fixture)));
+        Assert.Equal(Enum.Parse<Mode>(expected), ModeFor(BeforePlan(fixture), RequestOf(fixture), PassingOf(fixture)));
+
+    [Theory]
+    [InlineData("existing-plan")]
+    [InlineData("status-question")]
+    [InlineData("already-done")]
+    [InlineData("half-done")]
+    [InlineData("all-done")]
+    [InlineData("dependency-skip")]
+    [InlineData("split-existing")]
+    public void Each_fixture_asks_its_question_first(string fixture) =>
+        Assert.Equal(QuestionOf(fixture), Question(BeforePlan(fixture)!, RequestOf(fixture), PassingOf(fixture)));
 
     [Fact]
-    public void Open_task_check_binds_outside_the_or()
+    public void Plan_naming_words_only_matter_with_a_plan()
     {
-        // (open task) AND (no text OR names the plan): a request that names the plan with no open
-        // task left must not reach task mode.
-        var plan = File.ReadAllText(Root("all-done", "before", PlanPath));
-        Assert.DoesNotContain(Parse(plan), t => t.Status == "open");
-        Assert.Equal(Mode.NothingToRun, ModeFor(plan, "/squad next task"));
-        Assert.Equal(Mode.NothingToRun, ModeFor(plan, "/squad task 2"));
-        Assert.Equal(Mode.Normal, ModeFor(plan, "/squad add src/ping.ts"));
-        Assert.Equal(Mode.Task, ModeFor(BeforePlan("task-split"), "/squad next task"));
+        // No plan: a request that only names the plan has nothing to run; any other request is a normal run.
+        Assert.Equal(Mode.NothingToRun, ModeFor(null, "/squad next task"));
+        Assert.Equal(Mode.NothingToRun, ModeFor(null, "/squad task 2"));
+        Assert.Equal(Mode.Normal, ModeFor(null, "/squad add src/ping.ts"));
+        // Open plan: empty or plan-naming requests get the status question, others the new request question.
+        var open = BeforePlan("status-question");
+        Assert.Equal(Mode.Status, ModeFor(open, "/squad"));
+        Assert.Equal(Mode.Status, ModeFor(open, "/squad next task"));
+        Assert.Equal(Mode.Ask, ModeFor(open, "/squad add src/ping.ts"));
+        // All done: always the close question first, also with a new request.
+        var done = BeforePlan("all-done");
+        Assert.Equal(Mode.Close, ModeFor(done, "/squad next task"));
+        Assert.Equal(Mode.Close, ModeFor(done, "/squad add src/ping.ts"));
+        // The split word only counts as the first word.
+        Assert.Equal(Mode.Normal, ModeFor(null, "/squad add a split view"));
 
-        var afterDir = Root("all-done", "after");
+        const string Ask = "then always ask, also with no request";
+        Assert.Contains(Ask, Source("skills", "squad", "SKILL.md"), StringComparison.Ordinal);
+        Assert.Contains("then always ask, also with no request text", Source("commands", "squad.md"), StringComparison.Ordinal);
+        Assert.Contains("then always ask, also when `/squad` has no request\n   text", Contract(), StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void Forced_split_writes_only_the_plan_even_under_the_limits()
+    {
+        var request = RequestOf("forced-split");
+        Assert.DoesNotMatch(new Regex(@"PBI-\d+"), request);
+        var afterDir = Root("forced-split", "after");
         Assert.Equal([PlanPath], Tree(afterDir));
-        Assert.Equal(plan, File.ReadAllText(Path.Combine(afterDir, PlanPath)));
+        var plan = File.ReadAllText(Path.Combine(afterDir, PlanPath));
+        var tasks = Parse(plan);
+        Assert.True(tasks.Count is >= 1 and <= 3, "a small forced split stays under the limits");
+        Assert.All(tasks, t => Assert.Equal("open", t.Status));
+        Assert.Contains(request.Trim(), plan, StringComparison.Ordinal);
 
-        const string Clause = "has an open task, and the request is empty or names the plan or a task";
-        Assert.Contains(Clause, Source("skills", "squad", "SKILL.md"), StringComparison.Ordinal);
-        Assert.Contains(Clause, Source("commands", "squad.md"), StringComparison.Ordinal);
-        var contract = Source("skills", "squad", "references", "session-split.md").Replace("\r", "", StringComparison.Ordinal);
-        Assert.Matches(new Regex(@"^1\. `docs/squad-plan\.md` has a `Status: open` task, and `/squad` has no request text or the\n   request names the plan", RegexOptions.Multiline), contract);
-        Assert.Contains("A request that only\n   names the plan has nothing to run", contract, StringComparison.Ordinal);
-        foreach (var doc in new[] { contract, Source("skills", "squad", "SKILL.md"), Source("commands", "squad.md") })
-            Assert.DoesNotMatch(new Regex(@"no request text, or the request names"), doc);
+        var contract = Contract();
+        Assert.Contains("`/squad split <request>` splits the request into tasks even when it fits one session: write\n`docs/squad-plan.md`, build no code, spawn nobody, write no retro, and stop.", contract, StringComparison.Ordinal);
+        Assert.Contains("a later `/squad-split <request>` command only runs it", contract, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void Split_on_an_existing_plan_asks_once_then_replaces_or_appends()
+    {
+        var before = File.ReadAllText(Root("split-existing", "before", PlanPath));
+        var beforeTasks = Parse(before);
+
+        var append = File.ReadAllText(Root("split-existing", "after-append", PlanPath));
+        Assert.StartsWith(before, append, StringComparison.Ordinal);
+        Assert.Equal([PlanPath], Tree(Root("split-existing", "after-append")));
+        var added = Parse(append).Skip(beforeTasks.Count).ToList();
+        Assert.NotEmpty(added);
+        Assert.Equal(added.Select((_, i) => $"{beforeTasks.Count + i + 1}"), added.Select(t => t.Number));
+        Assert.All(added, t => Assert.Equal("open", t.Status));
+
+        var replaceDir = Root("split-existing", "after-replace");
+        var archived = Assert.Single(Tree(replaceDir), f => f != PlanPath);
+        Assert.Matches(@"^docs/squad-plans/\d{4}-\d{2}-\d{2}-health-and-version-endpoints\.md$", archived);
+        Assert.Equal(before, File.ReadAllText(Path.Combine(replaceDir, archived)));
+        Assert.Equal(File.ReadAllText(Root("forced-split", "after", PlanPath)), File.ReadAllText(Path.Combine(replaceDir, PlanPath)));
+    }
+
+    [Fact]
+    public void Yes_does_one_task_and_the_next_run_asks_about_the_next()
+    {
+        // existing-plan: the question offers task 1; after yes only task 1 is done, so the next run offers task 2.
+        Assert.Contains("Shall I do task 1?", QuestionOf("existing-plan"), StringComparison.Ordinal);
+        var after = File.ReadAllText(Root("existing-plan", "after", PlanPath));
+        Assert.EndsWith("task 1 done, task 2 open. Shall I do task 2?", Question(after, "/squad"), StringComparison.Ordinal);
+        // status-question: task 2 offered; once task 2 is done the next run offers task 3.
+        Assert.Contains("Shall I do task 2?", QuestionOf("status-question"), StringComparison.Ordinal);
+        var next = Refresh(BeforePlan("status-question")!, new HashSet<string> { "2" });
+        Assert.EndsWith("Shall I do task 3?", Question(next, "/squad"), StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void Task_already_done_in_the_code_is_marked_done_in_place()
+    {
+        var before = BeforePlan("already-done")!;
+        var after = File.ReadAllText(Root("already-done", "after", PlanPath));
+        Assert.Equal(after, Refresh(before, PassingOf("already-done")));
+        var lines = before.Split('\n').Zip(after.Split('\n')).Where(p => p.First != p.Second).ToList();
+        Assert.Equal(("- Status: open", "- Status: done"), Assert.Single(lines));
+    }
+
+    [Fact]
+    public void Half_done_task_is_offered_to_finish()
+    {
+        var tasks = Parse(BeforePlan("half-done")!);
+        Assert.Contains(tasks, t => t.Status == "started");
+        Assert.Contains("Task 2 was half done, shall I finish it?", QuestionOf("half-done"), StringComparison.Ordinal);
+        Assert.Contains("Set it to\n   `Status: started` before any other work", Contract(), StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void All_done_plan_asks_to_close_and_archives_on_yes()
+    {
+        var plan = File.ReadAllText(Root("all-done", "before", PlanPath));
+        Assert.All(Parse(plan), t => Assert.Equal("done", t.Status));
+        // No: the plan stays byte for byte.
+        Assert.Equal([PlanPath], Tree(Root("all-done", "after")));
+        Assert.Equal(plan, File.ReadAllText(Root("all-done", "after", PlanPath)));
+        // Yes: the plan moves, unchanged, and no docs/squad-plan.md is left.
+        var closeDir = Root("all-done", "after-close");
+        var archived = Assert.Single(Tree(closeDir));
+        Assert.Matches(@"^docs/squad-plans/\d{4}-\d{2}-\d{2}-health-and-version-endpoints\.md$", archived);
+        Assert.Equal(plan, File.ReadAllText(Path.Combine(closeDir, archived)));
+    }
+
+    [Fact]
+    public void Task_waiting_on_an_open_task_is_skipped_with_the_reason()
+    {
+        var tasks = Parse(BeforePlan("dependency-skip")!);
+        Assert.Equal("3", tasks.Single(t => t.Number == "2").Depends);
+        Assert.Contains("task 2 skipped (waits on task 3)", QuestionOf("dependency-skip"), StringComparison.Ordinal);
+
+        // Every task left waits on another: nothing to offer, squad says why and stops.
+        var cycle = BeforePlan("dependency-skip")!.Replace(
+            "- Done-check: `npm test -- version`\n- Status: open",
+            "- Done-check: `npm test -- version`\n- Depends: 2\n- Status: open", StringComparison.Ordinal);
+        Assert.Equal(Mode.Blocked, ModeFor(cycle, "/squad"));
     }
 
     [Fact]
@@ -224,7 +422,8 @@ public sealed partial class SquadSessionSplitTests
 
         Assert.Contains("docs/squad-plan.md", command, StringComparison.Ordinal);
         Assert.Contains("Normal run, after step 1 and before step 2: over any limit (more than one PBI or outcome, more than 3 steps, more than 10 files) → write `docs/squad-plan.md`, build no code, spawn nobody, write no retro, stop.", command, StringComparison.Ordinal);
-        Assert.Contains("run the lowest open task only", command, StringComparison.Ordinal);
+        Assert.Contains("run that one task only", command, StringComparison.Ordinal);
+        Assert.Contains("`/squad split <request>` → forced split", command, StringComparison.Ordinal);
         Assert.Contains("ask once: task or new request; a new request leaves the plan untouched", command, StringComparison.Ordinal);
         Assert.Contains("Never rewrite an existing plan.", command, StringComparison.Ordinal);
         Assert.Contains("A session-split stop gets no retro.", command, StringComparison.Ordinal);

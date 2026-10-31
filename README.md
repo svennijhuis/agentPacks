@@ -8,7 +8,7 @@ Five capability packs, installed because you want a behaviour wired into the age
 
 | Plugin | Use it for |
 | --- | --- |
-| `squad` | User-invoked `/squad` and `/squad-review`: grill-style planning, gated implement/verify/review, ≤2 fix rounds, uncommitted hand-off, one retro file per run. Sibling `/scenarios` writes `docs/smoke/<slug>.md` from changed code |
+| `squad` | User-invoked `/squad` (`/squad split <request>` only writes a task plan; a run with an open plan asks first) and `/squad-review`: grill-style planning, gated implement/verify/review, ≤2 fix rounds, uncommitted hand-off, one retro file per run. Sibling `/scenarios` writes `docs/smoke/<slug>.md` from changed code |
 | `pack-check` | Detecting the repository stack at session start and asking before installing the language pack that supplies its required build and test skills |
 | `git` | Blocking the git commands that destroy work an agent cannot get back, `reset --hard`, `clean -fd`, `push --force`, `branch -D`, `checkout .`, before the client runs them |
 | `security` | User-invoked `/security-audit`: recon, parallel hunting, and adversarial validation of exploitable trust-boundary failures. Per-change OWASP stays in Squad |

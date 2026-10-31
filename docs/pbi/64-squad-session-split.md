@@ -47,6 +47,10 @@ Sven wants big work split over fresh sessions instead, one task at a time.
 - [ ] Fixture `existing-plan`: only task 1 flips to done; the only code is the file task 1 names.
 - [ ] Fixture `new-request`: the plan is byte for byte unchanged; the only code is the file the new request names.
 - [ ] Fixture `task-split`: task 2 becomes 2.1 and 2.2, task 1 stays done, task 3 is unchanged, no code.
+- [ ] `/squad split <request>` forces the split even under the limits, writes only `docs/squad-plan.md`, no code, no retro; with a plan already there it asks once: replace (old plan archived) or append (old lines byte for byte). No 5th slash; a later `/squad-split` only runs that contract section.
+- [ ] Every `/squad` with a plan asks first, also with no request: `Plan <outcome>: task 1 done, task 2 open. Shall I do task 2?`; yes does that one task and stops, the next run asks about task 3.
+- [ ] Status refresh reads the real state: a task whose Done-check exits 0 is set `done`; a `started` task gets `Task <n> was half done, shall I finish it?`; all done gets `Plan <outcome> done, shall I close it?` and yes moves it to `docs/squad-plans/<yyyy-mm-dd>-<slug>.md`; a task whose `Depends:` is not done is skipped with the reason.
+- [ ] Fixtures `forced-split`, `split-existing`, `status-question`, `already-done`, `half-done`, `all-done` (close), `dependency-skip`, each with a test; the mode table test covers all of them.
 - [ ] Docs updated; no em or en dashes, no secrets, no emails.
 
 ## Technical design
