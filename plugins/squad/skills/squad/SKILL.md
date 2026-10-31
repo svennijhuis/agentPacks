@@ -51,7 +51,7 @@ are rewritten in place; do not append forever inside the plan.
 | Trust-boundary / irreversible | Full loop; record the human decision first. |
 | Existing diff, no plan | `/squad-review`. No verifier report, plan write, verdict, or fix round. Always saves the report. |
 
-Cost-first: default `inherit`. Every `squad-*` agent is `standard` except `squad-architect` (`frontier`); none uses `fast`. Copilot ids use dotted versions (`claude-sonnet-5.5`).
+Cost-first: default `inherit`. Every `squad-*` agent is `standard` except `squad-architect` (`frontier`) and `squad-indexer` (`fast`, the only `fast` agent). Copilot ids use dotted versions (`claude-sonnet-5.5`).
 
 ## Session split
 
@@ -64,6 +64,7 @@ Never rewrite an existing plan. Normal run, after step 2: over any limit (more t
 |---|---|---|
 | `squad-planner` | full change only | grill/plan |
 | `squad-architect` | full change crossing layers, new project/package, or public API | read-only `## Design` and `## Map` ([contract](references/architect-contract.md)) |
+| `squad-indexer` | `/squad` spawns it before `squad-architect` and each `squad-implementer` | read-only `file:line` lookups on the `fast` model; no code, no verdicts. `/squad` passes the list in those spawns; workers never spawn it |
 | `squad-implementer` | full change only | build |
 | `squad-verifier` | after implement/fix | evidence; `not verified` is not a pass; `blocked` is unproven, not a pass |
 | `squad-reviewer` | every review phase | correctness + plan/spec |
@@ -105,12 +106,12 @@ When the change touches app behavior and `docs/verify.md` is missing, ask once: 
 
 Read [the review contract](references/review-contract.md). Sequential implementers first: if `## Slices` is missing or
 has one entry, one fresh `squad-implementer` on the whole plan; otherwise one fresh `squad-implementer` per entry in
-order (spawn passes the slice name and the plan path; each slice names its files in `## Slices`, so no research is redone; same branch; no peer spawn). Then one `squad-verifier`. Then dual-axis: correctness and
+order (spawn `squad-indexer` first with the slice's files, functions, types or callers to locate; spawn passes the slice name, the plan path, and the `file:line` list; each slice names its files in `## Slices`, so no research is redone; same branch; no peer spawn). Then one `squad-verifier`. Then dual-axis: correctness and
 plan/spec. Security only on a trust-boundary diff (Security gate). Launch `squad-reviewer`, `squad-simplifier`, and
 conditional `squad-security-reviewer` in parallel, then `squad-orchestrator`. Do not launch a full-repo audit.
 
 Malformed report (one re-ask, hard cap): read [malformed re-ask](references/malformed-reask.md). Never resume an agent across phases; resume only for that re-ask.
-`fix` uses a **fresh** implementer (spawn names `fix-list`); the author of the rejected code is not the fixer. At most two fix rounds.
+`fix` uses a **fresh** implementer (spawn names `fix-list`; spawn `squad-indexer` first with the `## Fix list` rows to locate); the author of the rejected code is not the fixer. At most two fix rounds.
 Optional residual fixup: read [residual fixup](references/residual-fixup.md).
 
 ## Advisor-lite
