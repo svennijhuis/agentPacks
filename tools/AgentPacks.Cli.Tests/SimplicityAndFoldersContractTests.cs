@@ -21,6 +21,8 @@ public sealed class SimplicityAndFoldersContractTests
         Assert.Contains("can this be less code or easier to read with the same behaviour and performance? If yes, rewrite it first.", implementer, StringComparison.Ordinal);
         Assert.Contains("start from the `squad-indexer` `file:line` list the spawn passes", implementer, StringComparison.Ordinal);
         Assert.Contains("Do not spawn peers.", implementer, StringComparison.Ordinal);
+        Assert.Contains("no new root `.cs` in the Api (host) or Infrastructure project except `Program.cs`, `GlobalUsings.cs`, and `DependencyInjection.cs` at the Infrastructure root", implementer, StringComparison.Ordinal);
+        Assert.DoesNotContain("except the allowed ones", implementer, StringComparison.Ordinal);
     }
 
     [Fact]
@@ -49,9 +51,12 @@ public sealed class SimplicityAndFoldersContractTests
         Assert.Contains("`/squad` spawns it before `squad-architect` and each `squad-implementer`", Squad("SKILL.md"), StringComparison.Ordinal);
         Assert.Contains("workers never spawn it", Squad("SKILL.md"), StringComparison.Ordinal);
         var command = Squad("squad.md");
-        Assert.Contains("the main agent spawns `squad-indexer` for `file:line` locations, then the main agent spawns `squad-architect`", command, StringComparison.Ordinal);
-        Assert.Contains("Before each `squad-implementer` (whole-plan, slice, Plan-gap redo, and `fix-list`), spawn `squad-indexer`", command, StringComparison.Ordinal);
-        Assert.Contains("spawn `squad-indexer` first; spawn passes the slice name, the plan path, and the `file:line` list", Squad("SKILL.md"), StringComparison.Ordinal);
+        Assert.Contains("the main agent spawns `squad-indexer` with the concrete question (the files, functions, types or callers to map for that design, taken from the draft plan), then the main agent spawns `squad-architect`", command, StringComparison.Ordinal);
+        Assert.Contains("spawn `squad-indexer` with that gap question", command, StringComparison.Ordinal);
+        Assert.Contains("Before each `squad-implementer` (whole-plan, slice, Plan-gap redo, and `fix-list`), spawn `squad-indexer` with the concrete question for that slice", command, StringComparison.Ordinal);
+        Assert.Contains("spawn `squad-indexer` first with the fix-list question", command, StringComparison.Ordinal);
+        Assert.DoesNotContain("spawns `squad-indexer` for `file:line` locations", command, StringComparison.Ordinal);
+        Assert.Contains("spawn `squad-indexer` first with the slice's files, functions, types or callers to locate; spawn passes the slice name, the plan path, and the `file:line` list", Squad("SKILL.md"), StringComparison.Ordinal);
         Assert.Contains("All ten agents remain portable", Source("plugins", "squad", "README.md"), StringComparison.Ordinal);
         Assert.DoesNotContain("All nine agents remain portable", Source("plugins", "squad", "README.md"), StringComparison.Ordinal);
     }

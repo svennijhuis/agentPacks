@@ -101,12 +101,12 @@ When the change touches app behavior and `docs/verify.md` is missing, ask once: 
 
 Read [the review contract](references/review-contract.md). Sequential implementers first: if `## Slices` is missing or
 has one entry, one fresh `squad-implementer` on the whole plan; otherwise one fresh `squad-implementer` per entry in
-order (spawn `squad-indexer` first; spawn passes the slice name, the plan path, and the `file:line` list; each slice names its files in `## Slices`, so no research is redone; same branch; no peer spawn). Then one `squad-verifier`. Then dual-axis: correctness and
+order (spawn `squad-indexer` first with the slice's files, functions, types or callers to locate; spawn passes the slice name, the plan path, and the `file:line` list; each slice names its files in `## Slices`, so no research is redone; same branch; no peer spawn). Then one `squad-verifier`. Then dual-axis: correctness and
 plan/spec. Security only on a trust-boundary diff (Security gate). Launch `squad-reviewer`, `squad-simplifier`, and
 conditional `squad-security-reviewer` in parallel, then `squad-orchestrator`. Do not launch a full-repo audit.
 
 Malformed report (one re-ask, hard cap): read [malformed re-ask](references/malformed-reask.md). Never resume an agent across phases; resume only for that re-ask.
-`fix` uses a **fresh** implementer (spawn names `fix-list`; spawn `squad-indexer` first); the author of the rejected code is not the fixer. At most two fix rounds.
+`fix` uses a **fresh** implementer (spawn names `fix-list`; spawn `squad-indexer` first with the `## Fix list` rows to locate); the author of the rejected code is not the fixer. At most two fix rounds.
 Optional residual fixup: read [residual fixup](references/residual-fixup.md).
 
 ## Advisor-lite
