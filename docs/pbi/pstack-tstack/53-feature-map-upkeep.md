@@ -26,7 +26,7 @@ pstack `maintain-verification-skill`: "A feature map rots the moment the app cha
 ## What changes
 
 1. Rule: every Features row has `Source` paths, and each path exists (VER12).
-2. In `/squad`: when the diff touches a path listed in a row's Source, the verifier runs that row's Drive and updates the row if Reach or Proof changed. Only `docs/verify.md` is edited.
+2. In `/squad`: when the diff touches a path listed in a row's Source, the verifier runs that row's Drive and reports `feature map stale: <row>` under Evidence gaps when Reach or Proof changed. The verifier stays read-only ([`squad-verifier.md:5`](https://github.com/svennijhuis/agentPacks/blob/34e1dec3535baa1d77cb441ea8c98498dc9b3684/plugins/squad/agents/squad-verifier.md#L5) `readonly: true`, [`:13`](https://github.com/svennijhuis/agentPacks/blob/34e1dec3535baa1d77cb441ea8c98498dc9b3684/plugins/squad/agents/squad-verifier.md#L13), [`:34`](https://github.com/svennijhuis/agentPacks/blob/34e1dec3535baa1d77cb441ea8c98498dc9b3684/plugins/squad/agents/squad-verifier.md#L34) never writes `docs/verify.md`). The main agent then runs verify-harness in upkeep mode, which is the only writer: it updates that row in `docs/verify.md` and nothing else.
 3. Scheduled pass (outside the repo, Sven yes needed): a Grok Bot routine or Cursor automation runs verify-harness in upkeep mode once a week. Result `clean`, `changed` (one docs PR) or `blocked` (a note to the room). No product code edits.
 
 ## Example
@@ -46,7 +46,7 @@ After `src/Export/` moved to `src/Features/Export/`: VER12 `docs/verify.md:14 VE
 
 ## Technical design
 
-- Module boundary: check-verify.sh checks paths relative to the repo root; the verifier only edits `docs/verify.md`.
+- Module boundary: check-verify.sh checks paths relative to the repo root. The verifier reads and reports a stale row; verify-harness upkeep mode is the only writer of `docs/verify.md`. squad-verifier.md keeps `readonly: true` and its L13 and L34 lines; its edit here is one report line (`feature map stale: <row>`).
 - Rules: VER12.
 
 ## Sources

@@ -32,7 +32,7 @@ One extra word per finding is cheap. It turns review output into data that [PBI-
 
 | Field | Rule |
 |---|---|
-| Guard | Exactly one of `architecture`, `type`, `lint`, `test`, `rule`, `skill`, `none (one-off)`. Where this lesson should live so it cannot come back. A proposal for the retro, never part of Fix. |
+| Guard | Exactly one of `architecture`, `type`, `lint`, `test`, `doc`, `none (one-off)`: the retro.md Enforcer ladder words plus `none (one-off)`. A rule file or skill counts as `doc`. Where this lesson should live so it cannot come back. A proposal for the retro, never part of Fix. |
 
 This keeps the existing rule that a review does not invent a new lint as the Fix ([`plugins/squad/skills/squad/references/review-contract.md:41-49`](https://github.com/svennijhuis/agentPacks/blob/34e1dec3535baa1d77cb441ea8c98498dc9b3684/plugins/squad/skills/squad/references/review-contract.md#L41-L49)). Guard is a note for later, Fix stays the code change in this diff.
 `squad-retro` copies every Guard that is not `none (one-off)` into `## Improvements`. Same Guard plus same cause twice: RETRO03 ([PBI-17](https://github.com/svennijhuis/agentPacks/blob/88d34614e6e3e46672a2e1e8f6506d9c29c7ebab/docs/pbi/17-retro-repeat-to-check.md) (PR #80)).
@@ -51,13 +51,13 @@ After:
 - F03 [medium] src/Orders/OrderService.cs:88 Catches HttpRequestException and returns null; caller treats null as "not found". Fix: let it throw; map to 502 in the API filter. Guard: lint (ban catch-and-return-null in Application, analyzer rule)
 ```
 
-Bad (REV12): the "before" line in a review file. Bad (REV13, warn): `Guard: rule` with no `why not lint:` reason.
+Bad (REV12): the "before" line in a review file. Bad (REV13, warn): `Guard: doc` with no `why not lint:` reason (retro.md already asks a `doc` row for that reason).
 
 ## Definition of Done
 
 - [ ] `bash plugins/pack-check/skills/pack-check/scripts/check-review.sh tools/AgentPacks.Cli.Tests/Fixtures/review/bad-no-guard.md` prints `bad-no-guard.md:3 REV12 finding has no Guard: (fix: add Guard: <layer>)` and exits 1.
 - [ ] Same script on `good-guard.md` prints nothing and exits 0.
-- [ ] `bash plugins/pack-check/skills/pack-check/scripts/check-review.sh tools/AgentPacks.Cli.Tests/Fixtures/review/warn-rule-no-reason.md` prints one `REV13 warning:` line and exits 0.
+- [ ] `bash plugins/pack-check/skills/pack-check/scripts/check-review.sh tools/AgentPacks.Cli.Tests/Fixtures/review/warn-doc-no-reason.md` prints one `REV13 warning:` line and exits 0.
 - [ ] `rg -n '^\| Guard \|' plugins/squad/skills/squad/references/review-contract.md` prints 1 line.
 - [ ] `dotnet test tools/AgentPacks.Cli.Tests --filter ReviewLoopTests` exits 0.
 - [ ] No em or en dashes: `rg -n '[\u2013\u2014]' plugins/squad` prints nothing.
@@ -66,7 +66,7 @@ Bad (REV12): the "before" line in a review file. Bad (REV13, warn): `Guard: rule
 
 - Module boundary: review-contract owns the field; check-review.sh (AP47) checks it; squad-retro reads it. No agent re-derives the ladder.
 - Rules: REV12 (error), REV13 (warn). See [RULES.md](RULES.md#rule-table).
-- Order of layers is the same list as retro.md `## Enforcer ladder`, so there is one ladder, written once.
+- Guard uses the exact words of [`retro.md:47-51`](https://github.com/svennijhuis/agentPacks/blob/34e1dec3535baa1d77cb441ea8c98498dc9b3684/plugins/squad/skills/squad/references/retro.md#L47-L51) `## Enforcer ladder` (`architecture > type > lint > test > doc`), plus `none (one-off)`, which squad-retro skips. One ladder, written once, so squad-retro copies a Guard into `## Improvements` as is. retro.md itself does not change.
 
 ## Sources
 
@@ -83,4 +83,4 @@ Existing files link to main at the pinned SHA. New files use a repo-relative lin
 - new (planned): [`plugins/pack-check/skills/pack-check/scripts/check-review.sh`](../../../plugins/pack-check/skills/pack-check/scripts/check-review.sh)
 - new (planned): [`tools/AgentPacks.Cli.Tests/Fixtures/review/bad-no-guard.md`](../../../tools/AgentPacks.Cli.Tests/Fixtures/review/bad-no-guard.md)
 - new (planned): [`tools/AgentPacks.Cli.Tests/Fixtures/review/good-guard.md`](../../../tools/AgentPacks.Cli.Tests/Fixtures/review/good-guard.md)
-- new (planned): [`tools/AgentPacks.Cli.Tests/Fixtures/review/warn-rule-no-reason.md`](../../../tools/AgentPacks.Cli.Tests/Fixtures/review/warn-rule-no-reason.md)
+- new (planned): [`tools/AgentPacks.Cli.Tests/Fixtures/review/warn-doc-no-reason.md`](../../../tools/AgentPacks.Cli.Tests/Fixtures/review/warn-doc-no-reason.md)

@@ -19,7 +19,7 @@ Four sets of verdict words meet in one flow:
 Squad verifier `pass | not verified | blocked | skipped` ([`agents/squad-verifier.md:19-23`](https://github.com/svennijhuis/agentPacks/blob/34e1dec3535baa1d77cb441ea8c98498dc9b3684/plugins/squad/agents/squad-verifier.md#L19-L23)),
 verify-this `VERIFIED | NOT VERIFIED | INCONCLUSIVE`,
 room `PASS | FAIL | BLOCKED`,
-sol-loop `APPROVE | CHANGES`.
+sol-loop `APPROVE | CHANGES` (upstream only; we map it, we do not ship it).
 Claims in hand-offs also carry no label saying whether they were measured.
 
 ## Why (plain words)
@@ -30,11 +30,13 @@ And every claim says how we know it: we measured it, we inferred it, or it is a 
 
 ## The table (goes into shared/standards/verification.md)
 
-| Meaning | Squad verifier | verify-this | Room (Tester, Reviewer) | Review loop (AP46) |
-|---|---|---|---|---|
-| Proven on the real surface | `pass` | `VERIFIED` | `PASS` | `APPROVE` |
-| Checked, wrong | `fail` | `NOT VERIFIED` | `FAIL` | `CHANGES` |
-| Could not check | `blocked`, `not verified`, `skipped (needs: ...)` | `INCONCLUSIVE` | `BLOCKED` | out of budget |
+| Meaning | Squad verifier (Result column, today) | verify-this | Room and review loop (Tester, Reviewer, AP46 to AP48) |
+|---|---|---|---|
+| Proven on the real surface | `pass` | `VERIFIED` | `PASS` |
+| Checked, wrong | `not verified` | `NOT VERIFIED` | `FAIL` |
+| Could not check | `blocked`, `skipped (needs: ...)` | `INCONCLUSIVE` | `BLOCKED` (also `BLOCKED (out of budget)`) |
+
+The review loop ships the room words `PASS | FAIL | BLOCKED` (decision L1 in [AP50](50-open-decisions.md)); sol-loop `APPROVE | CHANGES` is not used in any file. The Squad verifier keeps its 4 Result words `pass | not verified | blocked | skipped` ([`squad-verifier.md:19-23`](https://github.com/svennijhuis/agentPacks/blob/34e1dec3535baa1d77cb441ea8c98498dc9b3684/plugins/squad/agents/squad-verifier.md#L19-L23)); `fail` there is only a verify.md lint finding ([`:34`](https://github.com/svennijhuis/agentPacks/blob/34e1dec3535baa1d77cb441ea8c98498dc9b3684/plugins/squad/agents/squad-verifier.md#L34)), not a Result word.
 
 Never a pass: `not verified`, `blocked`, `INCONCLUSIVE`, out of budget, timeout, no reply.
 
@@ -81,6 +83,7 @@ Existing files link to main at the pinned SHA. New files use a repo-relative lin
 
 - new: [`shared/standards/verification.md`](../../../shared/standards/verification.md)
 - edit: [`plugins/squad/agents/squad-verifier.md`](https://github.com/svennijhuis/agentPacks/blob/34e1dec3535baa1d77cb441ea8c98498dc9b3684/plugins/squad/agents/squad-verifier.md)
+- edit: [`plugins/squad/skills/squad/references/review-contract.md`](https://github.com/svennijhuis/agentPacks/blob/34e1dec3535baa1d77cb441ea8c98498dc9b3684/plugins/squad/skills/squad/references/review-contract.md)
 
 ## Links
 

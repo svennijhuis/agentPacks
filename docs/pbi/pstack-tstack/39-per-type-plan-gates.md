@@ -68,7 +68,8 @@ Exit 1 when any line prints.
 ## Definition of Done
 
 - [ ] `dotnet test tools/AgentPacks.Cli.Tests --filter PlanLintTests` exits 0.
-- [ ] Bad fixtures `bad-bugfix-no-repro`, `bad-refactor-no-pin`, `bad-perf-no-baseline`, `bad-feature-no-shape`, `bad-repro-no-command` each print exactly their id and exit 1.
+- [ ] Bad fixtures `bad-bugfix-no-repro` (PLAN13), `bad-refactor-no-pin` (PLAN14), `bad-perf-no-baseline` (PLAN15), `bad-feature-no-shape` (PLAN16), `bad-repro-no-command` (PLAN17) each print exactly their id and exit 1.
+- [ ] Good fixtures `good-bug-fix-repro`, `good-refactor-pin`, `good-perf-baseline`, `good-feature-shape` print nothing and exit 0.
 - [ ] PBI-16 gets one line: "Rule home: PLAN13 (AP39)". No second repro rule anywhere.
 - [ ] `planning-contract.md` documents the 4 lines once.
 - [ ] No em or en dashes.
@@ -93,7 +94,7 @@ Max iterations: 5
 Log: docs/plans/2026-10-26-validate-speed.decision.tsv
 ```
 
-DoD addition: `bash plugins/pack-check/skills/pack-check/scripts/check-plan.sh tools/AgentPacks.Cli.Tests/Fixtures/plan/bad-hillclimb-no-target.md` prints one PLAN18 line and exits 1.
+DoD addition: `bash plugins/pack-check/skills/pack-check/scripts/check-plan.sh tools/AgentPacks.Cli.Tests/Fixtures/plans/bad-hillclimb-no-target/2026-10-26-validate-speed.md` prints one PLAN18 line and exits 1.
 
 Sources: [talk 03:56](https://github.com/svennijhuis/agentPacks/blob/f537b585ee09b291afcd78c64cf5c62e8c93f1d6/docs/pbi/pstack-tstack/sources/poteto-2500prs-transcript.md#L19) (agent takes traces and hill climbs performance), [podcast about 18:01](https://www.youtube.com/watch?v=MN9dGgmLyso), pstack [`playbooks/hillclimb.md:3-16`](https://github.com/cursor/plugins/blob/9e88dad267e8991d26a6debc0db0d943d437104b/pstack/skills/poteto-mode/playbooks/hillclimb.md#L3-L16). CHECKLIST row 95 (hillclimb.md) changes from overslaan to aanpassen (PLAN18 only, no hillclimb playbook file).
 
@@ -109,10 +110,18 @@ Existing files link to main at the pinned SHA. New files use a repo-relative lin
 - edit: [`plugins/pack-check/skills/pack-check/scripts/check-plan.ps1`](https://github.com/svennijhuis/agentPacks/blob/34e1dec3535baa1d77cb441ea8c98498dc9b3684/plugins/pack-check/skills/pack-check/scripts/check-plan.ps1)
 - edit: [`plugins/squad/skills/squad/references/planning-contract.md`](https://github.com/svennijhuis/agentPacks/blob/34e1dec3535baa1d77cb441ea8c98498dc9b3684/plugins/squad/skills/squad/references/planning-contract.md)
 - edit: [`tools/AgentPacks.Cli.Tests/PlanLintTests.cs`](https://github.com/svennijhuis/agentPacks/blob/34e1dec3535baa1d77cb441ea8c98498dc9b3684/tools/AgentPacks.Cli.Tests/PlanLintTests.cs)
-- new: [`tools/AgentPacks.Cli.Tests/Fixtures/plans/bad-bugfix-no-repro.md`](../../../tools/AgentPacks.Cli.Tests/Fixtures/plans/bad-bugfix-no-repro.md)
-- new: [`tools/AgentPacks.Cli.Tests/Fixtures/plans/bad-refactor-no-pin.md`](../../../tools/AgentPacks.Cli.Tests/Fixtures/plans/bad-refactor-no-pin.md)
-- new: [`tools/AgentPacks.Cli.Tests/Fixtures/plans/bad-perf-no-baseline.md`](../../../tools/AgentPacks.Cli.Tests/Fixtures/plans/bad-perf-no-baseline.md)
-- new: [`tools/AgentPacks.Cli.Tests/Fixtures/plans/bad-feature-no-data-shape.md`](../../../tools/AgentPacks.Cli.Tests/Fixtures/plans/bad-feature-no-data-shape.md)
+- new: [`tools/AgentPacks.Cli.Tests/Fixtures/plans/bad-bugfix-no-repro/2026-10-27-login-retry.md`](../../../tools/AgentPacks.Cli.Tests/Fixtures/plans/bad-bugfix-no-repro/2026-10-27-login-retry.md)
+- new: [`tools/AgentPacks.Cli.Tests/Fixtures/plans/bad-refactor-no-pin/2026-10-27-totals.md`](../../../tools/AgentPacks.Cli.Tests/Fixtures/plans/bad-refactor-no-pin/2026-10-27-totals.md)
+- new: [`tools/AgentPacks.Cli.Tests/Fixtures/plans/bad-perf-no-baseline/2026-10-27-validate-speed.md`](../../../tools/AgentPacks.Cli.Tests/Fixtures/plans/bad-perf-no-baseline/2026-10-27-validate-speed.md)
+- new: [`tools/AgentPacks.Cli.Tests/Fixtures/plans/bad-feature-no-shape/2026-10-27-order-status.md`](../../../tools/AgentPacks.Cli.Tests/Fixtures/plans/bad-feature-no-shape/2026-10-27-order-status.md)
+- new: [`tools/AgentPacks.Cli.Tests/Fixtures/plans/bad-repro-no-command/2026-10-27-login-retry.md`](../../../tools/AgentPacks.Cli.Tests/Fixtures/plans/bad-repro-no-command/2026-10-27-login-retry.md)
+- new: [`tools/AgentPacks.Cli.Tests/Fixtures/plans/bad-hillclimb-no-target/2026-10-26-validate-speed.md`](../../../tools/AgentPacks.Cli.Tests/Fixtures/plans/bad-hillclimb-no-target/2026-10-26-validate-speed.md)
+- new: [`tools/AgentPacks.Cli.Tests/Fixtures/plans/good-bug-fix-repro/2026-10-27-login-retry.md`](../../../tools/AgentPacks.Cli.Tests/Fixtures/plans/good-bug-fix-repro/2026-10-27-login-retry.md)
+- new: [`tools/AgentPacks.Cli.Tests/Fixtures/plans/good-refactor-pin/2026-10-27-totals.md`](../../../tools/AgentPacks.Cli.Tests/Fixtures/plans/good-refactor-pin/2026-10-27-totals.md)
+- new: [`tools/AgentPacks.Cli.Tests/Fixtures/plans/good-perf-baseline/2026-10-27-validate-speed.md`](../../../tools/AgentPacks.Cli.Tests/Fixtures/plans/good-perf-baseline/2026-10-27-validate-speed.md)
+- new: [`tools/AgentPacks.Cli.Tests/Fixtures/plans/good-feature-shape/2026-10-27-order-status.md`](../../../tools/AgentPacks.Cli.Tests/Fixtures/plans/good-feature-shape/2026-10-27-order-status.md)
+
+Fixture layout is the AP37 one: one folder per case, one dated plan inside (check-plan needs the `<yyyy-mm-dd>-<slug>.md` name).
 
 ## Links
 

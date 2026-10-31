@@ -83,4 +83,6 @@ Existing files link to main at the pinned SHA. New files use a repo-relative lin
 - edit: [`plugins/pack-check/skills/pack-check/scripts/check-verify.ps1`](https://github.com/svennijhuis/agentPacks/blob/34e1dec3535baa1d77cb441ea8c98498dc9b3684/plugins/pack-check/skills/pack-check/scripts/check-verify.ps1)
 - edit: [`tools/AgentPacks.Cli.Tests/VerifyLintTests.cs`](https://github.com/svennijhuis/agentPacks/blob/34e1dec3535baa1d77cb441ea8c98498dc9b3684/tools/AgentPacks.Cli.Tests/VerifyLintTests.cs)
 - new (planned): [`tools/AgentPacks.Cli.Tests/Fixtures/verify/bad-no-features.md`](../../../tools/AgentPacks.Cli.Tests/Fixtures/verify/bad-no-features.md)
+- new (planned): [`tools/AgentPacks.Cli.Tests/Fixtures/verify/bad-feature-row.md`](../../../tools/AgentPacks.Cli.Tests/Fixtures/verify/bad-feature-row.md)
+- new (planned): [`tools/AgentPacks.Cli.Tests/Fixtures/verify/warn-inline-drive.md`](../../../tools/AgentPacks.Cli.Tests/Fixtures/verify/warn-inline-drive.md)
 - new (planned): [`tools/AgentPacks.Cli.Tests/Fixtures/verify/good-features.md`](../../../tools/AgentPacks.Cli.Tests/Fixtures/verify/good-features.md)

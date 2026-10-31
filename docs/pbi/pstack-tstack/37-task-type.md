@@ -65,8 +65,8 @@ New Route rows in [`skills/squad/SKILL.md`](https://github.com/svennijhuis/agent
 1. `planning-contract.md`: add the `Task type:` line under `## Request` for full-loop plans.
 2. `check-plan.sh` + `.ps1`: add PLAN12. Switch the output to `<file>:<line> <ID> <message> (fix: ...)` for every rule (PLAN01 to PLAN11 get ids, text unchanged). See README "Old to new".
 3. [`skills/squad/SKILL.md`](https://github.com/svennijhuis/agentPacks/blob/34e1dec3535baa1d77cb441ea8c98498dc9b3684/plugins/squad/skills/squad/SKILL.md): 3 new Route rows.
-4. Fixtures under `tools/AgentPacks.Cli.Tests/Fixtures/plans/`: `good-bug-fix/`, `bad-no-task-type/`, `bad-unknown-task-type/`.
-5. `PlanLintTests.cs`: assert the id per fixture, and assert that every existing message now carries its id.
+4. Fixtures under `tools/AgentPacks.Cli.Tests/Fixtures/plans/`: one folder per case (`good-bug-fix/`, `bad-no-task-type/`, `bad-unknown-task-type/`), each holding one dated plan `2026-10-27-login-retry.md`. One folder per case because check-plan needs the `<yyyy-mm-dd>-<slug>.md` file name. This is the one fixture layout for AP37 and AP39.
+5. `PlanLintTests.cs`: run check-plan on each fixture file in place (today the tests write a dated plan into a temp dir; the new cases read the checked-in fixtures instead), assert the id per fixture, and assert that every existing message now carries its id.
 
 ## Definition of Done
 
@@ -95,8 +95,9 @@ Existing files link to main at the pinned SHA. New files use a repo-relative lin
 - edit: [`plugins/pack-check/skills/pack-check/scripts/check-plan.sh`](https://github.com/svennijhuis/agentPacks/blob/34e1dec3535baa1d77cb441ea8c98498dc9b3684/plugins/pack-check/skills/pack-check/scripts/check-plan.sh)
 - edit: [`plugins/pack-check/skills/pack-check/scripts/check-plan.ps1`](https://github.com/svennijhuis/agentPacks/blob/34e1dec3535baa1d77cb441ea8c98498dc9b3684/plugins/pack-check/skills/pack-check/scripts/check-plan.ps1)
 - edit: [`tools/AgentPacks.Cli.Tests/PlanLintTests.cs`](https://github.com/svennijhuis/agentPacks/blob/34e1dec3535baa1d77cb441ea8c98498dc9b3684/tools/AgentPacks.Cli.Tests/PlanLintTests.cs)
-- new: [`tools/AgentPacks.Cli.Tests/Fixtures/plans/bad-no-task-type.md`](../../../tools/AgentPacks.Cli.Tests/Fixtures/plans/bad-no-task-type.md)
-- new: [`tools/AgentPacks.Cli.Tests/Fixtures/plans/bad-unknown-task-type.md`](../../../tools/AgentPacks.Cli.Tests/Fixtures/plans/bad-unknown-task-type.md)
+- new: [`tools/AgentPacks.Cli.Tests/Fixtures/plans/good-bug-fix/2026-10-27-login-retry.md`](../../../tools/AgentPacks.Cli.Tests/Fixtures/plans/good-bug-fix/2026-10-27-login-retry.md)
+- new: [`tools/AgentPacks.Cli.Tests/Fixtures/plans/bad-no-task-type/2026-10-27-login-retry.md`](../../../tools/AgentPacks.Cli.Tests/Fixtures/plans/bad-no-task-type/2026-10-27-login-retry.md)
+- new: [`tools/AgentPacks.Cli.Tests/Fixtures/plans/bad-unknown-task-type/2026-10-27-login-retry.md`](../../../tools/AgentPacks.Cli.Tests/Fixtures/plans/bad-unknown-task-type/2026-10-27-login-retry.md)
 
 ## Links
 

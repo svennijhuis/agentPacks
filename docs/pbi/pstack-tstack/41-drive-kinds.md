@@ -57,7 +57,7 @@ Screenshot: `$(git rev-parse --git-dir)/squad/verify/<slug>/<run-id>/add-to-cart
 ## Exact check-verify output
 
 ```text
-docs/verify.md:14 VER05 Drive entry has no Kind: api, cli or ui (fix: add 'Kind: api|cli|ui')
+docs/verify.md:14 VER05 Drive entry has no Kind: api, cli, ui or trace (fix: add 'Kind: api|cli|ui|trace')
 docs/verify.md:22 VER06 cli Drive entry waits with sleep (fix: use 'Wait for: <prompt or line>')
 docs/verify.md:31 VER07 ui Drive entry installs browser tooling or has no screenshot path (fix: use the repo's Playwright; add 'Screenshot:')
 ```
@@ -86,7 +86,7 @@ docs/verify.md:31 VER07 ui Drive entry installs browser tooling or has no screen
 
 Sharpened with a fourth kind, `trace`, for performance evidence (audit [audit M12](https://github.com/svennijhuis/agentPacks/blob/f537b585ee09b291afcd78c64cf5c62e8c93f1d6/docs/pbi/pstack-tstack/sources/fleet-podcast-audit.md#L95), [audit G6](https://github.com/svennijhuis/agentPacks/blob/f537b585ee09b291afcd78c64cf5c62e8c93f1d6/docs/pbi/pstack-tstack/sources/fleet-podcast-audit.md#L111)). poteto's first skill drove the app over the Chrome DevTools Protocol to take traces and heap snapshots ([talk 03:09](https://github.com/svennijhuis/agentPacks/blob/f537b585ee09b291afcd78c64cf5c62e8c93f1d6/docs/pbi/pstack-tstack/sources/poteto-2500prs-transcript.md#L17), [talk 07:05](https://github.com/svennijhuis/agentPacks/blob/f537b585ee09b291afcd78c64cf5c62e8c93f1d6/docs/pbi/pstack-tstack/sources/poteto-2500prs-transcript.md#L27), [talk 08:40](https://github.com/svennijhuis/agentPacks/blob/f537b585ee09b291afcd78c64cf5c62e8c93f1d6/docs/pbi/pstack-tstack/sources/poteto-2500prs-transcript.md#L31)).
 
-A `Kind: trace` Drive entry names `Artifact:` (the trace, profile or heap snapshot path) and `Metric:` (what is read from it). It feeds `## Budgets` ([AP54](54-measured-budgets.md)).
+A `Kind: trace` Drive entry names `Artifact:` (the trace, profile or heap snapshot path) and `Metric:` (what is read from it). It feeds `## Budgets` ([AP54](54-measured-budgets.md)). VER05 accepts `api|cli|ui|trace`, so a valid trace entry passes VER05 and only VER09 checks its two lines.
 
 ```markdown
 ### open-chat (trace)
@@ -114,6 +114,7 @@ Existing files link to main at the pinned SHA. New files use a repo-relative lin
 - edit: [`plugins/pack-check/skills/pack-check/scripts/check-verify.ps1`](https://github.com/svennijhuis/agentPacks/blob/34e1dec3535baa1d77cb441ea8c98498dc9b3684/plugins/pack-check/skills/pack-check/scripts/check-verify.ps1)
 - edit: [`tools/AgentPacks.Cli.Tests/VerifyLintTests.cs`](https://github.com/svennijhuis/agentPacks/blob/34e1dec3535baa1d77cb441ea8c98498dc9b3684/tools/AgentPacks.Cli.Tests/VerifyLintTests.cs)
 - edit: [`tools/AgentPacks.Cli.Tests/VerifyHarnessContractTests.cs`](https://github.com/svennijhuis/agentPacks/blob/34e1dec3535baa1d77cb441ea8c98498dc9b3684/tools/AgentPacks.Cli.Tests/VerifyHarnessContractTests.cs)
+- new (planned): [`tools/AgentPacks.Cli.Tests/Fixtures/verify/bad-trace.md`](../../../tools/AgentPacks.Cli.Tests/Fixtures/verify/bad-trace.md)
 
 ## Links
 

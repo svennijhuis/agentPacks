@@ -4,7 +4,7 @@
 - Phase: H architecture
 - Lane: Builder
 - Depends on: [AP62](62-patterns-catalog.md) (PA02, PA04), [AP63](63-rules-catalog.md) (R13, R14), [AP50](50-open-decisions.md) L4 (size number)
-- proof: `bash plugins/pack-check/skills/pack-check/scripts/check-diff.sh --base origin/main` in the fixture repo prints one DIFF01 warning and one DIFF05 warning, exit 0; `dotnet test tools/AgentPacks.Cli.Tests --filter DiffLintTests` exits 0
+- proof: `bash plugins/pack-check/skills/pack-check/scripts/check-diff.sh --base origin/main` in the fixture repo `tools/AgentPacks.Cli.Tests/Fixtures/diff-repo/` prints one DIFF02 warning and one DIFF05 warning (the two lines under Example output), exit 0; `dotnet test tools/AgentPacks.Cli.Tests --filter DiffLintTests` exits 0
 - door: two-way
 - triage: build (Sven must-cover theme 5)
 - feedback: `DiffLintTests` (new) on a fixture git repo
@@ -72,3 +72,4 @@ Existing files link to main at the pinned SHA. New files use a repo-relative lin
 - new (planned): [`plugins/pack-check/skills/pack-check/scripts/check-diff.sh`](../../../plugins/pack-check/skills/pack-check/scripts/check-diff.sh)
 - new (planned): [`plugins/pack-check/skills/pack-check/scripts/check-diff.ps1`](../../../plugins/pack-check/skills/pack-check/scripts/check-diff.ps1)
 - new (planned): [`tools/AgentPacks.Cli.Tests/DiffLintTests.cs`](../../../tools/AgentPacks.Cli.Tests/DiffLintTests.cs)
+- new (planned): [`tools/AgentPacks.Cli.Tests/Fixtures/diff-repo/`](../../../tools/AgentPacks.Cli.Tests/Fixtures/diff-repo/) (fixture git repo: `src/Orders/OrderService.cs` grows from 380 to 455 lines, new `tools/helpers/x.cs`; DiffLintTests builds it in a temp dir)

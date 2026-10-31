@@ -1,6 +1,6 @@
 # PBI-55 (AP55): Import-graph boundaries as a test in each language pack
 - Status: todo
-- Area: dotnet, typescript, rust
+- Area: dotnet
 - Phase: H architecture
 - Lane: Builder
 - Depends on: none (soft: [AP62](62-patterns-catalog.md) PA05 names the pattern)
@@ -30,8 +30,8 @@ Every language pack whose standards have a `## Dependency rule` ships a boundary
 | Pack | Template | How it reads the graph |
 |---|---|---|
 | dotnet | `plugins/dotnet/templates/BoundaryTests.cs` | parses `*.csproj` `ProjectReference` (XML, no new package) |
-| typescript | `plugins/typescript/templates/boundaries.eslint.md` | `no-restricted-imports` zones, only when the repo already uses ESLint |
-| rust | `plugins/rust/templates/boundary_test.rs` | `cargo metadata` workspace deps |
+
+Today only [`plugins/dotnet/standards/layers.md:10`](https://github.com/svennijhuis/agentPacks/blob/34e1dec3535baa1d77cb441ea8c98498dc9b3684/plugins/dotnet/standards/layers.md#L10) has `## Dependency rule`, so dotnet is the only pack in scope. typescript (`no-restricted-imports`) and rust (`cargo metadata`) templates wait until those packs state a dependency rule in their own PBI.
 
 Contract: BND01 in `LanguagePackContractTests`.
 
@@ -72,5 +72,3 @@ Existing files link to main at the pinned SHA. New files use a repo-relative lin
 - edit: [`plugins/dotnet/standards/layers.md`](https://github.com/svennijhuis/agentPacks/blob/34e1dec3535baa1d77cb441ea8c98498dc9b3684/plugins/dotnet/standards/layers.md)
 - edit: [`tools/AgentPacks.Cli.Tests/LanguagePackContractTests.cs`](https://github.com/svennijhuis/agentPacks/blob/34e1dec3535baa1d77cb441ea8c98498dc9b3684/tools/AgentPacks.Cli.Tests/LanguagePackContractTests.cs)
 - new (planned): [`plugins/dotnet/templates/BoundaryTests.cs`](../../../plugins/dotnet/templates/BoundaryTests.cs)
-- new (planned): [`plugins/typescript/templates/boundaries.eslint.md`](../../../plugins/typescript/templates/boundaries.eslint.md)
-- new (planned): [`plugins/rust/templates/boundary_test.rs`](../../../plugins/rust/templates/boundary_test.rs)

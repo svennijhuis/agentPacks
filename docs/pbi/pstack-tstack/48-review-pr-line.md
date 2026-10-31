@@ -25,9 +25,9 @@ One fixed reply shape lets PO and Builder find the verdict and the open ids at a
 
 ## PR body line (goes in AP45's `## Verification`)
 
-`Reviewed in <n> rounds (budget <b>) by Reviewer. Verdict: <PASS|BLOCKED (out of budget)|BLOCKED (escalated F02)>. Open: <none|F03 nit, declined>.`
+`Reviewed in <n> rounds (budget <b>) by Reviewer. Verdict: <PASS|BLOCKED (out of budget)|BLOCKED (escalated F02)>. Open: <none|F03 low, declined>.`
 
-Example: `Reviewed in 2 rounds (budget 5, auth) by Reviewer. Verdict: PASS. Open: F03 nit, declined.`
+Example: `Reviewed in 2 rounds (budget 5, auth) by Reviewer. Verdict: PASS. Open: F03 low, declined.`
 
 No model name, no tool name. "Reviewer" is our Reviewer bot.
 
@@ -38,11 +38,11 @@ No model name, no tool name. "Reviewer" is our Reviewer bot.
 Scope: changed since 5e8d0c2 + open F01, F02.
 F01 resolved.
 F02 still open: retry also fires on 403 (TokenRefresher.cs:51, test RetryOn403 red). Fix: narrow the condition to 401.
-F05 [should] Auth.cs:90 cache never cleared on logout. Fix: delete the cache, call the store.
-I think we need to fix: F02, F05. Nits: none.
+F05 [medium] Auth.cs:90 cache never cleared on logout. Fix: delete the cache, call the store.
+I think we need to fix: F02, F05. Low: none.
 ```
 
-PASS reply: `Round 3/5 (auth) on 9b0c1d2. PASS. Open: F03 nit, declined. PR line ready.`
+PASS reply: `Round 3/5 (auth) on 9b0c1d2. PASS. Open: F03 low, declined. PR line ready.`
 Out of budget: `Round 5/5 on ... BLOCKED (out of budget). F02: <reviewer side>. <builder side>. Sven decides.`
 
 Comments posted for Sven follow the room rule: lead with the verdict, cite code, separate fact from judgment.

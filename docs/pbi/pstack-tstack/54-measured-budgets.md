@@ -74,5 +74,6 @@ Existing files link to main at the pinned SHA. New files use a repo-relative lin
 - edit: [`plugins/squad/skills/verify-harness/SKILL.md`](https://github.com/svennijhuis/agentPacks/blob/34e1dec3535baa1d77cb441ea8c98498dc9b3684/plugins/squad/skills/verify-harness/SKILL.md)
 - edit: [`plugins/squad/agents/squad-verifier.md`](https://github.com/svennijhuis/agentPacks/blob/34e1dec3535baa1d77cb441ea8c98498dc9b3684/plugins/squad/agents/squad-verifier.md)
 - edit: [`plugins/pack-check/skills/pack-check/scripts/check-verify.sh`](https://github.com/svennijhuis/agentPacks/blob/34e1dec3535baa1d77cb441ea8c98498dc9b3684/plugins/pack-check/skills/pack-check/scripts/check-verify.sh)
+- edit: [`tools/AgentPacks.Cli.Tests/VerificationEvidenceTests.cs`](https://github.com/svennijhuis/agentPacks/blob/34e1dec3535baa1d77cb441ea8c98498dc9b3684/tools/AgentPacks.Cli.Tests/VerificationEvidenceTests.cs) (budget row without runs and spread is rejected)
 - new (planned): [`tools/AgentPacks.Cli.Tests/Fixtures/verify/bad-budget.md`](../../../tools/AgentPacks.Cli.Tests/Fixtures/verify/bad-budget.md)
 - new (planned): [`tools/AgentPacks.Cli.Tests/Fixtures/verify/good-budget.md`](../../../tools/AgentPacks.Cli.Tests/Fixtures/verify/good-budget.md)

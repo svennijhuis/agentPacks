@@ -26,11 +26,12 @@ Then the next round only checks the open ids, and nobody agrees just to finish.
 
 ## Finding line
 
-`F<nn> [<blocker|should|nit>] <file>:<line> <claim>. Fix: <smallest fix>`
+`F<nn> [<high|medium|low|tiny>] <file>:<line> <claim>. Fix: <smallest fix>`
 
-- `blocker`: the intended case is wrong.
-- `should`: a real bug callers will hit, inside the intent.
-- `nit`: everything else: other paths, rare cases, small perf, extra compat, style.
+- `high` (chat alias `blocker`): the intended case is wrong.
+- `medium` (chat alias `should`): a real bug callers will hit, inside the intent.
+- `low` or `tiny` (chat alias `nit`): everything else: other paths, rare cases, small perf, extra compat, style.
+- Decision L2 (AP50): the finding line and the ledger store only these 4 words. REV05 accepts only them. The alias table lives once in `review-contract.md ## Severity`.
 - The reviewer prefers the smallest fix: delete or narrow, before a new lock, cache, helper or option.
 - Ids never change and are never reused. A new problem in round 2 gets the next free id.
 
@@ -41,10 +42,10 @@ Then the next round only checks the open ids, and nobody agrees just to finish.
 
 | Id | Severity | Outcome | Evidence |
 |---|---|---|---|
-| F01 | blocker | fixed | 7a2f4b1; repro base 500, tree 401 (measured) |
-| F02 | should | disagree | `TokenRefresher.cs:44` already retries only on 401; test `RetryOnlyOn401` passes on 3c1d9e0 |
-| F03 | nit | declined | out of scope: logging format; follow-up PBI candidate |
-| F04 | should | fixed | deleted the extra cache in `Auth.cs:88` (narrowed, not added) |
+| F01 | high | fixed | 7a2f4b1; repro base 500, tree 401 (measured) |
+| F02 | medium | disagree | `TokenRefresher.cs:44` already retries only on 401; test `RetryOnlyOn401` passes on 3c1d9e0 |
+| F03 | low | declined | out of scope: logging format; follow-up PBI candidate |
+| F04 | medium | fixed | deleted the extra cache in `Auth.cs:88` (narrowed, not added) |
 ```
 
 Rules:

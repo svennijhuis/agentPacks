@@ -75,7 +75,17 @@ Legend: Fleet = Fleet verdict for AP (gist-review.md). Main = agentPacks `34e1de
 | 31 | Measure skill impact | "quite difficult to measure ... the impact of the skill" | 1:58 | gap | none | no; #80 PBI-18 |
 | 32 | Clean context | "some benefits to ... having a clean context window" | ~20:30 | partly | `squad-verifier.md:28`, `squad-implementer.md:27` | AP44 (Guard the context window) |
 
-Tally. On main or in substance: 1, 5, 11, 17 (prose), 23 (row), 26, 27, 29, 30, 32 = 10. Only in open PR #80: 3, 4, 6, 8, 15-18 = 7 PBIs, none built. Nowhere in agentPacks: 2, 9, 20, 21, 28, 31 (31 only as #80 PBI-18).
+Tally (each point in exactly one bucket, first match wins: a file:line or file in the Main column, then the #83 column, then #80, then other open PRs, then AW or not ours, else nowhere):
+
+| Bucket | Points | Count |
+|---|---|---|
+| On main, at least in substance | 1, 5, 8, 10, 11, 17 (prose), 18 (`docs/retros/`), 23 (row), 25, 26, 27, 29, 30, 32 | 14 |
+| Only in #83 (partly or yes) | 3 (AP41), 4 (AP44), 7 (AP44) | 3 |
+| Only in #80 | 6 (PBI-19), 31 (PBI-18) | 2 |
+| Only in other open PRs | 9 (#77), 19 (#78, #81) | 2 |
+| AW or not ours | 12, 13, 14, 15, 16, 20, 21, 24 | 8 |
+| Nowhere | 2, 22, 28 | 3 |
+| Total | | 32 |
 
 ## 4. What Fleet missed (in gist_full.txt, not in the 32 points)
 

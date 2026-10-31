@@ -37,14 +37,14 @@ Running out of rounds does not mean the code is good. It means Sven decides.
 
 ## The contract (new file references/review-loop.md)
 
-- Budget: 3 review rounds. 5 only when the diff touches security, permissions, auth, data loss, or state and concurrency, and a `blocker` or `should` is still open with evidence. Or when Sven says so. The review file states it: `Budget: 3` or `Budget: 5 (auth)`.
+- Budget: 3 review rounds. 5 only when the diff touches security, permissions, auth, data loss, or state and concurrency, and a `high` or `medium` finding is still open with evidence. Or when Sven says so. The review file states it: `Budget: 3` or `Budget: 5 (auth)`.
 - Round 1 reviews the whole change. Round 2+ reviews only code changed since the last round plus the open ids.
-- Stop early when a round returns only `nit`. Declined nits and comment, doc or format-only fixes need no new round.
-- Start a new round only if budget remains and a `blocker` or `should` is open, behavior code changed, or the last APPROVE does not cover the current behavior diff.
+- Stop early when a round returns only `low` or `tiny`. Declined `low`/`tiny` findings and comment, doc or format-only fixes need no new round.
+- Start a new round only if budget remains and a `high` or `medium` finding is open, behavior code changed, or the last PASS does not cover the current behavior diff.
 - Out of budget is not approval: the verdict is `BLOCKED (out of budget)`, both sides in 2 to 3 lines each, Sven decides.
 - One reviewer per round. The reviewer never edits, commits, pushes, or starts other reviewers.
 
-Severity words (decision L2): `blocker` = `high`, `should` = `medium`, `nit` = `low` or `tiny` ([`review-contract.md:5-14`](https://github.com/svennijhuis/agentPacks/blob/34e1dec3535baa1d77cb441ea8c98498dc9b3684/plugins/squad/skills/squad/references/review-contract.md#L5-L14)).
+Verdict words (AP43, decision L1): `PASS`, `FAIL`, `BLOCKED`, the room words. Severity words (decision L2): the review file stores only `high | medium | low | tiny`; `blocker` = `high`, `should` = `medium`, `nit` = `low` or `tiny` is a chat alias in `review-contract.md ## Severity`, never written to the file ([`review-contract.md:5-14`](https://github.com/svennijhuis/agentPacks/blob/34e1dec3535baa1d77cb441ea8c98498dc9b3684/plugins/squad/skills/squad/references/review-contract.md#L5-L14)).
 
 ## Example review file head
 
@@ -54,7 +54,7 @@ Budget: 5 (auth)
 Base: 3c1d9e0  Head: 7a2f4b1
 ## Round 2
 Scope: changed since 5e8d0c2 + open ids F01, F03
-VERDICT: CHANGES
+VERDICT: FAIL
 ```
 
 ## Exact check-review output
@@ -72,7 +72,7 @@ docs/reviews/2026-10-27-login-retry.md:52 REV04 warning: round 2 finding F07 out
 |---|---|---|
 | Rounds on a PR | unbounded | 3, or 5 with a named risk |
 | Round 3 reviewer reads | whole diff again | changed code + open ids |
-| Round budget spent, still CHANGES | ambiguous | BLOCKED, Sven decides |
+| Round budget spent, still FAIL | ambiguous | BLOCKED, Sven decides |
 
 ## Definition of Done
 

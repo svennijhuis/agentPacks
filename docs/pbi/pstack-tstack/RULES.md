@@ -15,14 +15,14 @@ One home per rule, one output format, stable ids. Index: [README.md](README.md).
 | RETRO | `.../scripts/check-retro.sh` + `.ps1` | `/squad`, `/squad-review` after the retro; `PackCheckContractTests` |
 | SCN | `.../scripts/check-scenarios.sh` + `.ps1` (new in AP42) | `/scenarios`; `HttpScenariosContractTests` |
 | REV | `.../scripts/check-review.sh` + `.ps1` (new in AP47) | `/squad-review`; `ReviewLoopTests` (new) |
-| VCLI | [`tools/AgentPacks.Cli/Validation/VerifyCliValidator.cs`](../../../tools/AgentPacks.Cli/Validation/VerifyCliValidator.cs) (AP33) | `agentpacks validate`; `VerifyCliContractTests` |
+| VCLI | `tools/AgentPacks.Cli/Validation/VerifyCliValidator.cs` (planned, AP33; not on main yet) | `agentpacks validate`; `VerifyCliContractTests` |
 | SQD | [`tools/AgentPacks.Cli.Tests/SquadContractTests.cs`](https://github.com/svennijhuis/agentPacks/blob/34e1dec3535baa1d77cb441ea8c98498dc9b3684/tools/AgentPacks.Cli.Tests/SquadContractTests.cs) (rules about our own pack files) | `dotnet test` |
 | DIFF | `.../scripts/check-diff.sh` + `.ps1` (new in AP57) | `/squad` verifier on the working diff; `DiffLintTests` (new) |
 | BND | [`tools/AgentPacks.Cli.Tests/LanguagePackContractTests.cs`](https://github.com/svennijhuis/agentPacks/blob/34e1dec3535baa1d77cb441ea8c98498dc9b3684/tools/AgentPacks.Cli.Tests/LanguagePackContractTests.cs) (AP55) | `dotnet test` |
 | PAT, RUL | `tools/AgentPacks.Cli.Tests/StandardsCatalogTests.cs` (new in AP62) | `dotnet test` |
-| TPL, ARC, A, DONE, LINK | `scripts/check-pbi-template.sh`, `scripts/check-pbi-docs.sh` (AP36, ported from agentic-workflows, names kept so both repos match) | CI step `PBI checks` |
+| TPL, ARC, A, DONE, LINK | `scripts/check-pbi-template.sh`, `scripts/check-pbi-docs.sh` (planned, AP36; not on main yet; ported from agentic-workflows, names kept so both repos match) | one more `run:` step inside the existing `validate` job in [`.github/workflows/validate.yml`](https://github.com/svennijhuis/agentPacks/blob/7dc0435fb88be4efa4a6e2bfd63556d668a0ea6c/.github/workflows/validate.yml), no new job or workflow |
 
-[`docs/GUARDS.md`](../../../docs/GUARDS.md) (AP34) lists these ids. It does not make new ones.
+`docs/GUARDS.md` (planned, AP34; not on main yet) lists these ids. It does not make new ones.
 
 ## Output format (every script)
 
@@ -55,7 +55,7 @@ Rule severity (error, warn) is not finding severity (high, medium, low, tiny). R
 | VER02 | error | check-verify | em dash | use a period or comma | existing |
 | VER03 | error | check-verify | secret-looking value | use a placeholder or `$(...)` | existing |
 | VER04 | error | check-verify | get-access-token outside $( | wrap it in `$(...)` | existing |
-| VER05 | error | check-verify | Drive entry has no Kind: api, cli or ui | add `Kind:` | AP41 |
+| VER05 | error | check-verify | Drive entry has no Kind: api, cli, ui or trace | add `Kind:` (api, cli, ui or trace) | AP41 |
 | VER06 | error | check-verify | cli Drive entry waits with sleep | wait for a prompt or line (`Wait for:`) | AP41 |
 | VER07 | error | check-verify | ui Drive entry installs browser tooling or has no screenshot path | use the repo's Playwright; add `Screenshot:` | AP41 |
 | VER08 | error | check-verify | reserved: missing or renamed harness command | owned by PBI-20 | PBI-20 |
@@ -82,7 +82,7 @@ Rule severity (error, warn) is not finding severity (high, medium, low, tiny). R
 | SQD04 | error | SquadContractTests | an agent cites an engineering.md section that does not exist | fix the name | AP44 |
 | SQD05 | error | SquadContractTests | handoff.md lacks one of Why, What changed, Scope, Blast radius, Verification | add the heading | AP45 |
 | VCLI01 to VCLI06 | error | VerifyCliValidator | see AP33 | see AP33 | AP33 (unchanged) |
-| TPL01, TPL02, ARC08, A1, DONE, LINK | error | PBI checks | see AP36 | see AP36 | AP36 (unchanged) |
+| TPL01, TPL02, ARC08, A1, DONE, LINK | error | `check-pbi-*.sh` (step in the `validate` job) | see AP36 | see AP36 | AP36 (unchanged) |
 | PLAN18 | error | check-plan | perf plan with Loop: hillclimb needs Target:, Max iterations: (<= 5) and Log: | add the three lines | AP39 (update) |
 | PLAN19 | warn | check-plan | slice creates a file under a concern with no Example in docs/paved-paths.md | add Example to the row | AP60 |
 | VER09 | error | check-verify | trace Drive entry needs Artifact: and Metric: | add both | AP41 (update) |
@@ -92,7 +92,7 @@ Rule severity (error, warn) is not finding severity (high, medium, low, tiny). R
 | VER13 | error | check-verify | budget row needs Metric, Limit, Command and Runs >= 3 | fill the row | AP54 |
 | VER14 | error | check-verify | trust level claims evidence that is missing | lower the level or add the evidence | AP56 |
 | REV12 | error | check-review | finding has no Guard: | add Guard: <layer> | AP51 |
-| REV13 | warn | check-review | Guard: rule or skill without why not lint: | add the reason or pick a stronger layer | AP51 |
+| REV13 | warn | check-review | Guard: doc without why not lint: | add the reason or pick a stronger layer | AP51 |
 | RETRO04 | error | check-retro | weeds row needs Date, PR, file:line, Smell, Guard, Seen | fill the row | AP59 |
 | DIFF01 | warn | check-diff | new file over 400 lines | split by feature folder | AP57 |
 | DIFF02 | warn | check-diff | file grew past 400 lines | split by feature folder | AP57 |

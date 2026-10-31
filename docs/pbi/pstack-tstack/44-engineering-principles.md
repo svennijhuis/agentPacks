@@ -15,8 +15,8 @@
 
 ## Problem now
 
-[`shared/standards/engineering.md`](https://github.com/svennijhuis/agentPacks/blob/34e1dec3535baa1d77cb441ea8c98498dc9b3684/shared/standards/engineering.md) has 13 sections ([`:5-74`](https://github.com/svennijhuis/agentPacks/blob/34e1dec3535baa1d77cb441ea8c98498dc9b3684/shared/standards/engineering.md#L5-L74)). Seven pstack principles have no home:
-build the lever, foundational thinking, migrate callers then delete, never block on the human, outcome-oriented execution, guard the context window (only [`squad-verifier.md:28`](https://github.com/svennijhuis/agentPacks/blob/34e1dec3535baa1d77cb441ea8c98498dc9b3684/plugins/squad/agents/squad-verifier.md#L28)), type system discipline (partly [`:30`](https://github.com/svennijhuis/agentPacks/blob/34e1dec3535baa1d77cb441ea8c98498dc9b3684/plugins/squad/agents/squad-verifier.md#L30)).
+[`shared/standards/engineering.md`](https://github.com/svennijhuis/agentPacks/blob/34e1dec3535baa1d77cb441ea8c98498dc9b3684/shared/standards/engineering.md) has 12 `##` sections ([`:5-74`](https://github.com/svennijhuis/agentPacks/blob/34e1dec3535baa1d77cb441ea8c98498dc9b3684/shared/standards/engineering.md#L5-L74)). Seven pstack principles have no home:
+build the lever, foundational thinking, migrate callers then delete, never block on the human, outcome-oriented execution, guard the context window (only [`squad-verifier.md:28`](https://github.com/svennijhuis/agentPacks/blob/34e1dec3535baa1d77cb441ea8c98498dc9b3684/plugins/squad/agents/squad-verifier.md#L28)), type system discipline (partly [`engineering.md:30-35`](https://github.com/svennijhuis/agentPacks/blob/34e1dec3535baa1d77cb441ea8c98498dc9b3684/shared/standards/engineering.md#L30-L35) `## Guard at boundaries`, parse into named domain types).
 Reviewers cite sections by name ([`engineering.md:3`](https://github.com/svennijhuis/agentPacks/blob/34e1dec3535baa1d77cb441ea8c98498dc9b3684/shared/standards/engineering.md#L3)), so a missing section is a rule nobody can cite.
 
 ## Why (plain words)
@@ -59,7 +59,7 @@ Plus one line each:
 
 | | Before | After |
 |---|---|---|
-| Sections | 13 | 20 |
+| `##` sections | 12 | 19 (21 with the two from the 2026-10-26 update) |
 | Reviewer can cite "Migrate callers, then delete" | no | yes, SQD04 keeps it valid |
 
 ## Definition of Done
@@ -99,6 +99,7 @@ Existing files link to main at the pinned SHA. New files use a repo-relative lin
 - edit: [`shared/standards/engineering.md`](https://github.com/svennijhuis/agentPacks/blob/34e1dec3535baa1d77cb441ea8c98498dc9b3684/shared/standards/engineering.md)
 - edit: [`plugins/squad/agents/squad-reviewer.md`](https://github.com/svennijhuis/agentPacks/blob/34e1dec3535baa1d77cb441ea8c98498dc9b3684/plugins/squad/agents/squad-reviewer.md)
 - edit: [`plugins/squad/agents/squad-architect.md`](https://github.com/svennijhuis/agentPacks/blob/34e1dec3535baa1d77cb441ea8c98498dc9b3684/plugins/squad/agents/squad-architect.md)
+- edit: [`plugins/squad/rules/review-checklist.mdc`](https://github.com/svennijhuis/agentPacks/blob/34e1dec3535baa1d77cb441ea8c98498dc9b3684/plugins/squad/rules/review-checklist.mdc)
 - edit: [`tools/AgentPacks.Cli.Tests/SquadContractTests.cs`](https://github.com/svennijhuis/agentPacks/blob/34e1dec3535baa1d77cb441ea8c98498dc9b3684/tools/AgentPacks.Cli.Tests/SquadContractTests.cs)
 - edit: [`tools/AgentPacks.Cli.Tests/StandardsGenerationTests.cs`](https://github.com/svennijhuis/agentPacks/blob/34e1dec3535baa1d77cb441ea8c98498dc9b3684/tools/AgentPacks.Cli.Tests/StandardsGenerationTests.cs)
 
