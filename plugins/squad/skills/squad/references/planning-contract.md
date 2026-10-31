@@ -160,7 +160,7 @@ Ownership: the architect owns `## Design` and `## Map` (where the change goes an
 owns `## Slices` (what gets built and in what order). Each slice lists its files (taken from the Map),
 the test it adds, and its done check. A change that touches more than one project needs at least 2 slices, or a `Single slice because: <reason>` line under `## Slices`.
 
-If the work is too big for one implementer pass, write ordered `## Slices` (data structures and scaffold first, ports and seams before adapters, each slice ending green). Do not stop the human for size alone. Cap: ≤3 slices without asking; more → ask. A slice that would ship a known-worse shape → stop, split, or ask. One plan file. Same branch. Sequential: one fresh `squad-implementer` per slice, then the next.
+If the work is too big for one implementer pass, write ordered `## Slices` (data structures and scaffold first, ports and seams before adapters, each slice ending green). Do not stop the human for size alone. Cap: ≤3 slices; more → session split: return `Session split: <n> steps` instead of a plan, and the main agent writes `docs/squad-plan.md` and stops ([session split](session-split.md)). A slice that would ship a known-worse shape → stop, split, or ask. One plan file. Same branch. Sequential: one fresh `squad-implementer` per slice, then the next.
 
 Write mode is valid only when the input includes the user's confirmation, every applicable decision branch is settled, and the open frontier is empty. Otherwise return the missing condition without writing.
 

@@ -53,6 +53,11 @@ are rewritten in place; do not append forever inside the plan.
 
 Cost-first: default `inherit`. Every `squad-*` agent is `standard` except `squad-architect` (`frontier`); none uses `fast`. Copilot ids use dotted versions (`claude-sonnet-5.5`).
 
+## Session split
+
+Read [session split](references/session-split.md). Before step 1: `docs/squad-plan.md` with an open task → task mode: lowest open task only, through the route above, mark it `done` when its done-check passes, stop. The next task runs on the next `/squad`, in a new session.
+Else after step 2, fits one session? Over any limit (more than one PBI or outcome, more than 3 steps, more than 10 files) → write `docs/squad-plan.md`, build no code, spawn nobody, stop.
+
 ## Gated agents
 
 | Agent | When | Job |

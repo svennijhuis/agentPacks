@@ -39,6 +39,11 @@ The main agent owns user interaction, invokes `squad-planner` once per question 
 
 Obvious typos, renames, and one-line fixes take the small-change route: the main agent implements and verifies directly, with a tiny plan (goal, decision, verify command) and without invoking planner, implementer, verifier, or review agents.
 
+Work too big for one session (more than one PBI, more than 3 steps, or more than 10 files) is not
+built. `/squad` writes `docs/squad-plan.md` with numbered tasks (Goal, Done-check, Status `open` or `done`)
+and stops. Each later `/squad`, in a new session, does exactly one open task, marks it `done` when its
+done-check passes, and stops. See [session split](skills/squad/references/session-split.md).
+
 ## Components
 
 | Component | Name | Responsibility |
@@ -48,6 +53,7 @@ Obvious typos, renames, and one-line fixes take the small-change route: the main
 | Skill | `verify-harness` | Hidden loop skill. Writes `docs/verify.md` (Launch/Doctor/Drive/Evidence/Cleanup), dry-runs it once, and rewrites tracked `docs/smoke-report.md` each run. |
 | Contract | `planning-contract` | Turn-based grill inside the orchestrator: frontier rounds, recommended answers, confirmation, plan shape |
 | Contract | `review-contract` | Dual-axis review, severity, report formats, verify-path evaluator gates, and verdict rules |
+| Contract | `session-split` | Fits-one-session check, `docs/squad-plan.md` tasks, one task per run |
 | Contract | `retro` | One `docs/retros/` file per run, human-apply only |
 | Contract | `suggestions` | Append-only pack/skill/agent/command/contract proposals; human applies; never auto-rewrite |
 | Rule | `review-checklist` | Source-review checklist scoped by glob; Cursor-only by design |
