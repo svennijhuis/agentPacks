@@ -29,8 +29,8 @@ Each language pack lists document paths in `plugins/<lang>/standards.source.json
 
 ```yaml
 imports:
-  - svennijhuis/agentPacks/plugins/dotnet/standards/csharp.md@abc1234
-  - svennijhuis/agentPacks/shared/standards/http-api.md@abc1234
+  - svennijhuis/agentPacks/plugins/dotnet/standards/csharp.md@0123456789abcdef0123456789abcdef01234567
+  - svennijhuis/agentPacks/shared/standards/http-api.md@0123456789abcdef0123456789abcdef01234567
 ```
 
 Example consumer: [agentic-workflows `workflows/shared/standards/`](https://github.com/svennijhuis/agentic-workflows/tree/main/workflows/shared/standards).

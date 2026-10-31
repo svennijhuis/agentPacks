@@ -14,15 +14,19 @@ public sealed class StandardsGhAwImportContractTests
     {
         var root = TestRepository.SourceRoot();
 
-        foreach (var catalogPath in Directory.GetFiles(
-                     Path.Combine(root, "plugins"),
-                     PluginLoader.StandardsFileName,
-                     SearchOption.AllDirectories))
+        var catalogs = Directory.GetFiles(
+            Path.Combine(root, "plugins"),
+            PluginLoader.StandardsFileName,
+            SearchOption.AllDirectories);
+        Assert.NotEmpty(catalogs);
+
+        foreach (var catalogPath in catalogs)
         {
             var pluginDir = Path.GetDirectoryName(catalogPath)!;
             var catalog = JsonNode.Parse(File.ReadAllText(catalogPath))!;
             var documents = catalog["documents"]!.AsObject();
             var relativeCatalog = Path.GetRelativePath(root, catalogPath).Replace('\\', '/');
+            Assert.NotEmpty(documents);
 
             foreach (var (id, node) in documents)
             {
