@@ -39,9 +39,13 @@ Sven wants big work split over fresh sessions instead, one task at a time.
 - [ ] The squad SKILL names the limits (more than one PBI or outcome, more than 3 steps, more than 10 files) and says: build no code, spawn nobody, stop.
 - [ ] `docs/squad-plan.md` has numbered tasks, each with Goal, Done-check and Status `open` or `done`.
 - [ ] A run with an existing plan takes the lowest open task only, marks it done when its done-check passes, and stops.
+- [ ] With an open plan, task mode runs only for `/squad` with no request text or a request that names the plan or a task; any other request gets one question, and a new request leaves the plan untouched.
+- [ ] An existing plan is never rewritten: a task that is still too big is split in place into `<n>.1`, `<n>.2`, and done rows stay byte for byte.
 - [ ] `plugins/squad/README.md` explains it in a few lines and keeps "Small change: Locked v1 step 3 above." untouched.
 - [ ] Fixture `big-task`: the after tree holds only `docs/squad-plan.md`, all tasks open.
 - [ ] Fixture `existing-plan`: only task 1 flips to done; the only code is the file task 1 names.
+- [ ] Fixture `new-request`: the plan is byte for byte unchanged; the only code is the file the new request names.
+- [ ] Fixture `task-split`: task 2 becomes 2.1 and 2.2, task 1 stays done, task 3 is unchanged, no code.
 - [ ] Docs updated; no em or en dashes, no secrets, no emails.
 
 ## Technical design
@@ -49,7 +53,7 @@ Sven wants big work split over fresh sessions instead, one task at a time.
 - Components and files: `plugins/squad/skills/squad/SKILL.md`, `plugins/squad/skills/squad/references/session-split.md`, `plugins/squad/skills/squad/references/planning-contract.md`, `plugins/squad/agents/squad-planner.md`, `plugins/squad/README.md`, `tools/AgentPacks.Cli.Tests/SquadSessionSplitTests.cs`, `tools/AgentPacks.Cli.Tests/Fixtures/squad-session-split/`
 - Module boundary: the squad skill owns the check and task mode; `docs/squad-plan.md` is the only state between runs; the planner only reports `Session split: <n> steps` and never writes the plan file
 - Interfaces: input is the request plus an optional `docs/squad-plan.md`; output is either the plan file and a stop, or one finished task and a stop
-- Failure modes: a done-check that fails leaves the task open; no open task left means a normal `/squad` run
+- Failure modes: a done-check that fails leaves the task open; no open task left means a normal `/squad` run; a new request while a plan is open is asked about, never dropped; a too-big task is split in place, the plan is never rewritten
 - Security: no new tool, no network, no secrets
 - Observability: the plan file shows what is open and done
 - Cost: fewer tokens per run, because each session carries one task

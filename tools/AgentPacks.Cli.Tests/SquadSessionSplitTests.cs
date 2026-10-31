@@ -17,22 +17,26 @@ public sealed partial class SquadSessionSplitTests
     private static string Source(params string[] parts) =>
         File.ReadAllText(Path.Combine([TestRepository.SourceRoot(), "plugins", "squad", .. parts]));
 
-    private sealed record PlanTask(int Number, string Title, string Goal, string DoneCheck, string Status);
+    private sealed record PlanTask(string Number, string Title, string Goal, string DoneCheck, string Status);
 
-    [GeneratedRegex(@"^### (\d+)\. (.+)\n- Goal: (.+)\n- Done-check: (`.+`)\n- Status: (open|done)$", RegexOptions.Multiline)]
+    [GeneratedRegex(@"^### (\d+(?:\.\d+)?)\. (.+)\n- Goal: (.+)\n- Done-check: (`.+`)\n- Status: (open|done)$", RegexOptions.Multiline)]
     private static partial Regex TaskPattern();
 
     private static List<PlanTask> Parse(string plan)
     {
         plan = plan.Replace("\r", "", StringComparison.Ordinal);
         var tasks = TaskPattern().Matches(plan)
-            .Select(m => new PlanTask(int.Parse(m.Groups[1].Value, System.Globalization.CultureInfo.InvariantCulture),
-                m.Groups[2].Value, m.Groups[3].Value, m.Groups[4].Value, m.Groups[5].Value))
+            .Select(m => new PlanTask(m.Groups[1].Value, m.Groups[2].Value, m.Groups[3].Value, m.Groups[4].Value, m.Groups[5].Value))
             .ToList();
         Assert.Equal(Regex.Matches(plan, @"^### ", RegexOptions.Multiline).Count, tasks.Count);
-        Assert.Equal(Enumerable.Range(1, tasks.Count), tasks.Select(t => t.Number));
+        Assert.Equal(tasks.Count, tasks.Select(t => t.Number).Distinct().Count());
+        var tops = tasks.Select(t => Top(t.Number)).Distinct().ToList();
+        Assert.Equal(Enumerable.Range(1, tops.Count), tops);
         return tasks;
     }
+
+    private static int Top(string number) =>
+        int.Parse(number.Split('.')[0], System.Globalization.CultureInfo.InvariantCulture);
 
     private static string[] Tree(string dir) =>
         Directory.GetFiles(dir, "*", SearchOption.AllDirectories)
@@ -51,7 +55,10 @@ public sealed partial class SquadSessionSplitTests
 
         var contract = Source("skills", "squad", "references", "session-split.md");
         Assert.Contains("Not fit → write `docs/squad-plan.md`, build no code, spawn nobody, write no retro, and stop.", contract, StringComparison.Ordinal);
-        Assert.Contains("Take the lowest-numbered open task.", contract, StringComparison.Ordinal);
+        Assert.Contains("Take the lowest open task in file order.", contract, StringComparison.Ordinal);
+        Assert.Contains("A request is never dropped", contract, StringComparison.Ordinal);
+        Assert.Contains("edited in place, never rewritten", contract, StringComparison.Ordinal);
+        Assert.Contains("Never rewrite an existing plan.", skill, StringComparison.Ordinal);
         Assert.Contains("Stop. Do not start the next task in this session.", contract, StringComparison.Ordinal);
         Parse(contract.Replace("<n>", "1", StringComparison.Ordinal)); // the template block is itself a valid task
 
@@ -90,5 +97,47 @@ public sealed partial class SquadSessionSplitTests
         var code = Tree(afterDir).Where(f => f != PlanPath).ToArray();
         Assert.NotEmpty(code);
         Assert.All(code, f => Assert.Contains(f, after[0].Goal, StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void New_request_with_an_open_plan_asks_and_leaves_the_plan_untouched()
+    {
+        var contract = Source("skills", "squad", "references", "session-split.md");
+        Assert.Contains("Open plan and any other request → ask once", contract, StringComparison.Ordinal);
+        Assert.Contains("New request → normal run; the plan\n   is not read or written.", contract.Replace("\r", "", StringComparison.Ordinal), StringComparison.Ordinal);
+
+        var request = File.ReadAllText(Root("new-request", "request.md")).Trim();
+        Assert.NotEqual("/squad", request);
+        Assert.DoesNotMatch(new Regex(@"squad-plan|next task|task \d+", RegexOptions.IgnoreCase), request);
+
+        var before = File.ReadAllText(Root("new-request", "before", PlanPath));
+        Assert.Contains("Status: open", before, StringComparison.Ordinal);
+        var afterDir = Root("new-request", "after");
+        Assert.Equal(before, File.ReadAllText(Path.Combine(afterDir, PlanPath)));
+
+        var code = Tree(afterDir).Where(f => f != PlanPath).ToArray();
+        Assert.NotEmpty(code);
+        Assert.All(code, f => Assert.Contains(f, request, StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void Too_big_task_is_split_in_place_and_done_rows_are_kept()
+    {
+        Assert.Equal("/squad", File.ReadAllText(Root("task-split", "request.md")).Trim());
+        var before = Parse(File.ReadAllText(Root("task-split", "before", PlanPath)));
+        var afterDir = Root("task-split", "after");
+        Assert.Equal([PlanPath], Tree(afterDir));
+        var after = Parse(File.ReadAllText(Path.Combine(afterDir, PlanPath)));
+
+        Assert.Contains(before, t => t.Status == "done");
+        var split = before.First(t => t.Status == "open");
+        var index = before.IndexOf(split);
+        var subtasks = after.Skip(index).TakeWhile(t => t.Number.StartsWith(split.Number + ".", StringComparison.Ordinal)).ToList();
+
+        Assert.True(subtasks.Count >= 2, "a split task becomes at least two subtasks");
+        Assert.Equal(subtasks.Select((_, i) => $"{split.Number}.{i + 1}"), subtasks.Select(t => t.Number));
+        Assert.All(subtasks, t => Assert.Equal("open", t.Status));
+        Assert.Equal(before.Take(index), after.Take(index));
+        Assert.Equal(before.Skip(index + 1), after.Skip(index + subtasks.Count));
     }
 }

@@ -41,8 +41,10 @@ Obvious typos, renames, and one-line fixes take the small-change route: the main
 
 Work too big for one session (more than one PBI, more than 3 steps, or more than 10 files) is not
 built. `/squad` writes `docs/squad-plan.md` with numbered tasks (Goal, Done-check, Status `open` or `done`)
-and stops. Each later `/squad`, in a new session, does exactly one open task, marks it `done` when its
-done-check passes, and stops. See [session split](skills/squad/references/session-split.md).
+and stops. Each later `/squad` with no new request, in a new session, does exactly one open task,
+marks it `done` when its done-check passes, and stops. A task still too big is split in place; the
+plan is never rewritten. A new request while a plan is open gets one question: next task or the new
+request. See [session split](skills/squad/references/session-split.md).
 
 ## Components
 
