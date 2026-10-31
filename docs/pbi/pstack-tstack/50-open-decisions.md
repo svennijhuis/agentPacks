@@ -72,7 +72,7 @@ A. Same meaning, no rewrite, one spelling on disk for the linter. The alias cost
 - The PBI template check needs `- Source:` with a D or PA id plus a URL (TPL01, from AP36). Every PBI in this folder uses D39 (pstack) or D40 (tstack), marked "(proposed)".
 - The source list (D1 to D38) is Strategy's URL learnings, outside this repo.
 - Sources: [pstack poteto-mode](https://github.com/cursor/plugins/blob/9e88dad267e8991d26a6debc0db0d943d437104b/pstack/skills/poteto-mode/SKILL.md), [tstack sol-loop](https://github.com/t3dotgg/tstack/blob/7de017b3fc9d50c03cf3ecb98fb71e0ca65a78bd/skills/sol-loop/SKILL.md). Licenses: [NOTICE.md](NOTICE.md).
-- Affected: the `- Source:` header line of all 27 PBIs [AP37](37-task-type.md) to [AP63](63-rules-catalog.md), this file included. D41 (talk) and D42 (podcast) follow the same option. Rules: [RULES.md rule table](RULES.md#rule-table) (TPL01).
+- Affected: the `- Source:` header line of all 26 PBIs [AP37](37-task-type.md) to [AP63](63-rules-catalog.md) (AP42 dropped on 2026-11-01), this file included. D41 (talk) and D42 (podcast) follow the same option. Rules: [RULES.md rule table](RULES.md#rule-table) (TPL01).
 
 ### Options
 

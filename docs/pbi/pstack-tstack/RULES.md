@@ -13,7 +13,7 @@ One home per rule, one output format, stable ids. Index: [README.md](README.md).
 | PLAN | [`plugins/pack-check/skills/pack-check/scripts/check-plan.sh`](https://github.com/svennijhuis/agentPacks/blob/34e1dec3535baa1d77cb441ea8c98498dc9b3684/plugins/pack-check/skills/pack-check/scripts/check-plan.sh) + `.ps1` | `/squad` on every plan edit; `PlanLintTests` |
 | VER | `.../scripts/check-verify.sh` + `.ps1` | verifier, verify-harness, `/scenarios`; `VerifyLintTests` |
 | RETRO | `.../scripts/check-retro.sh` + `.ps1` | `/squad`, `/squad-review` after the retro; `PackCheckContractTests` |
-| SCN | `.../scripts/check-scenarios.sh` + `.ps1` (new in AP42) | `/scenarios`; `HttpScenariosContractTests` |
+| SCN | retired 2026-11-01 (AP42 dropped, no `check-scenarios` script) | none |
 | REV | `.../scripts/check-review.sh` + `.ps1` (new in AP47) | `/squad-review`; `ReviewLoopTests` (new) |
 | VCLI | `tools/AgentPacks.Cli/Validation/VerifyCliValidator.cs` (planned, AP33; not on main yet) | `agentpacks validate`; `VerifyCliContractTests` |
 | SQD | [`tools/AgentPacks.Cli.Tests/SquadContractTests.cs`](https://github.com/svennijhuis/agentPacks/blob/34e1dec3535baa1d77cb441ea8c98498dc9b3684/tools/AgentPacks.Cli.Tests/SquadContractTests.cs) (rules about our own pack files) | `dotnet test` |
@@ -50,21 +50,21 @@ Rule severity (error, warn) is not finding severity (high, medium, low, tiny). R
 | PLAN14 | error | check-plan | refactor plan has no Pin: line | add `Pin: \`<test cmd>\`` | AP39 |
 | PLAN15 | error | check-plan | perf plan has no Baseline: line | add `Baseline: \`<cmd>\` <metric>` | AP39 |
 | PLAN16 | error | check-plan | feature plan has no Data shape: line | add `Data shape: <type or table>` | AP39 |
-| PLAN17 | error | check-plan | Repro:/Pin:/Baseline: needs a surface and a command in backticks | write `<api or cli or ui or test> \`<cmd>\`` | AP39 |
+| PLAN17 | error | check-plan | Repro:/Pin:/Baseline: needs a surface and a command in backticks | write `<api or test or trace> \`<cmd>\`` | AP39 |
 | VER01 | error | check-verify | missing ## <H2> | add Launch, Doctor, Drive, Evidence, Cleanup | existing |
 | VER02 | error | check-verify | em dash | use a period or comma | existing |
 | VER03 | error | check-verify | secret-looking value | use a placeholder or `$(...)` | existing |
 | VER04 | error | check-verify | get-access-token outside $( | wrap it in `$(...)` | existing |
-| VER05 | error | check-verify | Drive entry has no Kind: api, cli, ui or trace | add `Kind:` (api, cli, ui or trace) | AP41 |
-| VER06 | error | check-verify | cli Drive entry waits with sleep | wait for a prompt or line (`Wait for:`) | AP41 |
-| VER07 | error | check-verify | ui Drive entry installs browser tooling or has no screenshot path | use the repo's Playwright; add `Screenshot:` | AP41 |
+| VER05 | error | check-verify | Drive entry has no Kind: api or trace | add `Kind:` (api or trace) | AP41 |
+| VER06 | retired | check-verify | retired 2026-11-01: Sven removed CLI driving (was: cli Drive entry waits with sleep) | none | AP41 |
+| VER07 | retired | check-verify | retired 2026-11-01: Sven removed UI driving (was: ui Drive entry installs browser tooling or has no screenshot path) | none | AP41 |
 | VER08 | error | check-verify | reserved: missing or renamed harness command | owned by PBI-20 | PBI-20 |
 | RETRO01 | error | check-retro | file name must be <yyyy-mm-dd>-<slug>.md | rename | existing |
 | RETRO02 | error | check-retro | line N contains an em dash | use a period or comma | existing |
 | RETRO03 | error | check-retro | reserved: repeated lesson without Proposed check: | owned by PBI-17 | PBI-17 |
-| SCN01 | error | check-scenarios | unknown Kind | use happy, edge, fail, auth, biz, nothing-breaks | AP42 |
-| SCN02 | error | check-scenarios | CLI row has no exit code | fill `Status` with `exit <n>` | AP42 |
-| SCN03 | error | check-scenarios | UI row has no selector | add a role, label or `data-*` selector | AP42 |
+| SCN01 | retired | check-scenarios | retired 2026-11-01: AP42 dropped (was: unknown Kind) | none | AP42 (dropped) |
+| SCN02 | retired | check-scenarios | retired 2026-11-01: AP42 dropped (was: CLI row has no exit code) | none | AP42 (dropped) |
+| SCN03 | retired | check-scenarios | retired 2026-11-01: AP42 dropped (was: UI row has no selector) | none | AP42 (dropped) |
 | REV01 | error | check-review | round number above budget | stop the loop; escalate to Sven | AP46 |
 | REV02 | error | check-review | budget 5 without a risk reason | add `Budget: 5 (security, auth, data loss or concurrency)` | AP46 |
 | REV03 | error | check-review | out-of-budget review marked PASS | mark it BLOCKED | AP46 |
@@ -118,7 +118,7 @@ Rule severity (error, warn) is not finding severity (high, medium, low, tiny). R
 | PBI-16 "bug-fix plan carries a failing repro step" (contract test) | PLAN13 | one home: check-plan, tested by `PlanLintTests`; PBI-16 points here |
 | check-verify `missing ## <s>` | VER01 | id added |
 | check-verify `em dash` | VER02 | same |
-| check-verify `secret-looking value` | VER03 | stays the only secret rule; SCN and REV call check-verify on their files instead of copying it |
+| check-verify `secret-looking value` | VER03 | stays the only secret rule; REV calls check-verify on their files instead of copying it |
 | check-verify `get-access-token outside $(` | VER04 | same |
 | PBI-20 drift check | VER08 | id reserved, PBI-20 owns it |
 | check-retro filename, em dash | RETRO01, RETRO02 | id added |

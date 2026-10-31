@@ -21,7 +21,7 @@ Geen `commands/` of `hooks/` map in pstack: `git ls-files pstack | grep -E '/(co
 | 8 | [`pstack/automations/benny/FOR_AGENTS.md`](https://github.com/cursor/plugins/blob/9e88dad267e8991d26a6debc0db0d943d437104b/pstack/automations/benny/FOR_AGENTS.md) | overslaan | - | Slack + Cursor automation setup |
 | 9 | [`pstack/automations/benny/README.md`](https://github.com/cursor/plugins/blob/9e88dad267e8991d26a6debc0db0d943d437104b/pstack/automations/benny/README.md) | overslaan | - | Slack + Cursor automation setup |
 | 10 | [`pstack/automations/benny/skills/reproduce-and-fix-issues/SKILL.md`](https://github.com/cursor/plugins/blob/9e88dad267e8991d26a6debc0db0d943d437104b/pstack/automations/benny/skills/reproduce-and-fix-issues/SKILL.md) | aanpassen | AP40 + AW BH08 (S13) | repro twee keer, voor/na bewijs, ownership gate; geen auto-PR |
-| 11 | [`pstack/automations/benny/skills/reproduce-and-fix-issues/references/control-adapter.md`](https://github.com/cursor/plugins/blob/9e88dad267e8991d26a6debc0db0d943d437104b/pstack/automations/benny/skills/reproduce-and-fix-issues/references/control-adapter.md) | aanpassen | AP41 Drive Kind | adapter per surface = Kind api/cli/ui |
+| 11 | [`pstack/automations/benny/skills/reproduce-and-fix-issues/references/control-adapter.md`](https://github.com/cursor/plugins/blob/9e88dad267e8991d26a6debc0db0d943d437104b/pstack/automations/benny/skills/reproduce-and-fix-issues/references/control-adapter.md) | aanpassen | AP41 Drive Kind | adapter per surface = Kind api/trace (cli/ui geschrapt, Sven 2026-11-01) |
 | 12 | [`pstack/automations/benny/skills/reproduce-and-fix-issues/references/feature-map.example.md`](https://github.com/cursor/plugins/blob/9e88dad267e8991d26a6debc0db0d943d437104b/pstack/automations/benny/skills/reproduce-and-fix-issues/references/feature-map.example.md) | aanpassen | AP41 + AP32 feature map | voorbeeld voor Drive entries |
 | 13 | [`pstack/automations/benny/skills/reproduce-and-fix-issues/references/verify-existing-fix.md`](https://github.com/cursor/plugins/blob/9e88dad267e8991d26a6debc0db0d943d437104b/pstack/automations/benny/skills/reproduce-and-fix-issues/references/verify-existing-fix.md) | aanpassen | AP40 + S13 | bestaande fix verifieren i.p.v. concurrerende PR |
 | 14 | [`pstack/automations/benny/skills/setup-benny/SKILL.md`](https://github.com/cursor/plugins/blob/9e88dad267e8991d26a6debc0db0d943d437104b/pstack/automations/benny/skills/setup-benny/SKILL.md) | overslaan | - | secrets + Slack setup (one-way) |
@@ -220,8 +220,8 @@ gezien 200 / in repo 200 (OK)
 |---|---|---|---|---|
 | 1 | [`cursor-team-kit/.cursor-plugin/plugin.json`](https://github.com/cursor/plugins/blob/9e88dad267e8991d26a6debc0db0d943d437104b/cursor-team-kit/.cursor-plugin/plugin.json) | overslaan | - | manifest; MIT 1.2.0 gelezen |
 | 2 | [`cursor-team-kit/LICENSE`](https://github.com/cursor/plugins/blob/9e88dad267e8991d26a6debc0db0d943d437104b/cursor-team-kit/LICENSE) | overnemen | NOTICE.md / AP32 licenseFile | MIT (c) 2026 Cursor |
-| 3 | [`cursor-team-kit/skills/control-cli/SKILL.md`](https://github.com/cursor/plugins/blob/9e88dad267e8991d26a6debc0db0d943d437104b/cursor-team-kit/skills/control-cli/SKILL.md) | overnemen | AP32 pin + AP41 Kind cli | PTY/tmux loop, wacht op patroon |
-| 4 | [`cursor-team-kit/skills/control-ui/SKILL.md`](https://github.com/cursor/plugins/blob/9e88dad267e8991d26a6debc0db0d943d437104b/cursor-team-kit/skills/control-ui/SKILL.md) | overnemen | AP32 pin + AP41 Kind ui | 1 actie dan screenshot, geen Playwright installeren |
+| 3 | [`cursor-team-kit/skills/control-cli/SKILL.md`](https://github.com/cursor/plugins/blob/9e88dad267e8991d26a6debc0db0d943d437104b/cursor-team-kit/skills/control-cli/SKILL.md) | overslaan | - | Sven 2026-11-01: geen CLI/UI driving |
+| 4 | [`cursor-team-kit/skills/control-ui/SKILL.md`](https://github.com/cursor/plugins/blob/9e88dad267e8991d26a6debc0db0d943d437104b/cursor-team-kit/skills/control-ui/SKILL.md) | overslaan | - | Sven 2026-11-01: geen CLI/UI driving |
 | 5 | [`cursor-team-kit/skills/deslop/SKILL.md`](https://github.com/cursor/plugins/blob/9e88dad267e8991d26a6debc0db0d943d437104b/cursor-team-kit/skills/deslop/SKILL.md) | aanpassen | plugins/squad/agents/squad-simplifier.md | simplifier dekt slop; geen PR-stap |
 | 6 | [`cursor-team-kit/skills/verify-this/SKILL.md`](https://github.com/cursor/plugins/blob/9e88dad267e8991d26a6debc0db0d943d437104b/cursor-team-kit/skills/verify-this/SKILL.md) | overnemen | AP32 pin + AP43 mapping | VERIFIED/NOT VERIFIED/INCONCLUSIVE |
 
@@ -359,7 +359,7 @@ One row per point and per missed item in the podcast audit. Times are in the aud
 
 | Id | Bron | Point | Verdict | Doel | Reden |
 |---|---|---|---|---|---|
-| P1 | [audit P1](https://github.com/svennijhuis/agentPacks/blob/f537b585ee09b291afcd78c64cf5c62e8c93f1d6/docs/pbi/pstack-tstack/sources/fleet-podcast-audit.md#L45) | Verification first | al gedekt | [AP40](40-same-surface-reverify.md), [AP41](41-drive-kinds.md), [AP42](42-scenarios-cli-ui.md) | verification first: in #83 |
+| P1 | [audit P1](https://github.com/svennijhuis/agentPacks/blob/f537b585ee09b291afcd78c64cf5c62e8c93f1d6/docs/pbi/pstack-tstack/sources/fleet-podcast-audit.md#L45) | Verification first | al gedekt | [AP40](40-same-surface-reverify.md), [AP41](41-drive-kinds.md) | verification first: in #83 (AP42 dropped 2026-11-01) |
 | P2 | [audit P2](https://github.com/svennijhuis/agentPacks/blob/f537b585ee09b291afcd78c64cf5c62e8c93f1d6/docs/pbi/pstack-tstack/sources/fleet-podcast-audit.md#L46) | Self-verify, hill climb | aanscherpen | [AP39](39-per-type-plan-gates.md) | hill climb gate PLAN18 |
 | P3 | [audit P3](https://github.com/svennijhuis/agentPacks/blob/f537b585ee09b291afcd78c64cf5c62e8c93f1d6/docs/pbi/pstack-tstack/sources/fleet-podcast-audit.md#L47) | Auto-maintained verify skill per app | nieuw PBI | [AP53](53-feature-map-upkeep.md) | upkeep of the verify skill |
 | P4 | [audit P4](https://github.com/svennijhuis/agentPacks/blob/f537b585ee09b291afcd78c64cf5c62e8c93f1d6/docs/pbi/pstack-tstack/sources/fleet-podcast-audit.md#L48) | Deterministic parts in a CLI, the skill is a wrapper | al gedekt | #80 PBI-19 | CLI as wrapper: in #80 |
@@ -415,9 +415,9 @@ Bestanden (pstack, cursor-team-kit, tstack). Talk en podcast hebben hun eigen te
 
 | Verdict | Bestanden |
 |---|---|
-| overnemen | 40 |
+| overnemen | 38 |
 | aanpassen | 57 |
-| overslaan | 125 |
+| overslaan | 127 |
 | totaal | 222 |
 
 ## Controle (N == M)
@@ -431,9 +431,9 @@ Commando's:
 ```sh
 cd plugins   # git clone https://github.com/cursor/plugins && git checkout 9e88dad
 git ls-files pstack | wc -l
-git ls-files cursor-team-kit/LICENSE cursor-team-kit/.cursor-plugin/plugin.json cursor-team-kit/skills/control-cli cursor-team-kit/skills/control-ui cursor-team-kit/skills/deslop cursor-team-kit/skills/verify-this | wc -l
+git ls-files cursor-team-kit/LICENSE cursor-team-kit/.cursor-plugin/plugin.json cursor-team-kit/skills/control-cli cursor-team-kit/skills/control-ui cursor-team-kit/skills/deslop cursor-team-kit/skills/verify-this | wc -l   # 6 rijen; control-cli en control-ui staan erin als overslaan (Sven 2026-11-01)
 git -C ../tstack ls-files | wc -l   # clone of t3dotgg/tstack @ 7de017b
-grep -rl -w -e control-cli -e control-ui -e deslop pstack/skills/poteto-mode   # welke team-kit skills poteto-mode noemt
+grep -rl -w -e control-cli -e control-ui -e deslop pstack/skills/poteto-mode   # welke team-kit skills poteto-mode noemt (control-cli/control-ui: overslaan)
 python3 gen-checklist.py   # research script (not in this repo); faalt bij elk bestand zonder regel
 grep -c '^| [0-9]' CHECKLIST.md   # 222 bestanden
 grep -c '^| T[0-9]' CHECKLIST.md   # 78 talk practices

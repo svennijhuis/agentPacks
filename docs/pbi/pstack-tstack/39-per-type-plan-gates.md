@@ -38,7 +38,7 @@ Task type: refactor
 Pin: test `dotnet test --filter OrderTotalsCharacterizationTests`
 
 Task type: perf
-Baseline: cli `hyperfine -r 5 'agentpacks validate'` mean 4.1 s
+Baseline: trace `hyperfine -r 5 'agentpacks validate'` mean 4.1 s
 
 Task type: feature
 Data shape: `OrderStatus` state machine (Draft, Placed, Paid, Cancelled)
@@ -47,11 +47,11 @@ Data shape: `OrderStatus` state machine (Draft, Placed, Paid, Cancelled)
 ## Exact check-plan output
 
 ```text
-docs/plans/2026-10-27-login-retry.md:3 PLAN13 bug-fix plan has no Repro: line (fix: add 'Repro: <api|cli|ui|test> `<cmd>`')
+docs/plans/2026-10-27-login-retry.md:3 PLAN13 bug-fix plan has no Repro: line (fix: add 'Repro: <api|test|trace> `<cmd>`')
 docs/plans/2026-10-27-totals.md:3 PLAN14 refactor plan has no Pin: line (fix: add 'Pin: test `<cmd>`')
 docs/plans/2026-10-27-validate-speed.md:3 PLAN15 perf plan has no Baseline: line (fix: add 'Baseline: <surface> `<cmd>` <metric>')
 docs/plans/2026-10-27-order-status.md:3 PLAN16 feature plan has no Data shape: line (fix: add 'Data shape: <type or table>')
-docs/plans/2026-10-27-login-retry.md:4 PLAN17 Repro: needs a surface and a command in backticks (fix: write '<api|cli|ui|test> `<cmd>`')
+docs/plans/2026-10-27-login-retry.md:4 PLAN17 Repro: needs a surface and a command in backticks (fix: write '<api|test|trace> `<cmd>`')
 ```
 
 Exit 1 when any line prints.
@@ -87,7 +87,7 @@ Rule PLAN18 (error): `perf plan with Loop: hillclimb needs Target:, Max iteratio
 
 ```markdown
 Task type: perf
-Baseline: cli `./scripts/verify bench validate` mean seconds
+Baseline: trace `./scripts/verify bench validate` mean seconds
 Loop: hillclimb
 Target: mean <= 2.5 s
 Max iterations: 5

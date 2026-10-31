@@ -47,7 +47,7 @@ One short file per kind, loaded only for that kind, keeps the main skill thin.
 ```markdown
 # Bug fix
 
-1. Reproduce it yourself on the surface the user hit. Write it as `Repro: <api|cli|ui|test> \`<command>\``.
+1. Reproduce it yourself on the surface the user hit. Write it as `Repro: <api|test|trace> \`<command>\``.
 2. If it does not reproduce, tighten the input or add logging until it does. Ask the user only with a reason the harness cannot reach it.
 3. Narrow the cause: one hypothesis at a time, each with evidence. Do not fix what you have not seen fail.
 4. Slice 1 adds the failing test or repro. The fix comes after.

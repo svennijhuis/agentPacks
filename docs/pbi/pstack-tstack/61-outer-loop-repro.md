@@ -34,8 +34,8 @@ pstack benny: reproduce through the real app, "No confirmed repro means no autho
 ```text
 Report: "export button does nothing ???" + screenshot
 Match: Features row "Export CSV" (Reach: Orders page, Export)
-Drive: ./scripts/verify drive export-csv  -> no file after 10 s
-Verdict: reproduced (main 34e1dec). Next: /squad Task type: bug-fix, Repro: ui `./scripts/verify drive export-csv`
+Drive: ./scripts/verify drive export-csv (Kind: api, POST /orders/export)  -> 500, no file
+Verdict: reproduced (main 34e1dec). Next: /squad Task type: bug-fix, Repro: api `./scripts/verify drive export-csv`
 ```
 
 Bad: a draft PR opened with `Verdict: not reproduced`.

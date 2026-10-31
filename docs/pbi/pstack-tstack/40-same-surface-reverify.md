@@ -38,7 +38,7 @@ pstack and tstack both say this in nearly the same words, so this is one PBI wit
 | # | Criterion | Command | Result | Evidence |
 |---|---|---|---|---|
 | 1 | expired token returns 401 | Repro (api) | pass | base `9f1c2ab`: 500; tree: 401 (both from `curl ... -w '%{http_code}'`) |
-| 2 | validate is faster | Baseline (cli) | pass | base mean 4.1 s (5 runs, range 3.9 to 4.3); tree mean 2.7 s (5 runs, range 2.6 to 2.9); limiter: disk read |
+| 2 | validate is faster | Baseline (trace) | pass | base mean 4.1 s (5 runs, range 3.9 to 4.3); tree mean 2.7 s (5 runs, range 2.6 to 2.9); limiter: disk read |
 ```
 
 Bad (fails SQD03 in the fixture): `| 1 | expired token returns 401 | Repro | pass | tree: 401 |`.
