@@ -3,9 +3,9 @@
 - Area: docs
 - Phase: E verification
 - Lane: Builder
-- Depends on: #80 merged (docs/pbi root and template); ships in the AP22 to AP30 docs PR
+- Depends on: #80 merged (docs/pbi root and template)
 - proof: `bash scripts/check-pbi-docs.sh && bash scripts/check-pbi-template.sh` prints nothing and exits 0 on the PR head, and `dotnet test tools/AgentPacks.Cli.Tests --filter PbiCheckTests` is green, where each bad fixture under `test/fixtures/pbi/bad/` makes its script exit 1 and `test/fixtures/pbi/good/` exits 0 on both scripts
-- door: two-way
+door: two-way
 - triage: build (Reviewer finding in the Development Agentpacks room, 2026-10-26: no PBI check runs in this repo, and the agentic-workflows one fails open)
 - feedback: `PbiCheckTests` runs both scripts on every fixture and on the repo; a red finding prints `file:line RULE message` and exit 1
 - harness: none (script)
@@ -68,6 +68,7 @@ The repo run skips `test/fixtures/`, so the bad fixtures never turn the real tre
 8. Add `PbiCheckTests.cs`: copy each fixture folder into a temp git repo, run the script, assert exit code and the expected rule id; run both scripts on the repo and assert empty output and exit 0.
 9. `validate.yml`: set `fetch-depth: 0` on `Checkout` so the template check finds its base, and add step `PBI checks` running `bash scripts/check-pbi-docs.sh && bash scripts/check-pbi-template.sh`.
 10. Add the two script lines to the local prove loop in `docs/CONTRIBUTE.md` and a row for this PBI in `docs/pbi/README.md`.
+11. Update the "PBI template" block in `docs/pbi/README.md` to the fields the template check enforces (the 5 fields `triage`, `feedback`, `harness`, `review-input`, `kind`, plus `Source:` and `Module boundary:`), keeping `proof:` and `door:` in the un-dashed form PBI-15 checks, so a PBI written from the README passes both scripts.
 
 ## Definition of Done
 
@@ -81,12 +82,13 @@ The repo run skips `test/fixtures/`, so the bad fixtures never turn the real tre
 - [ ] `PbiCheckTests` is green and runs inside `dotnet test` in `.github/workflows/validate.yml`.
 - [ ] `.github/workflows/validate.yml` has `fetch-depth: 0` and a `PBI checks` step; no new trigger, `permissions: contents: read` stays.
 - [ ] `docs/CONTRIBUTE.md` local prove loop names both scripts.
+- [ ] The `docs/pbi/README.md` PBI template carries every field the template check enforces; a PBI copied from it passes both scripts with empty output.
 - [ ] Docs updated; no em or en dashes, no secrets, no emails.
 
 ## Technical design
 
 - Components and files: `scripts/check-pbi-docs.sh`, `scripts/check-pbi-template.sh`, `test/fixtures/pbi/bad/missing-field/`, `test/fixtures/pbi/bad/finding-present/`, `test/fixtures/pbi/bad/broken-link/`, `test/fixtures/pbi/good/`, `tools/AgentPacks.Cli.Tests/PbiCheckTests.cs`, `.github/workflows/validate.yml`, `docs/CONTRIBUTE.md`, `docs/pbi/README.md`
-- Module boundary: two scripts with no arguments (repo mode) or file arguments (fixture mode), output `file:line RULE message`, exit 0, 1 or 2; the field rules sit behind them
+- Module boundary: `check-pbi-docs.sh` takes no arguments (repo mode only; fixtures run by copying the tree into a temp git repo, Step 8); `check-pbi-template.sh` takes no arguments (diff mode) or file arguments (fixture mode); both output `file:line RULE message`, exit 0, 1 or 2; the field rules sit behind them
 - Interfaces: input is the git tree at the repo root (found by `git rev-parse`), plus `$TPL_BASE` or `origin/main` for the template scope. Output one line per finding. Exit 0 clean, 1 findings, 2 needs-human (python3 or base missing).
 - Sequence:
 
