@@ -208,7 +208,7 @@ Also: Hub over the 40-line router bar until PS03 adds the hub exception. Builder
 4. Do each row of section 3 in order. Move or rename with `git mv`. If a row's target path already holds a fork file, follow the [conflict table](MIGRATION.md#fork-path). A copy keeps the `Source:` line and `## What we changed or added`.
 5. Do these steps, nothing else:
    1. Move skill half of `make.md` to `playbooks/write-skill.md` (agent half moves in PS02) and put the decision chart at its top; the playbook writes the route form (pin entry, weave `Source:` line, or copy with NOTICE and What we changed or added).
-   2. Add to the `/pack-author` command file and hub Non-negotiables: an external skill goes through the chart first.
+   2. Put the full chart in the `/pack-author` command file and add to hub Non-negotiables: an external skill goes through the chart first.
    3. `review.md` to `playbooks/check-skill.md` with the new bars (Non-negotiables first, index lines resolve, 5-line rule, deps closed, copy rule).
    4. `change.md` to `playbooks/change.md`.
    5. `style.md` to `references/skill-bars.md`; Matt bits with MIT line in `plugins/pack-author/NOTICE.md`.

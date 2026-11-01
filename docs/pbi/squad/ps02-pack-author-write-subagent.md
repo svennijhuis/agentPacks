@@ -129,6 +129,20 @@ Load: **interrogate**, **blast-radius**. Principles: **Minimize Reader Load**. S
 Return: findings with path:line, severity, cited standard or principle.
 ```
 
+Decision chart, copied exactly into `playbooks/write-subagent.md` and into the `/pack-author` command file (`plugins/pack-author/commands/pack-author.md`), same as README. An agent that loads an external skill runs it first:
+
+```mermaid
+flowchart TD
+  A["External skill needed"] --> B{"Does it work unchanged with our standards, gates and gh-aw?"}
+  B -- yes --> C{"Does it have Cursor-only parts?"}
+  C -- no --> PIN["Pin: unchanged, 40-hex SHA in external-skills.json"]
+  C -- yes --> COPY
+  B -- no --> D{"Only a few lines or one technique?"}
+  D -- yes --> WEAVE["Weave: lines into our own skill, source named"]
+  D -- no --> COPY["Copy + adapt: copy with source SHA and NOTICE, plus the section What we changed or added"]
+  B -- does not fit us --> NO["Not used, with the reason"]
+```
+
 ### 4.4 Interfaces and contracts
 
 | Caller | Callee | Input | Output | State file |
