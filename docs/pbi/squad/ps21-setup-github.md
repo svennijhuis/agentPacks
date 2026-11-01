@@ -123,20 +123,32 @@ Good: PR for PS21 changes `plugins/squad/skills/setup-github-mode/**`, its fixtu
 
 Check **REF09** (`/pack-check` validate and the review step): a path in the PR diff that matches the forbidden list in `pr.instructions.md` fails; a path outside the PBI's Files list is a warning. Fixture `pr-forbidden`: a diff with `.squad/state.json` fails, the clean diff passes.
 
-**Upstream setup modes, all checked** (pstack `ae5650f`, Matt `4ae2317`):
+**Ownership manifest** (pattern from [setup-benny](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/automations/benny/skills/setup-benny/SKILL.md), weave). `.github/setup-github.manifest.json` lists every path we write with one kind: `owned` (rewrite whole file), `seeded` (create only if missing: `custom-standards*`, `docs/agents/*`), `block` (`## Squad`, `.gitignore` squad block) or `pointer` (one line in `AGENTS.md` or `CLAUDE.md`). A path not in the manifest is never touched. An `owned` file with local edits (hash differs from the manifest) means stop and ask locally, report and skip in gh-aw; never overwrite. Tone of every generated file follows Matt [writing-for-agents](https://github.com/mattpocock/skills/blob/4ae2317ddb22b046e26455e4f9c9b3aaaf62212d/skills/productivity/writing-for-agents/SKILL.md): pointers, no essays.
 
-| Upstream | What it sets up | In `/setup-github` | Route |
-|---|---|---|---|
-| [setup-pstack](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/setup-pstack/SKILL.md) | model per role, always-applied rule | `## Squad` block points to the model roles doc (PS19); no `~/.cursor` write | copy + adapt |
-| [setup-matt-pocock-skills](https://github.com/mattpocock/skills/blob/4ae2317ddb22b046e26455e4f9c9b3aaaf62212d/skills/engineering/setup-matt-pocock-skills/SKILL.md) | issue tracker, triage labels, domain doc layout in `docs/agents/` | `docs/agents/issue-tracker.md` (GitHub, recommended), `docs/agents/triage-labels.md` (5 default labels), `docs/agents/domain.md` plus `GLOSSARY.md` created lazily | weave |
-| [create-verification-skill](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/create-verification-skill/SKILL.md), [create-formal-verification-skill](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/create-formal-verification-skill/SKILL.md) | project-local verify skill | run 1 creates one per repo, later runs maintain it (PS22) | copy + adapt |
-| [maintain-verification-skill](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/maintain-verification-skill/SKILL.md) | keeps the verify skill true to the code | every later run (PS22) | copy + adapt |
-| [automate-me](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/automate-me/SKILL.md) | personal `-mode` skill | not here: personal, not repo | not used |
-| [poteto-help](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/poteto-help/SKILL.md) | guide to setup and skills | `## Squad` block lists the commands and where to start | weave (one list) |
-| [setup-pre-commit](https://github.com/mattpocock/skills/blob/4ae2317ddb22b046e26455e4f9c9b3aaaf62212d/skills/misc/setup-pre-commit/SKILL.md) | Husky, lint-staged | not here: Node only; mechanical rules become a hook or CI check per language pack | not used |
-| [git-guardrails-claude-code](https://github.com/mattpocock/skills/blob/4ae2317ddb22b046e26455e4f9c9b3aaaf62212d/skills/misc/git-guardrails-claude-code/SKILL.md) | hooks that block push, reset --hard | not here: Claude-only hooks; our rule lives in the `## Squad` block (no force push) | not used |
-| [setup-ts-deep-modules](https://github.com/mattpocock/skills/blob/4ae2317ddb22b046e26455e4f9c9b3aaaf62212d/skills/in-progress/setup-ts-deep-modules/SKILL.md) | dependency-cruiser | not here: in-progress upstream, TypeScript pack later | not used |
-| [wizard](https://github.com/mattpocock/skills/blob/4ae2317ddb22b046e26455e4f9c9b3aaaf62212d/skills/engineering/wizard/SKILL.md) | bash wizard for human-only steps | not here: secrets and dashboards stay named asks | not used |
+**Every upstream setup or maintain skill, routed by the chart** (pstack `ae5650f`, Matt `4ae2317`, list by Repo Research 2026-11-01). Rule: works unchanged and no Cursor-only part means pin; we change it means copy + adapt; only a step or pattern taken means weave.
+
+| Upstream | What it does | Route | Why | PBI |
+|---|---|---|---|---|
+| [setup-pstack](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/setup-pstack/SKILL.md) | model per role in `~/.cursor/rules/`, offers verify once | copy + adapt | Cursor-only path; we keep the whole-file rewrite and point to the roles doc (PS19) | PS21 |
+| [create-verification-skill](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/create-verification-skill/SKILL.md) | project-local verify skill | copy + adapt | writes `.cursor/skills/` (Cursor-only); ours writes `.github/skills/verify-<app>/` | PS22 |
+| [maintain-verification-skill](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/maintain-verification-skill/SKILL.md) | one PR of proven fixes, none when clean | copy + adapt | same path change | PS22 |
+| [create-formal-verification-skill](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/create-formal-verification-skill/SKILL.md) | proves one property of the riskiest code | pin | works unchanged, no fixed path; our playbook says where output goes | PS22 |
+| [maintain-formal-verification-skill](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/maintain-formal-verification-skill/SKILL.md) | diff since sync commit, catches moved code | pin | works unchanged; sync marker lives in our files | PS22 |
+| [poteto-help](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/poteto-help/SKILL.md) | knows when setup did not run | weave | one step in `/pack-check` | PS23 |
+| [setup-benny](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/automations/benny/skills/setup-benny/SKILL.md) | ownership, merge without losing local edits | weave | manifest above | PS21 |
+| [automate-me](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/automate-me/SKILL.md) | personal `-mode` skill from transcripts | not used | personal, transcripts private, Cursor-only path | none |
+| [control-cli](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/cursor-team-kit/skills/control-cli/SKILL.md), control-ui | local harness | not used here | belongs to `/scenarios` | none |
+| [setup-matt-pocock-skills](https://github.com/mattpocock/skills/blob/4ae2317ddb22b046e26455e4f9c9b3aaaf62212d/skills/engineering/setup-matt-pocock-skills/SKILL.md) | issue tracker, labels, domain docs | weave | steps woven into our setup | PS21, PS23 |
+| [git-guardrails-claude-code](https://github.com/mattpocock/skills/blob/4ae2317ddb22b046e26455e4f9c9b3aaaf62212d/skills/misc/git-guardrails-claude-code/SKILL.md) | Claude hook blocks push, reset --hard | copy + adapt | made agent-neutral: no force push, no push to main | PS23 |
+| [setup-pre-commit](https://github.com/mattpocock/skills/blob/4ae2317ddb22b046e26455e4f9c9b3aaaf62212d/skills/misc/setup-pre-commit/SKILL.md) | Husky, lint-staged | copy + adapt | per language: `dotnet format --verify-no-changes`, dash grep, gitleaks | PS23 |
+| [retro](https://github.com/mattpocock/skills/blob/4ae2317ddb22b046e26455e4f9c9b3aaaf62212d/skills/engineering/retro/SKILL.md) | judgment rule to standards, mechanical rule to a check | weave | our retro writes only `custom-standards*` | PS23 |
+| [writing-for-agents](https://github.com/mattpocock/skills/blob/4ae2317ddb22b046e26455e4f9c9b3aaaf62212d/skills/productivity/writing-for-agents/SKILL.md) | how to write agent files | weave | tone rule above | PS21 |
+| [grill-with-docs](https://github.com/mattpocock/skills/blob/4ae2317ddb22b046e26455e4f9c9b3aaaf62212d/skills/engineering/grill-with-docs/SKILL.md) | ADRs and glossary while planning | weave | form of `docs/adr/` | PS21 |
+| [setup-ts-deep-modules](https://github.com/mattpocock/skills/blob/4ae2317ddb22b046e26455e4f9c9b3aaaf62212d/skills/in-progress/setup-ts-deep-modules/SKILL.md) | dependency-cruiser | not used | in progress upstream, TypeScript only | none |
+| [wizard](https://github.com/mattpocock/skills/blob/4ae2317ddb22b046e26455e4f9c9b3aaaf62212d/skills/engineering/wizard/SKILL.md) | bash wizard for human steps | not used | secrets stay named asks | none |
+| [scaffold-exercises](https://github.com/mattpocock/skills/blob/4ae2317ddb22b046e26455e4f9c9b3aaaf62212d/skills/misc/scaffold-exercises/SKILL.md) | course exercises | not used | course only | none |
+
+Each copy gets a source SHA at the top, a NOTICE and a What we changed or added section, plus its own fixture (PS22, PS23).
 
 **`.gitignore` block** holds task, scratch and plan files and local agent state, for example `docs/squad-plan.md` run copies, `.squad/`, `*.scratch.md`, `.cursor/tmp/`, `.claude/settings.local.json`. Fork lines outside the block are never edited.
 
@@ -231,6 +243,9 @@ Also: Command count 7 to 8: Sven must say yes.; Out: other languages than the pa
 | Step | Skill (repo, path, SHA) | Licence | Mode | Lives in | Reason |
 |---|---|---|---|---|---|
 | setup | [setup-pstack](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/setup-pstack/SKILL.md) | MIT (cursor/plugins, Lauren Tan) | copy + adapt | `plugins/pack-check/skills/pack-check-mode/playbooks/setup.md` | Our plugin setup (Sven). Upstream writes `~/.cursor/rules` (Cursor only, home dir); our copy writes the role to tier table into the repo from `models.source.json`. |
+| setup | [Matt setup-matt-pocock-skills](https://github.com/mattpocock/skills/blob/4ae2317ddb22b046e26455e4f9c9b3aaaf62212d/skills/engineering/setup-matt-pocock-skills/SKILL.md) | MIT (mattpocock/skills) | weave | `setup-github-mode/playbooks/generate.md` | Explore, show, confirm, write; one block updated in place; `docs/agents/issue-tracker.md` and glossary. Woven into our setup, not shipped (PS21, PS23). |
+| ownership | [setup-benny (pstack automations)](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/automations/benny/skills/setup-benny/SKILL.md) | MIT (cursor/plugins, Lauren Tan) | weave | `setup-github.manifest.json` | Ownership per path, merge without discarding local edits, stop and ask when ownership is unclear, never a secret in a file (PS21). |
+| tone | [Matt writing-for-agents](https://github.com/mattpocock/skills/blob/4ae2317ddb22b046e26455e4f9c9b3aaaf62212d/skills/productivity/writing-for-agents/SKILL.md) | MIT (mattpocock/skills) | weave | `setup-github-mode/references/` | Generated instructions are pointers, not essays (PS21). |
 | always on | [caveman, caveman-compress](https://github.com/JuliusBrussee/caveman/tree/5184b3d11ac6a1acb7d44b9bfaa31698157cff97/skills/caveman) | MIT (cursor/plugins, Lauren Tan) | pin | `plugins/squad/external-skills.json` | We change nothing (Sven 2026-11-01: "als we geen wijzigingen gaan doen hou gewoon extern"). Always on: hub `## Writing the reply` and every agent prompt, locally and in gh-aw. |
 | playbooks | [upstream playbook authoring-a-skill](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/poteto-mode/playbooks/authoring-a-skill.md) | MIT (cursor/plugins, Lauren Tan) | copy + adapt | `pack-author-mode/playbooks/write-skill.md` | Calls Cursor built-in create-skill. We replace it with our make steps and validate. Keeps our standards and gates (PS09). |
 | flows | [statechart](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/statechart/SKILL.md) | MIT (cursor/plugins, Lauren Tan) | copy + adapt | `plugins/squad/skills/statechart-mode/` | Upstream has `disable-model-invocation: true` and is named like the command. Sven wants `/statechart` plus auto use in the flow. We rename to `statechart-mode`, allow model use, add `docs/architecture/` output and the scenario export to `/scenarios`. Scripts stay byte-equal. |
@@ -241,6 +256,9 @@ Also: Command count 7 to 8: Sven must say yes.; Out: other languages than the pa
 Route per external skill ([decision](README.md#decision-pin-copy--adapt-weave-or-not-used)):
 
 - setup-pstack: **copy + adapt**. `plugins/pack-check/skills/pack-check-mode/playbooks/setup.md`.
+- Matt setup-matt-pocock-skills: **weave**. `setup-github-mode/playbooks/generate.md`.
+- setup-benny (pstack automations): **weave**. `setup-github.manifest.json`.
+- Matt writing-for-agents: **weave**. `setup-github-mode/references/`.
 - caveman, caveman-compress: **pin**. `plugins/squad/external-skills.json`.
 - upstream playbook authoring-a-skill: **copy + adapt**. `pack-author-mode/playbooks/write-skill.md`.
 - statechart: **copy + adapt**. `plugins/squad/skills/statechart-mode/`.
@@ -303,6 +321,8 @@ Then locally: install `/tmp/agentpacks-marketplace` in Cursor or Claude Code, ru
 - [ ] Fixture `playbook-repo` with `playbooks/bug.md`: updated in place, `ls playbooks | grep -c bug` is 1.
 - [ ] `git status --porcelain` after a fake run that makes `.squad/` and `x.scratch.md`: both ignored.
 - [ ] Fixture with own `docs/agents/triage-labels.md` (other names): kept, not overwritten.
+- [ ] Fixture `manifest-edit`: an `owned` file with a local edit gives stop and ask (local) or report and skip (gh-aw), never an overwrite.
+- [ ] Fixture: a path not in the manifest stays byte-equal.
 - [ ] Fixture `pr-forbidden`: REF09 fails on `.squad/state.json` in the diff, passes on the clean diff.
 - [ ] Run 2 on any fixture: no second `docs/architecture/<flow>.md` and no second `.gitignore` block (`grep -c "# squad: begin" .gitignore` is 1).
 - [ ] `grep -rnP "[\x{2013}\x{2014}]"` and placeholder grep `{[A-Z]*}` on generated files: 0.

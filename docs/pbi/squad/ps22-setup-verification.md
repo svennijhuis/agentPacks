@@ -38,7 +38,8 @@ PS12, PS13, PS21. Start only when those PBIs are merged on main. Build order: [R
 
 | Kind | Now | After | Action |
 |---|---|---|---|
-| skill | `external-skills.json pins: create/maintain(-formal)-verification-skill` | `plugins/squad/skills/{create,maintain}-verification-skill/, {create,maintain}-formal-verification-skill/` | copy + adapt (was pin) |
+| skill | `external-skills.json pins: create/maintain(-formal)-verification-skill` | `plugins/squad/skills/{create,maintain}-verification-skill/` | copy + adapt (was pin) |
+| skill | `external-skills.json pins: create/maintain-formal-verification-skill` | same pins, called from setup-github-mode | keep pin |
 
 Full list for all PBIs: [MIGRATION.md](MIGRATION.md#path-table).
 
@@ -55,10 +56,9 @@ Before (main):
 After:
 
 ```text
-plugins/squad/skills/create-verification-skill/
-plugins/squad/skills/maintain-verification-skill/
-plugins/squad/skills/create-formal-verification-skill/
-plugins/squad/skills/maintain-formal-verification-skill/
+plugins/squad/skills/create-verification-skill/   (copy)
+plugins/squad/skills/maintain-verification-skill/ (copy)
+external-skills.json: create/maintain-formal-verification-skill (pin)
 target repo: .github/skills/verify-<app>/  .github/skills/formal-<area>/  docs/architecture/<flow>.tla
 ```
 
@@ -88,9 +88,13 @@ Find rule: a skill is found by what it does (launch and drive sections; a model 
 
 Link to `statechart-mode`: the flow name is shared, so `docs/architecture/<flow>.md` (chart) and `<flow>.tla` (model) sit side by side. `/scenarios` reads both and turns states and proved properties into scenario rows.
 
-Route via the chart: all four are copy + adapt (Cursor-only path, model-invocation flag). Copies keep upstream names, a NOTICE with source SHA and a What we changed section: `.github/skills/` output path, flag dropped, our standards and gates.
+Route via the chart: the plain pair is copy + adapt (upstream writes `.cursor/skills/`, Cursor-only; copies write `.github/skills/verify-<app>/`, keep upstream names, NOTICE, source SHA, What we changed or added). The formal pair is pin: it works unchanged and has no fixed path, so our playbook says where output goes and calls it by bold name.
 
-Files: `plugins/squad/skills/{create,maintain}-verification-skill/`, `plugins/squad/skills/{create,maintain}-formal-verification-skill/`, step in `setup-github-mode/playbooks/generate.md` and `update.md`, `/scenarios` read step.
+Clean run: when maintain finds no drift, no commit and no PR (upstream maintain rule). A broken app is reported, never put in the PR.
+
+Sync marker: `docs/architecture/<flow>.md` frontmatter `synced: <sha>` and the same SHA in a comment at the top of `<flow>.tla`. Run 2 reads only the diff of the covered files since that SHA; no diff means no change, so 0 diff.
+
+Files: `plugins/squad/skills/{create,maintain}-verification-skill/` (copies), formal pair pinned in `plugins/squad/external-skills.json`, step in `setup-github-mode/playbooks/generate.md` and `update.md`, `/scenarios` read step.
 
 ### 4.4 Interfaces and contracts
 
@@ -115,7 +119,8 @@ flowchart TD
 
 | Chosen | Rejected | Why |
 |---|---|---|
-| copy + adapt | pin | `.cursor/skills/` is Cursor-only and the flag blocks calls from setup. |
+| plain pair copy + adapt, formal pair pin | all copy | the chart: only the plain pair has a Cursor-only path; the formal pair works unchanged. |
+| `synced: <sha>` marker | full rescan each run | upstream maintain-formal reads the diff since a sync commit; no diff gives 0 diff. |
 | find by what it does | find by name | upstream maintain does the same; a renamed skill is still found. |
 
 ### 4.7 Checks and error messages
@@ -154,7 +159,7 @@ Also: Model checker not installed in gh-aw: the formal skill names the tool and 
    1. Copy the four skills with write-skill (PS01), apply the three changes, NOTICE.
    2. Add the verify step to generate and update playbooks.
    3. `/scenarios` reads `docs/architecture/*.tla` next to the chart.
-   4. Fix the four rows in the reuse table (pin to copy + adapt).
+   4. Reuse table: plain pair copy + adapt, formal pair stays pin.
 6. Run every command in section 8. All must pass.
 7. Open one PR titled `PS22: /setup-github: create once, then maintain, the repo verification and formal verification skills`. Body: link to this file, the section 3 table, the section 8 output.
 
@@ -164,8 +169,8 @@ Also: Model checker not installed in gh-aw: the formal skill names the tool and 
 |---|---|---|---|---|---|
 | run 1 | [create-verification-skill](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/create-verification-skill/SKILL.md) | MIT (cursor/plugins, Lauren Tan) | copy + adapt | `plugins/squad/skills/create-verification-skill/` | Upstream writes `.cursor/skills/verify-<app>/` (Cursor-only) and has `disable-model-invocation: true`. Copy writes `.github/skills/verify-<app>/` so Copilot and gh-aw load it, and `/setup-github` may call it (PS22). |
 | later runs | [maintain-verification-skill](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/maintain-verification-skill/SKILL.md) | MIT (cursor/plugins, Lauren Tan) | copy + adapt | `plugins/squad/skills/maintain-verification-skill/` | Upstream writes `.cursor/skills/verify-<app>/` (Cursor-only) and has `disable-model-invocation: true`. Copy writes `.github/skills/verify-<app>/` so Copilot and gh-aw load it, and `/setup-github` may call it (PS22). |
-| run 1 | [create-formal-verification-skill](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/create-formal-verification-skill/SKILL.md) | MIT (cursor/plugins, Lauren Tan) | copy + adapt | `plugins/squad/skills/create-formal-verification-skill/` | Upstream has `disable-model-invocation: true`, so `/setup-github` could not call it. Copy drops that flag, writes the skill to `.github/skills/formal-<area>/` and TLA+ models to `docs/architecture/<flow>.tla` (PS22). |
-| later runs | [maintain-formal-verification-skill](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/maintain-formal-verification-skill/SKILL.md) | MIT (cursor/plugins, Lauren Tan) | copy + adapt | `plugins/squad/skills/maintain-formal-verification-skill/` | Upstream has `disable-model-invocation: true`, so `/setup-github` could not call it. Copy drops that flag, writes the skill to `.github/skills/formal-<area>/` and TLA+ models to `docs/architecture/<flow>.tla` (PS22). |
+| run 1 | [create-formal-verification-skill](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/create-formal-verification-skill/SKILL.md) | MIT (cursor/plugins, Lauren Tan) | pin | `plugins/squad/external-skills.json` | Works unchanged: writes a project-local skill with no fixed path and no Cursor-only part (scanned at ae5650f). Our setup playbook says where output goes (`.github/skills/formal-<area>/`, model in `docs/architecture/`), the skill stays external at the 40-hex SHA (PS22). |
+| later runs | [maintain-formal-verification-skill](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/maintain-formal-verification-skill/SKILL.md) | MIT (cursor/plugins, Lauren Tan) | pin | `plugins/squad/external-skills.json` | Works unchanged: writes a project-local skill with no fixed path and no Cursor-only part (scanned at ae5650f). Our setup playbook says where output goes (`.github/skills/formal-<area>/`, model in `docs/architecture/`), the skill stays external at the 40-hex SHA (PS22). |
 | flows | [statechart](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/statechart/SKILL.md) | MIT (cursor/plugins, Lauren Tan) | copy + adapt | `plugins/squad/skills/statechart-mode/` | Upstream has `disable-model-invocation: true` and is named like the command. Sven wants `/statechart` plus auto use in the flow. We rename to `statechart-mode`, allow model use, add `docs/architecture/` output and the scenario export to `/scenarios`. Scripts stay byte-equal. |
 | always on | [caveman, caveman-compress](https://github.com/JuliusBrussee/caveman/tree/5184b3d11ac6a1acb7d44b9bfaa31698157cff97/skills/caveman) | MIT (cursor/plugins, Lauren Tan) | pin | `plugins/squad/external-skills.json` | We change nothing (Sven 2026-11-01: "als we geen wijzigingen gaan doen hou gewoon extern"). Always on: hub `## Writing the reply` and every agent prompt, locally and in gh-aw. |
 
@@ -173,8 +178,8 @@ Route per external skill ([decision](README.md#decision-pin-copy--adapt-weave-or
 
 - create-verification-skill: **copy + adapt**. `plugins/squad/skills/create-verification-skill/`.
 - maintain-verification-skill: **copy + adapt**. `plugins/squad/skills/maintain-verification-skill/`.
-- create-formal-verification-skill: **copy + adapt**. `plugins/squad/skills/create-formal-verification-skill/`.
-- maintain-formal-verification-skill: **copy + adapt**. `plugins/squad/skills/maintain-formal-verification-skill/`.
+- create-formal-verification-skill: **pin**. `plugins/squad/external-skills.json`.
+- maintain-formal-verification-skill: **pin**. `plugins/squad/external-skills.json`.
 - statechart: **copy + adapt**. `plugins/squad/skills/statechart-mode/`.
 - caveman, caveman-compress: **pin**. `plugins/squad/external-skills.json`.
 
@@ -216,7 +221,9 @@ Then locally: install `/tmp/agentpacks-marketplace` in Cursor or Claude Code, ru
 - [ ] Run 2: maintain runs, `ls -d .github/skills/verify-* | wc -l` is 1, same for formal.
 - [ ] Fixture with a renamed verify skill: found and maintained, not duplicated.
 - [ ] gh-aw fixture (no human): defaults taken, report lists the open choice, no prompt.
-- [ ] No `.cursor/skills/` path in any copy: `grep -rn ".cursor/skills" plugins/squad/skills/*verification*` is 0.
+- [ ] No `.cursor/skills/` path in the copies: `grep -rn ".cursor/skills" plugins/squad/skills/*verification*` is 0.
+- [ ] Clean fixture: maintain finds no drift, `git status --porcelain` empty, no branch, no PR.
+- [ ] Sync fixture: `synced:` SHA set after run 1; run 2 with no code change leaves `<flow>.md` and `<flow>.tla` byte-equal.
 - [ ] Dash and placeholder grep 0; local install, `/setup-github` on the fixture.
 - [ ] Local: works in Cursor, Claude Code and CLI (Copilot CLI, Codex). Proof offline: generated client manifests and fixture tests (`ClientManifestTests`, `ComponentGenerationTests`).
 - [ ] gh-aw: the fixture workflow under `tests/fixtures/gh-aw/` that uses this PBI's files passes `gh aw compile --strict` (pinned gh-aw, no run, no secrets, no Actions minutes). See [gh-aw README](gh-aw/README.md).

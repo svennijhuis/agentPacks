@@ -1,7 +1,7 @@
 # PS20: Squad v2 release: versions, marketplace tag, changelog, v1 to v2 guide
 - Status: todo (docs only; build waits for Sven go per PBI)
 - Batch: B7
-- Depends on: PS01 to PS19, PS21, PS22, GA01 to GA06
+- Depends on: PS01 to PS19, PS21 to PS23, GA01 to GA06
 - Absorbs old: none
 - Lane: Builder (Cursor CLI for docs and markdown, Cloud Agent if multi-file C#)
 - Release: squad v2 ([README](README.md#squad-v2))
@@ -33,7 +33,7 @@ Current state details:
 
 ## 2. Depends on
 
-PS01 to PS19, PS21, PS22, GA01 to GA06. Start only when those PBIs are merged on main. Build order: [README](README.md#new-set-and-build-order).
+PS01 to PS19, PS21 to PS23, GA01 to GA06. Start only when those PBIs are merged on main. Build order: [README](README.md#new-set-and-build-order).
 
 ## 3. What gets replaced
 

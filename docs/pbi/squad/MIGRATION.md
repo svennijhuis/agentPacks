@@ -83,7 +83,10 @@ flowchart LR
 | command | (none) | `plugins/squad/commands/setup-github.md` | add | PS21 |
 | hub | (none) | `plugins/squad/skills/setup-github-mode/ (SKILL.md, playbooks/generate.md, playbooks/update.md, references/*.md)` | add | PS21 |
 | agent | `plugins/squad/agents/squad-{planner,architect,indexer,implementer,simplifier,orchestrator,verifier}.md` | `squad-agent.md + same names as one-line pointers until GA07` | merge into general delegate | PS15 |
-| skill | `external-skills.json pins: create/maintain(-formal)-verification-skill` | `plugins/squad/skills/{create,maintain}-verification-skill/, {create,maintain}-formal-verification-skill/` | copy + adapt (was pin) | PS22 |
+| skill | `external-skills.json pins: create/maintain(-formal)-verification-skill` | `plugins/squad/skills/{create,maintain}-verification-skill/` | copy + adapt (was pin) | PS22 |
+| skill | `external-skills.json pins: create/maintain-formal-verification-skill` | same pins, called from setup-github-mode | keep pin | PS22 |
+| skill | (none) | `plugins/squad/skills/git-guardrails/` | add (copy + adapt of Matt git-guardrails-claude-code) | PS23 |
+| skill | (none) | `plugins/dotnet/skills/setup-pre-commit-dotnet/` | add (copy + adapt of Matt setup-pre-commit) | PS23 |
 | version | `plugin.json 0.x / 1.0.0` | `2.0.0 for moved plugins, tag v2.0.0` | bump | PS20 |
 
 ## What breaks from v1

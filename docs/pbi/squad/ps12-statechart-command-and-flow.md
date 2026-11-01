@@ -156,12 +156,12 @@ Also: Needs Bun, TLC and Java via mise, network on first run: local only, not gh
 | Step | Skill (repo, path, SHA) | Licence | Mode | Lives in | Reason |
 |---|---|---|---|---|---|
 | command and flow | [statechart](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/statechart/SKILL.md) | MIT (cursor/plugins, Lauren Tan) | copy + adapt | `plugins/squad/skills/statechart-mode/` | Upstream has `disable-model-invocation: true` and is named like the command. Sven wants `/statechart` plus auto use in the flow. We rename to `statechart-mode`, allow model use, add `docs/architecture/` output and the scenario export to `/scenarios`. Scripts stay byte-equal. |
-| formal | [create-formal-verification-skill](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/create-formal-verification-skill/SKILL.md) | MIT (cursor/plugins, Lauren Tan) | copy + adapt | `plugins/squad/skills/create-formal-verification-skill/` | Upstream has `disable-model-invocation: true`, so `/setup-github` could not call it. Copy drops that flag, writes the skill to `.github/skills/formal-<area>/` and TLA+ models to `docs/architecture/<flow>.tla` (PS22). |
+| formal | [create-formal-verification-skill](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/create-formal-verification-skill/SKILL.md) | MIT (cursor/plugins, Lauren Tan) | pin | `plugins/squad/external-skills.json` | Works unchanged: writes a project-local skill with no fixed path and no Cursor-only part (scanned at ae5650f). Our setup playbook says where output goes (`.github/skills/formal-<area>/`, model in `docs/architecture/`), the skill stays external at the 40-hex SHA (PS22). |
 
 Route per external skill ([decision](README.md#decision-pin-copy--adapt-weave-or-not-used)):
 
 - statechart: **copy + adapt**. `plugins/squad/skills/statechart-mode/`.
-- create-formal-verification-skill: **copy + adapt**. `plugins/squad/skills/create-formal-verification-skill/`.
+- create-formal-verification-skill: **pin**. `plugins/squad/external-skills.json`.
 
 Every copy + adapt here adds, beyond its own changes: `Source:` line with SHA, a Standards line, the Gates, the Autonomy line for gh-aw, `## Provider notes`, `## What we changed or added`, and a NOTICE line.
 
