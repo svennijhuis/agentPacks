@@ -4,7 +4,7 @@ These PBIs paraphrase upstream skills and quote a few short lines. The upstream 
 
 ## Talk transcript (not MIT)
 
-[`sources/poteto-2500prs-transcript.md`](poteto-2500prs-transcript.md) is a full machine transcript of poteto's (Lauren Tan) X talk "here's how i shipped 2,500 PRs last month to production" (https://x.com/poteto/status/2102050467505430555, 38:02). The talk is not covered by the MIT licenses below; all rights stay with the speaker. It is kept only as the research source the PBIs cite by timestamp. [`sources/poteto-2500prs-notes.md`](poteto-2500prs-notes.md) holds the paraphrased claims. If the speaker or Sven asks, the transcript is removed and the PBIs cite the notes and the X post instead.
+[`sources/2500prs-transcript.md`](2500prs-transcript.md) is a full machine transcript of poteto's (Lauren Tan) X talk "here's how i shipped 2,500 PRs last month to production" (https://x.com/poteto/status/2102050467505430555, 38:02). The talk is not covered by the MIT licenses below; all rights stay with the speaker. It is kept only as the research source the PBIs cite by timestamp. [`sources/2500prs-notes.md`](2500prs-notes.md) holds the paraphrased claims. If the speaker or Sven asks, the transcript is removed and the PBIs cite the notes and the X post instead.
 
 The MIT license texts below cover pstack, cursor-team-kit and tstack only.
 

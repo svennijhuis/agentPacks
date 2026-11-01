@@ -1,6 +1,6 @@
 # Notes: poteto (Lauren Tan), "here's how i shipped 2,500 PRs last month to production"
 
-Source: https://x.com/poteto/status/2102050467505430555 (2026-09-21, 38:02). Built from the machine transcript in `poteto-2500prs-transcript.md`. Timestamps are mm:ss. Quotes are taken from the transcript; anything in *italics* is my paraphrase. The audio could not show slides, so slide-only content (screenshots, the trust-graph chart, the code examples) is missing.
+Source: https://x.com/poteto/status/2102050467505430555 (2026-09-21, 38:02). Built from the machine transcript in `2500prs-transcript.md`. Timestamps are mm:ss. Quotes are taken from the transcript; anything in *italics* is my paraphrase. The audio could not show slides, so slide-only content (screenshots, the trust-graph chart, the code examples) is missing.
 
 **What the talk is not about.** She does not cover planning, playbooks, subagent fan-out, review loops, merge policy, model choice or context budgets in any detail. pstack and its playbooks get one sentence each (13:18, 13:38). Under those themes below I write "not covered" rather than fill gaps. The talk has one thesis: **trust**. You earn it by building verification, encoding knowledge into the codebase, and running an outer loop.
 

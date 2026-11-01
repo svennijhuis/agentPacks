@@ -10,8 +10,9 @@ Everything for squad v2 is in this one folder. Read in this order, then build on
 4. [FLOWS.md](FLOWS.md): what each command does today and after v2.
 5. [MIGRATION.md](MIGRATION.md): every file that moves, is renamed, split, added or removed, with its PBI.
 6. [gh-aw/README.md](gh-aw/README.md): what must hold for GitHub Agentic Workflows.
-7. The PBI file you build. Its **Files to change** table and **How to do it** steps are the whole job; do not do anything not listed there.
-8. Sources: [`sources/`](sources/README.md) (upstream skill map, our old analysis, podcast notes).
+7. [FORKS.md](FORKS.md): if you run a fork with your own standards and rules.
+8. The PBI file you build. Section 3 (what gets replaced) and section 5 (steps) are the whole job; section 8 is the done check. Do nothing not listed there.
+9. Sources: [`sources/`](sources/README.md) (upstream skill map, our old analysis, podcast notes).
 
 Pick the next PBI: the first row in the build order whose **Depends on** PBIs are all merged. One PBI per PR, branch `pbi/<id>-<slug>`, never force push.
 
@@ -26,6 +27,9 @@ Pick the next PBI: the first row in the build order whose **Depends on** PBIs ar
 | copy + adapt | copy an upstream file into our folder, add `Source:` and `## What we changed`. |
 | closure | the hub plus every skill it reads; gh-aw must list all of them. |
 | gh-aw | GitHub Agentic Workflows: markdown workflows compiled by `gh aw compile`. |
+| weave | take some steps of an upstream skill into our own file, with a `Source:` line. |
+| local block | lines between `<!-- local:start -->` and `<!-- local:end -->` in a hub; owned by a fork, never edited by v2. |
+| migrate-check | CLI command (PS03) that says per file: kept, moved, fork-owned or LOST. |
 | REF01 to REF07, HUB01 | validator rules added in PS03 and GA03. |
 
 ## Squad v2
@@ -39,6 +43,7 @@ This set is the squad **v2** release. Commands and our way of planning stay; str
 | [FLOWS.md](FLOWS.md) | the flow per command, old and improved |
 | [MIGRATION.md](MIGRATION.md) | v1 to v2 path table, what breaks, small-step order |
 | [gh-aw/README.md](gh-aw/README.md) | marketplace and imports in gh-aw, GA01 to GA07 |
+| [FORKS.md](FORKS.md) | how forks apply v2 and keep their own standards and rules |
 
 What breaks versus v1 (full list in [MIGRATION](MIGRATION.md#what-breaks-from-v1)): hub `skills/squad` becomes `skills/squad-md` and `pack-check` becomes `pack-check-md` (old dirs stay as pointers until GA07); a seventh command `/statechart`; pack-author references split into playbooks; the "do not copy an external skill set" bar becomes the copy rule; gh-aw users add the closure list to `skills:`.
 
@@ -58,7 +63,7 @@ Strict rule: a PBI stays only if Sven asked for it and main still lacks it. Done
 | [AP40](https://github.com/svennijhuis/agentPacks/blob/9dfed68/docs/pbi/pstack-tstack/40-same-surface-reverify.md) | Verifier reruns the repro on the same surface | open | PS09 | Not on main. Step in the bug-fix playbook. |
 | [AP41](https://github.com/svennijhuis/agentPacks/blob/9dfed68/docs/pbi/pstack-tstack/41-drive-kinds.md) | verify-harness Drive kinds api and trace | open | PS13 | Not on main. create-verification-skill covers driving per repo. |
 | [AP43](https://github.com/svennijhuis/agentPacks/blob/9dfed68/docs/pbi/pstack-tstack/43-verdict-labels.md) | Verdict words and evidence labels | half | PS07 | Severity words and Finding identity on main (`review-contract.md`); BLOCKED and alias table missing. Goes into the Review Contract leaf. |
-| [AP44](https://github.com/svennijhuis/agentPacks/blob/9dfed68/docs/pbi/pstack-tstack/44-engineering-principles.md) | Missing engineering principles | half | PS04 | `shared/standards/engineering.md` paraphrases 11 principles (#79 era). Replaced by 24 pinned leafs, paraphrase migrated to pointers. |
+| [AP44](https://github.com/svennijhuis/agentPacks/blob/9dfed68/docs/pbi/pstack-tstack/44-engineering-principles.md) | Missing engineering principles | half | PS04 | `shared/standards/engineering.md` paraphrases 11 principles (#79 era). Replaced by 24 copied leafs, paraphrase migrated to pointers. |
 | [AP45](https://github.com/svennijhuis/agentPacks/blob/9dfed68/docs/pbi/pstack-tstack/45-handoff-pr-order.md) | Hand-off in PR-body order | open | PS10 | Not on main. Matt pr plus poteto opening-a-pr. |
 | [AP46](https://github.com/svennijhuis/agentPacks/blob/9dfed68/docs/pbi/pstack-tstack/46-review-loop-budget.md) | Review loop budget | obsolete | none | Room rules 2026-10-30 and 2026-11-01: Reviewer checks the Cursor review only; Agentpacks fixes all findings on the PR. Squad keeps max 2 fix rounds (on main). |
 | [AP47](https://github.com/svennijhuis/agentPacks/blob/9dfed68/docs/pbi/pstack-tstack/47-review-ledger.md) | Finding ids and the review ledger | obsolete | none | Finding identity already on main (`review-contract.md ## Finding identity`); ledger was for bot review rounds, which are gone. |
@@ -133,38 +138,59 @@ B0 fixes the writer first so every later file comes out in the new style. Standa
 
 ## Reuse mode per skill
 
-### Decision rule: pin or copy
+### Decision: pin, copy + adapt, weave or not used
 
-1. **Pin** when the skill fits our flow unchanged and misses none of our standards or gates. Example per kind: principle leaf `principle-fix-root-causes`; stand-alone skill `blast-radius`; Matt skill `codebase-design`.
-2. **Copy + adapt** when we must add our rules, gates or flow steps, or when it has Cursor-only parts. Example per kind: playbook `bug-fix` (add repro row, one PR per PBI, drop `/loop`); skill `tdd` (must run on every behavior change, upstream is user-only); skill `arena` (Cursor model roles to our tiers).
-3. **Weave** when only some steps help and we already own the file. Example: Matt `code-review` two axes into our review contract.
-4. **Rewrite** when the idea helps but the text does not fit at all. Example: Matt `improve-codebase-architecture`, only for code Sven wrote.
-5. **Not used** when it needs a client, a login or long-term setup we do not allow. Example: `setup-pstack`.
+```mermaid
+flowchart TD
+  A["External skill needed"] --> B{"Fits our flow at all?"}
+  B -- no --> NO["Not used, with the reason"]
+  B -- yes --> C{"Only a loose technique or a few lines?"}
+  C -- yes --> WEAVE["Weave: lines into our own file, source named in NOTICE"]
+  C -- no --> COPY["Copy + adapt (main path): copy with source SHA and NOTICE, add our standards, gates, Autonomy line, Provider notes, What we changed or added"]
+  COPY --> DEP["Its skill dependencies are copied the same way"]
+  OLD["Pins already on main: caveman, caveman-compress"] -.-> KEEP["Stay pinned, nothing new is pinned"]
+```
 
-Quick test: would a pinned copy break any of No Em Dash, Squash Merge One by One, Personal Account Only, one PBI per PR, `docs/squad-plan.md`, max 2 fix rounds? Yes means copy + adapt.
+Sven 2026-11-01: we copy everything and pin nothing new ("allemaal kopie paste", "en van matt natuurlijk"). Every pstack principle, every playbook, every other pstack skill we use and every Matt skill we use is copy + adapt, plus the skills they depend on. All of it sits in our own generated commit, so gh-aw needs one pin.
 
-Modes: **pin** (unchanged, `external-skills.json` at 40-hex SHA), **copy + adapt** (default for playbooks; our folder, `Source:` line with SHA, NOTICE, `## What we changed`), **weave** (parts into our file, NOTICE line), **rewrite** (our own skill from the idea, NOTICE line), **not used**.
+| Route | Example 1 | Example 2 |
+|---|---|---|
+| Copy + adapt | `principle-fix-root-causes` (upstream body byte-equal, plus Standards, Gates, Autonomy, Provider notes) | `tdd` (trigger changed to every behavior change) and `playbooks/bug-fix.md` (`/loop` dropped, repro row and Matt diagnosing-bugs phases added) |
+| Weave | poteto-mode hub H2 order into our `squad-md` hub (structure only, the hub itself is Cursor-only) | poteto-mode line "Bundled skills live at `../<name>/SKILL.md`" into every subagent prompt |
+| Not used | `control-cli`, `control-ui` (Sven removed CLI and UI driving, 2026-11-01) | `swarm`, `ketchup`, `reflect`, `deslop` (only called by Cursor-only playbook parts we drop) |
+| Pin (legacy only) | `caveman` at `5184b3d` (on main today) | `caveman-compress` (same pin, dependency of caveman) |
+
+What every copy + adapt gets added, in this order:
+
+1. `Source: <upstream link at 40-hex SHA>, <licence>, see NOTICE.` under the H1.
+2. **Standards** line: the `standard-*` leafs that apply (at least No Em Dash, plus the task ones).
+3. **Gates**: one PBI per PR, `docs/squad-plan.md` row, max 2 fix rounds, findings fixed on the PR, never merge.
+4. **Autonomy** line: a run with no human (gh-aw) takes the default and writes the open question into the report.
+5. `## Provider notes` with one H3 per client (Cursor, Claude Code, Copilot, Codex, gh-aw) for anything client-only.
+6. `## What we changed or added`, one line per change.
+7. A NOTICE line in the plugin.
 
 | Skill | Mode | Lives in | Reason |
 |---|---|---|---|
-| [24 principle-* leafs](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/principle-prove-it-works/SKILL.md) | pin | `plugins/squad/external-skills.json` | Generic, short, no client-specific text. Exactly what Sven asked ("get all principles-* skills"). Replaces our paraphrased `shared/standards/engineering.md` sections. |
-| [architect (+ design-red-flags)](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/architect/SKILL.md) | pin | external-skills.json | Client neutral, used as is. |
-| [blast-radius](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/blast-radius/SKILL.md) | pin | external-skills.json | Used as is in plan, task and review. |
-| [correct](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/correct/SKILL.md) | pin | external-skills.json | Used as is in retro; covers old lint-first and guard ladder PBIs. |
-| [interrogate](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/interrogate/SKILL.md) | pin | external-skills.json | Used as is in review. |
-| [how](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/how/SKILL.md) | pin | external-skills.json | Used as is. |
-| [why](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/why/SKILL.md) | pin | external-skills.json | Used as is. |
-| [teach](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/teach/SKILL.md) | pin | external-skills.json | Used as is in plan. |
-| [figure-it-out](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/figure-it-out/SKILL.md) | pin | external-skills.json | Fallback when no playbook fits. Resolves our arena copy by name. |
-| [technical-writing](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/technical-writing/SKILL.md) | pin | external-skills.json | Docs and CODING_STANDARDS.md. |
-| [unslop](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/unslop/SKILL.md) | pin | external-skills.json | Every prose output. |
-| [create-verification-skill](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/create-verification-skill/SKILL.md) | pin | external-skills.json | Used as is; covers old feature map PBIs. |
-| [maintain-verification-skill](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/maintain-verification-skill/SKILL.md) | pin | external-skills.json | Used as is in retro. |
-| [create-formal-verification-skill](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/create-formal-verification-skill/SKILL.md) | pin | external-skills.json | Risky code only. |
-| [maintain-formal-verification-skill](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/maintain-formal-verification-skill/SKILL.md) | pin | external-skills.json | Retro, risky code only. |
-| [benchmark-checklist](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/benchmark-checklist/SKILL.md) | pin | external-skills.json | Perf playbook. |
-| [show-me-your-work, in-your-own-words](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/show-me-your-work/SKILL.md) | pin | external-skills.json | Closure: named by figure-it-out and interrogate. Final closure list comes from REF01, listed in the PR. |
-| [typescript-best-practices](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/typescript-best-practices/SKILL.md) | pin | `plugins/typescript/external-skills.json` | Sven: add to the typescript plugin. |
+| [caveman, caveman-compress](https://github.com/JuliusBrussee/caveman/tree/5184b3d11ac6a1acb7d44b9bfaa31698157cff97/skills/caveman) | pin | `plugins/squad/external-skills.json` | Already pinned on main and used unchanged by /squad; no Cursor-only parts. |
+| [24 principle-* leafs](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/principle-prove-it-works/SKILL.md) | copy + adapt | `plugins/squad/skills/principle-*/` (24 dirs) | Generic, short, no client-specific text. Exactly what Sven asked ("get all principles-* skills"). Replaces our paraphrased `shared/standards/engineering.md` sections. Sven 2026-11-01: copy, not pin. We add a Standards line, the gates, the Autonomy line for gh-aw and Provider notes. |
+| [architect (+ design-red-flags)](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/architect/SKILL.md) | copy + adapt | `plugins/squad/skills/architect/` | Client neutral, used as is. Sven 2026-11-01: copy, not pin. We add a Standards line, the gates, the Autonomy line for gh-aw and Provider notes. |
+| [blast-radius](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/blast-radius/SKILL.md) | copy + adapt | `plugins/squad/skills/blast-radius/` | Used as is in plan, task and review. Sven 2026-11-01: copy, not pin. We add a Standards line, the gates, the Autonomy line for gh-aw and Provider notes. |
+| [correct](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/correct/SKILL.md) | copy + adapt | `plugins/squad/skills/correct/` | Used as is in retro; covers old lint-first and guard ladder PBIs. Sven 2026-11-01: copy, not pin. We add a Standards line, the gates, the Autonomy line for gh-aw and Provider notes. |
+| [interrogate](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/interrogate/SKILL.md) | copy + adapt | `plugins/squad/skills/interrogate/` | Used as is in review. Sven 2026-11-01: copy, not pin. We add a Standards line, the gates, the Autonomy line for gh-aw and Provider notes. |
+| [how](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/how/SKILL.md) | copy + adapt | `plugins/squad/skills/how/` | Used as is. Sven 2026-11-01: copy, not pin. We add a Standards line, the gates, the Autonomy line for gh-aw and Provider notes. |
+| [why](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/why/SKILL.md) | copy + adapt | `plugins/squad/skills/why/` | Used as is. Sven 2026-11-01: copy, not pin. We add a Standards line, the gates, the Autonomy line for gh-aw and Provider notes. |
+| [teach](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/teach/SKILL.md) | copy + adapt | `plugins/squad/skills/teach/` | Used as is in plan. Sven 2026-11-01: copy, not pin. We add a Standards line, the gates, the Autonomy line for gh-aw and Provider notes. |
+| [figure-it-out](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/figure-it-out/SKILL.md) | copy + adapt | `plugins/squad/skills/figure-it-out/` | Fallback when no playbook fits. Resolves our arena copy by name. Sven 2026-11-01: copy, not pin. We add a Standards line, the gates, the Autonomy line for gh-aw and Provider notes. |
+| [technical-writing](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/technical-writing/SKILL.md) | copy + adapt | `plugins/squad/skills/technical-writing/` | Docs and CODING_STANDARDS.md. Sven 2026-11-01: copy, not pin. We add a Standards line, the gates, the Autonomy line for gh-aw and Provider notes. |
+| [unslop](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/unslop/SKILL.md) | copy + adapt | `plugins/squad/skills/unslop/` | Every prose output. Sven 2026-11-01: copy, not pin. We add a Standards line, the gates, the Autonomy line for gh-aw and Provider notes. |
+| [create-verification-skill](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/create-verification-skill/SKILL.md) | copy + adapt | `plugins/squad/skills/create-verification-skill/` | Used as is; covers old feature map PBIs. Sven 2026-11-01: copy, not pin. We add a Standards line, the gates, the Autonomy line for gh-aw and Provider notes. |
+| [maintain-verification-skill](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/maintain-verification-skill/SKILL.md) | copy + adapt | `plugins/squad/skills/maintain-verification-skill/` | Used as is in retro. Sven 2026-11-01: copy, not pin. We add a Standards line, the gates, the Autonomy line for gh-aw and Provider notes. |
+| [create-formal-verification-skill](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/create-formal-verification-skill/SKILL.md) | copy + adapt | `plugins/squad/skills/create-formal-verification-skill/` | Risky code only. Sven 2026-11-01: copy, not pin. We add a Standards line, the gates, the Autonomy line for gh-aw and Provider notes. |
+| [maintain-formal-verification-skill](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/maintain-formal-verification-skill/SKILL.md) | copy + adapt | `plugins/squad/skills/maintain-formal-verification-skill/` | Retro, risky code only. Sven 2026-11-01: copy, not pin. We add a Standards line, the gates, the Autonomy line for gh-aw and Provider notes. |
+| [benchmark-checklist](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/benchmark-checklist/SKILL.md) | copy + adapt | `plugins/squad/skills/benchmark-checklist/` | Perf playbook. Sven 2026-11-01: copy, not pin. We add a Standards line, the gates, the Autonomy line for gh-aw and Provider notes. |
+| [show-me-your-work, in-your-own-words](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/show-me-your-work/SKILL.md) | copy + adapt | `plugins/squad/skills/show-me-your-work/`, `in-your-own-words/` | Closure: named by figure-it-out and interrogate. Final closure list comes from REF01, listed in the PR. Sven 2026-11-01: copy, not pin. We add a Standards line, the gates, the Autonomy line for gh-aw and Provider notes. |
+| [typescript-best-practices](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/typescript-best-practices/SKILL.md) | copy + adapt | `plugins/typescript/skills/typescript-best-practices/` | Sven: add to the typescript plugin. Sven 2026-11-01: copy, not pin. We add a Standards line, the gates, the Autonomy line for gh-aw and Provider notes. |
 | [tdd](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/tdd/SKILL.md) | copy + adapt | `plugins/squad/skills/tdd/` | Upstream has `disable-model-invocation: true` and says "use only when the user explicitly asks". Sven wants it on every behavior change ("We can use this really hard"). So we change the trigger and the flag; the loop stays. |
 | [statechart](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/statechart/SKILL.md) | copy + adapt | `plugins/squad/skills/statechart-md/` | Upstream has `disable-model-invocation: true` and is named like the command. Sven wants `/statechart` plus auto use in the flow. We rename to `statechart-md`, allow model use, add `docs/architecture/` output and the scenario export to `/scenarios`. Scripts stay byte-equal. |
 | [arena](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/arena/SKILL.md) | copy + adapt | `plugins/squad/skills/arena/` | Picks models by setup-pstack roles (Cursor only). We map to our tiers, cap at 3 candidates and high-risk work only (token budget). |
@@ -177,26 +203,66 @@ Modes: **pin** (unchanged, `external-skills.json` at 40-hex SHA), **copy + adapt
 | [upstream playbook multi-phase-plan](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/poteto-mode/playbooks/multi-phase-plan.md) | copy + adapt | `squad-md/playbooks/plan.md` | 155 lines and Cursor-heavy (`poteto-agent`, swarm, control-cli, control-ui, `/loop`). We take the phase and gate idea only and keep our `docs/squad-plan.md` (#85). Keeps our standards and gates (PS09). |
 | [upstream playbook opening-a-pr](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/poteto-mode/playbooks/opening-a-pr.md) | copy + adapt | `squad-md/playbooks/pr.md` | Uses deslop and swarm. We merge it with Matt pr (Evidence, Merge Danger) and our squash and personal-only standards. Keeps our standards and gates (PS09). |
 | [upstream playbook authoring-a-skill](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/poteto-mode/playbooks/authoring-a-skill.md) | copy + adapt | `pack-author-md/playbooks/write-skill.md` | Calls Cursor built-in create-skill. We replace it with our make steps and validate. Keeps our standards and gates (PS09). |
-| [poteto-mode (hub)](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/poteto-mode/SKILL.md) | not used | structure copied into `squad-md` | Hub names `poteto-agent`, Cursor model slugs and Cursor Task. Would break on Claude, Copilot, Codex. We copy its H2 structure only, not the file. |
-| [setup-pstack](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/setup-pstack/SKILL.md) | not used | `docs/PSTACK-ROLES.md` | Writes `~/.cursor/rules` (Cursor only, and no long-term setup on the shared box). We document role to tier instead. |
+| [poteto-mode (hub structure)](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/poteto-mode/SKILL.md) | weave | structure copied into `squad-md` | Hub names `poteto-agent`, Cursor model slugs and Cursor Task. Would break on Claude, Copilot, Codex. We copy its H2 structure only, not the file. |
+| [setup-pstack](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/setup-pstack/SKILL.md) | copy + adapt | `plugins/pack-check/skills/pack-check-md/playbooks/setup.md` | Our plugin setup (Sven). Upstream writes `~/.cursor/rules` (Cursor only, home dir); our copy writes the role to tier table into the repo from `models.source.json`. |
 | [swarm, reflect, ketchup, deslop, control-cli, control-ui](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/swarm/SKILL.md) | not used | none | Only needed by the Cursor-heavy playbooks we copy and trim. control-cli and control-ui: Sven removed CLI and UI driving on 2026-11-01. Pinned later only if REF01 still finds a reference. |
-| [Matt codebase-design](https://github.com/mattpocock/skills/blob/4ae2317ddb22b046e26455e4f9c9b3aaaf62212d/skills/engineering/codebase-design/SKILL.md) | pin | external-skills.json | Sven likes design it twice and deep vs shallow; use as is. |
-| [Matt code-review](https://github.com/mattpocock/skills/blob/4ae2317ddb22b046e26455e4f9c9b3aaaf62212d/skills/engineering/code-review/SKILL.md) | weave | `squad-reviewer`, `references/review-contract.md` | Two axes (Standards, Spec). Our severity words and CODING_STANDARDS.md stay. |
-| [Matt diagnosing-bugs](https://github.com/mattpocock/skills/blob/4ae2317ddb22b046e26455e4f9c9b3aaaf62212d/skills/engineering/diagnosing-bugs/SKILL.md) | weave | `playbooks/bug-fix.md` | Phases 1 to 6 into the copied bug-fix playbook. |
-| [Matt domain-modeling](https://github.com/mattpocock/skills/blob/4ae2317ddb22b046e26455e4f9c9b3aaaf62212d/skills/engineering/domain-modeling/SKILL.md) | weave | `references/adr.md`, `playbooks/domain.md` | Better `docs/adr/` and GLOSSARY, Sven's ask. |
-| [Matt improve-codebase-architecture](https://github.com/mattpocock/skills/blob/4ae2317ddb22b046e26455e4f9c9b3aaaf62212d/skills/engineering/improve-codebase-architecture/SKILL.md) | rewrite | `references/architecture-review.md` | Only for code Sven wrote; drop grilling and HTML report. |
-| [Matt pr (Summary from humanlayer show-me, Apache-2.0)](https://github.com/mattpocock/skills/blob/4ae2317ddb22b046e26455e4f9c9b3aaaf62212d/skills/engineering/pr/SKILL.md) | weave | `playbooks/pr.md` | Evidence and Merge Danger; Apache-2.0 credit in NOTICE. |
-| [Matt research](https://github.com/mattpocock/skills/blob/4ae2317ddb22b046e26455e4f9c9b3aaaf62212d/skills/engineering/research/SKILL.md) | weave | `squad-planner` research step | Fresh-context research, cited file. |
-| [Matt retro](https://github.com/mattpocock/skills/blob/4ae2317ddb22b046e26455e4f9c9b3aaaf62212d/skills/engineering/retro/SKILL.md) | weave | `squad-retro`, `references/retro.md` | Environment fixes into our retro. |
-| [Matt chief-of-staff](https://github.com/mattpocock/skills/blob/4ae2317ddb22b046e26455e4f9c9b3aaaf62212d/skills/in-progress/chief-of-staff/SKILL.md) | not used | parked | Waits for Sven. |
+| [Matt codebase-design](https://github.com/mattpocock/skills/blob/4ae2317ddb22b046e26455e4f9c9b3aaaf62212d/skills/engineering/codebase-design/SKILL.md) | copy + adapt | `plugins/squad/skills/codebase-design/` | Sven likes design it twice and deep vs shallow; use as is. Sven 2026-11-01: copy, not pin. We add a Standards line, the gates, the Autonomy line for gh-aw and Provider notes. |
+| [Matt code-review](https://github.com/mattpocock/skills/blob/4ae2317ddb22b046e26455e4f9c9b3aaaf62212d/skills/engineering/code-review/SKILL.md) | copy + adapt | `plugins/squad/skills/code-review/` | Two axes (Standards, Spec). Our severity words and CODING_STANDARDS.md stay. Sven 2026-11-01: copy, not pin. We add a Standards line, the gates, the Autonomy line for gh-aw and Provider notes. |
+| [Matt diagnosing-bugs](https://github.com/mattpocock/skills/blob/4ae2317ddb22b046e26455e4f9c9b3aaaf62212d/skills/engineering/diagnosing-bugs/SKILL.md) | copy + adapt | `plugins/squad/skills/diagnosing-bugs/` | Phases 1 to 6 into the copied bug-fix playbook. Sven 2026-11-01: copy, not pin. We add a Standards line, the gates, the Autonomy line for gh-aw and Provider notes. |
+| [Matt domain-modeling](https://github.com/mattpocock/skills/blob/4ae2317ddb22b046e26455e4f9c9b3aaaf62212d/skills/engineering/domain-modeling/SKILL.md) | copy + adapt | `plugins/squad/skills/domain-modeling/` | Better `docs/adr/` and GLOSSARY, Sven's ask. Sven 2026-11-01: copy, not pin. We add a Standards line, the gates, the Autonomy line for gh-aw and Provider notes. |
+| [Matt improve-codebase-architecture](https://github.com/mattpocock/skills/blob/4ae2317ddb22b046e26455e4f9c9b3aaaf62212d/skills/engineering/improve-codebase-architecture/SKILL.md) | copy + adapt | `plugins/squad/skills/improve-codebase-architecture/` | Review only, only on code Sven wrote; drop grilling and HTML report. Sven 2026-11-01: copy Matt. |
+| [Matt pr (Summary from humanlayer show-me, Apache-2.0)](https://github.com/mattpocock/skills/blob/4ae2317ddb22b046e26455e4f9c9b3aaaf62212d/skills/engineering/pr/SKILL.md) | copy + adapt | `plugins/squad/skills/pr/` (used by `playbooks/pr.md`) | Create a PR or add to an open PR: Evidence and Merge Danger. Summary section from humanlayer, Apache-2.0 credit in NOTICE. Sven 2026-11-01: copy Matt. |
+| [Matt research](https://github.com/mattpocock/skills/blob/4ae2317ddb22b046e26455e4f9c9b3aaaf62212d/skills/engineering/research/SKILL.md) | copy + adapt | `plugins/squad/skills/research/` | Fresh-context research, cited file. Sven 2026-11-01: copy, not pin. We add a Standards line, the gates, the Autonomy line for gh-aw and Provider notes. |
+| [Matt retro](https://github.com/mattpocock/skills/blob/4ae2317ddb22b046e26455e4f9c9b3aaaf62212d/skills/engineering/retro/SKILL.md) | copy + adapt | `plugins/squad/skills/retro-md/` | Environment fixes into our retro. Sven 2026-11-01: copy, not pin. We add a Standards line, the gates, the Autonomy line for gh-aw and Provider notes. |
+| [Matt chief-of-staff](https://github.com/mattpocock/skills/blob/4ae2317ddb22b046e26455e4f9c9b3aaaf62212d/skills/in-progress/chief-of-staff/SKILL.md) | copy + adapt | `plugins/squad/skills/chief-of-staff/` | Sven prefers the poteto way: copy, then restyle to our hub H2s (Principles, Non-negotiables, Autonomy, Subagents, Playbooks, Standards). |
 
-PO decision 3 changes slightly: we do not pin the poteto-mode hub (Cursor-only text) and the copied playbooks drop swarm, control-cli, control-ui and `/loop`. The closure is whatever REF01 still finds, listed in the PS04 PR.
+### Coverage of Sven's skill list (2026-11-01 reminder)
+
+Every skill Sven named, with its source, route, PBI, where it runs and his use case. "Needs" lists the skills it calls, found by scanning the upstream files at the pinned SHAs; those are copied too.
+
+| Source | Skill (link at pinned SHA) | Route | PBI | Flow or command | Use case (Sven) | Needs (copied too) |
+|---|---|---|---|---|---|---|
+| pstack | [statechart](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/statechart/SKILL.md) | copy + adapt | PS08, PS12, PS16 | /statechart, /scenarios | Docs with charts; paths export unit, integration, component and smoke scenario rows | none |
+| pstack | [architect (+ design-red-flags)](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/architect/SKILL.md) | copy + adapt | PS04, PS11 | squad-architect, plan step | Shapes and contracts first; red flags from `references/design-red-flags.md` | arena, how, interrogate, why |
+| pstack | [blast-radius](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/blast-radius/SKILL.md) | copy + adapt | PS04, PS14, PS18 | plan, tasks, work items, /squad-review | What a change could break | arena, how, unslop, why |
+| pstack | [correct](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/correct/SKILL.md) | copy + adapt | PS04, PS14 | squad-retro | Agents stop repeating mistakes | none |
+| pstack | [create-verification-skill](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/create-verification-skill/SKILL.md) | copy + adapt | PS04, PS13, PS16 | build step, squad-verifier | Project verification skill | maintain-verification-skill |
+| pstack | [maintain-verification-skill](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/maintain-verification-skill/SKILL.md) | copy + adapt | PS04, PS13 | squad-retro | Keep it current | create-verification-skill |
+| pstack | [create-formal-verification-skill](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/create-formal-verification-skill/SKILL.md) | copy + adapt | PS04, PS12, PS13 | risky code only | Formal verification skill | maintain-formal-verification-skill, statechart-md |
+| pstack | [maintain-formal-verification-skill](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/maintain-formal-verification-skill/SKILL.md) | copy + adapt | PS04, PS13 | retro, risky code | Keep it current | create-formal-verification-skill |
+| pstack | [figure-it-out](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/figure-it-out/SKILL.md) | copy + adapt | PS04, PS09, PS14 | fallback when no playbook fits | Auditable playbook | architect, arena, poteto-mode to squad-md (ours, woven), show-me-your-work |
+| pstack | [how](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/how/SKILL.md) | copy + adapt | PS04, PS14 | plan, investigation playbook | How does X work | poteto-mode to squad-md (ours, woven) |
+| pstack | [arena](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/arena/SKILL.md) | copy + adapt | PS04, PS14, PS15 | /squad-review, plan (high risk, max 3) | Multi-model review of code and plan | poteto-mode to squad-md (ours, woven) |
+| pstack | [interrogate](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/interrogate/SKILL.md) | copy + adapt | PS04, PS14, PS18 | /squad-review | Adversarial review | arena, in-your-own-words |
+| pstack | [no-comments](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/no-comments/SKILL.md) | copy + adapt | PS01, PS04, PS06 | rule in hub `## Comments`, squad-simplifier | No comment slop | architect, how, poteto-mode to squad-md (ours, woven), principle-fix-root-causes, principle-redesign-from-first-principles, why |
+| pstack | [upstream playbook bug-fix](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/poteto-mode/playbooks/bug-fix.md) | copy + adapt | PS09 | Task type bug | Playbook per PBI type | tdd to tdd (pstack copy), architect, how, why |
+| pstack | [upstream playbook feature](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/poteto-mode/playbooks/feature.md) | copy + adapt | PS09 | Task type feature | Playbook per PBI type | architect, arena, how, interrogate, principle-model-the-domain |
+| pstack | [upstream playbook refactoring](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/poteto-mode/playbooks/refactoring.md) | copy + adapt | PS09 | Task type domain | Domain logic playbook | architect, figure-it-out, how, principle-foundational-thinking, principle-laziness-protocol, principle-migrate-callers-then-delete-legacy-apis, principle-minimize-reader-load, principle-model-the-domain, principle-prove-it-works, principle-redesign-from-first-principles, principle-subtract-before-you-add |
+| pstack | [24 principle-* leafs](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/principle-prove-it-works/SKILL.md) | copy + adapt | PS01, PS02, PS04, PS06, PS07, PS15 | hub Principles index; bundled-path line in every agent prompt | Index plus leafs | none |
+| pstack | [setup-pstack](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/setup-pstack/SKILL.md) | copy + adapt | PS04, PS19 | /pack-check setup | Our plugin setup | create-formal-verification-skill, create-verification-skill |
+| pstack | [tdd](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/tdd/SKILL.md) | copy + adapt | PS04, PS06, PS09, PS15, PS17 | every behavior change | TDD used hard | none |
+| pstack | [teach](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/teach/SKILL.md) | copy + adapt | PS04, PS14 | plan and tasks | Explain for planning | how, unslop, why |
+| pstack | [technical-writing](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/technical-writing/SKILL.md) | copy + adapt | PS04, PS08, PS20 | design docs | Designs | unslop |
+| pstack | [typescript-best-practices](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/typescript-best-practices/SKILL.md) | copy + adapt | PS17 | typescript plugin | TS best practices | none |
+| pstack | [unslop](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/unslop/SKILL.md) | copy + adapt | PS01, PS04, PS06, PS20 | every prose output | Everything | none |
+| pstack | [why](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/why/SKILL.md) | copy + adapt | PS04, PS14 | plan, review | Why does X work | how, poteto-mode to squad-md (ours, woven) |
+| Matt | [Matt code-review](https://github.com/mattpocock/skills/blob/4ae2317ddb22b046e26455e4f9c9b3aaaf62212d/skills/engineering/code-review/SKILL.md) | copy + adapt | PS05, PS08, PS10 | /squad-review | CODING_STANDARDS.md per repo plus a `.github/instructions/*.instructions.md` example template | setup-matt-pocock-skills to pack-check-md setup playbook (ours) |
+| Matt | [Matt codebase-design](https://github.com/mattpocock/skills/blob/4ae2317ddb22b046e26455e4f9c9b3aaaf62212d/skills/engineering/codebase-design/SKILL.md) | copy + adapt | PS05, PS11 | squad-architect | Design it twice, deep vs shallow modules | none |
+| Matt | [Matt diagnosing-bugs](https://github.com/mattpocock/skills/blob/4ae2317ddb22b046e26455e4f9c9b3aaaf62212d/skills/engineering/diagnosing-bugs/SKILL.md) | copy + adapt | PS05, PS10 | bug-fix playbook | Diagnosing bugs phases | pr |
+| Matt | [Matt domain-modeling](https://github.com/mattpocock/skills/blob/4ae2317ddb22b046e26455e4f9c9b3aaaf62212d/skills/engineering/domain-modeling/SKILL.md) | copy + adapt | PS05, PS10 | domain playbook, `docs/adr/*` | ADRs and GLOSSARY | none |
+| Matt | [Matt improve-codebase-architecture](https://github.com/mattpocock/skills/blob/4ae2317ddb22b046e26455e4f9c9b3aaaf62212d/skills/engineering/improve-codebase-architecture/SKILL.md) | copy + adapt | PS05, PS11 | /squad-review only, code Sven wrote | Architecture review | codebase-design |
+| Matt | [Matt pr (Summary from humanlayer show-me, Apache-2.0)](https://github.com/mattpocock/skills/blob/4ae2317ddb22b046e26455e4f9c9b3aaaf62212d/skills/engineering/pr/SKILL.md) | copy + adapt | PS05, PS10 | pr playbook | Create a PR or add to an open PR | none |
+| Matt | [Matt research](https://github.com/mattpocock/skills/blob/4ae2317ddb22b046e26455e4f9c9b3aaaf62212d/skills/engineering/research/SKILL.md) | copy + adapt | PS05, PS10 | planner research step, subagents | Fresh-context research | none |
+| Matt | [Matt retro](https://github.com/mattpocock/skills/blob/4ae2317ddb22b046e26455e4f9c9b3aaaf62212d/skills/engineering/retro/SKILL.md) | copy + adapt | PS05, PS10 | squad-retro | Our retro step | writing-for-agents |
+| Matt | [Matt chief-of-staff](https://github.com/mattpocock/skills/blob/4ae2317ddb22b046e26455e4f9c9b3aaaf62212d/skills/in-progress/chief-of-staff/SKILL.md) | copy + adapt | PS05 | orchestrator (poteto style) | Chief of staff | implement-spec, retro-md, to-spec, to-tickets, writing-for-agents |
+
+The poteto-mode hub is woven (structure only); the copied playbooks drop swarm, control-cli, control-ui and `/loop`. The closure is whatever REF01 finds, listed in the PS04 PR and in `aw-closure.json`.
 
 ## PO decisions applied
 
 1. `validate` is the CI gate; `/pack-check` runs the same checks locally.
 2. Renames: `squad` to `squad-md`, `pack-check` to `pack-check-md`, `statechart` copy to `statechart-md`.
-3. Closure pinned as above.
+3. Closure copied into our pack (Sven 2026-11-01: copy, not pin); `aw-closure.json` lists it for gh-aw.
 4. tdd on every behavior change (our copy, PS04).
 5. humanlayer-derived `pr` Summary kept with Apache-2.0 credit.
 - Parked: Matt chief-of-staff.
