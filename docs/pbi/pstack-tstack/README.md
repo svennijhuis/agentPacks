@@ -1,6 +1,6 @@
 # pstack + tstack + poteto talk PBIs (AP37 to AP63) and the one ruleset
 
-> Update 2026-11-01: rows 37 to 39, 41, 44, 45, 51 to 53, 58, 59, 61 to 63 are superseded by [squad-poteto](../squad-poteto/README.md). See its mapping table.
+> Update 2026-11-01: status of every PBI here against main is in [squad-poteto README](../squad-poteto/README.md#status-of-every-pbi-against-main). Open rows are merged there; obsolete rows are not built.
 
 Docs only, no code (code hold). One file per PBI. Unified ruleset: [RULES.md](RULES.md). Per-file checklist of every source file: [CHECKLIST.md](CHECKLIST.md). Licenses: [NOTICE.md](NOTICE.md).
 
