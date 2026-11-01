@@ -109,7 +109,7 @@ Command `/setup-github` (thin, loads `setup-github-mode`). Poteto name like `set
 
 Never in `docs/`: task logs, scratch, plan dumps, personal data, tokens.
 
-**What may go in a PR, what not** (section `## In a PR` in the `## Squad` block; the `.gitignore` block enforces the second column where it can):
+**What may go in a PR, what not.** Own file `.github/instructions/pr.instructions.md` (`applyTo: "**"`, ours, rewritten each run), woven from Matt pr in our pr playbook (PS10). The `## Squad` block links it. The `.gitignore` block keeps the second column out of `git add`; check REF09 catches what slips through:
 
 | In a PR | Never in a PR |
 |---|---|
@@ -117,6 +117,11 @@ Never in `docs/`: task logs, scratch, plan dumps, personal data, tokens.
 | `docs/architecture/`, `docs/adr/`, `docs/pbi/`, `docs/agents/` | task logs, run output, plan dumps, `docs/squad-plan.md` run copies |
 | `.github/instructions/*`, `copilot-instructions.md` block | `.claude/settings.local.json`, `.cursor/tmp/`, local model or agent state |
 | playbooks and skills made by `/pack-author` | tokens, `.env`, personal data, screenshots with personal data |
+| the PBI of this PR, ADRs it needs | files outside the PBI's Files list, generated dumps |
+
+Good: PR for PS21 changes `plugins/squad/skills/setup-github-mode/**`, its fixtures and `docs/pbi/ps21-setup-github.md`. Bad: same PR also adds `.squad/run-12.json`, `notes.scratch.md` and an unrelated `README.md` rewrite.
+
+Check **REF09** (`/pack-check` validate and the review step): a path in the PR diff that matches the forbidden list in `pr.instructions.md` fails; a path outside the PBI's Files list is a warning. Fixture `pr-forbidden`: a diff with `.squad/state.json` fails, the clean diff passes.
 
 **Upstream setup modes, all checked** (pstack `ae5650f`, Matt `4ae2317`):
 
@@ -124,8 +129,8 @@ Never in `docs/`: task logs, scratch, plan dumps, personal data, tokens.
 |---|---|---|---|
 | [setup-pstack](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/setup-pstack/SKILL.md) | model per role, always-applied rule | `## Squad` block points to the model roles doc (PS19); no `~/.cursor` write | copy + adapt |
 | [setup-matt-pocock-skills](https://github.com/mattpocock/skills/blob/4ae2317ddb22b046e26455e4f9c9b3aaaf62212d/skills/engineering/setup-matt-pocock-skills/SKILL.md) | issue tracker, triage labels, domain doc layout in `docs/agents/` | `docs/agents/issue-tracker.md` (GitHub, recommended), `docs/agents/triage-labels.md` (5 default labels), `docs/agents/domain.md` plus `GLOSSARY.md` created lazily | weave |
-| [create-verification-skill](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/create-verification-skill/SKILL.md), [create-formal-verification-skill](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/create-formal-verification-skill/SKILL.md) | project-local verify skill | not here: offered once at the end (`/scenarios`), built in PS13 | not used here |
-| [maintain-verification-skill](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/maintain-verification-skill/SKILL.md) | periodic audit | not here (PS13) | not used here |
+| [create-verification-skill](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/create-verification-skill/SKILL.md), [create-formal-verification-skill](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/create-formal-verification-skill/SKILL.md) | project-local verify skill | run 1 creates one per repo, later runs maintain it (PS22) | copy + adapt |
+| [maintain-verification-skill](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/maintain-verification-skill/SKILL.md) | keeps the verify skill true to the code | every later run (PS22) | copy + adapt |
 | [automate-me](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/automate-me/SKILL.md) | personal `-mode` skill | not here: personal, not repo | not used |
 | [poteto-help](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/poteto-help/SKILL.md) | guide to setup and skills | `## Squad` block lists the commands and where to start | weave (one list) |
 | [setup-pre-commit](https://github.com/mattpocock/skills/blob/4ae2317ddb22b046e26455e4f9c9b3aaaf62212d/skills/misc/setup-pre-commit/SKILL.md) | Husky, lint-staged | not here: Node only; mechanical rules become a hook or CI check per language pack | not used |
@@ -215,7 +220,7 @@ Also: Command count 7 to 8: Sven must say yes.; Out: other languages than the pa
    3. Step 0: detect existing files, language packs, task types with or without a playbook, repo flows and `docs/` folders.
    4. Playbook check per task type: create or update via PS01, chart first.
    5. Statechart per flow via `statechart-mode` into `docs/architecture/<flow>.md`, update in place.
-   6. Write `docs.instructions.md`, the `## In a PR` section and the `.gitignore` block.
+   6. Write `docs.instructions.md`, `pr.instructions.md` and the `.gitignore` block; add REF09 to the validator table (PS03) and the review step.
    7. Matt setup weave: `docs/agents/issue-tracker.md`, `triage-labels.md`, `domain.md`; recommended answers first, skip a section exploration already settled.
    8. Command file, add to the command list (8 commands: needs Sven's yes).
 6. Run every command in section 8. All must pass.
@@ -226,7 +231,6 @@ Also: Command count 7 to 8: Sven must say yes.; Out: other languages than the pa
 | Step | Skill (repo, path, SHA) | Licence | Mode | Lives in | Reason |
 |---|---|---|---|---|---|
 | setup | [setup-pstack](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/setup-pstack/SKILL.md) | MIT (cursor/plugins, Lauren Tan) | copy + adapt | `plugins/pack-check/skills/pack-check-mode/playbooks/setup.md` | Our plugin setup (Sven). Upstream writes `~/.cursor/rules` (Cursor only, home dir); our copy writes the role to tier table into the repo from `models.source.json`. |
-| verify, offered only | [create-verification-skill](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/create-verification-skill/SKILL.md) | MIT (cursor/plugins, Lauren Tan) | pin | `plugins/squad/external-skills.json` | We change nothing and it has no Cursor-only parts (scanned at ae5650f), so it stays external at the 40-hex SHA. In gh-aw the generator vendors it into the commit and `aw-closure.json` lists it. |
 | always on | [caveman, caveman-compress](https://github.com/JuliusBrussee/caveman/tree/5184b3d11ac6a1acb7d44b9bfaa31698157cff97/skills/caveman) | MIT (cursor/plugins, Lauren Tan) | pin | `plugins/squad/external-skills.json` | We change nothing (Sven 2026-11-01: "als we geen wijzigingen gaan doen hou gewoon extern"). Always on: hub `## Writing the reply` and every agent prompt, locally and in gh-aw. |
 | playbooks | [upstream playbook authoring-a-skill](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/poteto-mode/playbooks/authoring-a-skill.md) | MIT (cursor/plugins, Lauren Tan) | copy + adapt | `pack-author-mode/playbooks/write-skill.md` | Calls Cursor built-in create-skill. We replace it with our make steps and validate. Keeps our standards and gates (PS09). |
 | flows | [statechart](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/statechart/SKILL.md) | MIT (cursor/plugins, Lauren Tan) | copy + adapt | `plugins/squad/skills/statechart-mode/` | Upstream has `disable-model-invocation: true` and is named like the command. Sven wants `/statechart` plus auto use in the flow. We rename to `statechart-mode`, allow model use, add `docs/architecture/` output and the scenario export to `/scenarios`. Scripts stay byte-equal. |
@@ -237,7 +241,6 @@ Also: Command count 7 to 8: Sven must say yes.; Out: other languages than the pa
 Route per external skill ([decision](README.md#decision-pin-copy--adapt-weave-or-not-used)):
 
 - setup-pstack: **copy + adapt**. `plugins/pack-check/skills/pack-check-mode/playbooks/setup.md`.
-- create-verification-skill: **pin**. `plugins/squad/external-skills.json`.
 - caveman, caveman-compress: **pin**. `plugins/squad/external-skills.json`.
 - upstream playbook authoring-a-skill: **copy + adapt**. `pack-author-mode/playbooks/write-skill.md`.
 - statechart: **copy + adapt**. `plugins/squad/skills/statechart-mode/`.
@@ -300,6 +303,7 @@ Then locally: install `/tmp/agentpacks-marketplace` in Cursor or Claude Code, ru
 - [ ] Fixture `playbook-repo` with `playbooks/bug.md`: updated in place, `ls playbooks | grep -c bug` is 1.
 - [ ] `git status --porcelain` after a fake run that makes `.squad/` and `x.scratch.md`: both ignored.
 - [ ] Fixture with own `docs/agents/triage-labels.md` (other names): kept, not overwritten.
+- [ ] Fixture `pr-forbidden`: REF09 fails on `.squad/state.json` in the diff, passes on the clean diff.
 - [ ] Run 2 on any fixture: no second `docs/architecture/<flow>.md` and no second `.gitignore` block (`grep -c "# squad: begin" .gitignore` is 1).
 - [ ] `grep -rnP "[\x{2013}\x{2014}]"` and placeholder grep `{[A-Z]*}` on generated files: 0.
 - [ ] Local install: plugin installed from the local marketplace, `/setup-github` run on the fixture, Copilot lists the instruction files.

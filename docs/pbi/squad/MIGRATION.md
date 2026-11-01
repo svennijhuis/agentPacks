@@ -83,6 +83,7 @@ flowchart LR
 | command | (none) | `plugins/squad/commands/setup-github.md` | add | PS21 |
 | hub | (none) | `plugins/squad/skills/setup-github-mode/ (SKILL.md, playbooks/generate.md, playbooks/update.md, references/*.md)` | add | PS21 |
 | agent | `plugins/squad/agents/squad-{planner,architect,indexer,implementer,simplifier,orchestrator,verifier}.md` | `squad-agent.md + same names as one-line pointers until GA07` | merge into general delegate | PS15 |
+| skill | `external-skills.json pins: create/maintain(-formal)-verification-skill` | `plugins/squad/skills/{create,maintain}-verification-skill/, {create,maintain}-formal-verification-skill/` | copy + adapt (was pin) | PS22 |
 | version | `plugin.json 0.x / 1.0.0` | `2.0.0 for moved plugins, tag v2.0.0` | bump | PS20 |
 
 ## What breaks from v1
