@@ -1,6 +1,6 @@
 # Structure of the squad pack (v2 target)
 
-Where every kind of file lives after PS01 to PS20 and GA01 to GA07, what it is, one example, and how to add or maintain it. How each kind looks: [SHAPES.md](SHAPES.md). Moving from v1: [MIGRATION.md](MIGRATION.md). gh-aw use: [gh-aw/README.md](gh-aw/README.md). Flows: [FLOWS.md](FLOWS.md). Reuse rule: [README](README.md#reuse-mode-per-skill).
+Where every kind of file lives after PS01 to PS21 and GA01 to GA07, what it is, one example, and how to add or maintain it. How each kind looks: [SHAPES.md](SHAPES.md). Moving from v1: [MIGRATION.md](MIGRATION.md). gh-aw use: [gh-aw/README.md](gh-aw/README.md). Flows: [FLOWS.md](FLOWS.md). Reuse rule: [README](README.md#reuse-mode-per-skill).
 
 ## Pin, copy + adapt, weave or not used
 
@@ -50,10 +50,11 @@ plugins/squad/
   mcp.json                          # unchanged
   README.md                         # updated per PBI
   commands/
-    squad.md  squad-review.md  scenarios.md  statechart.md
+    squad.md  squad-review.md  scenarios.md  statechart.md  setup-github.md   # setup-github NEW (PS21)
   agents/
-    squad-planner.md  squad-architect.md  squad-indexer.md  squad-implementer.md  squad-verifier.md
-    squad-reviewer.md  squad-simplifier.md  squad-security-reviewer.md  squad-orchestrator.md  squad-retro.md
+    squad-agent.md                  # general delegate: reads squad-mode first, runs the role it is given (PS15)
+    squad-reviewer.md  squad-security-reviewer.md  squad-retro.md   # own prompt needed
+    squad-planner.md ... squad-orchestrator.md   # 7 one-line pointers to squad-agent until GA07
   references/smoke-matrix.md        # unchanged
   rules/review-checklist.mdc        # unchanged (Cursor rule)
   skills/
@@ -62,8 +63,7 @@ plugins/squad/
       playbooks/  bug-fix.md  feature.md  domain.md  perf.md  investigation.md  plan.md  review.md  pr.md  retro.md  write-scenarios.md
       references/  adr.md advisor-lite.md architect-contract.md malformed-reask.md planning-contract.md
                    residual-fixup.md retro.md review-contract.md session-split.md suggestions.md worktree.md
-                   architecture-review.md  templates/CODING_STANDARDS.md  templates/coding.instructions.md
-                   custom-rules.md      # FORK EXTENSION POINT: a fork's own rules (empty upstream)
+                   architecture-review.md      # flat, no subfolders (pstack)
     squad/SKILL.md                  # one-line pointer to squad-mode until GA07
     standard-no-em-dash/  standard-squash-merge-one-by-one/  standard-personal-account-only/
     standard-one-pbi-per-pr/  standard-no-secrets-in-markdown/  standard-never-force-push/
@@ -146,7 +146,7 @@ docs/pbi/squad/fork-inventory.md    # step 0 output in forks
 | plugins/<pack>/skills/standard-<language>-*/ | language standard leafs, link the pack `standards/*.md` | PS17 | REF03, leaf bar |
 | skills/principle-*/ | copied pstack principles | PS04 | REF02, REF06 |
 | skills/<pstack or Matt name>/ | copied skills (we change them) | PS04, PS05, PS12, PS13, PS14 | REF06, REF01 |
-| fork leafs (`standard-<topic>`, `principle-<title>`, `playbooks/<title>.md`), custom-rules.md | fork-owned: not in `migrations/v2.json`, listed in `fork-inventory.md` | fork | REF03 name clash check, migrate-check `fork-owned` |
+| fork leafs (`standard-<topic>`, `principle-<title>`, `playbooks/<title>.md`) | fork-owned: not in `migrations/v2.json`, listed in `fork-inventory.md` | fork | REF03 name clash check, migrate-check `fork-owned` |
 | NOTICE | licences of every copy | PS05 | NOTICE test |
 | aw-closure.json | generated skill list for gh-aw | GA01 (generator) | AwClosureTests |
 | external-skills.json | pins: skills we use unchanged, 40-hex SHA | PS04, PS05, PS17 | REF05, ExternalSourceTests |
@@ -164,7 +164,7 @@ The extension point is the hub's own `## Standards` index (and `## Playbooks`). 
 | Own language standard | `plugins/<pack>/skills/standard-<language>-<topic>/SKILL.md`, for example `standard-csharp-nullable-enabled` | one line under `### Language` |
 | Own principle | `plugins/<pack>/skills/principle-<title>/SKILL.md` | one line in `## Principles` |
 | Own playbook | `plugins/<pack>/skills/<hub>/playbooks/<title>.md` | one line in `## Playbooks` |
-| Own rule that is not a whole standard | `plugins/<pack>/skills/<hub>/references/custom-rules.md` | linked from the `## Standards` index |
+| Own rule for one target repo | `.github/instructions/custom-standards*.instructions.md` in that repo (PS21) | read by Copilot via `applyTo` and by the review step |
 
 ```markdown
 ## Standards
@@ -175,7 +175,6 @@ Global first, then the language of the project.
 ### Language
 - **C# Layers.** .NET project. Leaf: standard-csharp-layers.
 - **C# Nullable Enabled.** .NET project. Leaf: standard-csharp-nullable-enabled.
-- Rules: references/custom-rules.md
 ```
 
 Validator: REF03 accepts fork `standard-<name>` leafs; HUB01 keeps fork index lines listed in `fork-inventory.md`; `migrate-check` reports these files as `fork-owned`. Details: [FORKS.md](FORKS.md).
@@ -193,9 +192,9 @@ Validator: REF03 accepts fork `standard-<name>` leafs; HUB01 keeps fork index li
 | Copied skill | Upstream skill we must change (gates, client parts). | `skills/<name>/` | `tdd` (runs on every behavior change) | edit the copy, update `What we changed`; REF06 |
 | Pinned skill | Upstream skill that fits unchanged. | `external-skills.json` | `blast-radius` | bump SHA; check upstream diff first |
 | Woven part | A few steps from a Matt skill inside our own file. | the file that uses it | two review axes in `review-contract.md` | edit our file; NOTICE line stays |
-| Subagent | Fresh context with one job. | `plugins/squad/agents/<name>.md` | `squad-verifier` returns PASS or FAIL with numbers | write-subagent, check-subagent |
+| Subagent | Fresh context. One general delegate plus agents that need an own prompt (pstack: `poteto-agent` plus one specialist). | `plugins/squad/agents/<name>.md` | `squad-agent` reads the hub, then runs the role it gets; `squad-reviewer` has its own prompt | write-subagent, check-subagent |
 | Contract | Shared format between agents. | `squad-mode/references/` | `planning-contract.md` | write-skill (change mode); tests in `SquadContractTests` |
-| Template | File the squad writes into a target repo. | `references/templates/` | `CODING_STANDARDS.md` | write-skill; fixture shows planner proposes it |
+| Template | File a command writes into a target repo. | `setup-github-mode/references/` (flat, like pstack) | `CODING_STANDARDS.md` | write-skill; fixture shows planner proposes it |
 
 ## Their trees, our tree
 
@@ -226,11 +225,11 @@ skills/
 | Part | pstack | Matt | Ours |
 |---|---|---|---|
 | Hub | `poteto-mode/` | none | `<command>-mode/`, same layout |
-| Sub-docs | `playbooks/`, `references/`, `scripts/` in the skill dir | `.md` next to `SKILL.md` | pstack layout (we have playbooks) |
+| Sub-docs | `playbooks/`, `references/` (flat), `scripts/` in the skill dir | `.md` next to `SKILL.md` | pstack layout; Matt sub-docs stay next to `SKILL.md` in skills we copy from him |
 | Leafs | `principle-<title>/` | none | same, plus standard leafs |
 | Other skills | bare kebab name | bare kebab name, area folder | bare kebab name, one plugin per pack |
 | Calls a skill | bold name ("the **tdd** skill"), resolved as `../<name>/SKILL.md` | `/name` in text | bold name, `../<name>/SKILL.md` (REF01) |
-| Agents | `agents/poteto-agent.md` | none | `agents/<pack>-<role>.md` |
+| Agents | `poteto-agent.md` (general, reads the hub) + `comment-sicko.md` | none | `squad-agent.md` (general) + reviewer, security-reviewer, retro |
 
 Where we differ, and why:
 

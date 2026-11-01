@@ -172,7 +172,7 @@ Also: marketplace-beta is force-pushed; gh-aw needs a durable SHA for skills.; O
 
 ## 5. Steps
 
-0. **Inventory (forks and upstream alike).** `git diff --name-status <basis>...HEAD -- plugins shared docs .github` (basis: the agentPacks commit you started from; on upstream itself the list is empty). Add every own standard, rule, skill, agent, `custom-rules.md` and instructions file to `docs/pbi/squad/fork-inventory.md` ([format](FORKS.md#step-0-inventory-every-pbi-before-any-edit)). Never delete or overwrite a listed file; unsure means keep it and mark the row `open`.
+0. **Inventory (forks and upstream alike).** `git diff --name-status <basis>...HEAD -- plugins shared docs .github` (basis: the agentPacks commit you started from; on upstream itself the list is empty). Add every own standard, rule, skill, agent and instructions file to `docs/pbi/squad/fork-inventory.md` ([format](FORKS.md#step-0-inventory-every-pbi-before-any-edit)). Never delete or overwrite a listed file; unsure means keep it and mark the row `open`.
 1. Branch from main: `git switch -c pbi/ps04-pstack-reuse origin/main`.
 2. Save the base for the fork check: `git rev-parse HEAD > /tmp/base.sha`.
 3. Read [SHAPES.md](SHAPES.md) for every kind in section 3, and each source in section 6.

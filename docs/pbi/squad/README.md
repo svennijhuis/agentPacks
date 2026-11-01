@@ -1,4 +1,4 @@
-# Squad v2: pstack and Matt skills woven into our flows (PS01 to PS20, GA01 to GA07)
+# Squad v2: pstack and Matt skills woven into our flows (PS01 to PS21, GA01 to GA07)
 
 ## Start here (junior or small agent)
 
@@ -99,19 +99,20 @@ Counts: 28 rows. 1 done (AP64), 2 half (AP43, AP44), 18 open (merged into PS07, 
 | [PS05](ps05-matt-reuse.md) | Matt reuse and NOTICE | B1 | PS03 | none |
 | [PS06](ps06-squad-mode-hub.md) | squad-mode hub with the new chapter structure | B2 | PS04 | none |
 | [PS07](ps07-standards-index-leafs.md) | Standards index and standard-* leafs (same shape as principle leafs) | B2 | PS06 | old 43 (verdict and severity words), 60 (canonical examples), 62 (patterns catalog), 63 (rules file) |
-| [PS08](ps08-coding-standards-file.md) | CODING_STANDARDS.md per repo plus .github instructions example | B2 | PS07 | none |
+| [PS08](ps08-coding-standards-file.md) | Review reads the repo standards files (Matt code-review step 3) | B2 | PS07 | none |
 | [PS09](ps09-squad-playbooks.md) | Squad playbooks: copy + adapt is the default | B2 | PS07 | old 37, 38, 39, 40, 54, 61 |
 | [PS10](ps10-matt-weaves.md) | Weave Matt skills into the playbooks and agents | B2 | PS09 | old 45 (hand-off in PR-body order) |
 | [PS11](ps11-architecture-review.md) | Architecture review mode for code Sven wrote | B2 | PS10 | none |
 | [PS12](ps12-statechart-command-and-flow.md) | /statechart command plus statechart-mode in the squad flow | B2 | PS09 | none |
 | [PS13](ps13-verification-pairs.md) | Verification and formal verification pairs | B2 | PS09 | old 41, 52, 53, 59 |
 | [PS14](ps14-review-and-lesson-stack.md) | Review and lesson stack | B2 | PS09 | old 51, 57, 58 |
-| [PS15](ps15-squad-agents.md) | Squad agents rewritten with write-subagent (PR a and PR b) | B3 | PS02, PS07, PS14 | none |
+| [PS15](ps15-squad-agents.md) | Squad agents: one general squad-agent plus reviewer, security-reviewer and retro | B3 | PS02, PS07, PS14 | none |
 | [PS16](ps16-squad-helpers.md) | Helpers: scenarios-mode, verify-harness, pack-check-mode | B4 | PS15 | none |
 | [PS17](ps17-language-packs.md) | Language packs restyle, import-boundary tests, typescript-best-practices | B5 | PS16 | old 55 (import boundaries) |
 | [PS18](ps18-security-pack.md) | Security pack restyle | B6 | PS17 | none |
 | [PS19](ps19-model-roles-doc.md) | pstack model roles mapped to our tiers | B6 | PS04 | none |
-| [PS20](ps20-v2-release.md) | Squad v2 release: versions, marketplace tag, changelog, v1 to v2 guide | B7 | PS01 to PS19, GA01 to GA06 | none |
+| [PS21](ps21-setup-github.md) | /setup-github: generate or update the repo .github instruction files | B6 | PS07, PS17 | none |
+| [PS20](ps20-v2-release.md) | Squad v2 release: versions, marketplace tag, changelog, v1 to v2 guide | B7 | PS01 to PS19, PS21, GA01 to GA06 | none |
 
 ```mermaid
 flowchart LR
@@ -129,6 +130,7 @@ flowchart LR
   PS09 --> GA03 --> GA04
   PS18 --> PS20
   PS19 --> PS20
+  PS17 --> PS21 --> PS20
   GA04 --> PS20
   GA04 --> GA06
   PS20 --> GA05 --> GA07
@@ -225,7 +227,7 @@ Every skill Sven named, with its source, route, PBI, where it runs and his use c
 
 | Source | Skill (link at pinned SHA) | Route (chart) and why | PBI | Flow or command | Use case (Sven) | Needs (pinned or copied too) |
 |---|---|---|---|---|---|---|
-| caveman | [caveman, caveman-compress](https://github.com/JuliusBrussee/caveman/tree/5184b3d11ac6a1acb7d44b9bfaa31698157cff97/skills/caveman) | **pin**: We change nothing (Sven 2026-11-01: "als we geen wijzigingen gaan doen hou gewoon extern"). | PS06, PS15 | hub `## Writing the reply` and every agent prompt, local and gh-aw | Brief, compressed replies, always on (Sven 2026-11-01: "caveman gebruik altijd") | none |
+| caveman | [caveman, caveman-compress](https://github.com/JuliusBrussee/caveman/tree/5184b3d11ac6a1acb7d44b9bfaa31698157cff97/skills/caveman) | **pin**: We change nothing (Sven 2026-11-01: "als we geen wijzigingen gaan doen hou gewoon extern"). | PS06, PS15, PS21 | hub `## Writing the reply` and every agent prompt, local and gh-aw | Brief, compressed replies, always on (Sven 2026-11-01: "caveman gebruik altijd") | none |
 | pstack | [statechart](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/statechart/SKILL.md) | **copy + adapt**: Upstream has `disable-model-invocation: true` and is named like the command. | PS08, PS12, PS16 | /statechart, /scenarios | Docs with charts; paths export unit, integration, component and smoke scenario rows | none |
 | pstack | [architect (+ design-red-flags)](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/architect/SKILL.md) | **copy + adapt**: Cursor-only parts at ae5650f: names `claude-opus` model slug. | PS04, PS11 | squad-architect, plan step | Shapes and contracts first; red flags from `references/design-red-flags.md` | arena, how, interrogate, why |
 | pstack | [blast-radius](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/blast-radius/SKILL.md) | **pin**: We change nothing and it has no Cursor-only parts (scanned at ae5650f), so it stays external at the 40-hex SHA. | PS04, PS14, PS18 | plan, tasks, work items, /squad-review | What a change could break | arena, how, unslop, why |
@@ -243,12 +245,12 @@ Every skill Sven named, with its source, route, PBI, where it runs and his use c
 | pstack | [upstream playbook feature](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/poteto-mode/playbooks/feature.md) | **copy + adapt**: 21 lines. | PS09 | Task type feature | Playbook per PBI type | architect, arena, how, interrogate, principle-model-the-domain |
 | pstack | [upstream playbook refactoring](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/poteto-mode/playbooks/refactoring.md) | **copy + adapt**: Base for the domain playbook. | PS09 | Task type domain | Domain logic playbook | architect, figure-it-out, how, principle-foundational-thinking, principle-laziness-protocol, principle-migrate-callers-then-delete-legacy-apis, principle-minimize-reader-load, principle-model-the-domain, principle-prove-it-works, principle-redesign-from-first-principles, principle-subtract-before-you-add |
 | pstack | [24 principle-* leafs](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/principle-prove-it-works/SKILL.md) | **copy + adapt**: We add to them: a Standards line, the Gates and the gh-aw Autonomy line next to the upstream body (byte-equal). | PS01, PS02, PS04, PS06, PS07, PS15 | hub Principles index; bundled-path line in every agent prompt | Index plus leafs | none |
-| pstack | [setup-pstack](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/setup-pstack/SKILL.md) | **copy + adapt**: Our plugin setup (Sven). | PS04, PS19 | /pack-check setup | Our plugin setup | create-formal-verification-skill, create-verification-skill |
+| pstack | [setup-pstack](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/setup-pstack/SKILL.md) | **copy + adapt**: Our plugin setup (Sven). | PS04, PS19, PS21 | /pack-check setup | Our plugin setup | create-formal-verification-skill, create-verification-skill |
 | pstack | [tdd](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/tdd/SKILL.md) | **copy + adapt**: Upstream has `disable-model-invocation: true` and says "use only when the user explicitly asks". | PS04, PS06, PS09, PS15, PS17 | every behavior change | TDD used hard | none |
 | pstack | [teach](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/teach/SKILL.md) | **pin**: We change nothing and it has no Cursor-only parts (scanned at ae5650f), so it stays external at the 40-hex SHA. | PS04, PS14 | plan and tasks | Explain for planning | how, unslop, why |
-| pstack | [technical-writing](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/technical-writing/SKILL.md) | **copy + adapt**: Cursor-only parts at ae5650f: calls swarm. | PS04, PS08, PS20 | design docs | Designs | unslop |
+| pstack | [technical-writing](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/technical-writing/SKILL.md) | **copy + adapt**: Cursor-only parts at ae5650f: calls swarm. | PS04, PS08, PS21, PS20 | design docs | Designs | unslop |
 | pstack | [typescript-best-practices](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/typescript-best-practices/SKILL.md) | **pin**: We change nothing and it has no Cursor-only parts (scanned at ae5650f), so it stays external at the 40-hex SHA. | PS17 | typescript plugin | TS best practices | none |
-| pstack | [unslop](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/unslop/SKILL.md) | **pin**: We change nothing and it has no Cursor-only parts (scanned at ae5650f), so it stays external at the 40-hex SHA. | PS01, PS04, PS06, PS20 | every prose output | Everything | none |
+| pstack | [unslop](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/unslop/SKILL.md) | **pin**: We change nothing and it has no Cursor-only parts (scanned at ae5650f), so it stays external at the 40-hex SHA. | PS01, PS04, PS06, PS21, PS20 | every prose output | Everything | none |
 | pstack | [why](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/why/SKILL.md) | **copy + adapt**: Cursor-only parts at ae5650f: Cursor Task tool, `claude-opus`, poteto-mode. | PS04, PS14 | plan, review | Why does X work | how, poteto-mode to squad-mode (ours, woven) |
 | Matt | [Matt code-review](https://github.com/mattpocock/skills/blob/4ae2317ddb22b046e26455e4f9c9b3aaaf62212d/skills/engineering/code-review/SKILL.md) | **copy + adapt**: We add: `CODING_STANDARDS.md` per repo, a `.github/instructions/*.instructions.md` example, our severity words; drops `setup-matt-pocock-skills`. | PS05, PS08, PS10 | /squad-review | CODING_STANDARDS.md per repo plus a `.github/instructions/*.instructions.md` example template | setup-matt-pocock-skills to pack-check-mode setup playbook (ours) |
 | Matt | [Matt codebase-design](https://github.com/mattpocock/skills/blob/4ae2317ddb22b046e26455e4f9c9b3aaaf62212d/skills/engineering/codebase-design/SKILL.md) | **pin**: Design it twice and deep vs shallow modules; we change nothing and it has no client-only parts. | PS05, PS11 | squad-architect | Design it twice, deep vs shallow modules | none |

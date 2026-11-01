@@ -1,4 +1,4 @@
-# PS15: Squad agents rewritten with write-subagent (PR a and PR b)
+# PS15: Squad agents: one general squad-agent plus reviewer, security-reviewer and retro
 - Status: todo (docs only; build waits for Sven go per PBI)
 - Batch: B3
 - Depends on: PS02, PS07, PS14
@@ -39,6 +39,7 @@ PS02, PS07, PS14. Start only when those PBIs are merged on main. Build order: [R
 | Kind | Now | After | Action |
 |---|---|---|---|
 | agent | `plugins/squad/agents/squad-*.md (10)` | same names | rewrite with write-subagent |
+| agent | `plugins/squad/agents/squad-{planner,architect,indexer,implementer,simplifier,orchestrator,verifier}.md` | `squad-agent.md + same names as one-line pointers until GA07` | merge into general delegate |
 
 Full list for all PBIs: [MIGRATION.md](MIGRATION.md#path-table).
 
@@ -55,9 +56,9 @@ plugins/squad/agents/  10 files, 25 to 40 lines
 After:
 
 ```text
-same 10 names, SHAPES subagent shape, max 60 lines
-PR a: planner, architect, indexer, implementer, verifier
-PR b: reviewer, simplifier, security-reviewer, orchestrator, retro
+squad-agent.md (NEW, general delegate)
+squad-reviewer.md  squad-security-reviewer.md  squad-retro.md (own prompt)
+7 pointer files to squad-agent until GA07
 ```
 
 ### 4.2 Skeleton of the new file
@@ -70,20 +71,16 @@ Shape rules: [SHAPES.md](SHAPES.md#summary).
 
 ### 4.3 Target detail
 
+pstack pattern ([poteto-agent](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/agents/poteto-agent.md)): one general delegate that reads the hub first, plus an agent only where an own prompt is needed.
+
 | Agent | Tier | Skills | Principles | Standards |
 |---|---|---|---|---|
-| squad-planner | standard | teach, technical-writing, blast-radius, statechart-mode, Matt research | Sequence Verifiable Units, Subtract Before You Add | Coding Standards File |
-| squad-architect | frontier | architect, codebase-design, statechart-mode | Foundational Thinking, Model the Domain, Type System Discipline, Exhaust the Design Space | Coding Standards File, Layers |
-| squad-implementer | standard | tdd, no-comments | Prove It Works, Test Behavior, Laziness Protocol | No Em Dash, No Secrets in Markdown |
-| squad-reviewer | standard | interrogate, blast-radius, Matt two axes | Minimize Reader Load, Test Behavior | Review Contract, Coding Standards File |
-| squad-simplifier | standard | no-comments, unslop | Subtract Before You Add, Laziness Protocol | none |
-| squad-orchestrator | standard | arena | Prove It Works, Explain the Number | Review Contract |
-| squad-verifier | standard | none | Prove It Works, Explain the Number | none |
-| squad-retro | standard | correct, maintain-verification-skill, Matt retro | Encode Lessons in Structure | none |
+| squad-agent | per role, from the hub Subagents table | the role's playbook names them | per role | global, then language |
+| squad-reviewer | standard | interrogate, blast-radius, Matt code-review | Minimize Reader Load, Test Behavior | Review Contract, repo custom standards (PS21) |
 | squad-security-reviewer | standard | none | Boundary Discipline | No Secrets in Markdown |
-| squad-indexer | fast | none (cheap by design) | Guard the Context Window | none |
+| squad-retro | standard | correct, maintain-verification-skill, Matt retro | Encode Lessons in Structure | none |
 
-PR a: planner, architect, implementer, reviewer, simplifier. PR b: the rest.
+Hub `## Subagents` table: role (planner, architect, indexer, implementer, simplifier, orchestrator, verifier) to tier and playbook. `squad-agent` gets the absolute hub path plus the role. The 7 old files become one-line pointers to `squad-agent` until GA07 (no delete without Sven's yes). PR a: squad-agent plus pointers. PR b: the 3 own agents.
 
 ### 4.4 Interfaces and contracts
 
@@ -102,7 +99,8 @@ flowchart LR
 
 | Chosen | Rejected | Why |
 |---|---|---|
-| Two PRs | One PR of 10 | One PBI per PR still; split keeps review small. |
+| One general squad-agent plus 3 own agents | 10 role agents | pstack has one delegate that reads the hub; a role is a playbook, not a prompt. Repo Research 2026-11-01. |
+| Two PRs | One PR | One PBI per PR still; split keeps review small. |
 | Every agent prompt loads caveman (pinned, unchanged) and has the bundled-path line | Only the hub | Sven: caveman always on in every agent, locally and in gh-aw. |
 
 ### 4.7 Checks and error messages
@@ -132,7 +130,7 @@ Also: Out: security plugin agents (PS18).
 
 ## 5. Steps
 
-0. **Inventory (forks and upstream alike).** `git diff --name-status <basis>...HEAD -- plugins shared docs .github` (basis: the agentPacks commit you started from; on upstream itself the list is empty). Add every own standard, rule, skill, agent, `custom-rules.md` and instructions file to `docs/pbi/squad/fork-inventory.md` ([format](FORKS.md#step-0-inventory-every-pbi-before-any-edit)). Never delete or overwrite a listed file; unsure means keep it and mark the row `open`.
+0. **Inventory (forks and upstream alike).** `git diff --name-status <basis>...HEAD -- plugins shared docs .github` (basis: the agentPacks commit you started from; on upstream itself the list is empty). Add every own standard, rule, skill, agent and instructions file to `docs/pbi/squad/fork-inventory.md` ([format](FORKS.md#step-0-inventory-every-pbi-before-any-edit)). Never delete or overwrite a listed file; unsure means keep it and mark the row `open`.
 1. Branch from main: `git switch -c pbi/ps15-squad-agents origin/main`.
 2. Save the base for the fork check: `git rev-parse HEAD > /tmp/base.sha`.
 3. Read [SHAPES.md](SHAPES.md) for every kind in section 3, and each source in section 6.
@@ -142,7 +140,7 @@ Also: Out: security plugin agents (PS18).
    2. Fill Subagents chapter.
    3. gh-aw generator emits concrete models.
 6. Run every command in section 8. All must pass.
-7. Open one PR titled `PS15: Squad agents rewritten with write-subagent (PR a and PR b)`. Body: link to this file, the section 3 table, the section 8 output.
+7. Open one PR titled `PS15: Squad agents: one general squad-agent plus reviewer, security-reviewer and retro`. Body: link to this file, the section 3 table, the section 8 output.
 
 ## 6. Sources
 
@@ -193,7 +191,9 @@ grep -rnP "[\x{2013}\x{2014}]" plugins docs || echo "no dashes"
 
 Then locally: install `/tmp/agentpacks-marketplace` in Cursor or Claude Code, run `/pack-check` (same result as `validate`) and each command this PBI touches once.
 
-- [ ] check-subagent PASS for all 10.
+- [ ] check-subagent PASS for squad-agent and the 3 own agents.
+- [ ] Every role in the hub `## Subagents` table runs via squad-agent in a fixture (planner, implementer, verifier at least).
+- [ ] 7 pointer files load squad-agent; SquadContractTests green.
 - [ ] Local: works in Cursor, Claude Code and CLI (Copilot CLI, Codex). Proof offline: generated client manifests and fixture tests (`ClientManifestTests`, `ComponentGenerationTests`).
 - [ ] gh-aw: the fixture workflow under `tests/fixtures/gh-aw/` that uses this PBI's files passes `gh aw compile --strict` (pinned gh-aw, no run, no secrets, no Actions minutes). See [gh-aw README](gh-aw/README.md).
 - [ ] `dotnet run --project tools/AgentPacks.Cli -- validate` exits 0, 0 errors, 0 warnings.

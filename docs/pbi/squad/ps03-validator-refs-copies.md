@@ -39,7 +39,7 @@ PS01. Start only when those PBIs are merged on main. Build order: [README](READM
 
 | Kind | Now | After | Action |
 |---|---|---|---|
-| fork | (fork files) | `fork leafs not in migrations/v2.json (standard-<topic>, principle-<title>, playbooks/<title>.md), references/custom-rules.md` | keep (fork-owned, never edited) |
+| fork | (fork files) | `fork leafs not in migrations/v2.json (standard-<topic>, principle-<title>, playbooks/<title>.md)` | keep (fork-owned, never edited) |
 | validator | `SkillReferenceValidator (backticked `/name` only)` | + REF01 to REF06, HUB01 | add |
 
 Full list for all PBIs: [MIGRATION.md](MIGRATION.md#path-table).
@@ -67,7 +67,7 @@ tools/AgentPacks.Cli.Tests/
   SkillReferenceRulesTests.cs  HubValidatorTests.cs  MigrateCheckTests.cs   # NEW
 tests/fixtures/fork-acme/      # NEW: fixture fork, FAKE values
   plugins/squad/skills/standard-api-versioning/SKILL.md   # one own standard
-  plugins/squad/skills/squad-mode/references/custom-rules.md    # one own rule
+  .github/instructions/custom-standards.instructions.md        # one own repo rule (PS21)
   aw-closure.json              # lists both
 docs/pbi/squad/fork-inventory.md   # NEW: empty template, header row only
 ```
@@ -131,7 +131,7 @@ flowchart TD
 | Rules in C# validator, same as today | A separate script | `validate` is the CI gate; `/pack-check` reuses it (PO decision 1). |
 | `migrate-check` as a CLI command | Tell forks to diff by hand | Juniors and forks need a yes or no, not a manual diff. |
 | Kind `CompanyPolicy` | `Warning` | Broken references break agents; they must fail the build. |
-| Fork extension point: poteto-style names (`standard-api-versioning`), `custom-rules.md`, owner list in `fork-inventory.md` | A `local-` prefix and marker block (Sven 2026-11-01: does not like it) | Same naming as `principle-*` leafs; ownership lives in one list, not in the name. |
+| Fork extension point: poteto-style names (`standard-api-versioning`), owner list in `fork-inventory.md` | A `local-` prefix and marker block (Sven 2026-11-01: does not like it) | Same naming as `principle-*` leafs; ownership lives in one list, not in the name. |
 
 ### 4.7 Checks and error messages
 
@@ -170,7 +170,7 @@ Also: REF02 tests use FAKE local leafs until PS04 lands.; Out: pins (PS04).
 
 ## 5. Steps
 
-0. **Inventory (forks and upstream alike).** `git diff --name-status <basis>...HEAD -- plugins shared docs .github` (basis: the agentPacks commit you started from; on upstream itself the list is empty). Add every own standard, rule, skill, agent, `custom-rules.md` and instructions file to `docs/pbi/squad/fork-inventory.md` ([format](FORKS.md#step-0-inventory-every-pbi-before-any-edit)). Never delete or overwrite a listed file; unsure means keep it and mark the row `open`.
+0. **Inventory (forks and upstream alike).** `git diff --name-status <basis>...HEAD -- plugins shared docs .github` (basis: the agentPacks commit you started from; on upstream itself the list is empty). Add every own standard, rule, skill, agent and instructions file to `docs/pbi/squad/fork-inventory.md` ([format](FORKS.md#step-0-inventory-every-pbi-before-any-edit)). Never delete or overwrite a listed file; unsure means keep it and mark the row `open`.
 1. Branch from main: `git switch -c pbi/ps03-validator-refs-copies origin/main`.
 2. Save the base for the fork check: `git rev-parse HEAD > /tmp/base.sha`.
 3. Read [SHAPES.md](SHAPES.md) for every kind in section 3, and each source in section 6.

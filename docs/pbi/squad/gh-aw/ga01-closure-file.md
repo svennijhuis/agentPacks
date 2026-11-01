@@ -93,7 +93,7 @@ flowchart LR
 
 ## 5. Steps
 
-0. **Inventory.** `git diff --name-status <basis>...HEAD -- plugins shared docs .github`; add own standards, rules, skills, agents, `custom-rules.md` and instructions to `docs/pbi/squad/fork-inventory.md` ([format](../FORKS.md#step-0-inventory-every-pbi-before-any-edit)). Never delete or overwrite a listed file.
+0. **Inventory.** `git diff --name-status <basis>...HEAD -- plugins shared docs .github`; add own standards, rules, skills, agents and instructions to `docs/pbi/squad/fork-inventory.md` ([format](../FORKS.md#step-0-inventory-every-pbi-before-any-edit)). Never delete or overwrite a listed file.
 1. Branch from main: `git switch -c pbi/ga01-closure-file origin/main`.
 2. Save the base: `git rev-parse HEAD > /tmp/base.sha`.
 3. Read [the gh-aw README](README.md), [SHAPES.md](../SHAPES.md) and [STRUCTURE.md](../STRUCTURE.md#fork-extension-point).
@@ -146,4 +146,4 @@ for f in tests/fixtures/gh-aw/*.md tests/fixtures/fork-acme/.github/workflows/*.
 
 ## 10. For forks
 
-Rules: [FORKS.md](../FORKS.md). For this PBI: Your fork `standard-<name>` leafs leafs and `custom-rules.md` are reached through the hub index, so they appear in your generated closure. Check the fixture fork closure lists both.
+Rules: [FORKS.md](../FORKS.md). For this PBI: Your fork `standard-<topic>` and `standard-<language>-<topic>` leafs are reached through the hub index, so they appear in your generated closure. Check the fixture fork closure lists both.

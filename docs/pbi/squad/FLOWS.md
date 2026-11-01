@@ -1,5 +1,7 @@
 # Flows per command
 
+Role names below (planner, implementer, verifier and the rest) run as the one general `squad-agent` delegate with a role line (PS15); only reviewer, security-reviewer and retro keep their own agent file. `/setup-github` (PS21) writes the `.github` files: see [PS21](ps21-setup-github.md).
+
 We keep our commands and our way of planning (`docs/squad-plan.md`, Session split, one task per run, check-plan, max 2 fix rounds). Each section shows the flow on main today, then the improved flow with the new pstack and Matt skills on the step where they help. Skill links go to the pinned upstream SHA; mode is from the [reuse table](README.md#reuse-mode-per-skill). Where each kind of file lives: [STRUCTURE.md](STRUCTURE.md).
 
 ## /squad: plan, split, tasks

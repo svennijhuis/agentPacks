@@ -75,11 +75,14 @@ flowchart LR
 | skill | (none) | `plugins/squad/skills/principle-*/ (24) and pstack skills we change (architect, how, why, figure-it-out, technical-writing, show-me-your-work, arena, no-comments)` | add (copy + adapt) | PS04, PS13, PS14 |
 | skill | (none) | `plugins/squad/skills/{code-review,improve-codebase-architecture,chief-of-staff}` | add (copy + adapt of Matt); diagnosing-bugs, pr, retro woven into playbooks | PS05, PS10, PS11 |
 | pins | `plugins/typescript/external-skills.json` | same + typescript-best-practices | add pin (unchanged) | PS17 |
-| fork | (fork files) | `fork leafs not in migrations/v2.json (standard-<topic>, principle-<title>, playbooks/<title>.md), references/custom-rules.md` | keep (fork-owned, never edited) | PS03, PS06, PS07 |
+| fork | (fork files) | `fork leafs not in migrations/v2.json (standard-<topic>, principle-<title>, playbooks/<title>.md)` | keep (fork-owned, never edited) | PS03, PS06, PS07 |
 | licence | (none) | `plugins/squad/NOTICE, plugins/pack-author/NOTICE` | add | PS05 |
 | validator | `SkillReferenceValidator (backticked `/name` only)` | + REF01 to REF06, HUB01 | add | PS03 |
 | validator | `"six user commands" FAIL bar` | `seven (adds statechart)` | edit | PS12 |
 | gh-aw | (none) | `tests/fixtures/gh-aw/*.md, plugins/*/aw-closure.json` | add | GA01 to GA04 |
+| command | (none) | `plugins/squad/commands/setup-github.md` | add | PS21 |
+| hub | (none) | `plugins/squad/skills/setup-github-mode/ (SKILL.md, playbooks/generate.md, playbooks/update.md, references/*.md)` | add | PS21 |
+| agent | `plugins/squad/agents/squad-{planner,architect,indexer,implementer,simplifier,orchestrator,verifier}.md` | `squad-agent.md + same names as one-line pointers until GA07` | merge into general delegate | PS15 |
 | version | `plugin.json 0.x / 1.0.0` | `2.0.0 for moved plugins, tag v2.0.0` | bump | PS20 |
 
 ## What breaks from v1
@@ -272,7 +275,7 @@ Forks with their own standards and rules follow [FORKS.md](FORKS.md): step 0 inv
 |---|---|---|
 | Own change in a file we replace | fork added 12 lines to `skills/squad/SKILL.md`; PS06 renames and rewrites it | Move your lines into the `squad-mode` hub index. Inventory row `done`. Never keep two hubs. |
 | Own file on a path we use | fork has `skills/tdd/SKILL.md` of its own; PS04 adds our `tdd` copy there | Do not overwrite. Rename yours to a kebab title that says what it is (for example `tdd-contract-first`); never a fork name or location in the name, update its callers, inventory row `done`; then add ours. If callers are unclear: stop, row `open`. |
-| Own rule clashes with one of our standards | fork rule "merge in batches" vs our `standard-squash-merge-one-by-one` | Fork wins inside the fork: put the rule in `custom-rules.md` and add `Overrides: standard-squash-merge-one-by-one` on its line. The hub reads the hub index after our index, so the override is explicit. Inventory row `done (override)`. |
+| Own rule clashes with one of our standards | fork rule "merge in batches" vs our `standard-squash-merge-one-by-one` | Fork wins inside the fork: write your own leaf `standard-merge-in-batches` with `Overrides: standard-squash-merge-one-by-one` and list it in the hub `## Standards` index after ours, so the override is explicit. Inventory row `done (override)`. |
 | Own standard in `shared/standards/` | `shared/standards/api-versioning.md` | Keep the file. Add `standard-api-versioning` leaf that links it, plus an index line in the hub index (PS07). |
 | Own language standard in `plugins/<pack>/standards/` | `plugins/dotnet/standards/nullable.md` | Keep the file. Add `standard-csharp-nullable-enabled` leaf that links it, plus a line under `### Language` (PS17). |
 | Own entries in `standards.source.json` | extra `documents` key `acme` | Keep. PBIs edit only keys they name (PS17). |

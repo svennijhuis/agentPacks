@@ -1,4 +1,4 @@
-# PS08: CODING_STANDARDS.md per repo plus .github instructions example
+# PS08: Review reads the repo standards files (Matt code-review step 3)
 - Status: todo (docs only; build waits for Sven go per PBI)
 - Batch: B2
 - Depends on: PS07
@@ -21,7 +21,7 @@ Target repos have no single file that says which standards apply there, so every
 
 **What it gives the user.**
 
-- Local (Cursor, Claude Code, CLI): `/squad` reads `CODING_STANDARDS.md` in the target repo when present.
+- Local (Cursor, Claude Code, CLI): Review lists `custom-standards*.instructions.md`, `CODING_STANDARDS.md`, `CONTRIBUTING.md` and cites them.
 - gh-aw: Same file is read from the checkout; `.github/copilot-instructions.md` example points at it.
 
 **Out of scope.** Writing it into target repos (squad suggests, a human adds).
@@ -51,8 +51,7 @@ Before (main):
 After:
 
 ```text
-plugins/squad/skills/squad-mode/references/templates/CODING_STANDARDS.md   # NEW template
-docs/examples/copilot-instructions.md                                   # NEW example
+plugins/squad/skills/squad-mode/playbooks/review.md   # step: list repo standards files (Matt step 3)
 ```
 
 ### 4.2 Skeleton of the new file
@@ -72,7 +71,7 @@ Shape rules: [SHAPES.md](SHAPES.md#summary).
 
 ### 4.3 Target detail
 
-Templates in `squad-mode/references/templates/`: `CODING_STANDARDS.md` and `.github/instructions/coding-standards.instructions.md`. Planner adds a task when a target repo lacks it. Review Standards axis reads it. Written with technical-writing and unslop; statechart-mode diagrams where state matters.
+Review step takes Matt [code-review](https://github.com/mattpocock/skills/blob/4ae2317ddb22b046e26455e4f9c9b3aaaf62212d/skills/engineering/code-review/SKILL.md) step 3: list `.github/instructions/custom-standards*.instructions.md` always, plus `CODING_STANDARDS.md` and `CONTRIBUTING.md` when present. Repo rules win over ours; none found means global plus language standards only. No template here: Matt ships none ("No skill ships the file"), and the `.github` files come from `/setup-github` (PS21).
 
 ### 4.4 Interfaces and contracts
 
@@ -121,7 +120,7 @@ Also: Out: language content (PS17).
 
 ## 5. Steps
 
-0. **Inventory (forks and upstream alike).** `git diff --name-status <basis>...HEAD -- plugins shared docs .github` (basis: the agentPacks commit you started from; on upstream itself the list is empty). Add every own standard, rule, skill, agent, `custom-rules.md` and instructions file to `docs/pbi/squad/fork-inventory.md` ([format](FORKS.md#step-0-inventory-every-pbi-before-any-edit)). Never delete or overwrite a listed file; unsure means keep it and mark the row `open`.
+0. **Inventory (forks and upstream alike).** `git diff --name-status <basis>...HEAD -- plugins shared docs .github` (basis: the agentPacks commit you started from; on upstream itself the list is empty). Add every own standard, rule, skill, agent and instructions file to `docs/pbi/squad/fork-inventory.md` ([format](FORKS.md#step-0-inventory-every-pbi-before-any-edit)). Never delete or overwrite a listed file; unsure means keep it and mark the row `open`.
 1. Branch from main: `git switch -c pbi/ps08-coding-standards-file origin/main`.
 2. Save the base for the fork check: `git rev-parse HEAD > /tmp/base.sha`.
 3. Read [SHAPES.md](SHAPES.md) for every kind in section 3, and each source in section 6.
@@ -131,7 +130,7 @@ Also: Out: language content (PS17).
    2. Planner rule.
    3. Fixtures.
 6. Run every command in section 8. All must pass.
-7. Open one PR titled `PS08: CODING_STANDARDS.md per repo plus .github instructions example`. Body: link to this file, the section 3 table, the section 8 output.
+7. Open one PR titled `PS08: Review reads the repo standards files (Matt code-review step 3)`. Body: link to this file, the section 3 table, the section 8 output.
 
 ## 6. Sources
 

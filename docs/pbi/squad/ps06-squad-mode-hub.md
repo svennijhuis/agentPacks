@@ -44,7 +44,7 @@ PS04. Start only when those PBIs are merged on main. Build order: [README](READM
 | command | `plugins/squad/commands/squad-review.md` | same | edit: load `squad-mode` |
 | hub | `plugins/squad/skills/squad/SKILL.md` | `plugins/squad/skills/squad-mode/SKILL.md` | rename and restyle; old dir kept as a one-line pointer until GA07 |
 | contract | `plugins/squad/skills/squad/references/*.md (11 files)` | `plugins/squad/skills/squad-mode/references/*.md` | move |
-| fork | (fork files) | `fork leafs not in migrations/v2.json (standard-<topic>, principle-<title>, playbooks/<title>.md), references/custom-rules.md` | keep (fork-owned, never edited) |
+| fork | (fork files) | `fork leafs not in migrations/v2.json (standard-<topic>, principle-<title>, playbooks/<title>.md)` | keep (fork-owned, never edited) |
 
 Full list for all PBIs: [MIGRATION.md](MIGRATION.md#path-table).
 
@@ -192,7 +192,7 @@ Also: Large move: one PR, no behavior change.; Out: standards (PS07), playbooks 
 
 ## 5. Steps
 
-0. **Inventory (forks and upstream alike).** `git diff --name-status <basis>...HEAD -- plugins shared docs .github` (basis: the agentPacks commit you started from; on upstream itself the list is empty). Add every own standard, rule, skill, agent, `custom-rules.md` and instructions file to `docs/pbi/squad/fork-inventory.md` ([format](FORKS.md#step-0-inventory-every-pbi-before-any-edit)). Never delete or overwrite a listed file; unsure means keep it and mark the row `open`.
+0. **Inventory (forks and upstream alike).** `git diff --name-status <basis>...HEAD -- plugins shared docs .github` (basis: the agentPacks commit you started from; on upstream itself the list is empty). Add every own standard, rule, skill, agent and instructions file to `docs/pbi/squad/fork-inventory.md` ([format](FORKS.md#step-0-inventory-every-pbi-before-any-edit)). Never delete or overwrite a listed file; unsure means keep it and mark the row `open`.
 1. Branch from main: `git switch -c pbi/ps06-squad-mode-hub origin/main`.
 2. Save the base for the fork check: `git rev-parse HEAD > /tmp/base.sha`.
 3. Read [SHAPES.md](SHAPES.md) for every kind in section 3, and each source in section 6.

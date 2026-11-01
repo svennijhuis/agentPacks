@@ -1,7 +1,7 @@
 # PS20: Squad v2 release: versions, marketplace tag, changelog, v1 to v2 guide
 - Status: todo (docs only; build waits for Sven go per PBI)
 - Batch: B7
-- Depends on: PS01 to PS19, GA01 to GA06
+- Depends on: PS01 to PS19, PS21, GA01 to GA06
 - Absorbs old: none
 - Lane: Builder (Cursor CLI for docs and markdown, Cloud Agent if multi-file C#)
 - Release: squad v2 ([README](README.md#squad-v2))
@@ -33,7 +33,7 @@ Current state details:
 
 ## 2. Depends on
 
-PS01 to PS19, GA01 to GA06. Start only when those PBIs are merged on main. Build order: [README](README.md#new-set-and-build-order).
+PS01 to PS19, PS21, GA01 to GA06. Start only when those PBIs are merged on main. Build order: [README](README.md#new-set-and-build-order).
 
 ## 3. What gets replaced
 
@@ -126,7 +126,7 @@ Also: Tag before GA fixtures pass would publish a broken gh-aw path.; Out: AW re
 
 ## 5. Steps
 
-0. **Inventory (forks and upstream alike).** `git diff --name-status <basis>...HEAD -- plugins shared docs .github` (basis: the agentPacks commit you started from; on upstream itself the list is empty). Add every own standard, rule, skill, agent, `custom-rules.md` and instructions file to `docs/pbi/squad/fork-inventory.md` ([format](FORKS.md#step-0-inventory-every-pbi-before-any-edit)). Never delete or overwrite a listed file; unsure means keep it and mark the row `open`.
+0. **Inventory (forks and upstream alike).** `git diff --name-status <basis>...HEAD -- plugins shared docs .github` (basis: the agentPacks commit you started from; on upstream itself the list is empty). Add every own standard, rule, skill, agent and instructions file to `docs/pbi/squad/fork-inventory.md` ([format](FORKS.md#step-0-inventory-every-pbi-before-any-edit)). Never delete or overwrite a listed file; unsure means keep it and mark the row `open`.
 1. Branch from main: `git switch -c pbi/ps20-v2-release origin/main`.
 2. Save the base for the fork check: `git rev-parse HEAD > /tmp/base.sha`.
 3. Read [SHAPES.md](SHAPES.md) for every kind in section 3, and each source in section 6.

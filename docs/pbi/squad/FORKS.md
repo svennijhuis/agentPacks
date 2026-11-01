@@ -9,7 +9,7 @@ BASE=6c59f49b   # the agentPacks commit your fork started from; find it with: gi
 git diff --name-status "$BASE"...HEAD -- plugins shared docs .github > /tmp/fork-diff.txt
 ```
 
-Write `docs/pbi/squad/fork-inventory.md` in your fork from that list. One row per file you added or changed: own standards, rules, skills, agents, `custom-rules.md`, `.github/*instructions*`.
+Write `docs/pbi/squad/fork-inventory.md` in your fork from that list. One row per file you added or changed: own standards, rules, skills, agents, `.github/*instructions*`.
 
 ```markdown
 | Path in fork | Added or changed | Kind | v2 place | PBI | Status |
@@ -67,7 +67,7 @@ It reads `migrations/v2.json` (PS03) and prints one line per file: `kept`, `move
 
 ## Fixture fork
 
-`tests/fixtures/fork-acme/` (added in PS03) is a tiny fork with one own global standard (`standard-api-versioning`), one own language standard (`plugins/dotnet/skills/standard-csharp-nullable-enabled`) one own skill (`acme-schema-diff`, called from its own `playbooks/migration.md`, see [FLOWS](FLOWS.md#reuse)) and one own rule (`custom-rules.md`: "Version every public API"). After each PBI:
+`tests/fixtures/fork-acme/` (added in PS03) is a tiny fork with one own global standard (`standard-api-versioning`), one own language standard (`plugins/dotnet/skills/standard-csharp-nullable-enabled`) one own skill (`acme-schema-diff`, called from its own `playbooks/migration.md`, see [FLOWS](FLOWS.md#reuse)) and one own repo rule (`.github/instructions/custom-standards.instructions.md`: "Version every public API", PS21). After each PBI:
 
 ```bash
 dotnet run --project tools/AgentPacks.Cli -- migrate-check --base <fixture base> --root tests/fixtures/fork-acme   # 0 LOST
