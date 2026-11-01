@@ -5,7 +5,9 @@
 - Absorbs old: old 44 (half: principles paraphrased in shared/standards/engineering.md)
 - Lane: Builder (Cursor CLI for docs and markdown, Cloud Agent if multi-file C#)
 - door: two-way
-- Source: [skill map](sources/pstack-matt-skill-map.md), pstack `ae5650f`, Matt `4ae2317`, flows in [FLOWS.md](FLOWS.md)
+- Release: squad v2 ([README](README.md#squad-v2))
+- Docs: [STRUCTURE](STRUCTURE.md) (where), [SHAPES](SHAPES.md) (how it looks), [FLOWS](FLOWS.md) (flow per command), [MIGRATION](MIGRATION.md) (v1 to v2 rows for this PBI), [gh-aw](gh-aw/README.md)
+- Source: [skill map](sources/pstack-matt-skill-map.md), pstack `ae5650f`, Matt `4ae2317`
 
 ## Goal and why
 
@@ -19,11 +21,11 @@
 
 ## Target structure
 
-Reuse table: see [README reuse table](README.md#reuse-mode-per-skill). This PBI adds the pin records and the copies listed there. Every copy starts with `Source: <upstream link at 40-hex SHA>, MIT, see NOTICE.` under the H1 and ends with `## What we changed` (one line per change). Scripts and assets stay byte-equal unless listed there.
+Reuse table: see [README reuse table](README.md#reuse-mode-per-skill). This PBI adds the pin records and the copies listed there. Every copy starts with `Source: <upstream link at 40-hex SHA>, MIT, see NOTICE.` under the H1 and ends with `## What we changed` (one line per change). Scripts and assets stay byte-equal unless listed there. Cursor-only parts (model slugs, `poteto-agent`, Cursor Task, `/loop`, control skills) are removed, or moved under a last `## Provider notes` section with one H3 per provider, so the main text works the same in Cursor, Claude Code, Copilot, Codex and gh-aw.
 
 Changes against PO decision 3 (with reason): the full poteto closure shrinks because we do not pin the poteto-mode hub (Cursor-only text), and the copied playbooks drop swarm, control-cli, control-ui and `/loop`. Closure is what REF01 finds after the copies, listed in the PR.
 
-Migrate then delete (principle): `shared/standards/engineering.md` sections point to the pinned leafs, then the paraphrase goes. `StandardsGhAwImportContractTests` (from #79) stays green.
+Migrate callers, then delete: `shared/standards/engineering.md` gets a link to each pinned leaf but keeps its full text in v2, because gh-aw imports it (#79). The paraphrase is trimmed only in GA07, after the AW catalog pin moved to v2. `StandardsGhAwImportContractTests` stays green.
 
 ## External skills per step
 
@@ -80,7 +82,7 @@ Branch instead of 40-hex SHA: the text can change under us.
 1. Pin records at `ae5650febf4320793844c12c4adaa937f417f8da`.
 2. Copies tdd, arena, no-comments under `plugins/squad/skills/` with the copy rule.
 3. NOTICE: MIT text, Copyright (c) 2026 Lauren Tan.
-4. Migrate `shared/standards/engineering.md` to pointers.
+4. Add leaf links to `shared/standards/engineering.md`; keep its text (trim in GA07).
 5. Byte-compare test for pins (except injected `user-invocable: false`).
 
 ## DoD
@@ -88,9 +90,11 @@ Branch instead of 40-hex SHA: the text can change under us.
 - REF01 resolves everything with the listed closure.
 - REF06 passes for 3 copies.
 - gh-aw import test green.
+- Local: works in Cursor, Claude Code and CLI (Copilot CLI, Codex). Proof offline: generated client manifests and fixture tests (`ClientManifestTests`, `ComponentGenerationTests`).
+- gh-aw: the fixture workflow under `tests/fixtures/gh-aw/` that uses this PBI's files passes `gh aw compile --strict` (pinned gh-aw, no run, no secrets, no Actions minutes). See [gh-aw README](gh-aw/README.md).
 - `dotnet run --project tools/AgentPacks.Cli -- validate` exits 0, 0 errors, 0 warnings.
 - `/pack-check` locally gives the same result (same rules, one source).
-- `dotnet test tools/AgentPacks.Cli.Tests` green.
+- `dotnet test tools/AgentPacks.Cli.Tests` green; main stays green and all 7 commands still load after merge ([MIGRATION](MIGRATION.md)).
 - No em dash, no tokens in markdown, FAKE fixture values only.
 
 ## Evidence

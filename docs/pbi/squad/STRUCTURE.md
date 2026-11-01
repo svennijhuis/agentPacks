@@ -1,6 +1,6 @@
-# Structure of the squad pack (target)
+# Structure of the squad pack (v2 target)
 
-Where every kind of file lives after PS01 to PS19, what it is, one example, and how to add or maintain it. Flows: [FLOWS.md](FLOWS.md). Reuse rule: [README](README.md#reuse-mode-per-skill).
+Where every kind of file lives after PS01 to PS20 and GA01 to GA07, what it is, one example, and how to add or maintain it. How each kind looks: [SHAPES.md](SHAPES.md). Moving from v1: [MIGRATION.md](MIGRATION.md). gh-aw use: [gh-aw/README.md](gh-aw/README.md). Flows: [FLOWS.md](FLOWS.md). Reuse rule: [README](README.md#reuse-mode-per-skill).
 
 ## Target tree
 
@@ -30,10 +30,12 @@ plugins/squad/
   external-skills.json             # pins at 40-hex SHA: 24 principle-* leafs, architect,
                                    # blast-radius, interrogate, ... , Matt codebase-design
   NOTICE                           # MIT pstack, MIT Matt, Apache-2.0 humanlayer credit
+  aw-closure.json                  # generated: hub + every skill it reads, for gh-aw skills: (GA01)
 plugins/pack-author/skills/pack-author-md/
   SKILL.md
   playbooks/ write-skill.md check-skill.md write-subagent.md check-subagent.md change.md
 shared/standards/*.md              # stays the gh-aw and language-pack import source
+tests/fixtures/gh-aw/*.md          # workflows that must pass gh aw compile --strict (GA04)
 docs/squad-plan.md                 # run state in the target repo (#85), unchanged
 ```
 

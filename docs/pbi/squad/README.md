@@ -1,4 +1,20 @@
-# Squad rewrite: pstack and Matt skills woven into our flows (PS01 to PS19)
+# Squad v2: pstack and Matt skills woven into our flows (PS01 to PS20, GA01 to GA07)
+
+## Squad v2
+
+This set is the squad **v2** release. Commands and our way of planning stay; structure, shapes and flows change, and the pack must work both locally (Cursor, Claude Code, Copilot CLI, Codex) and in GitHub Agentic Workflows.
+
+| Doc | Says |
+|---|---|
+| [STRUCTURE.md](STRUCTURE.md) | where each kind of file lives |
+| [SHAPES.md](SHAPES.md) | how each kind must look (frontmatter, sections, length, good and bad) |
+| [FLOWS.md](FLOWS.md) | the flow per command, old and improved |
+| [MIGRATION.md](MIGRATION.md) | v1 to v2 path table, what breaks, small-step order |
+| [gh-aw/README.md](gh-aw/README.md) | marketplace and imports in gh-aw, GA01 to GA07 |
+
+What breaks versus v1 (full list in [MIGRATION](MIGRATION.md#what-breaks-from-v1)): hub `skills/squad` becomes `skills/squad-md` and `pack-check` becomes `pack-check-md` (old dirs stay as pointers until GA07); a seventh command `/statechart`; pack-author references split into playbooks; the "do not copy an external skill set" bar becomes the copy rule; gh-aw users add the closure list to `skills:`.
+
+Versions: `plugin.json` goes to `2.0.0` for every plugin whose files moved, and the generated marketplace commit is tagged `v2.0.0` (PS20). gh-aw pins that tag or its 40-hex SHA.
 
 Docs only. PR #83 is never merged. No code until Sven says go per PBI. Flows per use case: [FLOWS.md](FLOWS.md). Input: [skill map](sources/pstack-matt-skill-map.md) (Repo Research 2026-11-01). Checked against main `6c59f49` on 2026-11-01.
 
@@ -62,6 +78,7 @@ Counts: 28 rows. 1 done (AP64), 2 half (AP43, AP44), 18 open (merged into PS07, 
 | [PS17](ps17-language-packs.md) | Language packs restyle, import-boundary tests, typescript-best-practices | B5 | PS16 | old 55 (import boundaries) |
 | [PS18](ps18-security-pack.md) | Security pack restyle | B6 | PS17 | none |
 | [PS19](ps19-model-roles-doc.md) | pstack model roles mapped to our tiers | B6 | PS04 | none |
+| [PS20](ps20-v2-release.md) | Squad v2 release: versions, marketplace tag, changelog, v1 to v2 guide | B7 | PS01 to PS19, GA01 to GA06 | none |
 
 ```mermaid
 flowchart LR
@@ -75,9 +92,16 @@ flowchart LR
   PS09 --> PS14 --> PS15
   PS07 --> PS15 --> PS16 --> PS17 --> PS18
   PS04 --> PS19
+  PS03 --> GA01 --> GA02 --> GA04
+  PS09 --> GA03 --> GA04
+  PS18 --> PS20
+  PS19 --> PS20
+  GA04 --> PS20
+  GA04 --> GA06
+  PS20 --> GA05 --> GA07
 ```
 
-B0 fixes the writer first so every later file comes out in the new style. Standards (PS07) comes right after the hub (PS06), so playbooks and agents can name them.
+B0 fixes the writer first so every later file comes out in the new style. Standards (PS07) comes right after the hub (PS06), so playbooks and agents can name them. The GA set runs once closure and copies exist; PS20 tags v2.0.0 after the fixtures compile; GA07 deletes v1 paths only after the AW catalog moved (GA05).
 
 ## Reuse mode per skill
 
@@ -156,5 +180,7 @@ Today 6: `/squad`, `/squad-review`, `/scenarios`, `/pack-check`, `/pack-author`,
 ## Rules for every PBI
 
 - One PBI per PR; findings fixed on the PR itself, lows included.
-- DoD: `validate` 0 errors and 0 warnings, `/pack-check` the same, tests green.
+- DoD has two targets: local (Cursor, Claude Code, CLI) and gh-aw (fixture passes `gh aw compile --strict`). Proof offline only. Plus `validate` 0 errors and 0 warnings, `/pack-check` the same, tests green.
+- Every PBI links STRUCTURE, SHAPES, FLOWS and MIGRATION. Main stays green and every command loads after each PBI.
+- Copied pstack text: Cursor-only parts removed or under `## Provider notes`.
 - Never force push. Personal svennijhuis only. No tokens in markdown. FAKE fixtures. No em dash.

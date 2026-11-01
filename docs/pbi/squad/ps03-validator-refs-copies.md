@@ -5,7 +5,9 @@
 - Absorbs old: none
 - Lane: Builder (Cursor CLI for docs and markdown, Cloud Agent if multi-file C#)
 - door: two-way
-- Source: [skill map](sources/pstack-matt-skill-map.md), pstack `ae5650f`, Matt `4ae2317`, flows in [FLOWS.md](FLOWS.md)
+- Release: squad v2 ([README](README.md#squad-v2))
+- Docs: [STRUCTURE](STRUCTURE.md) (where), [SHAPES](SHAPES.md) (how it looks), [FLOWS](FLOWS.md) (flow per command), [MIGRATION](MIGRATION.md) (v1 to v2 rows for this PBI), [gh-aw](gh-aw/README.md)
+- Source: [skill map](sources/pstack-matt-skill-map.md), pstack `ae5650f`, Matt `4ae2317`
 
 ## Goal and why
 
@@ -65,9 +67,11 @@ No rule id, no file:line, not a hard failure.
 ## DoD
 
 - Each rule bites in its probe.
+- Local: works in Cursor, Claude Code and CLI (Copilot CLI, Codex). Proof offline: generated client manifests and fixture tests (`ClientManifestTests`, `ComponentGenerationTests`).
+- gh-aw: the fixture workflow under `tests/fixtures/gh-aw/` that uses this PBI's files passes `gh aw compile --strict` (pinned gh-aw, no run, no secrets, no Actions minutes). See [gh-aw README](gh-aw/README.md).
 - `dotnet run --project tools/AgentPacks.Cli -- validate` exits 0, 0 errors, 0 warnings.
 - `/pack-check` locally gives the same result (same rules, one source).
-- `dotnet test tools/AgentPacks.Cli.Tests` green.
+- `dotnet test tools/AgentPacks.Cli.Tests` green; main stays green and all 7 commands still load after merge ([MIGRATION](MIGRATION.md)).
 - No em dash, no tokens in markdown, FAKE fixture values only.
 
 ## Evidence

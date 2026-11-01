@@ -5,7 +5,9 @@
 - Absorbs old: none
 - Lane: Builder (Cursor CLI for docs and markdown, Cloud Agent if multi-file C#)
 - door: two-way
-- Source: [skill map](sources/pstack-matt-skill-map.md), pstack `ae5650f`, Matt `4ae2317`, flows in [FLOWS.md](FLOWS.md)
+- Release: squad v2 ([README](README.md#squad-v2))
+- Docs: [STRUCTURE](STRUCTURE.md) (where), [SHAPES](SHAPES.md) (how it looks), [FLOWS](FLOWS.md) (flow per command), [MIGRATION](MIGRATION.md) (v1 to v2 rows for this PBI), [gh-aw](gh-aw/README.md)
+- Source: [skill map](sources/pstack-matt-skill-map.md), pstack `ae5650f`, Matt `4ae2317`
 
 ## Goal and why
 
@@ -39,7 +41,7 @@ write-skill steps:
 3. Non-negotiables first: triggers that route to skills by exact name.
 4. Principles and Standards as index lines (bold title, when it applies, leaf name). Never restate a leaf.
 5. Any step list over 5 lines goes to `playbooks/<kebab>.md`, starting at H3.
-6. Reuse choice per upstream skill: pin, copy + adapt, weave or rewrite, with one reason line. Every copy starts with `Source: <upstream link at 40-hex SHA>, MIT, see NOTICE.` under the H1 and ends with `## What we changed` (one line per change). Scripts and assets stay byte-equal unless listed there.
+6. Reuse choice per upstream skill: pin, copy + adapt, weave or rewrite, with one reason line. Every copy starts with `Source: <upstream link at 40-hex SHA>, MIT, see NOTICE.` under the H1 and ends with `## What we changed` (one line per change). Scripts and assets stay byte-equal unless listed there. Cursor-only parts (model slugs, `poteto-agent`, Cursor Task, `/loop`, control skills) are removed, or moved under a last `## Provider notes` section with one H3 per provider, so the main text works the same in Cursor, Claude Code, Copilot, Codex and gh-aw.
 7. unslop pass, no-comments pass, `validate`, then check-skill.
 
 ## External skills per step
@@ -98,9 +100,11 @@ Restates the leaf text in the skill (two copies drift). The index line only name
 - Fixture skill passes validate 0/0 and check-skill PASS first try.
 - No step lists left in `references/`.
 - `/pack-author` still routes to `pack-author-md`.
+- Local: works in Cursor, Claude Code and CLI (Copilot CLI, Codex). Proof offline: generated client manifests and fixture tests (`ClientManifestTests`, `ComponentGenerationTests`).
+- gh-aw: the fixture workflow under `tests/fixtures/gh-aw/` that uses this PBI's files passes `gh aw compile --strict` (pinned gh-aw, no run, no secrets, no Actions minutes). See [gh-aw README](gh-aw/README.md).
 - `dotnet run --project tools/AgentPacks.Cli -- validate` exits 0, 0 errors, 0 warnings.
 - `/pack-check` locally gives the same result (same rules, one source).
-- `dotnet test tools/AgentPacks.Cli.Tests` green.
+- `dotnet test tools/AgentPacks.Cli.Tests` green; main stays green and all 7 commands still load after merge ([MIGRATION](MIGRATION.md)).
 - No em dash, no tokens in markdown, FAKE fixture values only.
 
 ## Evidence
