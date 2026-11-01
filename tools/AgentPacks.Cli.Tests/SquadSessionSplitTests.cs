@@ -106,7 +106,7 @@ public sealed partial class SquadSessionSplitTests
     public void New_request_with_an_open_plan_asks_and_leaves_the_plan_untouched()
     {
         var contract = Source("skills", "squad", "references", "session-split.md");
-        Assert.Contains("Any other request → the status line plus the new request\n   question; new request → normal run, and the plan is not read or written again.", contract.Replace("\r", "", StringComparison.Ordinal), StringComparison.Ordinal);
+        Assert.Contains("Any other request → the status line plus the new request\n   question; new request → normal run, and the plan is not read or written again when it fits.", contract.Replace("\r", "", StringComparison.Ordinal), StringComparison.Ordinal);
         Assert.Equal("Plan health and version endpoints: task 1 open. Do task 1, or run the new request?",
             Question(BeforePlan("new-request")!, RequestOf("new-request")));
 
@@ -438,6 +438,42 @@ public sealed partial class SquadSessionSplitTests
         Assert.Contains("\n2. Orient codebase", Source("skills", "squad", "SKILL.md").Replace("\r", "", StringComparison.Ordinal), StringComparison.Ordinal);
         Assert.Contains("Normal run, after step 2:", Source("skills", "squad", "SKILL.md"), StringComparison.Ordinal);
         Assert.Contains("(skill flow step 2, `/squad` step 1)", Source("skills", "squad", "references", "session-split.md").Replace("\n", " ", StringComparison.Ordinal), StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void Over_limit_write_asks_replace_or_append_when_a_plan_exists()
+    {
+        const string Guard = "plan already there → ask once: replace or append";
+        var command = Source("commands", "squad.md").Replace("\r", "", StringComparison.Ordinal);
+        const string Write = "Normal run, after step 1 and before step 2: over any limit (more than one PBI or outcome, more than 3 steps, more than 10 files) → write `docs/squad-plan.md`, build no code, spawn nobody, write no retro, stop. ";
+        var at = command.IndexOf(Write, StringComparison.Ordinal);
+        Assert.True(at >= 0, "the over-limit write is missing");
+        Assert.StartsWith("A " + Guard + ".", command[(at + Write.Length)..], StringComparison.Ordinal);
+
+        var skill = Source("skills", "squad", "SKILL.md").Replace("\r", "", StringComparison.Ordinal);
+        const string SkillWrite = "Normal run, after step 2: over any limit (more than one PBI or outcome, more than 3 steps, more than 10 files) → write `docs/squad-plan.md`, build no code, spawn nobody, stop, no retro; a " + Guard;
+        Assert.Contains(SkillWrite, skill, StringComparison.Ordinal);
+
+        var contract = Contract().Replace("\n", " ", StringComparison.Ordinal);
+        Assert.Contains("If it does not fit one session, ask once: replace or append, the same as a forced split.", contract, StringComparison.Ordinal);
+        Assert.Contains("Not fit → write `docs/squad-plan.md`, build no code, spawn nobody, write no retro, and stop. A " + Guard, contract, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void Write_plan_session_split_follows_the_forced_split()
+    {
+        var command = Source("commands", "squad.md").Replace("\r", "", StringComparison.Ordinal);
+        var step5 = command[command.IndexOf("\n5. ", StringComparison.Ordinal)..command.IndexOf("\n6. ", StringComparison.Ordinal)];
+        Assert.Contains("`write-plan` mode", step5, StringComparison.Ordinal);
+        Assert.Contains("Planner returns `Session split: <n> steps` →", step5, StringComparison.Ordinal);
+        Assert.Contains("delete this run's draft `docs/plans/` file", step5, StringComparison.Ordinal);
+        Assert.Contains("the forced-split rules:", step5, StringComparison.Ordinal);
+        Assert.Contains("a plan already there → ask once: replace or append", step5, StringComparison.Ordinal);
+        Assert.Contains("spawn nobody, write no retro, stop", step5, StringComparison.Ordinal);
+
+        var skill = Source("skills", "squad", "SKILL.md");
+        Assert.Contains("Planner `Session split: <n> steps` on next-round or write-plan → the same forced-split exit", skill, StringComparison.Ordinal);
+        Assert.Contains("from next-round or write-plan, takes the same exit", Contract(), StringComparison.Ordinal);
     }
 
     [Fact]

@@ -41,7 +41,8 @@ Obvious typos, renames, and one-line fixes take the small-change route: the main
 
 Work too big for one session (more than one PBI, more than 3 steps, or more than 10 files) is not
 built. `/squad` writes `docs/squad-plan.md` with numbered tasks (Goal, Done-check, optional Depends,
-Status `open`, `started` or `done`) and stops. `/squad split <request>` forces that split even for
+Status `open`, `started` or `done`) and stops. An open plan on that write asks once: replace or append.
+`/squad split <request>` forces that split even for
 small work; with a plan already there it asks once: replace or append. Every later `/squad`, in a
 new session, first checks the real state (a task whose done-check passes is done, a task that waits
 on an open task is skipped with the reason) and always asks, also with no request: "Plan X: task 1

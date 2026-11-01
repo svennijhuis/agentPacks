@@ -11,8 +11,8 @@ Check before step 1, in this order:
 2. `docs/squad-plan.md` exists → status refresh, then always ask, also when `/squad` has no request
    text. The request is empty or names the plan (`docs/squad-plan.md`, `squad-plan`, `next task`, or
    `task <n>`) → the status question. Any other request → the status line plus the new request
-   question; new request → normal run, and the plan is not read or written again. If that new
-   request does not fit one session, stop and tell the user to finish or close the open plan first.
+   question; new request → normal run, and the plan is not read or written again when it fits.
+   If it does not fit one session, ask once: replace or append, the same as a forced split.
 3. No plan → normal run with the fits-one-session check. A request that only names the plan has
    nothing to run: tell the user there is no plan and stop.
 
@@ -29,8 +29,9 @@ any limit is hit:
 - more than 10 files to create or change
 
 Not fit → write `docs/squad-plan.md`, build no code, spawn nobody, write no retro, and stop.
+A plan already there → ask once: replace or append, the same as a forced split.
 Tell the user: start a new session and run `/squad` again to do task 1.
-A planner round that returns `Session split: <n> steps` takes the same exit. The main agent first
+A planner return of `Session split: <n> steps`, from next-round or write-plan, takes the same exit. The main agent first
 deletes this run's draft `docs/plans/` file, so the next run's retro catch-up never treats it as
 interrupted. A session-split stop is not an interrupted run.
 
