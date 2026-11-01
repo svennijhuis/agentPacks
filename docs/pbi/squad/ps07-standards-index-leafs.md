@@ -41,7 +41,7 @@ PS06. Start only when those PBIs are merged on main. Build order: [README](READM
 
 | Kind | Now | After | Action |
 |---|---|---|---|
-| contract | `plugins/squad/skills/squad/references/review-contract.md` | `plugins/squad/skills/squad-md/references/review-contract.md + standard-review-contract` | split: words and verdicts to the leaf, flow stays |
+| contract | `plugins/squad/skills/squad/references/review-contract.md` | `plugins/squad/skills/squad-mode/references/review-contract.md + standard-review-contract` | split: words and verdicts to the leaf, flow stays |
 | standard | (none, rules in chat and memory) | `plugins/squad/skills/standard-*/SKILL.md (9)` | add |
 | standard | `shared/standards/design.md, testing-principles.md, http-api.md` | same | keep; leafs link to them |
 | fork | (fork files) | `fork leafs not in migrations/v2.json (standard-<topic>, principle-<title>, playbooks/<title>.md), references/custom-rules.md` | keep (fork-owned, never edited) |
@@ -55,7 +55,7 @@ Full list for all PBIs: [MIGRATION.md](MIGRATION.md#path-table).
 Before (main):
 
 ```text
-plugins/squad/skills/squad-md/references/review-contract.md   # 348 lines
+plugins/squad/skills/squad-mode/references/review-contract.md   # 348 lines
 shared/standards/*.md
 ```
 
@@ -72,7 +72,7 @@ plugins/squad/skills/
   standard-one-pbi-per-pr/SKILL.md
   standard-never-force-push/SKILL.md
   standard-named-envelope/SKILL.md
-squad-md/SKILL.md ## Standards   # 9 index lines + hub index
+squad-mode/SKILL.md ## Standards   # 9 index lines + hub index
 ```
 
 ### 4.2 Skeleton of the new file
@@ -101,7 +101,7 @@ Good: <one line>. Bad: <one line>.
 
 ### 4.3 Target detail
 
-Index in `squad-md`:
+Index in `squad-mode`:
 
 ```markdown
 ## Standards
@@ -142,7 +142,7 @@ Leafs: `plugins/squad/skills/standard-<x>/SKILL.md`. `shared/standards/*.md` sta
 
 ```mermaid
 flowchart LR
-  H["squad-md ## Standards"] --> S1["standard-no-em-dash"]
+  H["squad-mode ## Standards"] --> S1["standard-no-em-dash"]
   H --> S2["standard-review-contract"]
   H --> SL["fork leaf: standard-api-versioning"]
   S2 --> RC["references/review-contract.md flow"]
@@ -191,7 +191,7 @@ Also: Do not duplicate `shared/standards` text.; Out: per-language standards (PS
 5. Do these steps, nothing else:
    1. write-skill learns the standard kind.
    2. Write the 9 leafs.
-   3. Index in squad-md.
+   3. Index in squad-mode.
    4. REF03 checks index and leafs.
    5. `shared/standards` keep working for gh-aw and language packs.
 6. Run every command in section 8. All must pass.
@@ -202,12 +202,12 @@ Also: Do not duplicate `shared/standards` text.; Out: per-language standards (PS
 | Step | Skill (repo, path, SHA) | Licence | Mode | Lives in | Reason |
 |---|---|---|---|---|---|
 | shape | [24 principle-* leafs](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/principle-prove-it-works/SKILL.md) | MIT (cursor/plugins, Lauren Tan) | copy + adapt | `plugins/squad/skills/principle-*/` (24 dirs) | We add to them: a Standards line, the Gates and the gh-aw Autonomy line next to the upstream body (byte-equal). Sven and PO 2026-11-01. |
-| index rule | [poteto-mode (hub structure)](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/poteto-mode/SKILL.md) | MIT (cursor/plugins, Lauren Tan) | weave | structure copied into `squad-md` | Hub names `poteto-agent`, Cursor model slugs and Cursor Task. Would break on Claude, Copilot, Codex. We copy its H2 structure only, not the file. |
+| index rule | [poteto-mode (hub structure)](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/poteto-mode/SKILL.md) | MIT (cursor/plugins, Lauren Tan) | weave | structure copied into `squad-mode` | Hub names `poteto-agent`, Cursor model slugs and Cursor Task. Would break on Claude, Copilot, Codex. We copy its H2 structure only, not the file. |
 
 Route per external skill ([decision](README.md#decision-pin-copy--adapt-weave-or-not-used)):
 
 - 24 principle-* leafs: **copy + adapt**. `plugins/squad/skills/principle-*/` (24 dirs).
-- poteto-mode (hub structure): **weave**. structure copied into `squad-md`.
+- poteto-mode (hub structure): **weave**. structure copied into `squad-mode`.
 
 Every copy + adapt here adds, beyond its own changes: `Source:` line with SHA, a Standards line, the Gates, the Autonomy line for gh-aw, `## Provider notes`, `## What we changed or added`, and a NOTICE line.
 

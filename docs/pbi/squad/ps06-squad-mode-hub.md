@@ -1,4 +1,4 @@
-# PS06: squad-md hub with the new chapter structure
+# PS06: squad-mode hub with the new chapter structure
 - Status: todo (docs only; build waits for Sven go per PBI)
 - Batch: B2
 - Depends on: PS04
@@ -23,7 +23,7 @@ The hub is 125 lines of flow steps, has no Principles or Standards index, and it
 **What it gives the user.**
 
 - Local (Cursor, Claude Code, CLI): `/squad` and `/squad-review` behave the same, but every agent gets the hub path and named leafs; steps move to playbooks (PS09).
-- gh-aw: Hub carries the unattended line in `## Autonomy`; rename to `squad-md` lands with a pointer so the AW pin at `34e1dec` keeps working until GA05.
+- gh-aw: Hub carries the unattended line in `## Autonomy`; rename to `squad-mode` lands with a pointer so the AW pin at `34e1dec` keeps working until GA05.
 
 **Out of scope.** Playbooks (PS09), agents body rewrite (PS15).
 
@@ -40,10 +40,10 @@ PS04. Start only when those PBIs are merged on main. Build order: [README](READM
 
 | Kind | Now | After | Action |
 |---|---|---|---|
-| command | `plugins/squad/commands/squad.md` | same | edit: load `squad-md` |
-| command | `plugins/squad/commands/squad-review.md` | same | edit: load `squad-md` |
-| hub | `plugins/squad/skills/squad/SKILL.md` | `plugins/squad/skills/squad-md/SKILL.md` | rename and restyle; old dir kept as a one-line pointer until GA07 |
-| contract | `plugins/squad/skills/squad/references/*.md (11 files)` | `plugins/squad/skills/squad-md/references/*.md` | move |
+| command | `plugins/squad/commands/squad.md` | same | edit: load `squad-mode` |
+| command | `plugins/squad/commands/squad-review.md` | same | edit: load `squad-mode` |
+| hub | `plugins/squad/skills/squad/SKILL.md` | `plugins/squad/skills/squad-mode/SKILL.md` | rename and restyle; old dir kept as a one-line pointer until GA07 |
+| contract | `plugins/squad/skills/squad/references/*.md (11 files)` | `plugins/squad/skills/squad-mode/references/*.md` | move |
 | fork | (fork files) | `fork leafs not in migrations/v2.json (standard-<topic>, principle-<title>, playbooks/<title>.md), references/custom-rules.md` | keep (fork-owned, never edited) |
 
 Full list for all PBIs: [MIGRATION.md](MIGRATION.md#path-table).
@@ -64,8 +64,8 @@ plugins/squad/skills/squad/
 After:
 
 ```text
-plugins/squad/skills/squad/SKILL.md          # one-line pointer to squad-md (until GA07)
-plugins/squad/skills/squad-md/
+plugins/squad/skills/squad/SKILL.md          # one-line pointer to squad-mode (until GA07)
+plugins/squad/skills/squad-mode/
   SKILL.md                                    # hub, v2 H2 order
   references/<same 11 files>                  # git mv
 ```
@@ -76,7 +76,7 @@ Shape rules: [SHAPES.md](SHAPES.md#summary).
 
 ```text
 ---
-name: squad-md
+name: squad-mode
 description: When /squad or /squad-review runs.
 license: UNLICENSED
 user-invocable: false
@@ -100,11 +100,11 @@ Unattended (no human, for example gh-aw): take the default answer and write the 
 
 ### 4.3 Target detail
 
-gh-aw: hub `## Autonomy` gets: a run with no human takes the default answer and writes the open question into the report. Local only: yes or no asks, `docs/squad-plan.md` and retro writes. Rename `squad` to `squad-md` lands with the old dir as a pointer; the AW pin bump (path + closure + `@v2.0.0`) is one PR in the AW repo ([GA05](gh-aw/ga05-aw-catalog-bump.md)), see [MIGRATION](MIGRATION.md#what-breaks-from-v1).
+gh-aw: hub `## Autonomy` gets: a run with no human takes the default answer and writes the open question into the report. Local only: yes or no asks, `docs/squad-plan.md` and retro writes. Rename `squad` to `squad-mode` lands with the old dir as a pointer; the AW pin bump (path + closure + `@v2.0.0`) is one PR in the AW repo ([GA05](gh-aw/ga05-aw-catalog-bump.md)), see [MIGRATION](MIGRATION.md#what-breaks-from-v1).
 
 ```markdown
 ---
-name: squad-md
+name: squad-mode
 description: When /squad or /squad-review runs.
 license: UNLICENSED
 user-invocable: false
@@ -136,7 +136,7 @@ Flow sections move into these H2s or `references/`, no behavior change.
 
 | Caller | Callee | Input | Output | State file |
 |---|---|---|---|---|
-| `/squad`, `/squad-review` | `squad-md` | Skill tool by exact name `squad-md` | flow | `docs/squad-plan.md` |
+| `/squad`, `/squad-review` | `squad-mode` | Skill tool by exact name `squad-mode` | flow | `docs/squad-plan.md` |
 | 10 `squad-*` agents | hub | absolute hub path | read leafs by `../<name>/SKILL.md` | none |
 
 ### 4.5 Flow
@@ -145,7 +145,7 @@ Flow sections move into these H2s or `references/`, no behavior change.
 sequenceDiagram
   participant U as User or gh-aw
   participant C as /squad command
-  participant H as squad-md
+  participant H as squad-mode
   participant A as squad-* agent
   U->>C: /squad task
   C->>H: Skill by exact name
@@ -158,7 +158,7 @@ sequenceDiagram
 
 | Chosen | Rejected | Why |
 |---|---|---|
-| Rename to squad-md with pointer | Keep `squad` | v2 bar: skill name differs from command; pointer keeps v1 pins alive. |
+| Rename to squad-mode with pointer | Keep `squad` | v2 bar: skill name differs from command; pointer keeps v1 pins alive. |
 | Pointer until GA07 | Delete at once | AW pin `34e1dec` and forks still read the old path. |
 | caveman always on: named in `## Writing the reply` | Optional per run | Sven 2026-11-01: "caveman gebruik altijd"; pinned unchanged, loaded locally and in gh-aw via the closure. |
 
@@ -167,7 +167,7 @@ sequenceDiagram
 | Rule | Checks | Error message |
 |---|---|---|
 | HUB01 | H2 order, 150 lines | see PS03 |
-| SquadContractTests | commands load `squad-md` | `squad.md: expected Skill name 'squad-md'` |
+| SquadContractTests | commands load `squad-mode` | `squad.md: expected Skill name 'squad-mode'` |
 | REF01 | agents and commands resolve | see PS03 |
 
 ### 4.8 Risks and what breaks
@@ -183,8 +183,8 @@ Also: Large move: one PR, no behavior change.; Out: standards (PS07), playbooks 
 
 | Environment | What is different |
 |---|---|
-| Local (Cursor, Claude Code, CLI) | Cursor, Claude Code, Copilot, Codex: same command names; generated manifests list `squad-md`. |
-| gh-aw | AW keeps old pin until GA05; then path `skills/squad-md` plus closure. |
+| Local (Cursor, Claude Code, CLI) | Cursor, Claude Code, Copilot, Codex: same command names; generated manifests list `squad-mode`. |
+| gh-aw | AW keeps old pin until GA05; then path `skills/squad-mode` plus closure. |
 
 ### 4.10 Subagents and what they load
 
@@ -193,24 +193,24 @@ Also: Large move: one PR, no behavior change.; Out: standards (PS07), playbooks 
 ## 5. Steps
 
 0. **Inventory (forks and upstream alike).** `git diff --name-status <basis>...HEAD -- plugins shared docs .github` (basis: the agentPacks commit you started from; on upstream itself the list is empty). Add every own standard, rule, skill, agent, `custom-rules.md` and instructions file to `docs/pbi/squad/fork-inventory.md` ([format](FORKS.md#step-0-inventory-every-pbi-before-any-edit)). Never delete or overwrite a listed file; unsure means keep it and mark the row `open`.
-1. Branch from main: `git switch -c pbi/ps06-squad-md-hub origin/main`.
+1. Branch from main: `git switch -c pbi/ps06-squad-mode-hub origin/main`.
 2. Save the base for the fork check: `git rev-parse HEAD > /tmp/base.sha`.
 3. Read [SHAPES.md](SHAPES.md) for every kind in section 3, and each source in section 6.
 4. Do each row of section 3 in order. Move or rename with `git mv`. If a row's target path already holds a fork file, follow the [conflict table](MIGRATION.md#fork-path). A copy keeps the `Source:` line and `## What we changed or added`.
 5. Do these steps, nothing else:
-   1. Rename dir to `squad-md`; `squad.md` and `squad-review.md` load it.
+   1. Rename dir to `squad-mode`; `squad.md` and `squad-review.md` load it.
    2. Write with write-skill.
    3. Move sections without behavior change; keep #85 Session behavior.
    4. Update SquadContractTests names.
 6. Run every command in section 8. All must pass.
-7. Open one PR titled `PS06: squad-md hub with the new chapter structure`. Body: link to this file, the section 3 table, the section 8 output.
+7. Open one PR titled `PS06: squad-mode hub with the new chapter structure`. Body: link to this file, the section 3 table, the section 8 output.
 
 ## 6. Sources
 
 | Step | Skill (repo, path, SHA) | Licence | Mode | Lives in | Reason |
 |---|---|---|---|---|---|
 | always on | [caveman, caveman-compress](https://github.com/JuliusBrussee/caveman/tree/5184b3d11ac6a1acb7d44b9bfaa31698157cff97/skills/caveman) | MIT (cursor/plugins, Lauren Tan) | pin | `plugins/squad/external-skills.json` | We change nothing (Sven 2026-11-01: "als we geen wijzigingen gaan doen hou gewoon extern"). Always on: hub `## Writing the reply` and every agent prompt, locally and in gh-aw. |
-| hub | [poteto-mode (hub structure)](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/poteto-mode/SKILL.md) | MIT (cursor/plugins, Lauren Tan) | weave | structure copied into `squad-md` | Hub names `poteto-agent`, Cursor model slugs and Cursor Task. Would break on Claude, Copilot, Codex. We copy its H2 structure only, not the file. |
+| hub | [poteto-mode (hub structure)](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/poteto-mode/SKILL.md) | MIT (cursor/plugins, Lauren Tan) | weave | structure copied into `squad-mode` | Hub names `poteto-agent`, Cursor model slugs and Cursor Task. Would break on Claude, Copilot, Codex. We copy its H2 structure only, not the file. |
 | Non-negotiables | [tdd](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/tdd/SKILL.md) | MIT (cursor/plugins, Lauren Tan) | copy + adapt | `plugins/squad/skills/tdd/` | Upstream has `disable-model-invocation: true` and says "use only when the user explicitly asks". Sven wants it on every behavior change ("We can use this really hard"). So we change the trigger and the flag; the loop stays. |
 | Non-negotiables | [unslop](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/unslop/SKILL.md) | MIT (cursor/plugins, Lauren Tan) | pin | `plugins/squad/external-skills.json` | We change nothing and it has no Cursor-only parts (scanned at ae5650f), so it stays external at the 40-hex SHA. In gh-aw the generator vendors it into the commit and `aw-closure.json` lists it. |
 | Comments | [no-comments](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/no-comments/SKILL.md) | MIT (cursor/plugins, Lauren Tan) | copy + adapt | `plugins/squad/skills/no-comments/` | Cursor-only parts at ae5650f: names poteto-mode and the comment-sicko plugin agent. Our copy moves them under `## Provider notes` and adds Standards, Gates, Autonomy. |
@@ -219,7 +219,7 @@ Also: Large move: one PR, no behavior change.; Out: standards (PS07), playbooks 
 Route per external skill ([decision](README.md#decision-pin-copy--adapt-weave-or-not-used)):
 
 - caveman, caveman-compress: **pin**. `plugins/squad/external-skills.json`.
-- poteto-mode (hub structure): **weave**. structure copied into `squad-md`.
+- poteto-mode (hub structure): **weave**. structure copied into `squad-mode`.
 - tdd: **copy + adapt**. `plugins/squad/skills/tdd/`.
 - unslop: **pin**. `plugins/squad/external-skills.json`.
 - no-comments: **copy + adapt**. `plugins/squad/skills/no-comments/`.
@@ -282,4 +282,4 @@ Then locally: install `/tmp/agentpacks-marketplace` in Cursor or Claude Code, ru
 
 ## 10. For forks
 
-Rules for every fork: [FORKS.md](FORKS.md). For this PBI: Your own lines in the old hub: move them between the `squad-md` index sections as normal lines, each listed in `fork-inventory.md`. Every later PBI keeps that block byte-equal.
+Rules for every fork: [FORKS.md](FORKS.md). For this PBI: Your own lines in the old hub: move them between the `squad-mode` index sections as normal lines, each listed in `fork-inventory.md`. Every later PBI keeps that block byte-equal.

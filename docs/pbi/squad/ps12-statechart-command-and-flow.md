@@ -1,4 +1,4 @@
-# PS12: /statechart command plus statechart-md in the squad flow
+# PS12: /statechart command plus statechart-mode in the squad flow
 - Status: todo (docs only; build waits for Sven go per PBI)
 - Batch: B2
 - Depends on: PS09
@@ -40,7 +40,7 @@ PS09. Start only when those PBIs are merged on main. Build order: [README](READM
 | Kind | Now | After | Action |
 |---|---|---|---|
 | command | (none) | `plugins/squad/commands/statechart.md` | add |
-| skill | (none) | `plugins/squad/skills/tdd, statechart-md, arena, no-comments` | add (copy + adapt) |
+| skill | (none) | `plugins/squad/skills/tdd, statechart-mode, arena, no-comments` | add (copy + adapt) |
 | validator | `"six user commands" FAIL bar` | `seven (adds statechart)` | edit |
 
 Full list for all PBIs: [MIGRATION.md](MIGRATION.md#path-table).
@@ -59,7 +59,7 @@ After:
 
 ```text
 plugins/squad/commands/statechart.md   # NEW
-plugins/squad/skills/statechart-md/   # copy + adapt, scripts byte-equal
+plugins/squad/skills/statechart-mode/   # copy + adapt, scripts byte-equal
 style bar: seven user commands
 ```
 
@@ -75,16 +75,16 @@ description: Model a feature's states, check them, write the chart.
 
 # Statechart
 
-Load the `statechart-md` skill with the Skill tool by exact name. Run its flow. Do not commit, merge or push.
+Load the `statechart-mode` skill with the Skill tool by exact name. Run its flow. Do not commit, merge or push.
 ```
 
 ### 4.3 Target detail
 
 Every copy starts with `Source: <upstream link at 40-hex SHA>, MIT, see NOTICE.` under the H1 and ends with `## What we changed` (one line per change). Scripts and assets stay byte-equal unless listed there. Cursor-only parts (model slugs, `poteto-agent`, Cursor Task, `/loop`, control skills) are removed, or moved under a last `## Provider notes` section with one H3 per provider, so the main text works the same in Cursor, Claude Code, Copilot, Codex and gh-aw.
-- Skill `plugins/squad/skills/statechart-md/` (copy + adapt, reason in reuse table). Scripts byte-equal.
-- Command `plugins/squad/commands/statechart.md`: thin wrapper, loads `statechart-md`, no logic of its own.
+- Skill `plugins/squad/skills/statechart-mode/` (copy + adapt, reason in reuse table). Scripts byte-equal.
+- Command `plugins/squad/commands/statechart.md`: thin wrapper, loads `statechart-mode`, no logic of its own.
 - Output: Mermaid chart in `docs/architecture/<area>.md` plus shortest path to each rule-breaking state.
-- In the flow: plan.md and feature.md call statechart-md for stateful work (docs), review.md checks the chart still matches.
+- In the flow: plan.md and feature.md call statechart-mode for stateful work (docs), review.md checks the chart still matches.
 - Paths export to a scenario list that `/scenarios` reads (unit, integration, component, smoke rows).
 - Slash count: 6 commands today (squad, squad-review, scenarios, pack-check, pack-author, security-audit). After this PBI 7; room user commands go from 4 to 5. Sven agreed to the extra slash (2026-11-01).
 
@@ -92,21 +92,21 @@ Every copy starts with `Source: <upstream link at 40-hex SHA>, MIT, see NOTICE.`
 
 | Caller | Callee | Input | Output | State file |
 |---|---|---|---|---|
-| `/statechart` | `statechart-md` | area | chart page + bad paths | `docs/architecture/<area>.md` |
+| `/statechart` | `statechart-mode` | area | chart page + bad paths | `docs/architecture/<area>.md` |
 | `/scenarios` | chart page | shortest bad paths | scenario rows | `docs/smoke/` |
 
 ### 4.5 Flow
 
 ```mermaid
 flowchart LR
-  C["/statechart"] --> S["statechart-md"] --> K["checker scripts (local)"] --> D["docs/architecture/area.md"] --> SC["/scenarios"]
+  C["/statechart"] --> S["statechart-mode"] --> K["checker scripts (local)"] --> D["docs/architecture/area.md"] --> SC["/scenarios"]
 ```
 
 ### 4.6 Choices
 
 | Chosen | Rejected | Why |
 |---|---|---|
-| Name statechart-md | statechart | Skill name must differ from command. |
+| Name statechart-mode | statechart | Skill name must differ from command. |
 | Copy + adapt | Pin | Adds docs output and scenario export. |
 
 ### 4.7 Checks and error messages
@@ -133,7 +133,7 @@ Also: Needs Bun, TLC and Java via mise, network on first run: local only, not gh
 
 ### 4.10 Subagents and what they load
 
-- squad-planner and squad-architect load statechart-md for stateful tasks.
+- squad-planner and squad-architect load statechart-mode for stateful tasks.
 
 ## 5. Steps
 
@@ -146,21 +146,21 @@ Also: Needs Bun, TLC and Java via mise, network on first run: local only, not gh
    1. Copy and adapt statechart.
    2. Write the command.
    3. Hooks in plan.md, feature.md, review.md.
-   4. Scenario export read by scenarios-md.
+   4. Scenario export read by scenarios-mode.
    5. Update command count in README files, `docs/PLAN.md` and room docs.
 6. Run every command in section 8. All must pass.
-7. Open one PR titled `PS12: /statechart command plus statechart-md in the squad flow`. Body: link to this file, the section 3 table, the section 8 output.
+7. Open one PR titled `PS12: /statechart command plus statechart-mode in the squad flow`. Body: link to this file, the section 3 table, the section 8 output.
 
 ## 6. Sources
 
 | Step | Skill (repo, path, SHA) | Licence | Mode | Lives in | Reason |
 |---|---|---|---|---|---|
-| command and flow | [statechart](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/statechart/SKILL.md) | MIT (cursor/plugins, Lauren Tan) | copy + adapt | `plugins/squad/skills/statechart-md/` | Upstream has `disable-model-invocation: true` and is named like the command. Sven wants `/statechart` plus auto use in the flow. We rename to `statechart-md`, allow model use, add `docs/architecture/` output and the scenario export to `/scenarios`. Scripts stay byte-equal. |
+| command and flow | [statechart](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/statechart/SKILL.md) | MIT (cursor/plugins, Lauren Tan) | copy + adapt | `plugins/squad/skills/statechart-mode/` | Upstream has `disable-model-invocation: true` and is named like the command. Sven wants `/statechart` plus auto use in the flow. We rename to `statechart-mode`, allow model use, add `docs/architecture/` output and the scenario export to `/scenarios`. Scripts stay byte-equal. |
 | formal | [create-formal-verification-skill](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/create-formal-verification-skill/SKILL.md) | MIT (cursor/plugins, Lauren Tan) | pin | `plugins/squad/external-skills.json` | We change nothing and it has no Cursor-only parts (scanned at ae5650f), so it stays external at the 40-hex SHA. In gh-aw the generator vendors it into the commit and `aw-closure.json` lists it. |
 
 Route per external skill ([decision](README.md#decision-pin-copy--adapt-weave-or-not-used)):
 
-- statechart: **copy + adapt**. `plugins/squad/skills/statechart-md/`.
+- statechart: **copy + adapt**. `plugins/squad/skills/statechart-mode/`.
 - create-formal-verification-skill: **pin**. `plugins/squad/external-skills.json`.
 
 Every copy + adapt here adds, beyond its own changes: `Source:` line with SHA, a Standards line, the Gates, the Autonomy line for gh-aw, `## Provider notes`, `## What we changed or added`, and a NOTICE line.
@@ -199,7 +199,7 @@ Then locally: install `/tmp/agentpacks-marketplace` in Cursor or Claude Code, ru
 
 - [ ] Command and skill have different names.
 - [ ] Fixture 1: `/statechart` alone writes a chart in `docs/architecture/`.
-- [ ] Fixture 2: squad feature run calls statechart-md and `/scenarios` reads the paths.
+- [ ] Fixture 2: squad feature run calls statechart-mode and `/scenarios` reads the paths.
 - [ ] validate 0 warnings.
 - [ ] Local: works in Cursor, Claude Code and CLI (Copilot CLI, Codex). Proof offline: generated client manifests and fixture tests (`ClientManifestTests`, `ComponentGenerationTests`).
 - [ ] gh-aw: the fixture workflow under `tests/fixtures/gh-aw/` that uses this PBI's files passes `gh aw compile --strict` (pinned gh-aw, no run, no secrets, no Actions minutes). See [gh-aw README](gh-aw/README.md).

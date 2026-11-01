@@ -1,4 +1,4 @@
-# PS16: Helpers: scenarios-md, verify-harness, pack-check-md
+# PS16: Helpers: scenarios-mode, verify-harness, pack-check-mode
 - Status: todo (docs only; build waits for Sven go per PBI)
 - Batch: B4
 - Depends on: PS15
@@ -13,15 +13,15 @@
 
 > name: pack-check
 
-pack-check's skill name equals its command; scenarios-md has 12 inline steps and a first-step yes or no ask.
+pack-check's skill name equals its command; scenarios-mode has 12 inline steps and a first-step yes or no ask.
 
 **Why we change it.**
 
-- PO decision 1 and 2: `validate` is the gate and `/pack-check` runs the same checks; rename to `pack-check-md`.
+- PO decision 1 and 2: `validate` is the gate and `/pack-check` runs the same checks; rename to `pack-check-mode`.
 
 **What it gives the user.**
 
-- Local (Cursor, Claude Code, CLI): `/pack-check` loads `pack-check-md`; scenarios steps move to a playbook.
+- Local (Cursor, Claude Code, CLI): `/pack-check` loads `pack-check-mode`; scenarios steps move to a playbook.
 - gh-aw: Install and reload are local only; imported files keep `name` and `description` only.
 
 **Out of scope.** New checks.
@@ -39,10 +39,10 @@ PS15. Start only when those PBIs are merged on main. Build order: [README](READM
 | Kind | Now | After | Action |
 |---|---|---|---|
 | command | `plugins/squad/commands/scenarios.md` | same | edit: restyled skill |
-| command | `plugins/pack-check/commands/pack-check.md` | same | edit: load `pack-check-md` |
-| skill | `plugins/squad/skills/scenarios-md/SKILL.md` | same | restyle; steps to a playbook |
+| command | `plugins/pack-check/commands/pack-check.md` | same | edit: load `pack-check-mode` |
+| skill | `plugins/squad/skills/scenarios-mode/SKILL.md` | same | restyle; steps to a playbook |
 | skill | `plugins/squad/skills/verify-harness/SKILL.md` | same | restyle |
-| skill | `plugins/pack-check/skills/pack-check/SKILL.md` | `plugins/pack-check/skills/pack-check-md/SKILL.md` | rename (name equals command today); pointer until GA07 |
+| skill | `plugins/pack-check/skills/pack-check/SKILL.md` | `plugins/pack-check/skills/pack-check-mode/SKILL.md` | rename (name equals command today); pointer until GA07 |
 
 Full list for all PBIs: [MIGRATION.md](MIGRATION.md#path-table).
 
@@ -61,8 +61,8 @@ plugins/squad/skills/verify-harness/SKILL.md
 After:
 
 ```text
-plugins/pack-check/skills/pack-check-md/   # renamed; old dir pointer until GA07
-plugins/squad/skills/scenarios-md/playbooks/write-scenarios.md
+plugins/pack-check/skills/pack-check-mode/   # renamed; old dir pointer until GA07
+plugins/squad/skills/scenarios-mode/playbooks/write-scenarios.md
 verify-harness restyled
 ```
 
@@ -72,7 +72,7 @@ Shape rules: [SHAPES.md](SHAPES.md#summary).
 
 ```text
 ---
-name: pack-check-md
+name: pack-check-mode
 description: When checking whether required language-pack skills are present.
 license: UNLICENSED
 user-invocable: false
@@ -82,19 +82,19 @@ disable-model-invocation: true
 
 ### 4.3 Target detail
 
-gh-aw: `pack-check-md` install and reload and `/statechart` TLA+ scripts are local only; imported command and skill files carry only `name` and `description` frontmatter so `gh aw compile --strict` stays clean ([gh-aw README](gh-aw/README.md)). scenarios-md steps to `playbooks/write-scenarios.md` and it reads statechart paths; verify-harness restyle; pack-check-md rename plus hygiene mode that runs validate locally.
+gh-aw: `pack-check-mode` install and reload and `/statechart` TLA+ scripts are local only; imported command and skill files carry only `name` and `description` frontmatter so `gh aw compile --strict` stays clean ([gh-aw README](gh-aw/README.md)). scenarios-mode steps to `playbooks/write-scenarios.md` and it reads statechart paths; verify-harness restyle; pack-check-mode rename plus hygiene mode that runs validate locally.
 
 ### 4.4 Interfaces and contracts
 
 | Caller | Callee | Input | Output | State file |
 |---|---|---|---|---|
-| `/pack-check` | `pack-check-md` | repo | missing packs, validate result | none |
+| `/pack-check` | `pack-check-mode` | repo | missing packs, validate result | none |
 
 ### 4.5 Flow
 
 ```mermaid
 flowchart LR
-  P["/pack-check"] --> M["pack-check-md"] --> V["validate"] --> A{"missing pack?"}
+  P["/pack-check"] --> M["pack-check-mode"] --> V["validate"] --> A{"missing pack?"}
   A -->|local| Q["ask once to install"]
   A -->|gh-aw| R["report only"]
 ```
@@ -109,7 +109,7 @@ flowchart LR
 
 | Rule | Checks | Error message |
 |---|---|---|
-| PackCheckContractTests | new name | `expected skill pack-check-md` |
+| PackCheckContractTests | new name | `expected skill pack-check-mode` |
 
 ### 4.8 Risks and what breaks
 
@@ -142,18 +142,18 @@ Also: Out: CI changes.
    2. Rename.
    3. Hygiene mode.
 6. Run every command in section 8. All must pass.
-7. Open one PR titled `PS16: Helpers: scenarios-md, verify-harness, pack-check-md`. Body: link to this file, the section 3 table, the section 8 output.
+7. Open one PR titled `PS16: Helpers: scenarios-mode, verify-harness, pack-check-mode`. Body: link to this file, the section 3 table, the section 8 output.
 
 ## 6. Sources
 
 | Step | Skill (repo, path, SHA) | Licence | Mode | Lives in | Reason |
 |---|---|---|---|---|---|
-| scenarios | [statechart](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/statechart/SKILL.md) | MIT (cursor/plugins, Lauren Tan) | copy + adapt | `plugins/squad/skills/statechart-md/` | Upstream has `disable-model-invocation: true` and is named like the command. Sven wants `/statechart` plus auto use in the flow. We rename to `statechart-md`, allow model use, add `docs/architecture/` output and the scenario export to `/scenarios`. Scripts stay byte-equal. |
+| scenarios | [statechart](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/statechart/SKILL.md) | MIT (cursor/plugins, Lauren Tan) | copy + adapt | `plugins/squad/skills/statechart-mode/` | Upstream has `disable-model-invocation: true` and is named like the command. Sven wants `/statechart` plus auto use in the flow. We rename to `statechart-mode`, allow model use, add `docs/architecture/` output and the scenario export to `/scenarios`. Scripts stay byte-equal. |
 | verify | [create-verification-skill](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/create-verification-skill/SKILL.md) | MIT (cursor/plugins, Lauren Tan) | pin | `plugins/squad/external-skills.json` | We change nothing and it has no Cursor-only parts (scanned at ae5650f), so it stays external at the 40-hex SHA. In gh-aw the generator vendors it into the commit and `aw-closure.json` lists it. |
 
 Route per external skill ([decision](README.md#decision-pin-copy--adapt-weave-or-not-used)):
 
-- statechart: **copy + adapt**. `plugins/squad/skills/statechart-md/`.
+- statechart: **copy + adapt**. `plugins/squad/skills/statechart-mode/`.
 - create-verification-skill: **pin**. `plugins/squad/external-skills.json`.
 
 Every copy + adapt here adds, beyond its own changes: `Source:` line with SHA, a Standards line, the Gates, the Autonomy line for gh-aw, `## Provider notes`, `## What we changed or added`, and a NOTICE line.

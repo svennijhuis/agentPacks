@@ -56,7 +56,7 @@ After:
 
 ```text
 plugins/squad/agents/squad-architect.md   # + review mode
-squad-md/playbooks/architecture-review.md   # NEW (rewrite of Matt idea)
+squad-mode/playbooks/architecture-review.md   # NEW (rewrite of Matt idea)
 ```
 
 ### 4.2 Skeleton of the new file
@@ -76,13 +76,13 @@ Shape rules: [SHAPES.md](SHAPES.md#summary).
 
 ### 4.3 Target detail
 
-`squad-md/references/architecture-review.md`, used by review.md only for files whose git author is Sven's personal account. codebase-design vocabulary plus architect red flags; no grilling, no HTML.
+`squad-mode/references/architecture-review.md`, used by review.md only for files whose git author is Sven's personal account. codebase-design vocabulary plus architect red flags; no grilling, no HTML.
 
 ### 4.4 Interfaces and contracts
 
 | Caller | Callee | Input | Output | State file |
 |---|---|---|---|---|
-| squad-md | squad-architect | mode=review + paths | candidate table | report only |
+| squad-mode | squad-architect | mode=review + paths | candidate table | report only |
 
 ### 4.5 Flow
 

@@ -162,7 +162,7 @@ Good:
 ```markdown
 ## 2.0.0
 **Breaking**
-- `skills/squad` is now `skills/squad-md`. gh-aw: change the `skills:` path when you bump to `@v2.0.0`.
+- `skills/squad` is now `skills/squad-mode`. gh-aw: change the `skills:` path when you bump to `@v2.0.0`.
 - `/statechart` is new; room commands go from 4 to 5.
 ```
 

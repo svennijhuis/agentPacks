@@ -22,7 +22,7 @@ Every task type runs the same steps; there is no bug, feature or perf path. Upst
 **What it gives the user.**
 
 - Local (Cursor, Claude Code, CLI): Plan rows get `Task type:`; the hub picks one playbook per task.
-- gh-aw: Playbooks are files inside the hub dir, so they travel with `squad-md` in the closure; Cursor-only lines are gone.
+- gh-aw: Playbooks are files inside the hub dir, so they travel with `squad-mode` in the closure; Cursor-only lines are gone.
 
 **Out of scope.** Matt weaves inside playbooks (PS10).
 
@@ -38,8 +38,8 @@ PS07. Start only when those PBIs are merged on main. Build order: [README](READM
 
 | Kind | Now | After | Action |
 |---|---|---|---|
-| contract | `plugins/squad/skills/squad/references/planning-contract.md` | `plugins/squad/skills/squad-md/references/planning-contract.md` | edit: `Task type:` per task |
-| playbook | (none) | `plugins/squad/skills/squad-md/playbooks/*.md (9)` | add (copy + adapt) |
+| contract | `plugins/squad/skills/squad/references/planning-contract.md` | `plugins/squad/skills/squad-mode/references/planning-contract.md` | edit: `Task type:` per task |
+| playbook | (none) | `plugins/squad/skills/squad-mode/playbooks/*.md (9)` | add (copy + adapt) |
 
 Full list for all PBIs: [MIGRATION.md](MIGRATION.md#path-table).
 
@@ -50,13 +50,13 @@ Full list for all PBIs: [MIGRATION.md](MIGRATION.md#path-table).
 Before (main):
 
 ```text
-plugins/squad/skills/squad-md/   # no playbooks/
+plugins/squad/skills/squad-mode/   # no playbooks/
 ```
 
 After:
 
 ```text
-plugins/squad/skills/squad-md/playbooks/
+plugins/squad/skills/squad-mode/playbooks/
   bug-fix.md feature.md domain.md perf.md investigation.md
   plan.md review.md pr.md retro.md
 ```
@@ -85,7 +85,7 @@ Standards: <bold names>
 
 Every copy starts with `Source: <upstream link at 40-hex SHA>, MIT, see NOTICE.` under the H1 and ends with `## What we changed` (one line per change). Scripts and assets stay byte-equal unless listed there. Cursor-only parts (model slugs, `poteto-agent`, Cursor Task, `/loop`, control skills) are removed, or moved under a last `## Provider notes` section with one H3 per provider, so the main text works the same in Cursor, Claude Code, Copilot, Codex and gh-aw.
 ```text
-plugins/squad/skills/squad-md/playbooks/
+plugins/squad/skills/squad-mode/playbooks/
   bug-fix.md  feature.md  domain.md  perf.md  investigation.md  plan.md  review.md  pr.md  retro.md
 ```
 
@@ -121,14 +121,14 @@ Playbooks rule: the todo list starts with the matched playbook steps verbatim; a
 
 | Caller | Callee | Input | Output | State file |
 |---|---|---|---|---|
-| squad-md | playbook | plan row `Task type:` | steps run | `docs/squad-plan.md` |
+| squad-mode | playbook | plan row `Task type:` | steps run | `docs/squad-plan.md` |
 | planning contract | planner | request | plan with `Task type:` per task | `docs/squad-plan.md` |
 
 ### 4.5 Flow
 
 ```mermaid
 flowchart LR
-  P["plan row Task type"] --> H["squad-md ## Playbooks"]
+  P["plan row Task type"] --> H["squad-mode ## Playbooks"]
   H -->|bug| B["bug-fix.md"]
   H -->|feature| F["feature.md"]
   H -->|perf| PF["perf.md"]
@@ -189,28 +189,28 @@ Also: Out: Matt weaves (PS10).
 
 | Step | Skill (repo, path, SHA) | Licence | Mode | Lives in | Reason |
 |---|---|---|---|---|---|
-| bug | [upstream playbook bug-fix](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/poteto-mode/playbooks/bug-fix.md) | MIT (cursor/plugins, Lauren Tan) | copy + adapt | `squad-md/playbooks/bug-fix.md` | 15 lines, good steps, but uses `/loop` (client built-in). We drop `/loop`, add Matt diagnosing-bugs phases and our repro row. Keeps our standards and gates (PS09). |
+| bug | [upstream playbook bug-fix](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/poteto-mode/playbooks/bug-fix.md) | MIT (cursor/plugins, Lauren Tan) | copy + adapt | `squad-mode/playbooks/bug-fix.md` | 15 lines, good steps, but uses `/loop` (client built-in). We drop `/loop`, add Matt diagnosing-bugs phases and our repro row. Keeps our standards and gates (PS09). |
 | bug | [tdd](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/tdd/SKILL.md) | MIT (cursor/plugins, Lauren Tan) | copy + adapt | `plugins/squad/skills/tdd/` | Upstream has `disable-model-invocation: true` and says "use only when the user explicitly asks". Sven wants it on every behavior change ("We can use this really hard"). So we change the trigger and the flag; the loop stays. |
-| feature | [upstream playbook feature](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/poteto-mode/playbooks/feature.md) | MIT (cursor/plugins, Lauren Tan) | copy + adapt | `squad-md/playbooks/feature.md` | 21 lines. We add statechart for docs, codebase-design, our plan file rows. Keeps our standards and gates (PS09). |
-| domain | [upstream playbook refactoring](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/poteto-mode/playbooks/refactoring.md) | MIT (cursor/plugins, Lauren Tan) | copy + adapt | `squad-md/playbooks/domain.md` | Base for the domain playbook. We add model-the-domain, Matt domain-modeling, GLOSSARY and ADR rules. Keeps our standards and gates (PS09). |
-| perf | [upstream playbook perf-issue](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/poteto-mode/playbooks/perf-issue.md) | MIT (cursor/plugins, Lauren Tan) | copy + adapt | `squad-md/playbooks/perf.md` | 25 lines. Keep baseline and benchmark-checklist, add our evidence fields. Keeps our standards and gates (PS09). |
+| feature | [upstream playbook feature](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/poteto-mode/playbooks/feature.md) | MIT (cursor/plugins, Lauren Tan) | copy + adapt | `squad-mode/playbooks/feature.md` | 21 lines. We add statechart for docs, codebase-design, our plan file rows. Keeps our standards and gates (PS09). |
+| domain | [upstream playbook refactoring](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/poteto-mode/playbooks/refactoring.md) | MIT (cursor/plugins, Lauren Tan) | copy + adapt | `squad-mode/playbooks/domain.md` | Base for the domain playbook. We add model-the-domain, Matt domain-modeling, GLOSSARY and ADR rules. Keeps our standards and gates (PS09). |
+| perf | [upstream playbook perf-issue](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/poteto-mode/playbooks/perf-issue.md) | MIT (cursor/plugins, Lauren Tan) | copy + adapt | `squad-mode/playbooks/perf.md` | 25 lines. Keep baseline and benchmark-checklist, add our evidence fields. Keeps our standards and gates (PS09). |
 | perf | [benchmark-checklist](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/benchmark-checklist/SKILL.md) | MIT (cursor/plugins, Lauren Tan) | pin | `plugins/squad/external-skills.json` | We change nothing and it has no Cursor-only parts (scanned at ae5650f), so it stays external at the 40-hex SHA. In gh-aw the generator vendors it into the commit and `aw-closure.json` lists it. |
-| investigation | [upstream playbook investigation](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/poteto-mode/playbooks/investigation.md) | MIT (cursor/plugins, Lauren Tan) | copy + adapt | `squad-md/playbooks/investigation.md` | 14 lines, read-only. Almost unchanged; we add our file:line answer rule. Keeps our standards and gates (PS09). |
-| plan | [upstream playbook multi-phase-plan](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/poteto-mode/playbooks/multi-phase-plan.md) | MIT (cursor/plugins, Lauren Tan) | copy + adapt | `squad-md/playbooks/plan.md` | 155 lines and Cursor-heavy (`poteto-agent`, swarm, control-cli, control-ui, `/loop`). We take the phase and gate idea only and keep our `docs/squad-plan.md` (#85). Keeps our standards and gates (PS09). |
-| pr | [upstream playbook opening-a-pr](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/poteto-mode/playbooks/opening-a-pr.md) | MIT (cursor/plugins, Lauren Tan) | copy + adapt | `squad-md/playbooks/pr.md` | Uses deslop and swarm. We merge it with Matt pr (Evidence, Merge Danger) and our squash and personal-only standards. Keeps our standards and gates (PS09). |
+| investigation | [upstream playbook investigation](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/poteto-mode/playbooks/investigation.md) | MIT (cursor/plugins, Lauren Tan) | copy + adapt | `squad-mode/playbooks/investigation.md` | 14 lines, read-only. Almost unchanged; we add our file:line answer rule. Keeps our standards and gates (PS09). |
+| plan | [upstream playbook multi-phase-plan](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/poteto-mode/playbooks/multi-phase-plan.md) | MIT (cursor/plugins, Lauren Tan) | copy + adapt | `squad-mode/playbooks/plan.md` | 155 lines and Cursor-heavy (`poteto-agent`, swarm, control-cli, control-ui, `/loop`). We take the phase and gate idea only and keep our `docs/squad-plan.md` (#85). Keeps our standards and gates (PS09). |
+| pr | [upstream playbook opening-a-pr](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/poteto-mode/playbooks/opening-a-pr.md) | MIT (cursor/plugins, Lauren Tan) | copy + adapt | `squad-mode/playbooks/pr.md` | Uses deslop and swarm. We merge it with Matt pr (Evidence, Merge Danger) and our squash and personal-only standards. Keeps our standards and gates (PS09). |
 | fallback | [figure-it-out](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/figure-it-out/SKILL.md) | MIT (cursor/plugins, Lauren Tan) | copy + adapt | `plugins/squad/skills/figure-it-out/` | Cursor-only parts at ae5650f: names poteto-mode. Our copy moves them under `## Provider notes` and adds Standards, Gates, Autonomy. |
 
 Route per external skill ([decision](README.md#decision-pin-copy--adapt-weave-or-not-used)):
 
-- upstream playbook bug-fix: **copy + adapt**. `squad-md/playbooks/bug-fix.md`.
+- upstream playbook bug-fix: **copy + adapt**. `squad-mode/playbooks/bug-fix.md`.
 - tdd: **copy + adapt**. `plugins/squad/skills/tdd/`.
-- upstream playbook feature: **copy + adapt**. `squad-md/playbooks/feature.md`.
-- upstream playbook refactoring: **copy + adapt**. `squad-md/playbooks/domain.md`.
-- upstream playbook perf-issue: **copy + adapt**. `squad-md/playbooks/perf.md`.
+- upstream playbook feature: **copy + adapt**. `squad-mode/playbooks/feature.md`.
+- upstream playbook refactoring: **copy + adapt**. `squad-mode/playbooks/domain.md`.
+- upstream playbook perf-issue: **copy + adapt**. `squad-mode/playbooks/perf.md`.
 - benchmark-checklist: **pin**. `plugins/squad/external-skills.json`.
-- upstream playbook investigation: **copy + adapt**. `squad-md/playbooks/investigation.md`.
-- upstream playbook multi-phase-plan: **copy + adapt**. `squad-md/playbooks/plan.md`.
-- upstream playbook opening-a-pr: **copy + adapt**. `squad-md/playbooks/pr.md`.
+- upstream playbook investigation: **copy + adapt**. `squad-mode/playbooks/investigation.md`.
+- upstream playbook multi-phase-plan: **copy + adapt**. `squad-mode/playbooks/plan.md`.
+- upstream playbook opening-a-pr: **copy + adapt**. `squad-mode/playbooks/pr.md`.
 - figure-it-out: **copy + adapt**. `plugins/squad/skills/figure-it-out/`.
 
 Every copy + adapt here adds, beyond its own changes: `Source:` line with SHA, a Standards line, the Gates, the Autonomy line for gh-aw, `## Provider notes`, `## What we changed or added`, and a NOTICE line.

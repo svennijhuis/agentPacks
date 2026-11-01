@@ -72,8 +72,8 @@ Shape rules: [SHAPES.md](SHAPES.md#summary).
 
 | Agent | Tier | Skills | Principles | Standards |
 |---|---|---|---|---|
-| squad-planner | standard | teach, technical-writing, blast-radius, statechart-md, Matt research | Sequence Verifiable Units, Subtract Before You Add | Coding Standards File |
-| squad-architect | frontier | architect, codebase-design, statechart-md | Foundational Thinking, Model the Domain, Type System Discipline, Exhaust the Design Space | Coding Standards File, Layers |
+| squad-planner | standard | teach, technical-writing, blast-radius, statechart-mode, Matt research | Sequence Verifiable Units, Subtract Before You Add | Coding Standards File |
+| squad-architect | frontier | architect, codebase-design, statechart-mode | Foundational Thinking, Model the Domain, Type System Discipline, Exhaust the Design Space | Coding Standards File, Layers |
 | squad-implementer | standard | tdd, no-comments | Prove It Works, Test Behavior, Laziness Protocol | No Em Dash, No Secrets in Markdown |
 | squad-reviewer | standard | interrogate, blast-radius, Matt two axes | Minimize Reader Load, Test Behavior | Review Contract, Coding Standards File |
 | squad-simplifier | standard | no-comments, unslop | Subtract Before You Add, Laziness Protocol | none |
@@ -89,13 +89,13 @@ PR a: planner, architect, implementer, reviewer, simplifier. PR b: the rest.
 
 | Caller | Callee | Input | Output | State file |
 |---|---|---|---|---|
-| squad-md | each agent | task + absolute hub path | Return fields | none |
+| squad-mode | each agent | task + absolute hub path | Return fields | none |
 
 ### 4.5 Flow
 
 ```mermaid
 flowchart LR
-  H["squad-md"] --> PL["planner"] --> AR["architect"] --> IM["implementer"] --> VE["verifier"] --> RE["reviewer"]
+  H["squad-mode"] --> PL["planner"] --> AR["architect"] --> IM["implementer"] --> VE["verifier"] --> RE["reviewer"]
 ```
 
 ### 4.6 Choices

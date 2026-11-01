@@ -49,14 +49,14 @@ Full list for all PBIs: [MIGRATION.md](MIGRATION.md#path-table).
 Before (main):
 
 ```text
-squad-md/references/review-contract.md  retro.md
+squad-mode/references/review-contract.md  retro.md
 ```
 
 After:
 
 ```text
-squad-md/references/review-contract.md   # + stack order
-squad-md/playbooks/review.md   # interrogate, correct, no-comments
+squad-mode/references/review-contract.md   # + stack order
+squad-mode/playbooks/review.md   # interrogate, correct, no-comments
 docs/lessons.md in target repo (read, human writes)
 ```
 

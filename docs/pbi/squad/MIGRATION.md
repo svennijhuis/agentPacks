@@ -17,11 +17,11 @@ flowchart LR
   end
   subgraph v2["v2"]
     c2["commands: same 6 + statechart"]
-    h2["skills/squad-md hub: Non-negotiables, Principles, Standards, Playbooks"]
-    pb2["squad-md/playbooks: 9, copy + adapt"]
+    h2["skills/squad-mode hub: Non-negotiables, Principles, Standards, Playbooks"]
+    pb2["squad-mode/playbooks: 9, copy + adapt"]
     st2["standard-* leafs: 9"]
     pr2["principle-* leafs: 24 copied"]
-    k2["copies: tdd, statechart-md, arena, no-comments"]
+    k2["copies: tdd, statechart-mode, arena, no-comments"]
     a2["10 squad agents: hub path, named leafs"]
     s2["shared/standards: kept, gh-aw import source"]
     g2["gh-aw: aw-closure.json + fixture workflows"]
@@ -39,33 +39,33 @@ flowchart LR
 
 | Kind | v1 path (main `6c59f49`) | v2 path | Action | PBI |
 |---|---|---|---|---|
-| command | `plugins/squad/commands/squad.md` | same | edit: load `squad-md` | PS06 |
-| command | `plugins/squad/commands/squad-review.md` | same | edit: load `squad-md` | PS06 |
+| command | `plugins/squad/commands/squad.md` | same | edit: load `squad-mode` | PS06 |
+| command | `plugins/squad/commands/squad-review.md` | same | edit: load `squad-mode` | PS06 |
 | command | `plugins/squad/commands/scenarios.md` | same | edit: restyled skill | PS16 |
 | command | (none) | `plugins/squad/commands/statechart.md` | add | PS12 |
-| command | `plugins/pack-check/commands/pack-check.md` | same | edit: load `pack-check-md` | PS16 |
+| command | `plugins/pack-check/commands/pack-check.md` | same | edit: load `pack-check-mode` | PS16 |
 | command | `plugins/pack-author/commands/pack-author.md` | same | edit: playbook routing | PS01 |
 | command | `plugins/security/commands/security-audit.md` | same | edit | PS18 |
-| hub | `plugins/squad/skills/squad/SKILL.md` | `plugins/squad/skills/squad-md/SKILL.md` | rename and restyle; old dir kept as a one-line pointer until GA07 | PS06, GA07 |
-| contract | `plugins/squad/skills/squad/references/*.md (11 files)` | `plugins/squad/skills/squad-md/references/*.md` | move | PS06 |
-| contract | `plugins/squad/skills/squad/references/review-contract.md` | `plugins/squad/skills/squad-md/references/review-contract.md + standard-review-contract` | split: words and verdicts to the leaf, flow stays | PS07 |
-| contract | `plugins/squad/skills/squad/references/planning-contract.md` | `plugins/squad/skills/squad-md/references/planning-contract.md` | edit: `Task type:` per task | PS09 |
-| contract | `plugins/squad/skills/squad/references/adr.md, retro.md` | same names under squad-md | edit: Matt weave | PS10 |
-| playbook | (none) | `plugins/squad/skills/squad-md/playbooks/*.md (9)` | add (copy + adapt) | PS09 |
+| hub | `plugins/squad/skills/squad/SKILL.md` | `plugins/squad/skills/squad-mode/SKILL.md` | rename and restyle; old dir kept as a one-line pointer until GA07 | PS06, GA07 |
+| contract | `plugins/squad/skills/squad/references/*.md (11 files)` | `plugins/squad/skills/squad-mode/references/*.md` | move | PS06 |
+| contract | `plugins/squad/skills/squad/references/review-contract.md` | `plugins/squad/skills/squad-mode/references/review-contract.md + standard-review-contract` | split: words and verdicts to the leaf, flow stays | PS07 |
+| contract | `plugins/squad/skills/squad/references/planning-contract.md` | `plugins/squad/skills/squad-mode/references/planning-contract.md` | edit: `Task type:` per task | PS09 |
+| contract | `plugins/squad/skills/squad/references/adr.md, retro.md` | same names under squad-mode | edit: Matt weave | PS10 |
+| playbook | (none) | `plugins/squad/skills/squad-mode/playbooks/*.md (9)` | add (copy + adapt) | PS09 |
 | standard | (none, rules in chat and memory) | `plugins/squad/skills/standard-*/SKILL.md (9)` | add | PS07 |
 | standard | `shared/standards/engineering.md` | same | edit: links to principle leafs; text kept in v2; trim later | PS04, GA07 |
 | standard | `shared/standards/design.md, testing-principles.md, http-api.md` | same | keep; leafs link to them | PS07 |
 | standard | `plugins/*/standards.source.json` | same | keep | none |
-| skill | (none) | `plugins/squad/skills/tdd, statechart-md, arena, no-comments` | add (copy + adapt) | PS04, PS12 |
-| skill | `plugins/squad/skills/scenarios-md/SKILL.md` | same | restyle; steps to a playbook | PS16 |
+| skill | (none) | `plugins/squad/skills/tdd, statechart-mode, arena, no-comments` | add (copy + adapt) | PS04, PS12 |
+| skill | `plugins/squad/skills/scenarios-mode/SKILL.md` | same | restyle; steps to a playbook | PS16 |
 | skill | `plugins/squad/skills/verify-harness/SKILL.md` | same | restyle | PS16 |
-| skill | `plugins/pack-check/skills/pack-check/SKILL.md` | `plugins/pack-check/skills/pack-check-md/SKILL.md` | rename (name equals command today); pointer until GA07 | PS16, GA07 |
-| skill | `plugins/pack-author/skills/pack-author-md/SKILL.md` | same | restyle hub | PS01 |
-| skill | `pack-author-md/references/make.md` | `pack-author-md/playbooks/write-skill.md + write-subagent.md` | split | PS01, PS02 |
-| skill | `pack-author-md/references/review.md` | `pack-author-md/playbooks/check-skill.md + check-subagent.md` | split | PS01, PS02 |
-| skill | `pack-author-md/references/change.md` | `pack-author-md/playbooks/change.md` | move | PS01 |
-| skill | `pack-author-md/references/style.md` | `pack-author-md/references/skill-bars.md + subagent-bars.md` | rename and split; the "do not copy an external skill set" line becomes the copy rule | PS01, PS02 |
-| skill | `plugins/security/skills/security-audit-md/SKILL.md` | same | restyle | PS18 |
+| skill | `plugins/pack-check/skills/pack-check/SKILL.md` | `plugins/pack-check/skills/pack-check-mode/SKILL.md` | rename (name equals command today); pointer until GA07 | PS16, GA07 |
+| skill | `plugins/pack-author/skills/pack-author-mode/SKILL.md` | same | restyle hub | PS01 |
+| skill | `pack-author-mode/references/make.md` | `pack-author-mode/playbooks/write-skill.md + write-subagent.md` | split | PS01, PS02 |
+| skill | `pack-author-mode/references/review.md` | `pack-author-mode/playbooks/check-skill.md + check-subagent.md` | split | PS01, PS02 |
+| skill | `pack-author-mode/references/change.md` | `pack-author-mode/playbooks/change.md` | move | PS01 |
+| skill | `pack-author-mode/references/style.md` | `pack-author-mode/references/skill-bars.md + subagent-bars.md` | rename and split; the "do not copy an external skill set" line becomes the copy rule | PS01, PS02 |
+| skill | `plugins/security/skills/security-audit-mode/SKILL.md` | same | restyle | PS18 |
 | skill | `plugins/{dotnet,rust,typescript}/skills/*` | same | restyle, drop boilerplate | PS17 |
 | agent | `plugins/squad/agents/squad-*.md (10)` | same names | rewrite with write-subagent | PS15 |
 | agent | `plugins/pack-author/agents/pack-author-reviewer.md` | same | rewrite | PS02 |
@@ -86,7 +86,7 @@ flowchart LR
 | Area | What can break | How we catch it |
 |---|---|---|
 | gh-aw imports of `shared/standards` | A consumer workflow imports `shared/standards/*.md`; trimming or moving them breaks its prompt. | Never move or delete a `shared/standards` file in v2. Text stays until GA07, after the AW catalog pin moved. `StandardsGhAwImportContractTests` stays green in every PBI. |
-| gh-aw `skills:` path | AW pins `plugins/squad/skills/squad@<sha>`. In v2 the hub is `squad-md`. | Old pins keep working (they point at an old SHA). The bump to `@v2.0.0` changes path and the closure list in one PR (GA05, AW room). The v1 dir stays as a pointer until GA07. |
+| gh-aw `skills:` path | AW pins `plugins/squad/skills/squad@<sha>`. In v2 the hub is `squad-mode`. | Old pins keep working (they point at an old SHA). The bump to `@v2.0.0` changes path and the closure list in one PR (GA05, AW room). The v1 dir stays as a pointer until GA07. |
 | gh-aw closure | The hub reads `../<name>/SKILL.md`; in gh-aw only skills listed in `skills:` exist. | Generator writes `aw-closure.json` per pack (GA01); the fixture workflow lists it and compiles strict (GA04). |
 | Providers (Cursor, Claude Code, Copilot, Codex) | Renamed skill dirs change generated manifests and Codex TOML agents drift. | `ClientManifestTests`, `CursorCatalogContractTests`, `ComponentGenerationTests` updated in the same PR as the move; generated output diff checked per provider. |
 | `external-skills.json` | New pins not closed under references; byte drift; licence missing. | `ExternalSourceTests`, REF01 closure, byte-compare test (PS04), NOTICE test (PS05). Caveman pins stay. |
@@ -102,11 +102,11 @@ After every PBI main is green and all 7 commands still load (6 until PS12). No b
 
 1. **Writer and checks** (PS01, PS02, PS03). No file moves yet.
 2. **Additive pins and copies** (PS04, PS05). Nothing removed; `shared/standards` keeps its text.
-3. **Hub rename** (PS06). Add `squad-md`, switch both commands, agents and tests to it; leave `skills/squad/SKILL.md` as a one-line pointer.
+3. **Hub rename** (PS06). Add `squad-mode`, switch both commands, agents and tests to it; leave `skills/squad/SKILL.md` as a one-line pointer.
 4. **Standards, CODING_STANDARDS, playbooks** (PS07, PS08, PS09). Additive files plus index lines.
 5. **Weaves, review, statechart, verification, lessons** (PS10 to PS14). Edits inside our own files; `/statechart` added with the bar change.
 6. **Agents** (PS15 a and b). Same names, so no caller changes.
-7. **Helpers, language packs, security, roles** (PS16 to PS19). `pack-check-md` with a pointer at the old dir.
+7. **Helpers, language packs, security, roles** (PS16 to PS19). `pack-check-mode` with a pointer at the old dir.
 8. **gh-aw** (GA01 to GA06). Closure files, provider check, fixtures, docs. AW room bumps its pin (GA05).
 9. **Release** (PS20). 2.0.0 and tag `v2.0.0`.
 10. **Delete old paths** (GA07). Remove the two pointer dirs and trim `engineering.md`, only after GA05 is merged.
@@ -151,10 +151,10 @@ Every file under `plugins/` and `shared/standards/` at `6c59f49`, mapped. Group 
 | `plugins/pack-author/commands/pack-author.md` | same | keep | none |
 | `plugins/pack-author/external-skills.json` | same | keep | none |
 | `plugins/pack-author/plugin.json` | same | version bump if files moved | PS20 |
-| `plugins/pack-author/skills/pack-author-md/SKILL.md` | same | restyle to SHAPES | PS16 |
-| `plugins/pack-author/skills/pack-author-md/references/change.md` | `playbooks/change.md` | move | PS01 |
-| `plugins/pack-author/skills/pack-author-md/references/make.md` | `playbooks/write-skill.md + write-subagent.md` | split | PS01, PS02 |
-| `plugins/pack-author/skills/pack-author-md/references/review.md` | `playbooks/check-skill.md + check-subagent.md` | split | PS01, PS02 |
+| `plugins/pack-author/skills/pack-author-md/SKILL.md` | `plugins/pack-author/skills/pack-author-mode/SKILL.md` | move (old dir becomes pointer until GA07) | PS01 |
+| `plugins/pack-author/skills/pack-author-md/references/change.md` | `plugins/pack-author/skills/pack-author-mode/playbooks/change.md` | move | PS01 |
+| `plugins/pack-author/skills/pack-author-md/references/make.md` | `plugins/pack-author/skills/pack-author-mode/playbooks/write-skill.md + write-subagent.md` | split | PS01, PS02 |
+| `plugins/pack-author/skills/pack-author-md/references/review.md` | `plugins/pack-author/skills/pack-author-mode/playbooks/check-skill.md + check-subagent.md` | split | PS01, PS02 |
 | `plugins/pack-author/skills/pack-author-md/references/style.md` | `references/skill-bars.md + subagent-bars.md` | split | PS01, PS02 |
 | `plugins/pack-check/README.md` | same | keep | none |
 | `plugins/pack-check/commands/pack-check.md` | same | keep | none |
@@ -163,15 +163,15 @@ Every file under `plugins/` and `shared/standards/` at `6c59f49`, mapped. Group 
 | `plugins/pack-check/plugin.json` | same | version bump if files moved | PS20 |
 | `plugins/pack-check/scripts/pack-check-session.ps1` | same | keep | none |
 | `plugins/pack-check/scripts/pack-check-session.sh` | same | keep | none |
-| `plugins/pack-check/skills/pack-check/SKILL.md` | `plugins/pack-check/skills/pack-check-md/SKILL.md` | move (pointer until GA07) | PS16 |
-| `plugins/pack-check/skills/pack-check/references/detect.md` | `plugins/pack-check/skills/pack-check-md/references/detect.md` | move (pointer until GA07) | PS16 |
-| `plugins/pack-check/skills/pack-check/references/packs.md` | `plugins/pack-check/skills/pack-check-md/references/packs.md` | move (pointer until GA07) | PS16 |
-| `plugins/pack-check/skills/pack-check/scripts/check-plan.ps1` | `plugins/pack-check/skills/pack-check-md/scripts/check-plan.ps1` | move (pointer until GA07) | PS16 |
-| `plugins/pack-check/skills/pack-check/scripts/check-plan.sh` | `plugins/pack-check/skills/pack-check-md/scripts/check-plan.sh` | move (pointer until GA07) | PS16 |
-| `plugins/pack-check/skills/pack-check/scripts/check-retro.ps1` | `plugins/pack-check/skills/pack-check-md/scripts/check-retro.ps1` | move (pointer until GA07) | PS16 |
-| `plugins/pack-check/skills/pack-check/scripts/check-retro.sh` | `plugins/pack-check/skills/pack-check-md/scripts/check-retro.sh` | move (pointer until GA07) | PS16 |
-| `plugins/pack-check/skills/pack-check/scripts/check-verify.ps1` | `plugins/pack-check/skills/pack-check-md/scripts/check-verify.ps1` | move (pointer until GA07) | PS16 |
-| `plugins/pack-check/skills/pack-check/scripts/check-verify.sh` | `plugins/pack-check/skills/pack-check-md/scripts/check-verify.sh` | move (pointer until GA07) | PS16 |
+| `plugins/pack-check/skills/pack-check/SKILL.md` | `plugins/pack-check/skills/pack-check-mode/SKILL.md` | move (pointer until GA07) | PS16 |
+| `plugins/pack-check/skills/pack-check/references/detect.md` | `plugins/pack-check/skills/pack-check-mode/references/detect.md` | move (pointer until GA07) | PS16 |
+| `plugins/pack-check/skills/pack-check/references/packs.md` | `plugins/pack-check/skills/pack-check-mode/references/packs.md` | move (pointer until GA07) | PS16 |
+| `plugins/pack-check/skills/pack-check/scripts/check-plan.ps1` | `plugins/pack-check/skills/pack-check-mode/scripts/check-plan.ps1` | move (pointer until GA07) | PS16 |
+| `plugins/pack-check/skills/pack-check/scripts/check-plan.sh` | `plugins/pack-check/skills/pack-check-mode/scripts/check-plan.sh` | move (pointer until GA07) | PS16 |
+| `plugins/pack-check/skills/pack-check/scripts/check-retro.ps1` | `plugins/pack-check/skills/pack-check-mode/scripts/check-retro.ps1` | move (pointer until GA07) | PS16 |
+| `plugins/pack-check/skills/pack-check/scripts/check-retro.sh` | `plugins/pack-check/skills/pack-check-mode/scripts/check-retro.sh` | move (pointer until GA07) | PS16 |
+| `plugins/pack-check/skills/pack-check/scripts/check-verify.ps1` | `plugins/pack-check/skills/pack-check-mode/scripts/check-verify.ps1` | move (pointer until GA07) | PS16 |
+| `plugins/pack-check/skills/pack-check/scripts/check-verify.sh` | `plugins/pack-check/skills/pack-check-mode/scripts/check-verify.sh` | move (pointer until GA07) | PS16 |
 | `plugins/rust/README.md` | same | keep | none |
 | `plugins/rust/external-skills.json` | same | keep | none |
 | `plugins/rust/plugin.json` | same | version bump if files moved | PS20 |
@@ -201,11 +201,11 @@ Every file under `plugins/` and `shared/standards/` at `6c59f49`, mapped. Group 
 | `plugins/security/commands/security-audit.md` | same | keep | none |
 | `plugins/security/external-skills.json` | same | keep | none |
 | `plugins/security/plugin.json` | same | version bump if files moved | PS20 |
-| `plugins/security/skills/security-audit-md/SKILL.md` | same | restyle to SHAPES | PS18 |
-| `plugins/security/skills/security-audit-md/references/attack-classes.md` | same | keep | none |
-| `plugins/security/skills/security-audit-md/references/principles.md` | same | keep | none |
-| `plugins/security/skills/security-audit-md/references/report.md` | same | keep | none |
-| `plugins/security/skills/security-audit-md/references/workflow.md` | same | keep | none |
+| `plugins/security/skills/security-audit-md/SKILL.md` | `plugins/security/skills/security-audit-mode/SKILL.md` | move (old dir becomes pointer until GA07) | PS16 |
+| `plugins/security/skills/security-audit-md/references/attack-classes.md` | `plugins/security/skills/security-audit-mode/references/attack-classes.md` | move (old dir becomes pointer until GA07) | PS16 |
+| `plugins/security/skills/security-audit-md/references/principles.md` | `plugins/security/skills/security-audit-mode/references/principles.md` | move (old dir becomes pointer until GA07) | PS16 |
+| `plugins/security/skills/security-audit-md/references/report.md` | `plugins/security/skills/security-audit-mode/references/report.md` | move (old dir becomes pointer until GA07) | PS16 |
+| `plugins/security/skills/security-audit-md/references/workflow.md` | `plugins/security/skills/security-audit-mode/references/workflow.md` | move (old dir becomes pointer until GA07) | PS16 |
 | `plugins/squad/README.md` | same | keep | none |
 | `plugins/squad/agents/squad-architect.md` | same | rewrite (write-subagent) | PS15 |
 | `plugins/squad/agents/squad-implementer.md` | same | rewrite (write-subagent) | PS15 |
@@ -220,24 +220,24 @@ Every file under `plugins/` and `shared/standards/` at `6c59f49`, mapped. Group 
 | `plugins/squad/commands/scenarios.md` | same | edit: load new hub | PS06, PS16 |
 | `plugins/squad/commands/squad-review.md` | same | edit: load new hub | PS06, PS16 |
 | `plugins/squad/commands/squad.md` | same | edit: load new hub | PS06, PS16 |
-| `plugins/squad/external-skills.json` | same | keep (legacy pins) | none |
+| `plugins/squad/external-skills.json` | same | keep caveman pins, add pins for unchanged skills | PS04, PS05 |
 | `plugins/squad/mcp.json` | same | keep | none |
 | `plugins/squad/plugin.json` | same | version bump if files moved | PS20 |
 | `plugins/squad/references/smoke-matrix.md` | same | keep | none |
 | `plugins/squad/rules/review-checklist.mdc` | same | keep | none |
-| `plugins/squad/skills/scenarios-md/SKILL.md` | same | restyle to SHAPES | PS16 |
-| `plugins/squad/skills/squad/SKILL.md` | `plugins/squad/skills/squad-md/SKILL.md` | move (old dir becomes pointer) | PS06 |
-| `plugins/squad/skills/squad/references/adr.md` | `plugins/squad/skills/squad-md/references/adr.md` | move (old dir becomes pointer) | PS06 |
-| `plugins/squad/skills/squad/references/advisor-lite.md` | `plugins/squad/skills/squad-md/references/advisor-lite.md` | move (old dir becomes pointer) | PS06 |
-| `plugins/squad/skills/squad/references/architect-contract.md` | `plugins/squad/skills/squad-md/references/architect-contract.md` | move (old dir becomes pointer) | PS06 |
-| `plugins/squad/skills/squad/references/malformed-reask.md` | `plugins/squad/skills/squad-md/references/malformed-reask.md` | move (old dir becomes pointer) | PS06 |
-| `plugins/squad/skills/squad/references/planning-contract.md` | `plugins/squad/skills/squad-md/references/planning-contract.md` | move (old dir becomes pointer) | PS06 |
-| `plugins/squad/skills/squad/references/residual-fixup.md` | `plugins/squad/skills/squad-md/references/residual-fixup.md` | move (old dir becomes pointer) | PS06 |
-| `plugins/squad/skills/squad/references/retro.md` | `plugins/squad/skills/squad-md/references/retro.md` | move (old dir becomes pointer) | PS06 |
-| `plugins/squad/skills/squad/references/review-contract.md` | `plugins/squad/skills/squad-md/references/review-contract.md` | move (old dir becomes pointer) | PS06 |
-| `plugins/squad/skills/squad/references/session-split.md` | `plugins/squad/skills/squad-md/references/session-split.md` | move (old dir becomes pointer) | PS06 |
-| `plugins/squad/skills/squad/references/suggestions.md` | `plugins/squad/skills/squad-md/references/suggestions.md` | move (old dir becomes pointer) | PS06 |
-| `plugins/squad/skills/squad/references/worktree.md` | `plugins/squad/skills/squad-md/references/worktree.md` | move (old dir becomes pointer) | PS06 |
+| `plugins/squad/skills/scenarios-md/SKILL.md` | `plugins/squad/skills/scenarios-mode/SKILL.md` | move (old dir becomes pointer until GA07) | PS16 |
+| `plugins/squad/skills/squad/SKILL.md` | `plugins/squad/skills/squad-mode/SKILL.md` | move (old dir becomes pointer) | PS06 |
+| `plugins/squad/skills/squad/references/adr.md` | `plugins/squad/skills/squad-mode/references/adr.md` | move (old dir becomes pointer) | PS06 |
+| `plugins/squad/skills/squad/references/advisor-lite.md` | `plugins/squad/skills/squad-mode/references/advisor-lite.md` | move (old dir becomes pointer) | PS06 |
+| `plugins/squad/skills/squad/references/architect-contract.md` | `plugins/squad/skills/squad-mode/references/architect-contract.md` | move (old dir becomes pointer) | PS06 |
+| `plugins/squad/skills/squad/references/malformed-reask.md` | `plugins/squad/skills/squad-mode/references/malformed-reask.md` | move (old dir becomes pointer) | PS06 |
+| `plugins/squad/skills/squad/references/planning-contract.md` | `plugins/squad/skills/squad-mode/references/planning-contract.md` | move (old dir becomes pointer) | PS06 |
+| `plugins/squad/skills/squad/references/residual-fixup.md` | `plugins/squad/skills/squad-mode/references/residual-fixup.md` | move (old dir becomes pointer) | PS06 |
+| `plugins/squad/skills/squad/references/retro.md` | `plugins/squad/skills/squad-mode/references/retro.md` | move (old dir becomes pointer) | PS06 |
+| `plugins/squad/skills/squad/references/review-contract.md` | `plugins/squad/skills/squad-mode/references/review-contract.md` | move (old dir becomes pointer) | PS06 |
+| `plugins/squad/skills/squad/references/session-split.md` | `plugins/squad/skills/squad-mode/references/session-split.md` | move (old dir becomes pointer) | PS06 |
+| `plugins/squad/skills/squad/references/suggestions.md` | `plugins/squad/skills/squad-mode/references/suggestions.md` | move (old dir becomes pointer) | PS06 |
+| `plugins/squad/skills/squad/references/worktree.md` | `plugins/squad/skills/squad-mode/references/worktree.md` | move (old dir becomes pointer) | PS06 |
 | `plugins/squad/skills/verify-harness/SKILL.md` | same | restyle to SHAPES | PS16 |
 | `plugins/squad/skills/verify-harness/references/doctor-tags.md` | same | keep | none |
 | `plugins/squad/skills/verify-harness/references/local-access.md` | same | keep | none |
@@ -269,7 +269,7 @@ Forks with their own standards and rules follow [FORKS.md](FORKS.md): step 0 inv
 
 | Case | Example | What to do |
 |---|---|---|
-| Own change in a file we replace | fork added 12 lines to `skills/squad/SKILL.md`; PS06 renames and rewrites it | Move your lines into the `squad-md` hub index. Inventory row `done`. Never keep two hubs. |
+| Own change in a file we replace | fork added 12 lines to `skills/squad/SKILL.md`; PS06 renames and rewrites it | Move your lines into the `squad-mode` hub index. Inventory row `done`. Never keep two hubs. |
 | Own file on a path we use | fork has `skills/tdd/SKILL.md` of its own; PS04 adds our `tdd` copy there | Do not overwrite. Rename yours to a kebab title that says what it is (for example `tdd-contract-first`); never a fork name or location in the name, update its callers, inventory row `done`; then add ours. If callers are unclear: stop, row `open`. |
 | Own rule clashes with one of our standards | fork rule "merge in batches" vs our `standard-squash-merge-one-by-one` | Fork wins inside the fork: put the rule in `custom-rules.md` and add `Overrides: standard-squash-merge-one-by-one` on its line. The hub reads the hub index after our index, so the override is explicit. Inventory row `done (override)`. |
 | Own standard in `shared/standards/` | `shared/standards/api-versioning.md` | Keep the file. Add `standard-api-versioning` leaf that links it, plus an index line in the hub index (PS07). |
@@ -280,4 +280,4 @@ Forks with their own standards and rules follow [FORKS.md](FORKS.md): step 0 inv
 
 **Local (Cursor, Claude Code, Copilot CLI, Codex):** update the agentPacks marketplace to `v2.0.0` and reload. Commands keep their names; `/statechart` is new. A repo with `docs/squad-plan.md` from v1 keeps working (same format).
 
-**gh-aw:** keep your current pin until you are ready. To move: set `imports:` and `skills:` to `@v2.0.0` (or its 40-hex SHA), change `skills/squad` to `skills/squad-md`, and add every entry from `plugins/squad/aw-closure.json` to `skills:`. Then run `gh aw compile --strict`. Details: [gh-aw/README.md](gh-aw/README.md).
+**gh-aw:** keep your current pin until you are ready. To move: set `imports:` and `skills:` to `@v2.0.0` (or its 40-hex SHA), change `skills/squad` to `skills/squad-mode`, and add every entry from `plugins/squad/aw-closure.json` to `skills:`. Then run `gh aw compile --strict`. Details: [gh-aw/README.md](gh-aw/README.md).

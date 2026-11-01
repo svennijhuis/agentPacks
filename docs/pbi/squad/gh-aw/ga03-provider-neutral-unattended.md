@@ -42,7 +42,7 @@ copies with client-only lines inline
 
 ```text
 every copy: `## Provider notes` (H3 per client incl. gh-aw)
-squad-md: `## Autonomy` unattended line
+squad-mode: `## Autonomy` unattended line
 SkillReferenceValidator.cs: + REF07
 ```
 
@@ -72,7 +72,7 @@ flowchart LR
 
 | Rule or test | What | Error text |
 |---|---|---|
-| REF07 | only allowed tools or a fallback | `REF07 plugins/squad/skills/squad-md/playbooks/investigation.md:9: 'rg' not in gh-aw allowlist and no fallback` |
+| REF07 | only allowed tools or a fallback | `REF07 plugins/squad/skills/squad-mode/playbooks/investigation.md:9: 'rg' not in gh-aw allowlist and no fallback` |
 
 ### 4.7 Risks and what breaks
 
@@ -95,7 +95,7 @@ flowchart LR
 3. Read [the gh-aw README](README.md), [SHAPES.md](../SHAPES.md) and [STRUCTURE.md](../STRUCTURE.md#fork-extension-point).
 4. Do the Target and these steps, nothing else:
    1. Add REF07 with a pass and a fail fixture.
-   2. Add the Autonomy line in squad-md (PS06 owns the hub; this PBI adds the line).
+   2. Add the Autonomy line in squad-mode (PS06 owns the hub; this PBI adds the line).
    3. Scan copies for client-only lines.
 5. Run section 8, then open one PR titled `GA03: Provider-neutral text, unattended mode and tool allowlist (REF07)`.
 

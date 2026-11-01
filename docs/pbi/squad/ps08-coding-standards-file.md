@@ -51,7 +51,7 @@ Before (main):
 After:
 
 ```text
-plugins/squad/skills/squad-md/references/templates/CODING_STANDARDS.md   # NEW template
+plugins/squad/skills/squad-mode/references/templates/CODING_STANDARDS.md   # NEW template
 docs/examples/copilot-instructions.md                                   # NEW example
 ```
 
@@ -72,19 +72,19 @@ Shape rules: [SHAPES.md](SHAPES.md#summary).
 
 ### 4.3 Target detail
 
-Templates in `squad-md/references/templates/`: `CODING_STANDARDS.md` and `.github/instructions/coding-standards.instructions.md`. Planner adds a task when a target repo lacks it. Review Standards axis reads it. Written with technical-writing and unslop; statechart-md diagrams where state matters.
+Templates in `squad-mode/references/templates/`: `CODING_STANDARDS.md` and `.github/instructions/coding-standards.instructions.md`. Planner adds a task when a target repo lacks it. Review Standards axis reads it. Written with technical-writing and unslop; statechart-mode diagrams where state matters.
 
 ### 4.4 Interfaces and contracts
 
 | Caller | Callee | Input | Output | State file |
 |---|---|---|---|---|
-| squad-md | target repo `CODING_STANDARDS.md` | read if present | extra standards | target repo file |
+| squad-mode | target repo `CODING_STANDARDS.md` | read if present | extra standards | target repo file |
 
 ### 4.5 Flow
 
 ```mermaid
 flowchart LR
-  R["target repo"] -->|has CODING_STANDARDS.md| H["squad-md reads it"]
+  R["target repo"] -->|has CODING_STANDARDS.md| H["squad-mode reads it"]
   R -->|missing| S["suggestion in report"]
 ```
 
@@ -138,13 +138,13 @@ Also: Out: language content (PS17).
 | Step | Skill (repo, path, SHA) | Licence | Mode | Lives in | Reason |
 |---|---|---|---|---|---|
 | docs | [technical-writing](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/technical-writing/SKILL.md) | MIT (cursor/plugins, Lauren Tan) | copy + adapt | `plugins/squad/skills/technical-writing/` | Cursor-only parts at ae5650f: calls swarm. Our copy moves them under `## Provider notes` and adds Standards, Gates, Autonomy. |
-| docs | [statechart](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/statechart/SKILL.md) | MIT (cursor/plugins, Lauren Tan) | copy + adapt | `plugins/squad/skills/statechart-md/` | Upstream has `disable-model-invocation: true` and is named like the command. Sven wants `/statechart` plus auto use in the flow. We rename to `statechart-md`, allow model use, add `docs/architecture/` output and the scenario export to `/scenarios`. Scripts stay byte-equal. |
+| docs | [statechart](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/statechart/SKILL.md) | MIT (cursor/plugins, Lauren Tan) | copy + adapt | `plugins/squad/skills/statechart-mode/` | Upstream has `disable-model-invocation: true` and is named like the command. Sven wants `/statechart` plus auto use in the flow. We rename to `statechart-mode`, allow model use, add `docs/architecture/` output and the scenario export to `/scenarios`. Scripts stay byte-equal. |
 | review | [Matt code-review](https://github.com/mattpocock/skills/blob/4ae2317ddb22b046e26455e4f9c9b3aaaf62212d/skills/engineering/code-review/SKILL.md) | MIT (mattpocock/skills) | copy + adapt | `plugins/squad/skills/code-review/` | We add: `CODING_STANDARDS.md` per repo, a `.github/instructions/*.instructions.md` example, our severity words; drops `setup-matt-pocock-skills`. |
 
 Route per external skill ([decision](README.md#decision-pin-copy--adapt-weave-or-not-used)):
 
 - technical-writing: **copy + adapt**. `plugins/squad/skills/technical-writing/`.
-- statechart: **copy + adapt**. `plugins/squad/skills/statechart-md/`.
+- statechart: **copy + adapt**. `plugins/squad/skills/statechart-mode/`.
 - Matt code-review: **copy + adapt**. `plugins/squad/skills/code-review/`.
 
 Every copy + adapt here adds, beyond its own changes: `Source:` line with SHA, a Standards line, the Gates, the Autonomy line for gh-aw, `## Provider notes`, `## What we changed or added`, and a NOTICE line.

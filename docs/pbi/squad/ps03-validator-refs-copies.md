@@ -67,7 +67,7 @@ tools/AgentPacks.Cli.Tests/
   SkillReferenceRulesTests.cs  HubValidatorTests.cs  MigrateCheckTests.cs   # NEW
 tests/fixtures/fork-acme/      # NEW: fixture fork, FAKE values
   plugins/squad/skills/standard-api-versioning/SKILL.md   # one own standard
-  plugins/squad/skills/squad-md/references/custom-rules.md    # one own rule
+  plugins/squad/skills/squad-mode/references/custom-rules.md    # one own rule
   aw-closure.json              # lists both
 docs/pbi/squad/fork-inventory.md   # NEW: empty template, header row only
 ```
@@ -82,7 +82,7 @@ Shape rules: [SHAPES.md](SHAPES.md#summary).
   "from": "v1", "to": "v2",
   "moves": [
     { "old": "plugins/squad/skills/squad/SKILL.md",
-      "new": "plugins/squad/skills/squad-md/SKILL.md",
+      "new": "plugins/squad/skills/squad-mode/SKILL.md",
       "action": "rename", "pbi": "PS06", "pointer_until": "GA07" }
   ]
 }
@@ -136,7 +136,7 @@ flowchart TD
 
 | Rule | Checks | Error message |
 |---|---|---|
-| REF01 | every relative `.md` link and `../<name>/SKILL.md` resolves | `REF01 plugins/squad/skills/squad-md/SKILL.md:42: '../tdd/SKILL.md' not found in pack or external-skills.json` |
+| REF01 | every relative `.md` link and `../<name>/SKILL.md` resolves | `REF01 plugins/squad/skills/squad-mode/SKILL.md:42: '../tdd/SKILL.md' not found in pack or external-skills.json` |
 | REF02 | index line names a `principle-*` leaf that exists | `REF02 <path>:<line>: principle 'principle-fix-root-cause' not found (did you mean principle-fix-root-causes?)` |
 | REF03 | index line names a `standard-*` leaf that exists | `REF03 <path>:<line>: standard 'standard-x' not found` |
 | REF04 | `## Playbooks` pointer resolves | `REF04 <path>:<line>: playbook 'playbooks/bugfix.md' not found` |
@@ -185,11 +185,11 @@ Also: REF02 tests use FAKE local leafs until PS04 lands.; Out: pins (PS04).
 
 | Step | Skill (repo, path, SHA) | Licence | Mode | Lives in | Reason |
 |---|---|---|---|---|---|
-| kebab rule | [poteto-mode (hub structure)](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/poteto-mode/SKILL.md) | MIT (cursor/plugins, Lauren Tan) | weave | structure copied into `squad-md` | Hub names `poteto-agent`, Cursor model slugs and Cursor Task. Would break on Claude, Copilot, Codex. We copy its H2 structure only, not the file. |
+| kebab rule | [poteto-mode (hub structure)](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/poteto-mode/SKILL.md) | MIT (cursor/plugins, Lauren Tan) | weave | structure copied into `squad-mode` | Hub names `poteto-agent`, Cursor model slugs and Cursor Task. Would break on Claude, Copilot, Codex. We copy its H2 structure only, not the file. |
 
 Route per external skill ([decision](README.md#decision-pin-copy--adapt-weave-or-not-used)):
 
-- poteto-mode (hub structure): **weave**. structure copied into `squad-md`.
+- poteto-mode (hub structure): **weave**. structure copied into `squad-mode`.
 
 Every copy + adapt here adds, beyond its own changes: `Source:` line with SHA, a Standards line, the Gates, the Autonomy line for gh-aw, `## Provider notes`, `## What we changed or added`, and a NOTICE line.
 
@@ -200,7 +200,7 @@ Upstream: pstack [cursor/plugins at ae5650f](https://github.com/cursor/plugins/t
 Good:
 
 ```text
-REF04 error plugins/squad/skills/squad-md/SKILL.md:88
+REF04 error plugins/squad/skills/squad-mode/SKILL.md:88
   playbook pointer playbooks/perf.md does not exist
 REF06 error plugins/squad/skills/tdd/SKILL.md:3
   copy has no "Source: ... at <40-hex SHA>" line

@@ -1,6 +1,6 @@
 # Shapes in squad v2
 
-How each kind of file must look. [STRUCTURE.md](STRUCTURE.md) says where it lives; this file says what is inside. Built from the analysis of pstack (`ae5650f`) and Matt (`4ae2317`) in the [skill map](sources/pstack-matt-skill-map.md) and the old [old analysis](sources/old-analysis-checklist.md), plus our bars in `pack-author-md/references/style.md` on main.
+How each kind of file must look. [STRUCTURE.md](STRUCTURE.md) says where it lives; this file says what is inside. Built from the analysis of pstack (`ae5650f`) and Matt (`4ae2317`) in the [skill map](sources/pstack-matt-skill-map.md) and the old [old analysis](sources/old-analysis-checklist.md), plus our bars in `pack-author-mode/references/style.md` on main.
 
 Length bars warn (WARN), shape bars fail (FAIL), same as today. Every kind must read the same in Cursor, Claude Code, Copilot, Codex and gh-aw; provider-only text goes under a last `## Provider notes` section.
 
@@ -26,7 +26,7 @@ Good:
 
 ```markdown
 ---
-name: squad-md
+name: squad-mode
 description: When /squad or /squad-review runs.
 license: UNLICENSED
 user-invocable: false
@@ -82,7 +82,7 @@ Good:
 
 ```markdown
 ---
-name: statechart-md
+name: statechart-mode
 description: When a feature has states and transitions worth checking.
 license: MIT
 user-invocable: false
@@ -128,7 +128,7 @@ readonly: true
 tools: [read, grep, glob, bash]
 ---
 
-You receive the absolute path of `squad-md/SKILL.md`. Bundled skills live at `../<name>/SKILL.md` from it.
+You receive the absolute path of `squad-mode/SKILL.md`. Bundled skills live at `../<name>/SKILL.md` from it.
 
 ## Non-negotiables
 - A pass needs command output, never a summary.
@@ -238,7 +238,7 @@ description: Model a feature's states, check them, write the chart.
 
 # Statechart
 
-Load the `statechart-md` skill with the Skill tool by exact name. Run its flow. Do not commit, merge or push.
+Load the `statechart-mode` skill with the Skill tool by exact name. Run its flow. Do not commit, merge or push.
 ```
 
 Bad: a command file with the full procedure, so Copilot, Claude and gh-aw imports each carry a different copy.
@@ -249,7 +249,7 @@ Every kind uses the poteto pattern: role plus a kebab title that says what it is
 
 | Kind | Name | Example |
 |---|---|---|
-| Hub | `<pack>-md` | `squad-md` |
+| Hub | `<pack>-md` | `squad-mode` |
 | Principle leaf | `principle-<title>` | `principle-fix-root-causes` |
 | Standard leaf | `standard-<topic>` | `standard-api-versioning` (fork) next to `standard-squash-merge-one-by-one` (ours) |
 | Playbook | `playbooks/<title>.md` | `playbooks/bug-fix.md` |

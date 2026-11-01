@@ -12,7 +12,7 @@ Entry: `/squad <request>`, `/squad split <request>`, or `/squad` on an open `doc
 
 ```mermaid
 flowchart TD
-  C[/squad/] --> H[squad-md hub: Non-negotiables, Principles, Standards]
+  C[/squad/] --> H[squad-mode hub: Non-negotiables, Principles, Standards]
   H --> SZ{size}
   SZ -->|small| TP[tiny plan, tdd, verify]
   SZ -->|full| PL[squad-planner rounds]
@@ -22,7 +22,7 @@ flowchart TD
   PL --> AR{architect rule}
   AR -->|fires| IX[squad-indexer] --> ARC[squad-architect: architect + codebase-design]
   ARC --> ST{stateful?}
-  ST -->|yes| SC[NEW: statechart-md chart]
+  ST -->|yes| SC[NEW: statechart-mode chart]
   PL --> SP{over limits?}
   SP -->|yes| SQ[docs/squad-plan.md, one task per run, unchanged]
   SP -->|no| IM[per slice: indexer, implementer: tdd + playbook]
@@ -75,7 +75,7 @@ flowchart TD
   D --> OW{NEW: code Sven wrote?}
   OW -->|yes| AR[squad-architect: architecture review]
   D --> SC{NEW: chart in docs?}
-  SC -->|yes| CK[statechart-md: chart still matches]
+  SC -->|yes| CK[statechart-mode: chart still matches]
   RV --> OR[orchestrator merge, NEW: arena if high risk]
   SI --> OR
   SE --> OR
@@ -102,15 +102,15 @@ Principles: Minimize Reader Load, Test Behavior. Standards: Review Contract.
 
 Entry: `/scenarios`.
 
-**Today on main (`6c59f49`):** `scenarios-md` reads changed code and writes `docs/smoke/<slug>.md`; asks once for `verify-harness` when `docs/verify.md` is missing. No product code edits.
+**Today on main (`6c59f49`):** `scenarios-mode` reads changed code and writes `docs/smoke/<slug>.md`; asks once for `verify-harness` when `docs/verify.md` is missing. No product code edits.
 
 **Improved flow** (NEW marks what this set adds):
 
 ```mermaid
 flowchart TD
-  C[/scenarios/] --> S[scenarios-md: changed code first]
+  C[/scenarios/] --> S[scenarios-mode: changed code first]
   S --> CH{NEW: chart in docs/architecture?}
-  CH -->|yes| SP[statechart-md shortest paths to bad states]
+  CH -->|yes| SP[statechart-mode shortest paths to bad states]
   SP --> ROWS[smoke rows]
   CH -->|no| ROWS
   ROWS --> VH{docs/verify.md?}
@@ -120,8 +120,8 @@ flowchart TD
 
 | Step | Subagent | Skill (mode) | New or changed | Output |
 |---|---|---|---|---|
-| rows | scenarios-md | none | restyled (PS16) | `docs/smoke/<slug>.md` |
-| bad states | scenarios-md | [statechart](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/statechart/SKILL.md) (copy + adapt) | new: rows from chart paths (PS12) | extra rows |
+| rows | scenarios-mode | none | restyled (PS16) | `docs/smoke/<slug>.md` |
+| bad states | scenarios-mode | [statechart](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/statechart/SKILL.md) (copy + adapt) | new: rows from chart paths (PS12) | extra rows |
 | harness | verify-harness | [create-verification-skill](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/create-verification-skill/SKILL.md) (pin) | verify-harness may call create-verification-skill (PS13) | `docs/verify.md` |
 
 Unchanged: no product edits, no commit, yes/no harness question.
@@ -146,9 +146,9 @@ flowchart TD
 
 | Step | Subagent | Skill (mode) | New or changed | Output |
 |---|---|---|---|---|
-| pack | pack-check-md | none | restyled (PS16) | installed status |
-| rules | pack-check-md | none | new: one rule source with `validate` (PO decision 1, PS03) | rule id, file:line |
-| copies | pack-check-md | none | new: REF06 copy rule | copy without Source or What we changed fails |
+| pack | pack-check-mode | none | restyled (PS16) | installed status |
+| rules | pack-check-mode | none | new: one rule source with `validate` (PO decision 1, PS03) | rule id, file:line |
+| copies | pack-check-mode | none | new: REF06 copy rule | copy without Source or What we changed fails |
 
 Unchanged: install needs approval, reload stop, check-plan and check-retro.
 
@@ -164,7 +164,7 @@ Entry: `/statechart <area>`, also called from `/squad` design and `/squad-review
 
 ```mermaid
 flowchart TD
-  C1[/statechart/] --> S[statechart-md copy]
+  C1[/statechart/] --> S[statechart-mode copy]
   C2["/squad design step"] --> S
   C3["/squad-review drift check"] --> S
   S --> TLA[TLA+ check, scripts byte-equal]
@@ -176,7 +176,7 @@ flowchart TD
 |---|---|---|---|---|
 | model | main agent or squad-architect | [statechart](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/statechart/SKILL.md) (copy + adapt) | new command, thin wrapper (PS12) | checked model |
 | docs | main agent | [technical-writing](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/technical-writing/SKILL.md) (copy + adapt) | new | chart page |
-| tests | scenarios-md | [statechart](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/statechart/SKILL.md) (copy + adapt) | new | scenario rows |
+| tests | scenarios-mode | [statechart](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/statechart/SKILL.md) (copy + adapt) | new | scenario rows |
 
 Command count 6 to 7, room user commands 4 to 5.
 
@@ -186,13 +186,13 @@ Principles: Model the Domain, Prove It Works. Standards: No Em Dash.
 
 Entry: `/pack-author`.
 
-**Today on main (`6c59f49`):** `pack-author-md` with modes make, review, change in `references/`.
+**Today on main (`6c59f49`):** `pack-author-mode` with modes make, review, change in `references/`.
 
 **Improved flow** (NEW marks what this set adds):
 
 ```mermaid
 flowchart TD
-  C[/pack-author/] --> H[pack-author-md hub]
+  C[/pack-author/] --> H[pack-author-mode hub]
   H --> K{target}
   K -->|skill or standard leaf| WS[NEW: playbooks/write-skill] --> CS[check-skill]
   K -->|agent| WA[NEW: playbooks/write-subagent] --> CA[check-subagent]

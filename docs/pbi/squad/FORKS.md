@@ -14,7 +14,7 @@ Write `docs/pbi/squad/fork-inventory.md` in your fork from that list. One row pe
 ```markdown
 | Path in fork | Added or changed | Kind | v2 place | PBI | Status |
 |---|---|---|---|---|---|
-| plugins/squad/skills/squad/SKILL.md (lines 80 to 92) | changed | hub lines | squad-md hub index | PS06 | todo |
+| plugins/squad/skills/squad/SKILL.md (lines 80 to 92) | changed | hub lines | squad-mode hub index | PS06 | todo |
 | shared/standards/api-versioning.md | added | standard | standard-api-versioning + index line; file stays | PS07 | todo |
 | plugins/squad/skills/deploy-preview/SKILL.md | added | skill | same path, SHAPES skill shape | none | open: owner decides |
 ```
@@ -48,13 +48,13 @@ It reads `migrations/v2.json` (PS03) and prints one line per file: `kept`, `move
 
 | You added in v1 | Put it in v2 | PBI that makes the slot |
 |---|---|---|
-| Lines in `skills/squad/SKILL.md` | hub index in `skills/squad-md/SKILL.md` | PS06 |
+| Lines in `skills/squad/SKILL.md` | hub index in `skills/squad-mode/SKILL.md` | PS06 |
 | A standard in chat, docs or `shared/standards/` | `skills/standard-<name>/SKILL.md` + index line in the hub index; `shared/standards/<file>.md` stays and the leaf links it | PS07 |
 | Entries in `standards.source.json` (`documents`, `consumers`) | same file, kept; PBIs only edit keys they name | PS17 |
-| Rules in `pack-author-md/references/style.md` | `## Local bars` in `references/skill-bars.md` | PS01 |
+| Rules in `pack-author-mode/references/style.md` | `## Local bars` in `references/skill-bars.md` | PS01 |
 | Your own agents | unchanged; optional `check-subagent` to restyle | PS02, PS15 |
 | Edits to our agents | a `## Local` section at the end of that agent | PS15 |
-| Extra task types | `squad-md/playbooks/<type>.md` + line in hub index | PS09 |
+| Extra task types | `squad-mode/playbooks/<type>.md` + line in hub index | PS09 |
 | Extra packs in `pack-check` registry | `## Local packs` in `references/packs.md` | PS16 |
 | Extra third-party credits | `## Local` in `NOTICE` | PS05 |
 | Extra commands beyond our 7 | `## Local commands` in skill bars; the 7-command bar counts ours only | PS12 |

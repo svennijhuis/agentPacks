@@ -41,7 +41,7 @@ PS03. Start only when those PBIs are merged on main. Build order: [README](READM
 | Kind | Now | After | Action |
 |---|---|---|---|
 | standard | `shared/standards/engineering.md` | same | edit: links to principle leafs; text kept in v2; trim later |
-| skill | (none) | `plugins/squad/skills/tdd, statechart-md, arena, no-comments` | add (copy + adapt) |
+| skill | (none) | `plugins/squad/skills/tdd, statechart-mode, arena, no-comments` | add (copy + adapt) |
 | pins | `plugins/squad/external-skills.json (caveman, caveman-compress)` | same + pins for skills we use unchanged (blast-radius, correct, interrogate, teach, unslop, verification pairs, benchmark-checklist, in-your-own-words; Matt codebase-design, domain-modeling, research and chief-of-staff dependencies) | add pins |
 | skill | (none) | `plugins/squad/skills/principle-*/ (24) and pstack skills we change (architect, how, why, figure-it-out, technical-writing, show-me-your-work, arena, no-comments)` | add (copy + adapt) |
 
@@ -118,7 +118,7 @@ Migrate callers, then delete: `shared/standards/engineering.md` gets a link to e
 
 | Caller | Callee | Input | Output | State file |
 |---|---|---|---|---|
-| squad-md hub | `../principle-<x>/SKILL.md` | Read by path (upstream has disable-model-invocation) | rule text | none |
+| squad-mode hub | `../principle-<x>/SKILL.md` | Read by path (upstream has disable-model-invocation) | rule text | none |
 | playbooks | `tdd` (our copy) | behavior change | failing test then pass | plan row |
 
 ### 4.5 Flow
@@ -130,7 +130,7 @@ flowchart LR
   Q -- no --> P["pin in external-skills.json: blast-radius, correct, ..."]
   C --> M["generated marketplace commit"]
   P -->|vendored| M
-  H["squad-md"] -->|read path| L["principle leaf"]
+  H["squad-mode"] -->|read path| L["principle leaf"]
 ```
 
 ### 4.6 Choices
@@ -211,8 +211,8 @@ Also: marketplace-beta is force-pushed; gh-aw needs a durable SHA for skills.; O
 | copies | [tdd](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/tdd/SKILL.md) | MIT (cursor/plugins, Lauren Tan) | copy + adapt | `plugins/squad/skills/tdd/` | Upstream has `disable-model-invocation: true` and says "use only when the user explicitly asks". Sven wants it on every behavior change ("We can use this really hard"). So we change the trigger and the flag; the loop stays. |
 | copies | [arena](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/arena/SKILL.md) | MIT (cursor/plugins, Lauren Tan) | copy + adapt | `plugins/squad/skills/arena/` | Cursor-only parts at ae5650f: Cursor model roles (`claude-opus`, composer), Task tool, `~/.cursor`. Our copy moves them under `## Provider notes` and adds Standards, Gates, Autonomy. |
 | copies | [no-comments](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/no-comments/SKILL.md) | MIT (cursor/plugins, Lauren Tan) | copy + adapt | `plugins/squad/skills/no-comments/` | Cursor-only parts at ae5650f: names poteto-mode and the comment-sicko plugin agent. Our copy moves them under `## Provider notes` and adds Standards, Gates, Autonomy. |
-| not used | [poteto-mode (hub structure)](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/poteto-mode/SKILL.md) | MIT (cursor/plugins, Lauren Tan) | weave | structure copied into `squad-md` | Hub names `poteto-agent`, Cursor model slugs and Cursor Task. Would break on Claude, Copilot, Codex. We copy its H2 structure only, not the file. |
-| not used | [setup-pstack](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/setup-pstack/SKILL.md) | MIT (cursor/plugins, Lauren Tan) | copy + adapt | `plugins/pack-check/skills/pack-check-md/playbooks/setup.md` | Our plugin setup (Sven). Upstream writes `~/.cursor/rules` (Cursor only, home dir); our copy writes the role to tier table into the repo from `models.source.json`. |
+| not used | [poteto-mode (hub structure)](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/poteto-mode/SKILL.md) | MIT (cursor/plugins, Lauren Tan) | weave | structure copied into `squad-mode` | Hub names `poteto-agent`, Cursor model slugs and Cursor Task. Would break on Claude, Copilot, Codex. We copy its H2 structure only, not the file. |
+| not used | [setup-pstack](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/setup-pstack/SKILL.md) | MIT (cursor/plugins, Lauren Tan) | copy + adapt | `plugins/pack-check/skills/pack-check-mode/playbooks/setup.md` | Our plugin setup (Sven). Upstream writes `~/.cursor/rules` (Cursor only, home dir); our copy writes the role to tier table into the repo from `models.source.json`. |
 | not used | [swarm, reflect, ketchup, deslop, control-cli, control-ui](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/swarm/SKILL.md) | MIT (cursor/plugins, Lauren Tan) | not used | none | Only needed by the Cursor-heavy playbooks we copy and trim. control-cli and control-ui: Sven removed CLI and UI driving on 2026-11-01. Pinned later only if REF01 still finds a reference. |
 
 Route per external skill ([decision](README.md#decision-pin-copy--adapt-weave-or-not-used)):
@@ -237,8 +237,8 @@ Route per external skill ([decision](README.md#decision-pin-copy--adapt-weave-or
 - tdd: **copy + adapt**. `plugins/squad/skills/tdd/`.
 - arena: **copy + adapt**. `plugins/squad/skills/arena/`.
 - no-comments: **copy + adapt**. `plugins/squad/skills/no-comments/`.
-- poteto-mode (hub structure): **weave**. structure copied into `squad-md`.
-- setup-pstack: **copy + adapt**. `plugins/pack-check/skills/pack-check-md/playbooks/setup.md`.
+- poteto-mode (hub structure): **weave**. structure copied into `squad-mode`.
+- setup-pstack: **copy + adapt**. `plugins/pack-check/skills/pack-check-mode/playbooks/setup.md`.
 - swarm, reflect, ketchup, deslop, control-cli, control-ui: **not used**. none.
 
 Every copy + adapt here adds, beyond its own changes: `Source:` line with SHA, a Standards line, the Gates, the Autonomy line for gh-aw, `## Provider notes`, `## What we changed or added`, and a NOTICE line.

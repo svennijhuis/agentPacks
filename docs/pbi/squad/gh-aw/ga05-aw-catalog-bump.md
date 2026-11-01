@@ -9,7 +9,7 @@
 
 **Problem on main.** [`docs/GITHUB-AGENTIC-WORKFLOWS.md`](https://github.com/svennijhuis/agentPacks/blob/6c59f49/docs/GITHUB-AGENTIC-WORKFLOWS.md) says: "Pin a specific commit of this repository rather than tracking `main`"
 
-**Why we change it.** The AW repo pins `plugins/squad/skills/squad@34e1dec`. After PS06 the hub is `squad-md`; the AW side must move path, closure and pin together.
+**Why we change it.** The AW repo pins `plugins/squad/skills/squad@34e1dec`. After PS06 the hub is `squad-mode`; the AW side must move path, closure and pin together.
 
 - The AW repo pins `plugins/squad/skills/squad@34e1dec`. It must move in one PR.
 
@@ -26,7 +26,7 @@ PS20, GA04
 
 ## 3. Target
 
-One PR in the AW repo: `skills:` path `squad` to `squad-md`, closure entries added, all pins to `@v2.0.0`, AW checks green (compile strict plus POL25 and POL31). agentPacks only documents it here; the AW room builds it under its own charter.
+One PR in the AW repo: `skills:` path `squad` to `squad-mode`, closure entries added, all pins to `@v2.0.0`, AW checks green (compile strict plus POL25 and POL31). agentPacks only documents it here; the AW room builds it under its own charter.
 
 ## 4. Technical design
 
@@ -39,7 +39,7 @@ AW: skills: .../squad@34e1dec
 ### 4.2 Tree after
 
 ```text
-AW: skills: .../squad-md@v2.0.0 + closure entries
+AW: skills: .../squad-mode@v2.0.0 + closure entries
 ```
 
 ### 4.3 Contracts

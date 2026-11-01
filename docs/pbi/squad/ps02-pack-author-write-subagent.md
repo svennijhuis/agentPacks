@@ -1,4 +1,4 @@
-# PS02: Subagent playbooks in pack-author-md
+# PS02: Subagent playbooks in pack-author-mode
 - Status: todo (docs only; build waits for Sven go per PBI)
 - Batch: B0
 - Depends on: PS01
@@ -41,9 +41,9 @@ PS01. Start only when those PBIs are merged on main. Build order: [README](READM
 
 | Kind | Now | After | Action |
 |---|---|---|---|
-| skill | `pack-author-md/references/make.md` | `pack-author-md/playbooks/write-skill.md + write-subagent.md` | split |
-| skill | `pack-author-md/references/review.md` | `pack-author-md/playbooks/check-skill.md + check-subagent.md` | split |
-| skill | `pack-author-md/references/style.md` | `pack-author-md/references/skill-bars.md + subagent-bars.md` | rename and split; the "do not copy an external skill set" line becomes the copy rule |
+| skill | `pack-author-mode/references/make.md` | `pack-author-mode/playbooks/write-skill.md + write-subagent.md` | split |
+| skill | `pack-author-mode/references/review.md` | `pack-author-mode/playbooks/check-skill.md + check-subagent.md` | split |
+| skill | `pack-author-mode/references/style.md` | `pack-author-mode/references/skill-bars.md + subagent-bars.md` | rename and split; the "do not copy an external skill set" line becomes the copy rule |
 | agent | `plugins/pack-author/agents/pack-author-reviewer.md` | same | rewrite |
 
 Full list for all PBIs: [MIGRATION.md](MIGRATION.md#path-table).
@@ -65,7 +65,7 @@ After:
 ```text
 plugins/pack-author/
   agents/pack-author-reviewer.md              # rewritten: skill or subagent mode
-  skills/pack-author-md/
+  skills/pack-author-mode/
     playbooks/write-subagent.md               # NEW
     playbooks/check-subagent.md               # NEW
     references/subagent-bars.md               # NEW
@@ -97,7 +97,7 @@ You receive the absolute path of `<hub>/SKILL.md`. Bundled skills live at `../<n
 ### 4.3 Target detail
 
 ```text
-plugins/pack-author/skills/pack-author-md/
+plugins/pack-author/skills/pack-author-mode/
   playbooks/write-subagent.md   # NEW (agent half of make.md, extended)
   playbooks/check-subagent.md   # NEW
   references/subagent-bars.md   # NEW
@@ -120,7 +120,7 @@ readonly: true
 tools: [read, grep, glob, bash]
 ---
 
-You receive the absolute path of `squad-md/SKILL.md`. Bundled skills live at `../<name>/SKILL.md` from it.
+You receive the absolute path of `squad-mode/SKILL.md`. Bundled skills live at `../<name>/SKILL.md` from it.
 
 ## Non-negotiables
 - Every finding cites path:line and a standard or principle.
@@ -154,7 +154,7 @@ flowchart TD
 
 ```mermaid
 flowchart LR
-  H["pack-author-md"] -->|write subagent| W["write-subagent.md"]
+  H["pack-author-mode"] -->|write subagent| W["write-subagent.md"]
   W --> T["tier from models.source.json"] --> F["agent file"]
   F --> C["check-subagent.md"] --> R["pack-author-reviewer"]
 ```
@@ -206,18 +206,18 @@ Also: Codex has no plugin agents; generated TOML carries the path in prompt text
    4. Update `docs/ADD-AGENT.md`.
    5. Fixture `tests/fixtures/pack-author/new-agent/` plus a negative fixture (`readonly` with `write`).
 6. Run every command in section 8. All must pass.
-7. Open one PR titled `PS02: Subagent playbooks in pack-author-md`. Body: link to this file, the section 3 table, the section 8 output.
+7. Open one PR titled `PS02: Subagent playbooks in pack-author-mode`. Body: link to this file, the section 3 table, the section 8 output.
 
 ## 6. Sources
 
 | Step | Skill (repo, path, SHA) | Licence | Mode | Lives in | Reason |
 |---|---|---|---|---|---|
-| subagent rules | [poteto-mode (hub structure)](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/poteto-mode/SKILL.md) | MIT (cursor/plugins, Lauren Tan) | weave | structure copied into `squad-md` | Hub names `poteto-agent`, Cursor model slugs and Cursor Task. Would break on Claude, Copilot, Codex. We copy its H2 structure only, not the file. |
+| subagent rules | [poteto-mode (hub structure)](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/poteto-mode/SKILL.md) | MIT (cursor/plugins, Lauren Tan) | weave | structure copied into `squad-mode` | Hub names `poteto-agent`, Cursor model slugs and Cursor Task. Would break on Claude, Copilot, Codex. We copy its H2 structure only, not the file. |
 | principles | [24 principle-* leafs](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/principle-prove-it-works/SKILL.md) | MIT (cursor/plugins, Lauren Tan) | copy + adapt | `plugins/squad/skills/principle-*/` (24 dirs) | We add to them: a Standards line, the Gates and the gh-aw Autonomy line next to the upstream body (byte-equal). Sven and PO 2026-11-01. |
 
 Route per external skill ([decision](README.md#decision-pin-copy--adapt-weave-or-not-used)):
 
-- poteto-mode (hub structure): **weave**. structure copied into `squad-md`.
+- poteto-mode (hub structure): **weave**. structure copied into `squad-mode`.
 - 24 principle-* leafs: **copy + adapt**. `plugins/squad/skills/principle-*/` (24 dirs).
 
 Every copy + adapt here adds, beyond its own changes: `Source:` line with SHA, a Standards line, the Gates, the Autonomy line for gh-aw, `## Provider notes`, `## What we changed or added`, and a NOTICE line.
@@ -233,7 +233,7 @@ Good:
 name: squad-verifier
 description: Runs the plan's verify commands and reports numbers.
 ---
-Load `/abs/path/plugins/squad/skills/squad-md/SKILL.md` first.
+Load `/abs/path/plugins/squad/skills/squad-mode/SKILL.md` first.
 Read only: **Prove It Works**, **Explain the Number**, **Review Contract**.
 Return: PASS or FAIL, command, run count, numbers.
 ```

@@ -29,8 +29,8 @@ PS03, PS06
 The generator writes `plugins/<pack>/aw-closure.json`: the hub plus every skill REF01 finds from it, each as `svennijhuis/agentPacks/plugins/<pack>/skills/<name>`. Upstream pstack and Matt skills we change are copied into the pack; skills we use unchanged (caveman, blast-radius, Matt research and the rest of `external-skills.json`) are vendored into the generated commit at their 40-hex SHA and listed too (Sven and PO 2026-11-01), and fork fork `standard-<name>` leafs leafs are reached through the hub index, so one agentPacks pin covers them all.
 
 ```json
-{ "pack": "squad", "hub": "squad-md",
-  "skills": ["squad-md", "tdd", "statechart-md", "no-comments", "standard-no-em-dash", "principle-fix-root-causes"] }
+{ "pack": "squad", "hub": "squad-mode",
+  "skills": ["squad-mode", "tdd", "statechart-mode", "no-comments", "standard-no-em-dash", "principle-fix-root-causes"] }
 ```
 
 ## 4. Technical design
@@ -60,7 +60,7 @@ tools/AgentPacks.Cli.Tests/AwClosureTests.cs          # NEW
 
 ```mermaid
 flowchart LR
-  H["hub squad-md"] --> R["REF01 graph"] --> W["AwClosureWriter"] --> J["aw-closure.json"] --> S["skills: in workflow"]
+  H["hub squad-mode"] --> R["REF01 graph"] --> W["AwClosureWriter"] --> J["aw-closure.json"] --> S["skills: in workflow"]
 ```
 
 ### 4.5 Choices
@@ -115,7 +115,7 @@ Good:
 
 ```yaml
 skills:
-  - svennijhuis/agentPacks/plugins/squad/skills/squad-md@v2.0.0
+  - svennijhuis/agentPacks/plugins/squad/skills/squad-mode@v2.0.0
   - svennijhuis/agentPacks/plugins/squad/skills/tdd@v2.0.0
 ```
 

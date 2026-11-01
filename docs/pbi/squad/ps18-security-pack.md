@@ -39,7 +39,7 @@ PS17. Start only when those PBIs are merged on main. Build order: [README](READM
 | Kind | Now | After | Action |
 |---|---|---|---|
 | command | `plugins/security/commands/security-audit.md` | same | edit |
-| skill | `plugins/security/skills/security-audit-md/SKILL.md` | same | restyle |
+| skill | `plugins/security/skills/security-audit-mode/SKILL.md` | same | restyle |
 | agent | `plugins/security/agents/security-{recon,hunter,validator}.md` | same | restyle |
 
 Full list for all PBIs: [MIGRATION.md](MIGRATION.md#path-table).
@@ -76,13 +76,13 @@ Steps to a playbook, Non-negotiables, interrogate and blast-radius refs; agents 
 
 | Caller | Callee | Input | Output | State file |
 |---|---|---|---|---|
-| security-audit-md | recon, hunter, validator | scope | report | report file |
+| security-audit-mode | recon, hunter, validator | scope | report | report file |
 
 ### 4.5 Flow
 
 ```mermaid
 flowchart LR
-  A["security-audit-md"] --> R["recon"] --> H["hunters in parallel"] --> V["validator"] --> REP["report"]
+  A["security-audit-mode"] --> R["recon"] --> H["hunters in parallel"] --> V["validator"] --> REP["report"]
 ```
 
 ### 4.6 Choices

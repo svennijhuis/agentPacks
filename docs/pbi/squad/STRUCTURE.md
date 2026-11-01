@@ -57,14 +57,14 @@ plugins/squad/
   references/smoke-matrix.md        # unchanged
   rules/review-checklist.mdc        # unchanged (Cursor rule)
   skills/
-    squad-md/
+    squad-mode/
       SKILL.md                      # hub
       playbooks/  bug-fix.md  feature.md  domain.md  perf.md  investigation.md  plan.md  review.md  pr.md  retro.md  write-scenarios.md
       references/  adr.md advisor-lite.md architect-contract.md malformed-reask.md planning-contract.md
                    residual-fixup.md retro.md review-contract.md session-split.md suggestions.md worktree.md
                    architecture-review.md  templates/CODING_STANDARDS.md  templates/coding.instructions.md
                    custom-rules.md      # FORK EXTENSION POINT: a fork's own rules (empty upstream)
-    squad/SKILL.md                  # one-line pointer to squad-md until GA07
+    squad/SKILL.md                  # one-line pointer to squad-mode until GA07
     standard-no-em-dash/  standard-squash-merge-one-by-one/  standard-personal-account-only/
     standard-one-pbi-per-pr/  standard-no-secrets-in-markdown/  standard-never-force-push/
     standard-named-envelope/  standard-fake-fixtures/  standard-review-contract/      # SKILL.md each (PS07)
@@ -100,22 +100,22 @@ plugins/squad/
     technical-writing/                    # copy + adapt of pstack
     show-me-your-work/                    # copy + adapt of pstack
     tdd/                    # copy + adapt of pstack
-    statechart-md/                    # copy + adapt of pstack
+    statechart-mode/                    # copy + adapt of pstack
     arena/                    # copy + adapt of pstack
     no-comments/                    # copy + adapt of pstack
     code-review/                    # copy + adapt of Matt
     improve-codebase-architecture/                    # copy + adapt of Matt
     chief-of-staff/                    # copy + adapt of Matt
-    scenarios-md/  verify-harness/  # ours, restyled (PS16)
+    scenarios-mode/  verify-harness/  # ours, restyled (PS16)
 plugins/pack-author/
   NOTICE  plugin.json  commands/pack-author.md  agents/pack-author-reviewer.md
-  skills/pack-author-md/
+  skills/pack-author-mode/
     SKILL.md
     playbooks/  write-skill.md check-skill.md write-subagent.md check-subagent.md change.md
     references/  skill-bars.md subagent-bars.md
 plugins/pack-check/
   plugin.json  commands/pack-check.md  hooks.source.json  scripts/pack-check-session.{sh,ps1}
-  skills/pack-check-md/
+  skills/pack-check-mode/
     SKILL.md
     playbooks/setup.md              # copy + adapt of setup-pstack (PS19)
     references/  detect.md packs.md
@@ -135,9 +135,9 @@ docs/pbi/squad/fork-inventory.md    # step 0 output in forks
 |---|---|---|---|
 | commands/ | thin command files: load a hub, run one flow | PS06, PS12, PS16 | SquadContractTests, command bar (7) |
 | agents/ | one subagent per role: bundled-path line, named leafs, return shape | PS15 (write-subagent) | check-subagent, REF01, REF02 |
-| skills/squad-md/SKILL.md | hub with the 8 H2s | PS06 | HUB01 (order, 150 lines) |
-| skills/squad-md/playbooks/ | one playbook per task type | PS09 | REF04, REF06 for copies |
-| skills/squad-md/references/ | contracts we own; templates for CODING_STANDARDS.md and `.github/instructions` | PS06, PS07, PS10 | REF01 |
+| skills/squad-mode/SKILL.md | hub with the 8 H2s | PS06 | HUB01 (order, 150 lines) |
+| skills/squad-mode/playbooks/ | one playbook per task type | PS09 | REF04, REF06 for copies |
+| skills/squad-mode/references/ | contracts we own; templates for CODING_STANDARDS.md and `.github/instructions` | PS06, PS07, PS10 | REF01 |
 | skills/standard-*/ | one leaf per standard: Why, When, Check | PS07 | REF03, leaf bar |
 | skills/principle-*/ | copied pstack principles | PS04 | REF02, REF06 |
 | skills/<pstack or Matt name>/ | copied skills (we change them) | PS04, PS05, PS12, PS13, PS14 | REF06, REF01 |
@@ -173,27 +173,27 @@ Validator: REF03 accepts fork `standard-<name>` leafs; HUB01 keeps fork index li
 
 | Kind | What it is | Lives in | Example | Add or maintain with |
 |---|---|---|---|---|
-| Command | Thin entry the user types. Loads a hub, nothing else. | `plugins/squad/commands/<name>.md` | `statechart.md` loads `statechart-md` | write-skill (command section), then `validate` |
-| Hub | One skill per command family that routes: rules first, then indexes. | `skills/squad-md/SKILL.md` | `## Playbooks` lists Task type to playbook | write-skill, check-skill |
-| Playbook | Ordered steps for one task type. Copy + adapt by default. | `squad-md/playbooks/<type>.md` | `bug-fix.md`: repro row, failing test, fix, verify | write-skill (playbook mode); Source line and `What we changed or added` kept current |
+| Command | Thin entry the user types. Loads a hub, nothing else. | `plugins/squad/commands/<name>.md` | `statechart.md` loads `statechart-mode` | write-skill (command section), then `validate` |
+| Hub | One skill per command family that routes: rules first, then indexes. | `skills/squad-mode/SKILL.md` | `## Playbooks` lists Task type to playbook | write-skill, check-skill |
+| Playbook | Ordered steps for one task type. Copy + adapt by default. | `squad-mode/playbooks/<type>.md` | `bug-fix.md`: repro row, failing test, fix, verify | write-skill (playbook mode); Source line and `What we changed or added` kept current |
 | Principle | How to think. Pinned upstream leaf, never copied. | `external-skills.json` | `principle-fix-root-causes` | bump the SHA in one PR; REF02 checks the index |
 | Standard | Our rule that must hold. Same shape as a principle leaf plus how to check. | `skills/standard-<x>/SKILL.md` | `standard-no-em-dash` | write-skill (standard kind), index line in hub; REF03 |
 | Copied skill | Upstream skill we must change (gates, client parts). | `skills/<name>/` | `tdd` (runs on every behavior change) | edit the copy, update `What we changed`; REF06 |
 | Pinned skill | Upstream skill that fits unchanged. | `external-skills.json` | `blast-radius` | bump SHA; check upstream diff first |
 | Woven part | A few steps from a Matt skill inside our own file. | the file that uses it | two review axes in `review-contract.md` | edit our file; NOTICE line stays |
 | Subagent | Fresh context with one job. | `plugins/squad/agents/<name>.md` | `squad-verifier` returns PASS or FAIL with numbers | write-subagent, check-subagent |
-| Contract | Shared format between agents. | `squad-md/references/` | `planning-contract.md` | write-skill (change mode); tests in `SquadContractTests` |
+| Contract | Shared format between agents. | `squad-mode/references/` | `planning-contract.md` | write-skill (change mode); tests in `SquadContractTests` |
 | Template | File the squad writes into a target repo. | `references/templates/` | `CODING_STANDARDS.md` | write-skill; fixture shows planner proposes it |
 
 ## Next to poteto and Matt
 
 | Part | poteto (pstack) | Matt skills | Ours | What we take, where we differ |
 |---|---|---|---|---|
-| Hub | `poteto-mode/SKILL.md` | none (flat skills) | `squad-md/SKILL.md` | Take the H2 order. Differ: add `## Standards`, no Cursor model slugs or `poteto-agent`. |
+| Hub | `poteto-mode/SKILL.md` | none (flat skills) | `squad-mode/SKILL.md` | Take the H2 order. Differ: add `## Standards`, no Cursor model slugs or `poteto-agent`. |
 | Rules first | Non-negotiables | none | Non-negotiables | Same. Ours route to tdd, unslop, no-comments and our gates. |
 | Principles | `principle-*` leafs, index in hub | none | same leafs, pinned | Same, unchanged. |
 | Standards | none | none | `standard-*` leafs, index in hub | New, built in the principle shape plus a "how to check" line. |
-| Playbooks | `poteto-mode/playbooks/*.md` | none | `squad-md/playbooks/*.md` | Copy + adapt. Differ: our plan file, one PR per PBI, no `/loop` or swarm. |
+| Playbooks | `poteto-mode/playbooks/*.md` | none | `squad-mode/playbooks/*.md` | Copy + adapt. Differ: our plan file, one PR per PBI, no `/loop` or swarm. |
 | Skills | one folder per skill | one folder per skill, grouped by area | one folder per skill | Same. Matt parts are woven, not copied whole. |
 | Subagents | `poteto-agent` (Cursor) | none | 10 `squad-*` agents | Ours, with hub path and named leafs in every prompt. |
 | Commands | Cursor slash and built-ins | none | 7 thin commands | Ours. Planning stays ours (`docs/squad-plan.md`). |

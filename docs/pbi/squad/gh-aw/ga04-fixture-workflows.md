@@ -36,7 +36,7 @@ on:
 max-turns: 15
 timeout-minutes: 10
 skills:            # copied from plugins/squad/aw-closure.json
-  - svennijhuis/agentPacks/plugins/squad/skills/squad-md@<40-hex>
+  - svennijhuis/agentPacks/plugins/squad/skills/squad-mode@<40-hex>
   - svennijhuis/agentPacks/plugins/squad/skills/tdd@<40-hex>
 imports:
   - svennijhuis/agentPacks/plugins/squad/commands/squad-review.md@<40-hex>

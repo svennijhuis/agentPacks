@@ -1,4 +1,4 @@
-# PS01: pack-author-md hub and skill playbooks (write-skill first)
+# PS01: pack-author-mode hub and skill playbooks (write-skill first)
 - Status: todo (docs only; build waits for Sven go per PBI)
 - Batch: B0
 - Depends on: none
@@ -43,11 +43,11 @@ none. Start only when those PBIs are merged on main. Build order: [README](READM
 | Kind | Now | After | Action |
 |---|---|---|---|
 | command | `plugins/pack-author/commands/pack-author.md` | same | edit: playbook routing |
-| skill | `plugins/pack-author/skills/pack-author-md/SKILL.md` | same | restyle hub |
-| skill | `pack-author-md/references/make.md` | `pack-author-md/playbooks/write-skill.md + write-subagent.md` | split |
-| skill | `pack-author-md/references/review.md` | `pack-author-md/playbooks/check-skill.md + check-subagent.md` | split |
-| skill | `pack-author-md/references/change.md` | `pack-author-md/playbooks/change.md` | move |
-| skill | `pack-author-md/references/style.md` | `pack-author-md/references/skill-bars.md + subagent-bars.md` | rename and split; the "do not copy an external skill set" line becomes the copy rule |
+| skill | `plugins/pack-author/skills/pack-author-mode/SKILL.md` | same | restyle hub |
+| skill | `pack-author-mode/references/make.md` | `pack-author-mode/playbooks/write-skill.md + write-subagent.md` | split |
+| skill | `pack-author-mode/references/review.md` | `pack-author-mode/playbooks/check-skill.md + check-subagent.md` | split |
+| skill | `pack-author-mode/references/change.md` | `pack-author-mode/playbooks/change.md` | move |
+| skill | `pack-author-mode/references/style.md` | `pack-author-mode/references/skill-bars.md + subagent-bars.md` | rename and split; the "do not copy an external skill set" line becomes the copy rule |
 
 Full list for all PBIs: [MIGRATION.md](MIGRATION.md#path-table).
 
@@ -66,7 +66,7 @@ plugins/pack-author/skills/pack-author-md/
 After:
 
 ```text
-plugins/pack-author/skills/pack-author-md/
+plugins/pack-author/skills/pack-author-mode/
   SKILL.md                     # hub, v2 H2 order
   playbooks/write-skill.md     # NEW from make.md (skill half)
   playbooks/check-skill.md     # NEW from review.md
@@ -81,7 +81,7 @@ Shape rules: [SHAPES.md](SHAPES.md#summary).
 
 ```text
 ---
-name: pack-author-md
+name: pack-author-mode
 description: When /pack-author runs to write, check or change a skill.
 license: UNLICENSED
 user-invocable: false
@@ -108,7 +108,7 @@ Bundled skills live at `../<name>/SKILL.md` from this file, so put this file's a
 ### 4.3 Target detail
 
 ```text
-plugins/pack-author/skills/pack-author-md/
+plugins/pack-author/skills/pack-author-mode/
   SKILL.md                  # hub, poteto H2 order
   playbooks/write-skill.md  # from references/make.md (skill half) + poteto authoring-a-skill (copy + adapt)
   playbooks/check-skill.md  # from references/review.md
@@ -146,7 +146,7 @@ flowchart TD
 
 | Caller | Callee | Input | Output | State file |
 |---|---|---|---|---|
-| `/pack-author` command | `pack-author-md` hub | user ask (kind, pack, name) | routes to one playbook | none |
+| `/pack-author` command | `pack-author-mode` hub | user ask (kind, pack, name) | routes to one playbook | none |
 | write-skill playbook | `validate` CLI | new skill dir | 0 errors, 0 warnings or diagnostics | none |
 | write-skill playbook | `pack-author-reviewer` | path of new SKILL.md | PASS, WARN or FAIL with lines | none |
 
@@ -154,7 +154,7 @@ flowchart TD
 
 ```mermaid
 flowchart LR
-  U["/pack-author"] --> H["pack-author-md hub"]
+  U["/pack-author"] --> H["pack-author-mode hub"]
   H -->|write| W["write-skill.md"]
   H -->|check| C["check-skill.md"]
   H -->|change| X["change.md"]
@@ -214,22 +214,22 @@ Also: Hub over the 40-line router bar until PS03 adds the hub exception. Builder
    7. Update `docs/ADD-SKILL.md`, `docs/PACK-AUTHOR.md`.
    8. Fixture `tests/fixtures/pack-author/new-skill/` written by following write-skill, plus test.
 6. Run every command in section 8. All must pass.
-7. Open one PR titled `PS01: pack-author-md hub and skill playbooks (write-skill first)`. Body: link to this file, the section 3 table, the section 8 output.
+7. Open one PR titled `PS01: pack-author-mode hub and skill playbooks (write-skill first)`. Body: link to this file, the section 3 table, the section 8 output.
 
 ## 6. Sources
 
 | Step | Skill (repo, path, SHA) | Licence | Mode | Lives in | Reason |
 |---|---|---|---|---|---|
-| hub style | [poteto-mode (hub structure)](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/poteto-mode/SKILL.md) | MIT (cursor/plugins, Lauren Tan) | weave | structure copied into `squad-md` | Hub names `poteto-agent`, Cursor model slugs and Cursor Task. Would break on Claude, Copilot, Codex. We copy its H2 structure only, not the file. |
-| write-skill | [upstream playbook authoring-a-skill](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/poteto-mode/playbooks/authoring-a-skill.md) | MIT (cursor/plugins, Lauren Tan) | copy + adapt | `pack-author-md/playbooks/write-skill.md` | Calls Cursor built-in create-skill. We replace it with our make steps and validate. Keeps our standards and gates (PS09). |
+| hub style | [poteto-mode (hub structure)](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/poteto-mode/SKILL.md) | MIT (cursor/plugins, Lauren Tan) | weave | structure copied into `squad-mode` | Hub names `poteto-agent`, Cursor model slugs and Cursor Task. Would break on Claude, Copilot, Codex. We copy its H2 structure only, not the file. |
+| write-skill | [upstream playbook authoring-a-skill](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/poteto-mode/playbooks/authoring-a-skill.md) | MIT (cursor/plugins, Lauren Tan) | copy + adapt | `pack-author-mode/playbooks/write-skill.md` | Calls Cursor built-in create-skill. We replace it with our make steps and validate. Keeps our standards and gates (PS09). |
 | step 7 | [unslop](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/unslop/SKILL.md) | MIT (cursor/plugins, Lauren Tan) | pin | `plugins/squad/external-skills.json` | We change nothing and it has no Cursor-only parts (scanned at ae5650f), so it stays external at the 40-hex SHA. In gh-aw the generator vendors it into the commit and `aw-closure.json` lists it. |
 | step 7 | [no-comments](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/no-comments/SKILL.md) | MIT (cursor/plugins, Lauren Tan) | copy + adapt | `plugins/squad/skills/no-comments/` | Cursor-only parts at ae5650f: names poteto-mode and the comment-sicko plugin agent. Our copy moves them under `## Provider notes` and adds Standards, Gates, Autonomy. |
 | principles | [24 principle-* leafs](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/principle-prove-it-works/SKILL.md) | MIT (cursor/plugins, Lauren Tan) | copy + adapt | `plugins/squad/skills/principle-*/` (24 dirs) | We add to them: a Standards line, the Gates and the gh-aw Autonomy line next to the upstream body (byte-equal). Sven and PO 2026-11-01. |
 
 Route per external skill ([decision](README.md#decision-pin-copy--adapt-weave-or-not-used)):
 
-- poteto-mode (hub structure): **weave**. structure copied into `squad-md`.
-- upstream playbook authoring-a-skill: **copy + adapt**. `pack-author-md/playbooks/write-skill.md`.
+- poteto-mode (hub structure): **weave**. structure copied into `squad-mode`.
+- upstream playbook authoring-a-skill: **copy + adapt**. `pack-author-mode/playbooks/write-skill.md`.
 - unslop: **pin**. `plugins/squad/external-skills.json`.
 - no-comments: **copy + adapt**. `plugins/squad/skills/no-comments/`.
 - 24 principle-* leafs: **copy + adapt**. `plugins/squad/skills/principle-*/` (24 dirs).
@@ -284,7 +284,7 @@ Then locally: install `/tmp/agentpacks-marketplace` in Cursor or Claude Code, ru
 - [ ] One fixture per route passes check-skill: pin (`caveman`: entry in `external-skills.json`, 40-hex SHA, REF05), weave (Matt `pr`: lines in our playbook with a `Source:` line), copy + adapt (`tdd`: dir with `Source:`, NOTICE, `## What we changed or added`, REF06), not used (`swarm`: reuse-table row with the reason).
 - [ ] Fixture skill passes validate 0/0 and check-skill PASS first try.
 - [ ] No step lists left in `references/`.
-- [ ] `/pack-author` still routes to `pack-author-md`.
+- [ ] `/pack-author` still routes to `pack-author-mode`.
 - [ ] Local: works in Cursor, Claude Code and CLI (Copilot CLI, Codex). Proof offline: generated client manifests and fixture tests (`ClientManifestTests`, `ComponentGenerationTests`).
 - [ ] gh-aw: the fixture workflow under `tests/fixtures/gh-aw/` that uses this PBI's files passes `gh aw compile --strict` (pinned gh-aw, no run, no secrets, no Actions minutes). See [gh-aw README](gh-aw/README.md).
 - [ ] `dotnet run --project tools/AgentPacks.Cli -- validate` exits 0, 0 errors, 0 warnings.
