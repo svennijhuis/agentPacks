@@ -109,6 +109,25 @@ Command `/setup-github` (thin, loads `setup-github-mode`). Poteto name like `set
 
 Never in `docs/`: task logs, scratch, plan dumps, personal data, tokens.
 
+**Which markdown goes to main** (table in `docs.instructions.md`; rule: on main only what stays true and the next dev or agent needs; work in progress stays local):
+
+| Path | Main | Why | Good | Bad |
+|---|---|---|---|---|
+| `docs/adr/*` | yes | decisions with date and reason | `docs/adr/0001-sqlite-local.md` | `docs/adr/maybe-later.md` |
+| `docs/architecture/*` (`.md` and `.tla`) | yes | charts and models with `synced: <sha>` | `docs/architecture/checkout.md` | `docs/architecture/draft-v3-old.md` |
+| `docs/agents/*` | yes | `issue-tracker.md`, `domain.md`, labels | `docs/agents/issue-tracker.md` | `docs/agents/session-notes.md` |
+| `GLOSSARY.md` | yes | shared terms | one term, one line | a chat transcript |
+| `docs/pbi/*` | yes, only in its own PR | the PBI this PR builds | `docs/pbi/ps21-setup-github.md` in the PS21 PR | ten PBIs in an unrelated PR |
+| `README.md`, `CONTRIBUTING.md`, `CHANGELOG.md`, pointer in `AGENTS.md` or `CLAUDE.md` | yes | entry points | one pointer line | a copy of the whole Squad block |
+| `.github/instructions/*` with the custom files | yes | read by Copilot | `custom-standards.instructions.md` | a personal token in it |
+| playbooks made by `/pack-author` | yes | reused flows | `playbooks/bug.md` | `playbooks/bug-copy.md` |
+| `.squad/` | no | run state | | `.squad/run-12.json` |
+| `docs/squad-plan.md` and other plan dumps | no | changes every run | | `docs/squad-plan.md` |
+| task logs, `*.scratch.md`, `.scratch/`, raw retro notes | no | noise, may hold personal data | | `retro-raw.md` |
+| research and transcript dumps | no | large, may hold personal data | | `research/dump-2026-11-01.md` |
+| local agent state | no | per machine | | `.claude/settings.local.json` |
+| `.env*` | no | secrets | | `.env.local` |
+
 **What may go in a PR, what not.** Own file `.github/instructions/pr.instructions.md` (`applyTo: "**"`, ours, rewritten each run), woven from Matt pr in our pr playbook (PS10). The `## Squad` block links it. The `.gitignore` block keeps the second column out of `git add`; check REF09 catches what slips through:
 
 | In a PR | Never in a PR |
@@ -150,7 +169,27 @@ Check **REF09** (`/pack-check` validate and the review step): a path in the PR d
 
 Each copy gets a source SHA at the top, a NOTICE and a What we changed or added section, plus its own fixture (PS22, PS23).
 
-**`.gitignore` block** holds task, scratch and plan files and local agent state, for example `docs/squad-plan.md` run copies, `.squad/`, `*.scratch.md`, `.cursor/tmp/`, `.claude/settings.local.json`. Fork lines outside the block are never edited.
+**`.gitignore` block** holds exactly the "no" rows above, one source for both (the template in `references/gitignore-block.md`):
+
+```gitignore
+# squad: begin
+.squad/
+docs/squad-plan.md
+*.plan-dump.md
+*.scratch.md
+.scratch/
+*.task-log.md
+retro-raw*.md
+research/dump-*
+transcripts/
+.cursor/tmp/
+.claude/settings.local.json
+.env*
+!.env.example
+# squad: end
+```
+
+Fork lines outside the block are never edited. REF09 uses the same "no" list, so a path the block missed (for example force-added with `git add -f`) still fails in the diff.
 
 `## Squad` block holds: caveman always on; the pack structure tree; the decision chart (pin, copy + adapt, weave, not used); how to generate or update a skill or playbook (`/pack-author`); where standards live (global `standard-<topic>`, then `standard-<language>-<topic>`, then the custom files). `squad-dotnet` holds the dotnet commands, linked from the pack, plus the C# standard names.
 
@@ -324,6 +363,8 @@ Then locally: install `/tmp/agentpacks-marketplace` in Cursor or Claude Code, ru
 - [ ] Fixture `manifest-edit`: an `owned` file with a local edit gives stop and ask (local) or report and skip (gh-aw), never an overwrite.
 - [ ] Fixture: a path not in the manifest stays byte-equal.
 - [ ] Fixture `pr-forbidden`: REF09 fails on `.squad/state.json` in the diff, passes on the clean diff.
+- [ ] Fixture `main-docs`: after a run that writes `docs/squad-plan.md`, `.squad/run.json` and `docs/adr/0001-x.md`, `git status --porcelain` shows only `docs/adr/0001-x.md`; `git add -f docs/squad-plan.md` then REF09 fails.
+- [ ] `references/gitignore-block.md` and the REF09 list are the same set: a test diffs them.
 - [ ] Run 2 on any fixture: no second `docs/architecture/<flow>.md` and no second `.gitignore` block (`grep -c "# squad: begin" .gitignore` is 1).
 - [ ] `grep -rnP "[\x{2013}\x{2014}]"` and placeholder grep `{[A-Z]*}` on generated files: 0.
 - [ ] Local install: plugin installed from the local marketplace, `/setup-github` run on the fixture, Copilot lists the instruction files.
