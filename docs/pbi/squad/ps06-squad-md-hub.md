@@ -1,4 +1,4 @@
-# PS06: squad-md hub in poteto structure
+# PS06: squad-md hub with the new chapter structure
 - Status: todo (docs only; build waits for Sven go per PBI)
 - Batch: B2
 - Depends on: PS04

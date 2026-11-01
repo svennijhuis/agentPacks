@@ -1,4 +1,4 @@
-# PS07: Standards index and standard-* leafs (poteto principle shape)
+# PS07: Standards index and standard-* leafs (same shape as principle leafs)
 - Status: todo (docs only; build waits for Sven go per PBI)
 - Batch: B2
 - Depends on: PS06
