@@ -70,10 +70,10 @@ flowchart LR
 | agent | `plugins/squad/agents/squad-*.md (10)` | same names | rewrite with write-subagent | PS15 |
 | agent | `plugins/pack-author/agents/pack-author-reviewer.md` | same | rewrite | PS02 |
 | agent | `plugins/security/agents/security-{recon,hunter,validator}.md` | same | restyle | PS18 |
-| pins | `plugins/squad/external-skills.json (caveman, caveman-compress)` | same | keep; nothing new is pinned (Sven: copy + adapt) | PS04 |
-| skill | (none) | `plugins/squad/skills/principle-*/ (24) and pstack skills` | add (copy + adapt) | PS04, PS13, PS14 |
-| skill | (none) | `plugins/squad/skills/{codebase-design,code-review,diagnosing-bugs,domain-modeling,research,retro-md,improve-codebase-architecture}` | add (copy + adapt of Matt) | PS05, PS10, PS11 |
-| skill | (none) | `plugins/typescript/skills/typescript-best-practices/` | add (copy + adapt) | PS17 |
+| pins | `plugins/squad/external-skills.json (caveman, caveman-compress)` | same + pins for skills we use unchanged (blast-radius, correct, interrogate, teach, unslop, verification pairs, benchmark-checklist, in-your-own-words; Matt codebase-design, domain-modeling, research and chief-of-staff dependencies) | add pins | PS04, PS05 |
+| skill | (none) | `plugins/squad/skills/principle-*/ (24) and pstack skills we change (architect, how, why, figure-it-out, technical-writing, show-me-your-work, arena, no-comments)` | add (copy + adapt) | PS04, PS13, PS14 |
+| skill | (none) | `plugins/squad/skills/{code-review,improve-codebase-architecture,chief-of-staff}` | add (copy + adapt of Matt); diagnosing-bugs, pr, retro woven into playbooks | PS05, PS10, PS11 |
+| pins | `plugins/typescript/external-skills.json` | same + typescript-best-practices | add pin (unchanged) | PS17 |
 | fork | (fork files) | `standard-local-*, references/custom-rules.md, hub local block` | keep (fork-owned, never edited) | PS03, PS06, PS07 |
 | licence | (none) | `plugins/squad/NOTICE, plugins/pack-author/NOTICE` | add | PS05 |
 | validator | `SkillReferenceValidator (backticked `/name` only)` | + REF01 to REF06, HUB01 | add | PS03 |

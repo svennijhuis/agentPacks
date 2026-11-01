@@ -127,8 +127,22 @@ write-skill steps:
 3. Non-negotiables first: triggers that route to skills by exact name.
 4. Principles and Standards as index lines (bold title, when it applies, leaf name). Never restate a leaf.
 5. Any step list over 5 lines goes to `playbooks/<kebab>.md`, starting at H3.
-6. Reuse choice per upstream skill: pin, copy + adapt, weave or rewrite, with one reason line. Every copy starts with `Source: <upstream link at 40-hex SHA>, MIT, see NOTICE.` under the H1 and ends with `## What we changed` (one line per change). Scripts and assets stay byte-equal unless listed there. Cursor-only parts (model slugs, `poteto-agent`, Cursor Task, `/loop`, control skills) are removed, or moved under a last `## Provider notes` section with one H3 per provider, so the main text works the same in Cursor, Claude Code, Copilot, Codex and gh-aw.
+6. Reuse choice per upstream skill with the decision chart (the same mermaid as the README, copied into this playbook): pin, copy + adapt, weave or not used, with one reason line. We change it, so we copy it; we change nothing, so we pin it. Playbooks are always copied. Every copy starts with `Source: <upstream link at 40-hex SHA>, MIT, see NOTICE.` under the H1 and ends with `## What we changed` (one line per change). Scripts and assets stay byte-equal unless listed there. Cursor-only parts (model slugs, `poteto-agent`, Cursor Task, `/loop`, control skills) are removed, or moved under a last `## Provider notes` section with one H3 per provider, so the main text works the same in Cursor, Claude Code, Copilot, Codex and gh-aw.
 7. unslop pass, no-comments pass, `validate`, then check-skill.
+
+Decision chart, copied into `playbooks/write-skill.md` exactly (same as README):
+
+```mermaid
+flowchart TD
+  A["External skill needed"] --> B{"Does it work unchanged with our standards, gates and gh-aw?"}
+  B -- yes --> C{"Does it have Cursor-only parts?"}
+  C -- no --> PIN["Pin: unchanged, 40-hex SHA in external-skills.json"]
+  C -- yes --> COPY
+  B -- no --> D{"Only a few lines or one technique?"}
+  D -- yes --> WEAVE["Weave: lines into our own skill, source named"]
+  D -- no --> COPY["Copy + adapt: copy with source SHA and NOTICE, plus the section What we changed or added"]
+  B -- does not fit us --> NO["Not used, with the reason"]
+```
 
 ### 4.4 Interfaces and contracts
 
@@ -156,6 +170,7 @@ flowchart LR
 | Split make.md by kind into playbooks | Keep one make.md with headings | A cheap model follows one short step list better than a 119-line mixed file (Minimize Reader Load). |
 | Copy + adapt pstack authoring-a-skill steps | Pin it | Upstream names Cursor-only tools and lacks our bars (name not equal to command, use-when frontmatter). |
 | Keep `references/` for bars | Put bars in the playbook | Bars are looked up by both write and check; one file, two readers. |
+| write-skill playbook carries the decision chart (pin, copy + adapt, weave, not used) | Rule only in the README | Sven 2026-11-01: "ook in de skill maker". New skills that pull in an external skill follow the same chart. |
 
 ### 4.7 Checks and error messages
 
@@ -208,15 +223,15 @@ Also: Hub over the 40-line router bar until PS03 adds the hub exception. Builder
 |---|---|---|---|---|---|
 | hub style | [poteto-mode (hub structure)](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/poteto-mode/SKILL.md) | MIT (cursor/plugins, Lauren Tan) | weave | structure copied into `squad-md` | Hub names `poteto-agent`, Cursor model slugs and Cursor Task. Would break on Claude, Copilot, Codex. We copy its H2 structure only, not the file. |
 | write-skill | [upstream playbook authoring-a-skill](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/poteto-mode/playbooks/authoring-a-skill.md) | MIT (cursor/plugins, Lauren Tan) | copy + adapt | `pack-author-md/playbooks/write-skill.md` | Calls Cursor built-in create-skill. We replace it with our make steps and validate. Keeps our standards and gates (PS09). |
-| step 7 | [unslop](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/unslop/SKILL.md) | MIT (cursor/plugins, Lauren Tan) | copy + adapt | `plugins/squad/skills/unslop/` | Every prose output. Sven 2026-11-01: copy, not pin. We add a Standards line, the gates, the Autonomy line for gh-aw and Provider notes. |
-| step 7 | [no-comments](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/no-comments/SKILL.md) | MIT (cursor/plugins, Lauren Tan) | copy + adapt | `plugins/squad/skills/no-comments/` | Spawns the `comment-sicko` plugin agent, which we cannot pin. We point it to `squad-simplifier`. |
-| principles | [24 principle-* leafs](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/principle-prove-it-works/SKILL.md) | MIT (cursor/plugins, Lauren Tan) | copy + adapt | `plugins/squad/skills/principle-*/` (24 dirs) | Generic, short, no client-specific text. Exactly what Sven asked ("get all principles-* skills"). Replaces our paraphrased `shared/standards/engineering.md` sections. Sven 2026-11-01: copy, not pin. We add a Standards line, the gates, the Autonomy line for gh-aw and Provider notes. |
+| step 7 | [unslop](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/unslop/SKILL.md) | MIT (cursor/plugins, Lauren Tan) | pin | `plugins/squad/external-skills.json` | We change nothing and it has no Cursor-only parts (scanned at ae5650f), so it stays external at the 40-hex SHA. In gh-aw the generator vendors it into the commit and `aw-closure.json` lists it. |
+| step 7 | [no-comments](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/no-comments/SKILL.md) | MIT (cursor/plugins, Lauren Tan) | copy + adapt | `plugins/squad/skills/no-comments/` | Cursor-only parts at ae5650f: names poteto-mode and the comment-sicko plugin agent. Our copy moves them under `## Provider notes` and adds Standards, Gates, Autonomy. |
+| principles | [24 principle-* leafs](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/principle-prove-it-works/SKILL.md) | MIT (cursor/plugins, Lauren Tan) | copy + adapt | `plugins/squad/skills/principle-*/` (24 dirs) | We add to them: a Standards line, the Gates and the gh-aw Autonomy line next to the upstream body (byte-equal). Sven and PO 2026-11-01. |
 
 Route per external skill ([decision](README.md#decision-pin-copy--adapt-weave-or-not-used)):
 
 - poteto-mode (hub structure): **weave**. structure copied into `squad-md`.
 - upstream playbook authoring-a-skill: **copy + adapt**. `pack-author-md/playbooks/write-skill.md`.
-- unslop: **copy + adapt**. `plugins/squad/skills/unslop/`.
+- unslop: **pin**. `plugins/squad/external-skills.json`.
 - no-comments: **copy + adapt**. `plugins/squad/skills/no-comments/`.
 - 24 principle-* leafs: **copy + adapt**. `plugins/squad/skills/principle-*/` (24 dirs).
 
@@ -266,6 +281,7 @@ grep -rnP "[\x{2013}\x{2014}]" plugins docs || echo "no dashes"
 
 Then locally: install `/tmp/agentpacks-marketplace` in Cursor or Claude Code, run `/pack-check` (same result as `validate`) and each command this PBI touches once.
 
+- [ ] `playbooks/write-skill.md` holds the decision chart mermaid and the one-line rule; a fixture that pulls in an unchanged external skill ends as a pin, one with our additions ends as a copy.
 - [ ] Fixture skill passes validate 0/0 and check-skill PASS first try.
 - [ ] No step lists left in `references/`.
 - [ ] `/pack-author` still routes to `pack-author-md`.

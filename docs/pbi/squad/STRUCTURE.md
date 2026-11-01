@@ -6,23 +6,26 @@ Where every kind of file lives after PS01 to PS20 and GA01 to GA07, what it is, 
 
 ```mermaid
 flowchart TD
-  A["External skill needed"] --> B{"Fits our flow at all?"}
-  B -- no --> NO["Not used, with the reason"]
-  B -- yes --> C{"Only a loose technique or a few lines?"}
-  C -- yes --> WEAVE["Weave: lines into our own file, source named in NOTICE"]
-  C -- no --> COPY["Copy + adapt (main path): copy with source SHA and NOTICE, add our standards, gates, Autonomy line, Provider notes, What we changed or added"]
-  COPY --> DEP["Its skill dependencies are copied the same way"]
-  OLD["Pins already on main: caveman, caveman-compress"] -.-> KEEP["Stay pinned, nothing new is pinned"]
+  A["External skill needed"] --> B{"Does it work unchanged with our standards, gates and gh-aw?"}
+  B -- yes --> C{"Does it have Cursor-only parts?"}
+  C -- no --> PIN["Pin: unchanged, 40-hex SHA in external-skills.json"]
+  C -- yes --> COPY
+  B -- no --> D{"Only a few lines or one technique?"}
+  D -- yes --> WEAVE["Weave: lines into our own skill, source named"]
+  D -- no --> COPY["Copy + adapt: copy with source SHA and NOTICE, plus the section What we changed or added"]
+  B -- does not fit us --> NO["Not used, with the reason"]
 ```
 
-Sven 2026-11-01: we copy everything and pin nothing new ("allemaal kopie paste", "en van matt natuurlijk"). Every pstack principle, every playbook, every other pstack skill we use and every Matt skill we use is copy + adapt, plus the skills they depend on. All of it sits in our own generated commit, so gh-aw needs one pin.
+The rule in one line (Sven 2026-11-01): **we change it, so we copy it; we change nothing, so it stays external and pinned.** Playbooks are always copy + adapt. Everything else follows the chart. Pinned skills still load in gh-aw: the generator vendors them into the generated commit and `aw-closure.json` lists them, so one agentPacks pin covers all.
 
 | Route | Example 1 | Example 2 |
 |---|---|---|
-| Copy + adapt | `principle-fix-root-causes` (upstream body byte-equal, plus Standards, Gates, Autonomy, Provider notes) | `tdd` (trigger changed to every behavior change) and `playbooks/bug-fix.md` (`/loop` dropped, repro row and Matt diagnosing-bugs phases added) |
-| Weave | poteto-mode hub H2 order into our `squad-md` hub (structure only, the hub itself is Cursor-only) | poteto-mode line "Bundled skills live at `../<name>/SKILL.md`" into every subagent prompt |
+| Pin | `caveman` at `5184b3d`: unchanged, always on in `## Writing the reply` and every agent prompt | `blast-radius`: no Cursor-only parts at `ae5650f`, used as is in plan, tasks and review |
+| Copy + adapt | every `principle-*` leaf: upstream body byte-equal, plus Standards, Gates and the Autonomy line | `tdd` (trigger changed to every behavior change) and every playbook (`bug-fix.md`: `/loop` dropped, repro row added) |
+| Weave | Matt `pr`: Evidence, Merge Danger and the humanlayer Summary into `playbooks/pr.md` | Matt `diagnosing-bugs`: phases 1 to 6 into `playbooks/bug-fix.md` |
 | Not used | `control-cli`, `control-ui` (Sven removed CLI and UI driving, 2026-11-01) | `swarm`, `ketchup`, `reflect`, `deslop` (only called by Cursor-only playbook parts we drop) |
-| Pin (legacy only) | `caveman` at `5184b3d` (on main today) | `caveman-compress` (same pin, dependency of caveman) |
+
+Pinned skill dependencies: a skill a pin or copy calls must also be pinned or copied (REF01 fails otherwise). Copied skill names that a pinned skill calls (for example `arena` from `interrogate`) resolve to our copy by name.
 
 What every copy + adapt gets added, in this order:
 
@@ -40,7 +43,9 @@ What every copy + adapt gets added, in this order:
 plugins/squad/
   plugin.json                       # 2.0.0 (PS20)
   NOTICE                            # pstack MIT, Matt MIT, humanlayer Apache-2.0 (PS05)
-  external-skills.json              # legacy pins only: caveman, caveman-compress
+  external-skills.json              # pins (unchanged, 40-hex SHA): caveman, caveman-compress,
+                                    #   pstack blast-radius, correct, interrogate, teach, unslop, create-verification-skill, maintain-verification-skill, create-formal-verification-skill, maintain-formal-verification-skill, benchmark-checklist, in-your-own-words,
+                                    #   Matt codebase-design, domain-modeling, research, retro, to-spec, to-tickets, implement-spec, writing-for-agents
   aw-closure.json                   # generated: every skill the hub reaches (GA01)
   mcp.json                          # unchanged
   README.md                         # updated per PBI
@@ -89,40 +94,19 @@ plugins/squad/
     principle-subtract-before-you-add/
     principle-test-behavior-not-implementation/
     principle-type-system-discipline/
-    architect/
-    blast-radius/
-    correct/
-    interrogate/
-    how/
-    why/
-    teach/
-    figure-it-out/
-    technical-writing/
-    unslop/
-    create-verification-skill/
-    maintain-verification-skill/
-    create-formal-verification-skill/
-    maintain-formal-verification-skill/
-    benchmark-checklist/
-    show-me-your-work/
-    in-your-own-words/
-    tdd/
-    statechart-md/
-    arena/
-    no-comments/
-    codebase-design/
-    code-review/
-    diagnosing-bugs/
-    domain-modeling/
-    improve-codebase-architecture/
-    pr/
-    research/
-    retro-md/
-    chief-of-staff/
-    implement-spec/                     # dependency of a copied skill
-    to-spec/                     # dependency of a copied skill
-    to-tickets/                     # dependency of a copied skill
-    writing-for-agents/                     # dependency of a copied skill
+    architect/                    # copy + adapt of pstack
+    how/                    # copy + adapt of pstack
+    why/                    # copy + adapt of pstack
+    figure-it-out/                    # copy + adapt of pstack
+    technical-writing/                    # copy + adapt of pstack
+    show-me-your-work/                    # copy + adapt of pstack
+    tdd/                    # copy + adapt of pstack
+    statechart-md/                    # copy + adapt of pstack
+    arena/                    # copy + adapt of pstack
+    no-comments/                    # copy + adapt of pstack
+    code-review/                    # copy + adapt of Matt
+    improve-codebase-architecture/                    # copy + adapt of Matt
+    chief-of-staff/                    # copy + adapt of Matt
     scenarios-md/  verify-harness/  # ours, restyled (PS16)
 plugins/pack-author/
   NOTICE  plugin.json  commands/pack-author.md  agents/pack-author-reviewer.md
@@ -138,7 +122,7 @@ plugins/pack-check/
     references/  detect.md packs.md
     scripts/  check-plan.{sh,ps1} check-retro.{sh,ps1} check-verify.{sh,ps1}
   skills/pack-check/SKILL.md        # pointer until GA07
-plugins/typescript/skills/typescript-best-practices/   # copy + adapt (PS17)
+plugins/typescript/external-skills.json   # pin: typescript-best-practices (PS17)
 shared/standards/*.md               # gh-aw import source, kept (engineering.md trimmed in GA07)
 tests/fixtures/gh-aw/*.md           # compile strict fixtures (GA04)
 tests/fixtures/fork-acme/           # fixture fork (PS03)
@@ -157,14 +141,14 @@ docs/pbi/squad/fork-inventory.md    # step 0 output in forks
 | skills/squad-md/references/ | contracts we own; templates for CODING_STANDARDS.md and `.github/instructions` | PS06, PS07, PS10 | REF01 |
 | skills/standard-*/ | one leaf per standard: Why, When, Check | PS07 | REF03, leaf bar |
 | skills/principle-*/ | copied pstack principles | PS04 | REF02, REF06 |
-| skills/<pstack or Matt name>/ | copied skills and their dependencies | PS04, PS05, PS12, PS13, PS14 | REF06, REF01 |
+| skills/<pstack or Matt name>/ | copied skills (we change them) | PS04, PS05, PS12, PS13, PS14 | REF06, REF01 |
 | standards/local/, standard-local-*, custom-rules.md | fork-owned, empty upstream | fork | REF03 accepts, migrate-check `fork-owned` |
 | NOTICE | licences of every copy | PS05 | NOTICE test |
 | aw-closure.json | generated skill list for gh-aw | GA01 (generator) | AwClosureTests |
-| external-skills.json | legacy pins | none | REF05, ExternalSourceTests |
+| external-skills.json | pins: skills we use unchanged, 40-hex SHA | PS04, PS05, PS17 | REF05, ExternalSourceTests |
 | tests/fixtures/ | gh-aw and fork fixtures | PS03, GA04 | compile strict, MigrateCheckTests |
 
-Dependencies copied with the skills above (found by scanning the upstream files at the pinned SHAs): `implement-spec`, `to-spec`, `to-tickets`, `writing-for-agents`.
+Dependencies (found by scanning the upstream files at the pinned SHAs) are pinned when we use them unchanged: `implement-spec`, `to-spec`, `to-tickets`, `writing-for-agents`.
 
 ## Fork extension point
 

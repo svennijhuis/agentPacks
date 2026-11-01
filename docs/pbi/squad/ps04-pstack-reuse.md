@@ -23,7 +23,7 @@ Our engineering.md paraphrases pstack principles (Fix root causes, Attack the pr
 **What it gives the user.**
 
 - Local (Cursor, Claude Code, CLI): Agents read the real principle leaf by path; tdd runs on every behavior change.
-- gh-aw: Copies live in the pack, so the generated commit carries them and gh-aw lists them in `skills:` from `aw-closure.json`.
+- gh-aw: Copies live in the pack; pins are vendored into the generated commit (as caveman is today). `aw-closure.json` lists both, so one agentPacks pin covers all.
 
 **Out of scope.** Trimming engineering.md (GA07). Matt skills (PS05).
 
@@ -42,8 +42,8 @@ PS03. Start only when those PBIs are merged on main. Build order: [README](READM
 |---|---|---|---|
 | standard | `shared/standards/engineering.md` | same | edit: links to principle leafs; text kept in v2; trim later |
 | skill | (none) | `plugins/squad/skills/tdd, statechart-md, arena, no-comments` | add (copy + adapt) |
-| pins | `plugins/squad/external-skills.json (caveman, caveman-compress)` | same | keep; nothing new is pinned (Sven: copy + adapt) |
-| skill | (none) | `plugins/squad/skills/principle-*/ (24) and pstack skills` | add (copy + adapt) |
+| pins | `plugins/squad/external-skills.json (caveman, caveman-compress)` | same + pins for skills we use unchanged (blast-radius, correct, interrogate, teach, unslop, verification pairs, benchmark-checklist, in-your-own-words; Matt codebase-design, domain-modeling, research and chief-of-staff dependencies) | add pins |
+| skill | (none) | `plugins/squad/skills/principle-*/ (24) and pstack skills we change (architect, how, why, figure-it-out, technical-writing, show-me-your-work, arena, no-comments)` | add (copy + adapt) |
 
 Full list for all PBIs: [MIGRATION.md](MIGRATION.md#path-table).
 
@@ -61,9 +61,10 @@ shared/standards/engineering.md      # paraphrase, full text
 After:
 
 ```text
-plugins/squad/external-skills.json   # unchanged: caveman, caveman-compress only
+plugins/squad/external-skills.json   # + pins (unchanged): blast-radius, correct, interrogate, teach, unslop,
+                                     #   create/maintain-(formal-)verification-skill, benchmark-checklist, in-your-own-words
 plugins/squad/skills/principle-*/    # 24 dirs, copy + adapt (verbatim rule + our additions)
-plugins/squad/skills/{architect,blast-radius,correct,interrogate,how,why,teach,figure-it-out,technical-writing,unslop,benchmark-checklist,show-me-your-work,in-your-own-words}/  # copy + adapt
+plugins/squad/skills/{architect,how,why,figure-it-out,technical-writing,show-me-your-work}/  # copy + adapt (Cursor-only parts)
 plugins/squad/skills/tdd/            # copy + adapt
 plugins/squad/skills/arena/          # copy + adapt
 plugins/squad/skills/no-comments/    # copy + adapt
@@ -124,8 +125,11 @@ Migrate callers, then delete: `shared/standards/engineering.md` gets a link to e
 
 ```mermaid
 flowchart LR
-  U["pstack at ae5650f"] -->|copy| C["our copies: principle-*, tdd, arena, ..."]
-  C -->|add Standards, Gates, Autonomy, Provider notes| M["marketplace commit"]
+  U["pstack at ae5650f"] --> Q{"we change it?"}
+  Q -- yes --> C["copy + adapt: principle-*, tdd, arena, architect, ..."]
+  Q -- no --> P["pin in external-skills.json: blast-radius, correct, ..."]
+  C --> M["generated marketplace commit"]
+  P -->|vendored| M
   H["squad-md"] -->|read path| L["principle leaf"]
 ```
 
@@ -133,7 +137,8 @@ flowchart LR
 
 | Chosen | Rejected | Why |
 |---|---|---|
-| Copy + adapt principle leafs (Sven 2026-11-01) | Pin them | Sven: "allemaal kopie paste". One place to add our standards, gates and gh-aw Autonomy line; upstream body stays byte-equal below the Source line so a later sync is a diff. |
+| Decision chart per skill (Sven and PO 2026-11-01): change it, copy it; change nothing, pin it | Copy everything | Copies cost upkeep; unchanged skills stay in sync by SHA bump. |
+| Copy + adapt principle leafs | Pin them | We add a Standards line, Gates and the Autonomy line; the upstream body stays byte-equal below the Source line so a later sync is a diff. |
 | Copy tdd | Pin tdd | Upstream is user-invoked only; we need it on every behavior change. |
 | Keep engineering.md text | Replace by links now | gh-aw imports it (#79); trimming waits until GA07. |
 
@@ -142,7 +147,7 @@ flowchart LR
 | Rule | Checks | Error message |
 |---|---|---|
 | REF06 | every copy has `Source:` at 40-hex SHA and `## What we changed or added` | `REF06 plugins/squad/skills/principle-fix-root-causes/SKILL.md: missing Source line` |
-| REF05 | caveman pins stay byte-equal | see PS03 |
+| REF05 | every pinned dir is byte-equal to its 40-hex source | `REF05 blast-radius: vendored copy differs from ae5650f` |
 
 ### 4.8 Risks and what breaks
 
@@ -173,11 +178,12 @@ Also: marketplace-beta is force-pushed; gh-aw needs a durable SHA for skills.; O
 3. Read [SHAPES.md](SHAPES.md) for every kind in section 3, and each source in section 6.
 4. Do each row of section 3 in order. Move or rename with `git mv`. If a row's target path already holds a fork file, follow the [conflict table](MIGRATION.md#fork-path). A copy keeps the `Source:` line and `## What we changed or added`.
 5. Do these steps, nothing else:
-   1. Pin records at `ae5650febf4320793844c12c4adaa937f417f8da`.
-   2. Copies tdd, arena, no-comments under `plugins/squad/skills/` with the copy rule.
-   3. NOTICE: MIT text, Copyright (c) 2026 Lauren Tan.
-   4. Add leaf links to `shared/standards/engineering.md`; keep its text (trim in GA07).
-   5. Byte-compare test for pins (except injected `user-invocable: false`).
+   1. Run the decision chart per skill and write the route in the reuse table (scan for Cursor-only parts: `claude-opus`, Task tool, `~/.cursor`, poteto-mode, swarm).
+   2. Pin records at `ae5650febf4320793844c12c4adaa937f417f8da` for every skill we use unchanged.
+   3. Copies (24 principles, architect, how, why, figure-it-out, technical-writing, show-me-your-work, arena, no-comments, tdd) under `plugins/squad/skills/` with the copy rule.
+   4. NOTICE: MIT text, Copyright (c) 2026 Lauren Tan.
+   5. Add leaf links to `shared/standards/engineering.md`; keep its text (trim in GA07).
+   6. Byte-compare test for pins (except injected `user-invocable: false`).
 6. Run every command in section 8. All must pass.
 7. Open one PR titled `PS04: pstack reuse per skill: pin, copy + adapt, or not used`. Body: link to this file, the section 3 table, the section 8 output.
 
@@ -185,26 +191,26 @@ Also: marketplace-beta is force-pushed; gh-aw needs a durable SHA for skills.; O
 
 | Step | Skill (repo, path, SHA) | Licence | Mode | Lives in | Reason |
 |---|---|---|---|---|---|
-| all copies | [24 principle-* leafs](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/principle-prove-it-works/SKILL.md) | MIT (cursor/plugins, Lauren Tan) | copy + adapt | `plugins/squad/skills/principle-*/` (24 dirs) | Generic, short, no client-specific text. Exactly what Sven asked ("get all principles-* skills"). Replaces our paraphrased `shared/standards/engineering.md` sections. Sven 2026-11-01: copy, not pin. We add a Standards line, the gates, the Autonomy line for gh-aw and Provider notes. |
-| all copies | [architect (+ design-red-flags)](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/architect/SKILL.md) | MIT (cursor/plugins, Lauren Tan) | copy + adapt | `plugins/squad/skills/architect/` | Client neutral, used as is. Sven 2026-11-01: copy, not pin. We add a Standards line, the gates, the Autonomy line for gh-aw and Provider notes. |
-| all copies | [blast-radius](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/blast-radius/SKILL.md) | MIT (cursor/plugins, Lauren Tan) | copy + adapt | `plugins/squad/skills/blast-radius/` | Used as is in plan, task and review. Sven 2026-11-01: copy, not pin. We add a Standards line, the gates, the Autonomy line for gh-aw and Provider notes. |
-| all copies | [correct](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/correct/SKILL.md) | MIT (cursor/plugins, Lauren Tan) | copy + adapt | `plugins/squad/skills/correct/` | Used as is in retro; covers old lint-first and guard ladder PBIs. Sven 2026-11-01: copy, not pin. We add a Standards line, the gates, the Autonomy line for gh-aw and Provider notes. |
-| all copies | [interrogate](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/interrogate/SKILL.md) | MIT (cursor/plugins, Lauren Tan) | copy + adapt | `plugins/squad/skills/interrogate/` | Used as is in review. Sven 2026-11-01: copy, not pin. We add a Standards line, the gates, the Autonomy line for gh-aw and Provider notes. |
-| all copies | [how](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/how/SKILL.md) | MIT (cursor/plugins, Lauren Tan) | copy + adapt | `plugins/squad/skills/how/` | Used as is. Sven 2026-11-01: copy, not pin. We add a Standards line, the gates, the Autonomy line for gh-aw and Provider notes. |
-| all copies | [why](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/why/SKILL.md) | MIT (cursor/plugins, Lauren Tan) | copy + adapt | `plugins/squad/skills/why/` | Used as is. Sven 2026-11-01: copy, not pin. We add a Standards line, the gates, the Autonomy line for gh-aw and Provider notes. |
-| all copies | [teach](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/teach/SKILL.md) | MIT (cursor/plugins, Lauren Tan) | copy + adapt | `plugins/squad/skills/teach/` | Used as is in plan. Sven 2026-11-01: copy, not pin. We add a Standards line, the gates, the Autonomy line for gh-aw and Provider notes. |
-| all copies | [figure-it-out](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/figure-it-out/SKILL.md) | MIT (cursor/plugins, Lauren Tan) | copy + adapt | `plugins/squad/skills/figure-it-out/` | Fallback when no playbook fits. Resolves our arena copy by name. Sven 2026-11-01: copy, not pin. We add a Standards line, the gates, the Autonomy line for gh-aw and Provider notes. |
-| all copies | [technical-writing](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/technical-writing/SKILL.md) | MIT (cursor/plugins, Lauren Tan) | copy + adapt | `plugins/squad/skills/technical-writing/` | Docs and CODING_STANDARDS.md. Sven 2026-11-01: copy, not pin. We add a Standards line, the gates, the Autonomy line for gh-aw and Provider notes. |
-| all copies | [unslop](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/unslop/SKILL.md) | MIT (cursor/plugins, Lauren Tan) | copy + adapt | `plugins/squad/skills/unslop/` | Every prose output. Sven 2026-11-01: copy, not pin. We add a Standards line, the gates, the Autonomy line for gh-aw and Provider notes. |
-| all copies | [create-verification-skill](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/create-verification-skill/SKILL.md) | MIT (cursor/plugins, Lauren Tan) | copy + adapt | `plugins/squad/skills/create-verification-skill/` | Used as is; covers old feature map PBIs. Sven 2026-11-01: copy, not pin. We add a Standards line, the gates, the Autonomy line for gh-aw and Provider notes. |
-| all copies | [maintain-verification-skill](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/maintain-verification-skill/SKILL.md) | MIT (cursor/plugins, Lauren Tan) | copy + adapt | `plugins/squad/skills/maintain-verification-skill/` | Used as is in retro. Sven 2026-11-01: copy, not pin. We add a Standards line, the gates, the Autonomy line for gh-aw and Provider notes. |
-| all copies | [create-formal-verification-skill](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/create-formal-verification-skill/SKILL.md) | MIT (cursor/plugins, Lauren Tan) | copy + adapt | `plugins/squad/skills/create-formal-verification-skill/` | Risky code only. Sven 2026-11-01: copy, not pin. We add a Standards line, the gates, the Autonomy line for gh-aw and Provider notes. |
-| all copies | [maintain-formal-verification-skill](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/maintain-formal-verification-skill/SKILL.md) | MIT (cursor/plugins, Lauren Tan) | copy + adapt | `plugins/squad/skills/maintain-formal-verification-skill/` | Retro, risky code only. Sven 2026-11-01: copy, not pin. We add a Standards line, the gates, the Autonomy line for gh-aw and Provider notes. |
-| all copies | [benchmark-checklist](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/benchmark-checklist/SKILL.md) | MIT (cursor/plugins, Lauren Tan) | copy + adapt | `plugins/squad/skills/benchmark-checklist/` | Perf playbook. Sven 2026-11-01: copy, not pin. We add a Standards line, the gates, the Autonomy line for gh-aw and Provider notes. |
-| all copies | [show-me-your-work, in-your-own-words](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/show-me-your-work/SKILL.md) | MIT (cursor/plugins, Lauren Tan) | copy + adapt | `plugins/squad/skills/show-me-your-work/`, `in-your-own-words/` | Closure: named by figure-it-out and interrogate. Final closure list comes from REF01, listed in the PR. Sven 2026-11-01: copy, not pin. We add a Standards line, the gates, the Autonomy line for gh-aw and Provider notes. |
+| per chart | [24 principle-* leafs](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/principle-prove-it-works/SKILL.md) | MIT (cursor/plugins, Lauren Tan) | copy + adapt | `plugins/squad/skills/principle-*/` (24 dirs) | We add to them: a Standards line, the Gates and the gh-aw Autonomy line next to the upstream body (byte-equal). Sven and PO 2026-11-01. |
+| per chart | [architect (+ design-red-flags)](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/architect/SKILL.md) | MIT (cursor/plugins, Lauren Tan) | copy + adapt | `plugins/squad/skills/architect/` | Cursor-only parts at ae5650f: names `claude-opus` model slug. Our copy moves them under `## Provider notes` and adds Standards, Gates, Autonomy. |
+| per chart | [blast-radius](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/blast-radius/SKILL.md) | MIT (cursor/plugins, Lauren Tan) | pin | `plugins/squad/external-skills.json` | We change nothing and it has no Cursor-only parts (scanned at ae5650f), so it stays external at the 40-hex SHA. In gh-aw the generator vendors it into the commit and `aw-closure.json` lists it. |
+| per chart | [correct](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/correct/SKILL.md) | MIT (cursor/plugins, Lauren Tan) | pin | `plugins/squad/external-skills.json` | We change nothing and it has no Cursor-only parts (scanned at ae5650f), so it stays external at the 40-hex SHA. In gh-aw the generator vendors it into the commit and `aw-closure.json` lists it. |
+| per chart | [interrogate](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/interrogate/SKILL.md) | MIT (cursor/plugins, Lauren Tan) | pin | `plugins/squad/external-skills.json` | We change nothing and it has no Cursor-only parts (scanned at ae5650f), so it stays external at the 40-hex SHA. In gh-aw the generator vendors it into the commit and `aw-closure.json` lists it. |
+| per chart | [how](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/how/SKILL.md) | MIT (cursor/plugins, Lauren Tan) | copy + adapt | `plugins/squad/skills/how/` | Cursor-only parts at ae5650f: Cursor Task tool, `claude-opus`, poteto-mode. Our copy moves them under `## Provider notes` and adds Standards, Gates, Autonomy. |
+| per chart | [why](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/why/SKILL.md) | MIT (cursor/plugins, Lauren Tan) | copy + adapt | `plugins/squad/skills/why/` | Cursor-only parts at ae5650f: Cursor Task tool, `claude-opus`, poteto-mode. Our copy moves them under `## Provider notes` and adds Standards, Gates, Autonomy. |
+| per chart | [teach](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/teach/SKILL.md) | MIT (cursor/plugins, Lauren Tan) | pin | `plugins/squad/external-skills.json` | We change nothing and it has no Cursor-only parts (scanned at ae5650f), so it stays external at the 40-hex SHA. In gh-aw the generator vendors it into the commit and `aw-closure.json` lists it. |
+| per chart | [figure-it-out](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/figure-it-out/SKILL.md) | MIT (cursor/plugins, Lauren Tan) | copy + adapt | `plugins/squad/skills/figure-it-out/` | Cursor-only parts at ae5650f: names poteto-mode. Our copy moves them under `## Provider notes` and adds Standards, Gates, Autonomy. |
+| per chart | [technical-writing](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/technical-writing/SKILL.md) | MIT (cursor/plugins, Lauren Tan) | copy + adapt | `plugins/squad/skills/technical-writing/` | Cursor-only parts at ae5650f: calls swarm. Our copy moves them under `## Provider notes` and adds Standards, Gates, Autonomy. |
+| per chart | [unslop](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/unslop/SKILL.md) | MIT (cursor/plugins, Lauren Tan) | pin | `plugins/squad/external-skills.json` | We change nothing and it has no Cursor-only parts (scanned at ae5650f), so it stays external at the 40-hex SHA. In gh-aw the generator vendors it into the commit and `aw-closure.json` lists it. |
+| per chart | [create-verification-skill](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/create-verification-skill/SKILL.md) | MIT (cursor/plugins, Lauren Tan) | pin | `plugins/squad/external-skills.json` | We change nothing and it has no Cursor-only parts (scanned at ae5650f), so it stays external at the 40-hex SHA. In gh-aw the generator vendors it into the commit and `aw-closure.json` lists it. |
+| per chart | [maintain-verification-skill](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/maintain-verification-skill/SKILL.md) | MIT (cursor/plugins, Lauren Tan) | pin | `plugins/squad/external-skills.json` | We change nothing and it has no Cursor-only parts (scanned at ae5650f), so it stays external at the 40-hex SHA. In gh-aw the generator vendors it into the commit and `aw-closure.json` lists it. |
+| per chart | [create-formal-verification-skill](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/create-formal-verification-skill/SKILL.md) | MIT (cursor/plugins, Lauren Tan) | pin | `plugins/squad/external-skills.json` | We change nothing and it has no Cursor-only parts (scanned at ae5650f), so it stays external at the 40-hex SHA. In gh-aw the generator vendors it into the commit and `aw-closure.json` lists it. |
+| per chart | [maintain-formal-verification-skill](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/maintain-formal-verification-skill/SKILL.md) | MIT (cursor/plugins, Lauren Tan) | pin | `plugins/squad/external-skills.json` | We change nothing and it has no Cursor-only parts (scanned at ae5650f), so it stays external at the 40-hex SHA. In gh-aw the generator vendors it into the commit and `aw-closure.json` lists it. |
+| per chart | [benchmark-checklist](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/benchmark-checklist/SKILL.md) | MIT (cursor/plugins, Lauren Tan) | pin | `plugins/squad/external-skills.json` | We change nothing and it has no Cursor-only parts (scanned at ae5650f), so it stays external at the 40-hex SHA. In gh-aw the generator vendors it into the commit and `aw-closure.json` lists it. |
+| per chart | [show-me-your-work, in-your-own-words](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/show-me-your-work/SKILL.md) | MIT (cursor/plugins, Lauren Tan) | copy + adapt | `plugins/squad/skills/show-me-your-work/`, `in-your-own-words/` | Cursor-only parts at ae5650f: show-me-your-work writes under `~/.cursor` and names poteto-mode. Our copy moves them under `## Provider notes` and adds Standards, Gates, Autonomy. |
 | copies | [tdd](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/tdd/SKILL.md) | MIT (cursor/plugins, Lauren Tan) | copy + adapt | `plugins/squad/skills/tdd/` | Upstream has `disable-model-invocation: true` and says "use only when the user explicitly asks". Sven wants it on every behavior change ("We can use this really hard"). So we change the trigger and the flag; the loop stays. |
-| copies | [arena](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/arena/SKILL.md) | MIT (cursor/plugins, Lauren Tan) | copy + adapt | `plugins/squad/skills/arena/` | Picks models by setup-pstack roles (Cursor only). We map to our tiers, cap at 3 candidates and high-risk work only (token budget). |
-| copies | [no-comments](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/no-comments/SKILL.md) | MIT (cursor/plugins, Lauren Tan) | copy + adapt | `plugins/squad/skills/no-comments/` | Spawns the `comment-sicko` plugin agent, which we cannot pin. We point it to `squad-simplifier`. |
+| copies | [arena](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/arena/SKILL.md) | MIT (cursor/plugins, Lauren Tan) | copy + adapt | `plugins/squad/skills/arena/` | Cursor-only parts at ae5650f: Cursor model roles (`claude-opus`, composer), Task tool, `~/.cursor`. Our copy moves them under `## Provider notes` and adds Standards, Gates, Autonomy. |
+| copies | [no-comments](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/no-comments/SKILL.md) | MIT (cursor/plugins, Lauren Tan) | copy + adapt | `plugins/squad/skills/no-comments/` | Cursor-only parts at ae5650f: names poteto-mode and the comment-sicko plugin agent. Our copy moves them under `## Provider notes` and adds Standards, Gates, Autonomy. |
 | not used | [poteto-mode (hub structure)](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/poteto-mode/SKILL.md) | MIT (cursor/plugins, Lauren Tan) | weave | structure copied into `squad-md` | Hub names `poteto-agent`, Cursor model slugs and Cursor Task. Would break on Claude, Copilot, Codex. We copy its H2 structure only, not the file. |
 | not used | [setup-pstack](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/setup-pstack/SKILL.md) | MIT (cursor/plugins, Lauren Tan) | copy + adapt | `plugins/pack-check/skills/pack-check-md/playbooks/setup.md` | Our plugin setup (Sven). Upstream writes `~/.cursor/rules` (Cursor only, home dir); our copy writes the role to tier table into the repo from `models.source.json`. |
 | not used | [swarm, reflect, ketchup, deslop, control-cli, control-ui](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/swarm/SKILL.md) | MIT (cursor/plugins, Lauren Tan) | not used | none | Only needed by the Cursor-heavy playbooks we copy and trim. control-cli and control-ui: Sven removed CLI and UI driving on 2026-11-01. Pinned later only if REF01 still finds a reference. |
@@ -213,20 +219,20 @@ Route per external skill ([decision](README.md#decision-pin-copy--adapt-weave-or
 
 - 24 principle-* leafs: **copy + adapt**. `plugins/squad/skills/principle-*/` (24 dirs).
 - architect (+ design-red-flags): **copy + adapt**. `plugins/squad/skills/architect/`.
-- blast-radius: **copy + adapt**. `plugins/squad/skills/blast-radius/`.
-- correct: **copy + adapt**. `plugins/squad/skills/correct/`.
-- interrogate: **copy + adapt**. `plugins/squad/skills/interrogate/`.
+- blast-radius: **pin**. `plugins/squad/external-skills.json`.
+- correct: **pin**. `plugins/squad/external-skills.json`.
+- interrogate: **pin**. `plugins/squad/external-skills.json`.
 - how: **copy + adapt**. `plugins/squad/skills/how/`.
 - why: **copy + adapt**. `plugins/squad/skills/why/`.
-- teach: **copy + adapt**. `plugins/squad/skills/teach/`.
+- teach: **pin**. `plugins/squad/external-skills.json`.
 - figure-it-out: **copy + adapt**. `plugins/squad/skills/figure-it-out/`.
 - technical-writing: **copy + adapt**. `plugins/squad/skills/technical-writing/`.
-- unslop: **copy + adapt**. `plugins/squad/skills/unslop/`.
-- create-verification-skill: **copy + adapt**. `plugins/squad/skills/create-verification-skill/`.
-- maintain-verification-skill: **copy + adapt**. `plugins/squad/skills/maintain-verification-skill/`.
-- create-formal-verification-skill: **copy + adapt**. `plugins/squad/skills/create-formal-verification-skill/`.
-- maintain-formal-verification-skill: **copy + adapt**. `plugins/squad/skills/maintain-formal-verification-skill/`.
-- benchmark-checklist: **copy + adapt**. `plugins/squad/skills/benchmark-checklist/`.
+- unslop: **pin**. `plugins/squad/external-skills.json`.
+- create-verification-skill: **pin**. `plugins/squad/external-skills.json`.
+- maintain-verification-skill: **pin**. `plugins/squad/external-skills.json`.
+- create-formal-verification-skill: **pin**. `plugins/squad/external-skills.json`.
+- maintain-formal-verification-skill: **pin**. `plugins/squad/external-skills.json`.
+- benchmark-checklist: **pin**. `plugins/squad/external-skills.json`.
 - show-me-your-work, in-your-own-words: **copy + adapt**. `plugins/squad/skills/show-me-your-work/`, `in-your-own-words/`.
 - tdd: **copy + adapt**. `plugins/squad/skills/tdd/`.
 - arena: **copy + adapt**. `plugins/squad/skills/arena/`.
@@ -272,9 +278,9 @@ grep -rnP "[\x{2013}\x{2014}]" plugins docs || echo "no dashes"
 
 Then locally: install `/tmp/agentpacks-marketplace` in Cursor or Claude Code, run `/pack-check` (same result as `validate`) and each command this PBI touches once.
 
-- [ ] REF01 resolves everything with the listed closure.
-- [ ] REF06 passes for 3 copies.
-- [ ] gh-aw import test green.
+- [ ] REF01 resolves everything with the listed closure (pins and copies).
+- [ ] REF05 passes for every pin, REF06 for every copy.
+- [ ] gh-aw import test green with pins vendored and listed in `aw-closure.json`.
 - [ ] Local: works in Cursor, Claude Code and CLI (Copilot CLI, Codex). Proof offline: generated client manifests and fixture tests (`ClientManifestTests`, `ComponentGenerationTests`).
 - [ ] gh-aw: the fixture workflow under `tests/fixtures/gh-aw/` that uses this PBI's files passes `gh aw compile --strict` (pinned gh-aw, no run, no secrets, no Actions minutes). See [gh-aw README](gh-aw/README.md).
 - [ ] `dotnet run --project tools/AgentPacks.Cli -- validate` exits 0, 0 errors, 0 warnings.

@@ -39,7 +39,7 @@ PS09. Start only when those PBIs are merged on main. Build order: [README](READM
 | Kind | Now | After | Action |
 |---|---|---|---|
 | contract | `plugins/squad/skills/squad/references/adr.md, retro.md` | same names under squad-md | edit: Matt weave |
-| skill | (none) | `plugins/squad/skills/{codebase-design,code-review,diagnosing-bugs,domain-modeling,research,retro-md,improve-codebase-architecture}` | add (copy + adapt of Matt) |
+| skill | (none) | `plugins/squad/skills/{code-review,improve-codebase-architecture,chief-of-staff}` | add (copy + adapt of Matt); diagnosing-bugs, pr, retro woven into playbooks |
 
 Full list for all PBIs: [MIGRATION.md](MIGRATION.md#path-table).
 
@@ -136,21 +136,21 @@ Also: Out: architecture review (PS11).
 
 | Step | Skill (repo, path, SHA) | Licence | Mode | Lives in | Reason |
 |---|---|---|---|---|---|
-| review | [Matt code-review](https://github.com/mattpocock/skills/blob/4ae2317ddb22b046e26455e4f9c9b3aaaf62212d/skills/engineering/code-review/SKILL.md) | MIT (mattpocock/skills) | copy + adapt | `plugins/squad/skills/code-review/` | Two axes (Standards, Spec). Our severity words and CODING_STANDARDS.md stay. Sven 2026-11-01: copy, not pin. We add a Standards line, the gates, the Autonomy line for gh-aw and Provider notes. |
-| bug | [Matt diagnosing-bugs](https://github.com/mattpocock/skills/blob/4ae2317ddb22b046e26455e4f9c9b3aaaf62212d/skills/engineering/diagnosing-bugs/SKILL.md) | MIT (mattpocock/skills) | copy + adapt | `plugins/squad/skills/diagnosing-bugs/` | Phases 1 to 6 into the copied bug-fix playbook. Sven 2026-11-01: copy, not pin. We add a Standards line, the gates, the Autonomy line for gh-aw and Provider notes. |
-| domain | [Matt domain-modeling](https://github.com/mattpocock/skills/blob/4ae2317ddb22b046e26455e4f9c9b3aaaf62212d/skills/engineering/domain-modeling/SKILL.md) | MIT (mattpocock/skills) | copy + adapt | `plugins/squad/skills/domain-modeling/` | Better `docs/adr/` and GLOSSARY, Sven's ask. Sven 2026-11-01: copy, not pin. We add a Standards line, the gates, the Autonomy line for gh-aw and Provider notes. |
-| plan | [Matt research](https://github.com/mattpocock/skills/blob/4ae2317ddb22b046e26455e4f9c9b3aaaf62212d/skills/engineering/research/SKILL.md) | MIT (mattpocock/skills) | copy + adapt | `plugins/squad/skills/research/` | Fresh-context research, cited file. Sven 2026-11-01: copy, not pin. We add a Standards line, the gates, the Autonomy line for gh-aw and Provider notes. |
-| retro | [Matt retro](https://github.com/mattpocock/skills/blob/4ae2317ddb22b046e26455e4f9c9b3aaaf62212d/skills/engineering/retro/SKILL.md) | MIT (mattpocock/skills) | copy + adapt | `plugins/squad/skills/retro-md/` | Environment fixes into our retro. Sven 2026-11-01: copy, not pin. We add a Standards line, the gates, the Autonomy line for gh-aw and Provider notes. |
-| pr | [Matt pr (Summary from humanlayer show-me, Apache-2.0)](https://github.com/mattpocock/skills/blob/4ae2317ddb22b046e26455e4f9c9b3aaaf62212d/skills/engineering/pr/SKILL.md) | MIT (mattpocock/skills) | copy + adapt | `plugins/squad/skills/pr/` (used by `playbooks/pr.md`) | Create a PR or add to an open PR: Evidence and Merge Danger. Summary section from humanlayer, Apache-2.0 credit in NOTICE. Sven 2026-11-01: copy Matt. |
+| review | [Matt code-review](https://github.com/mattpocock/skills/blob/4ae2317ddb22b046e26455e4f9c9b3aaaf62212d/skills/engineering/code-review/SKILL.md) | MIT (mattpocock/skills) | copy + adapt | `plugins/squad/skills/code-review/` | We add: `CODING_STANDARDS.md` per repo, a `.github/instructions/*.instructions.md` example, our severity words; drops `setup-matt-pocock-skills`. |
+| bug | [Matt diagnosing-bugs](https://github.com/mattpocock/skills/blob/4ae2317ddb22b046e26455e4f9c9b3aaaf62212d/skills/engineering/diagnosing-bugs/SKILL.md) | MIT (mattpocock/skills) | weave | `squad-md/playbooks/bug-fix.md` | Only its phases 1 to 6 (a technique), woven into the copied bug-fix playbook. Sven: diagnosing-bugs woven into poteto. |
+| domain | [Matt domain-modeling](https://github.com/mattpocock/skills/blob/4ae2317ddb22b046e26455e4f9c9b3aaaf62212d/skills/engineering/domain-modeling/SKILL.md) | MIT (mattpocock/skills) | pin | `plugins/squad/external-skills.json` | Writes `docs/adr/*` and GLOSSARY as Sven wants; used unchanged from the domain playbook. |
+| plan | [Matt research](https://github.com/mattpocock/skills/blob/4ae2317ddb22b046e26455e4f9c9b3aaaf62212d/skills/engineering/research/SKILL.md) | MIT (mattpocock/skills) | pin | `plugins/squad/external-skills.json` | Fresh-context research for the planner and subagents; used unchanged. |
+| retro | [Matt retro](https://github.com/mattpocock/skills/blob/4ae2317ddb22b046e26455e4f9c9b3aaaf62212d/skills/engineering/retro/SKILL.md) | MIT (mattpocock/skills) | weave | `squad-retro`, `references/retro.md` | Environment-fix steps into our retro step. Also pinned unchanged as a dependency of chief-of-staff. |
+| pr | [Matt pr (Summary from humanlayer show-me, Apache-2.0)](https://github.com/mattpocock/skills/blob/4ae2317ddb22b046e26455e4f9c9b3aaaf62212d/skills/engineering/pr/SKILL.md) | MIT (mattpocock/skills) | weave | `squad-md/playbooks/pr.md` | Evidence, Merge Danger and the humanlayer Summary (Apache-2.0) woven into our pr playbook: create a PR or add to an open one. |
 
 Route per external skill ([decision](README.md#decision-pin-copy--adapt-weave-or-not-used)):
 
 - Matt code-review: **copy + adapt**. `plugins/squad/skills/code-review/`.
-- Matt diagnosing-bugs: **copy + adapt**. `plugins/squad/skills/diagnosing-bugs/`.
-- Matt domain-modeling: **copy + adapt**. `plugins/squad/skills/domain-modeling/`.
-- Matt research: **copy + adapt**. `plugins/squad/skills/research/`.
-- Matt retro: **copy + adapt**. `plugins/squad/skills/retro-md/`.
-- Matt pr (Summary from humanlayer show-me, Apache-2.0): **copy + adapt**. `plugins/squad/skills/pr/` (used by `playbooks/pr.md`).
+- Matt diagnosing-bugs: **weave**. `squad-md/playbooks/bug-fix.md`.
+- Matt domain-modeling: **pin**. `plugins/squad/external-skills.json`.
+- Matt research: **pin**. `plugins/squad/external-skills.json`.
+- Matt retro: **weave**. `squad-retro`, `references/retro.md`.
+- Matt pr (Summary from humanlayer show-me, Apache-2.0): **weave**. `squad-md/playbooks/pr.md`.
 
 Every copy + adapt here adds, beyond its own changes: `Source:` line with SHA, a Standards line, the Gates, the Autonomy line for gh-aw, `## Provider notes`, `## What we changed or added`, and a NOTICE line.
 

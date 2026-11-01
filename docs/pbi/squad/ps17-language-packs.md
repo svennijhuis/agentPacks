@@ -40,7 +40,7 @@ PS16. Start only when those PBIs are merged on main. Build order: [README](READM
 | Kind | Now | After | Action |
 |---|---|---|---|
 | skill | `plugins/{dotnet,rust,typescript}/skills/*` | same | restyle, drop boilerplate |
-| skill | (none) | `plugins/typescript/skills/typescript-best-practices/` | add (copy + adapt) |
+| pins | `plugins/typescript/external-skills.json` | same + typescript-best-practices | add pin (unchanged) |
 
 Full list for all PBIs: [MIGRATION.md](MIGRATION.md#path-table).
 
@@ -135,12 +135,12 @@ Also: Out: new standards text.
 
 | Step | Skill (repo, path, SHA) | Licence | Mode | Lives in | Reason |
 |---|---|---|---|---|---|
-| typescript | [typescript-best-practices](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/typescript-best-practices/SKILL.md) | MIT (cursor/plugins, Lauren Tan) | copy + adapt | `plugins/typescript/skills/typescript-best-practices/` | Sven: add to the typescript plugin. Sven 2026-11-01: copy, not pin. We add a Standards line, the gates, the Autonomy line for gh-aw and Provider notes. |
+| typescript | [typescript-best-practices](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/typescript-best-practices/SKILL.md) | MIT (cursor/plugins, Lauren Tan) | pin | `plugins/typescript/external-skills.json` | We change nothing and it has no Cursor-only parts (scanned at ae5650f), so it stays external at the 40-hex SHA. In gh-aw the generator vendors it into the commit and `aw-closure.json` lists it. |
 | test | [tdd](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/tdd/SKILL.md) | MIT (cursor/plugins, Lauren Tan) | copy + adapt | `plugins/squad/skills/tdd/` | Upstream has `disable-model-invocation: true` and says "use only when the user explicitly asks". Sven wants it on every behavior change ("We can use this really hard"). So we change the trigger and the flag; the loop stays. |
 
 Route per external skill ([decision](README.md#decision-pin-copy--adapt-weave-or-not-used)):
 
-- typescript-best-practices: **copy + adapt**. `plugins/typescript/skills/typescript-best-practices/`.
+- typescript-best-practices: **pin**. `plugins/typescript/external-skills.json`.
 - tdd: **copy + adapt**. `plugins/squad/skills/tdd/`.
 
 Every copy + adapt here adds, beyond its own changes: `Source:` line with SHA, a Standards line, the Gates, the Autonomy line for gh-aw, `## Provider notes`, `## What we changed or added`, and a NOTICE line.
