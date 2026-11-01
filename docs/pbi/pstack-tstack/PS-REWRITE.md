@@ -1,3 +1,5 @@
+> Superseded 2026-11-01 by the detailed set in [squad-poteto](../squad-poteto/README.md) (PS01 to PS19, one file per PBI, Standards PBI PS14). Kept as the first draft.
+
 # #83 PBI rewrite: pstack + Matt woven into squad (Strategy, 2026-11-01)
 
 Source: `/workspace/research/agentpacks/pstack-matt-skill-map.md` (Repo Research). Pins: pstack cursor/plugins `ae5650febf4320793844c12c4adaa937f417f8da` (MIT, Lauren Tan), Matt mattpocock/skills `4ae2317ddb22b046e26455e4f9c9b3aaaf62212d` (MIT, Matt Pocock).

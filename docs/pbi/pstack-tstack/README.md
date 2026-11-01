@@ -1,8 +1,9 @@
 # pstack + tstack + poteto talk PBIs (AP37 to AP63) and the one ruleset
 
+> Update 2026-11-01: rows 37 to 39, 41, 44, 45, 51 to 53, 58, 59, 61 to 63 are superseded by [squad-poteto](../squad-poteto/README.md). See its mapping table.
+
 Docs only, no code (code hold). One file per PBI. Unified ruleset: [RULES.md](RULES.md). Per-file checklist of every source file: [CHECKLIST.md](CHECKLIST.md). Licenses: [NOTICE.md](NOTICE.md).
 
-**2026-11-01 rewrite:** the pstack + Matt PBI set PS01 to PS17 (order B0 to B6, map of old 37 to 63) is in [PS-REWRITE.md](PS-REWRITE.md). It replaces the index below once Sven agrees.
 Sven decided on 2026-10-26: option (b). Verify skills load from `/squad` and `/scenarios`. No new slash commands.
 
 ## Sources
