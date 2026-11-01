@@ -58,7 +58,7 @@ After:
 
 ```text
 plugins/squad/commands/setup-github.md
-plugins/squad/skills/setup-github-mode/  SKILL.md  playbooks/generate.md  playbooks/update.md  references/*.md (flat)
+plugins/squad/skills/setup-github-mode/  SKILL.md  playbooks/generate.md  playbooks/update.md  references/*.md (flat: copilot-block, squad-standards, squad-dotnet, custom-standards, docs, gitignore-block)
 ```
 
 ### 4.2 Skeleton of the new file
@@ -89,6 +89,27 @@ Command `/setup-github` (thin, loads `setup-github-mode`). Poteto name like `set
 | `.github/instructions/squad-<language>.instructions.md`, for example `squad-dotnet` with `applyTo: "**/*.cs,**/*.csproj,**/*.sln,**/*.slnx"` | ours, one per language pack found | rewrite whole file |
 | `.github/instructions/custom-standards.instructions.md` (`applyTo: "**"`) and `custom-standards-<language>.instructions.md` | repo | create only if missing, never touched again |
 | `AGENTS.md` or `CLAUDE.md` if present | shared | one pointer line, no copy |
+| `.github/instructions/docs.instructions.md` (`applyTo: "docs/**"`) | ours | rewrite whole file |
+| `docs/architecture/<flow>.md` (statechart per repo flow) | shared | update the same file per flow, never a second copy |
+| playbook per task type (`playbooks/<task>.md` in the repo's own skill) | shared | missing: create; present: update via the write-skill playbook (PS01) |
+| `.gitignore`, block `# squad: begin` to `# squad: end` | shared | rewrite the block; lines outside stay byte-equal |
+
+**Playbook check.** Per task type (feature, bug, refactor, investigate, perf, PR, plan, skill) it looks for a playbook. Missing: create it with the write-skill playbook (PS01) and the decision chart. Present: update it with the same playbook; never a second file for one task type.
+
+**Statechart.** Runs `statechart-mode` (PS12) on the repo flows it finds (request path, job, state machine) and writes `docs/architecture/<flow>.md`. Same flow name on run 2 means update in place.
+
+**docs tree** in `docs.instructions.md`, sources Matt [`docs/`](https://github.com/mattpocock/skills/blob/4ae2317ddb22b046e26455e4f9c9b3aaaf62212d/docs) and [`.agents/adr/`](https://github.com/mattpocock/skills/blob/4ae2317ddb22b046e26455e4f9c9b3aaaf62212d/.agents/adr) plus Matt [domain-modeling](https://github.com/mattpocock/skills/blob/4ae2317ddb22b046e26455e4f9c9b3aaaf62212d/skills/engineering/domain-modeling/SKILL.md) (create folders lazily):
+
+| Folder | Belongs | Does not belong | Good | Bad |
+|---|---|---|---|---|
+| `docs/architecture/` | statecharts, shapes, contracts | screenshots of a whiteboard with no text | `docs/architecture/checkout.md` with the chart and its states | `docs/architecture/notes-tuesday.md` |
+| `docs/adr/` | one decision per file, numbered | open questions, meeting notes | `docs/adr/0003-sqlite-local-postgres-server.md` | `docs/adr/ideas.md` |
+| `docs/pbi/` | PBIs with goal, DoD, steps | task logs, run output | `docs/pbi/ps21-setup-github.md` | `docs/pbi/run-2026-11-01.log.md` |
+| `docs/agents/` | agent-facing reference the skills read | personal data, secrets, plan dumps | `docs/agents/triage-labels.md` | `docs/agents/plan-dump.md` |
+
+Never in `docs/`: task logs, scratch, plan dumps, personal data, tokens.
+
+**`.gitignore` block** holds task, scratch and plan files and local agent state, for example `docs/squad-plan.md` run copies, `.squad/`, `*.scratch.md`, `.cursor/tmp/`, `.claude/settings.local.json`. Fork lines outside the block are never edited.
 
 `## Squad` block holds: caveman always on; the pack structure tree; the decision chart (pin, copy + adapt, weave, not used); how to generate or update a skill or playbook (`/pack-author`); where standards live (global `standard-<topic>`, then `standard-<language>-<topic>`, then the custom files). `squad-dotnet` holds the dotnet commands, linked from the pack, plus the C# standard names.
 
@@ -114,8 +135,11 @@ flowchart TD
   C[/setup-github/] --> D{"files exist?"}
   D -->|no| G[generate: all files]
   D -->|yes| U["update: rewrite ours, block in place, custom never"]
-  G --> V[diff check]
-  U --> V
+  G --> PB[playbook per task type: create or update via PS01]
+  U --> PB
+  PB --> SC[statechart-mode: docs/architecture per flow]
+  SC --> GI[docs.instructions.md and .gitignore block]
+  GI --> V[diff check]
   V --> O[offer /scenarios once]
 ```
 
@@ -132,6 +156,8 @@ flowchart TD
 | Rule | Checks | Error message |
 |---|---|---|
 | SetupGithubFixtureTests | run 2 gives 0 diff; fork files byte-equal | `.github/instructions/custom-standards.instructions.md: changed on update` |
+| SetupGithubPlaybookTests | existing playbook updated, not duplicated | `playbooks/bug-2.md: duplicate of bug.md` |
+| SetupGithubGitignoreTests | one squad block, rest byte-equal | `.gitignore: 2 squad blocks` |
 
 ### 4.8 Risks and what breaks
 
@@ -162,8 +188,11 @@ Also: Command count 7 to 8: Sven must say yes.; Out: other languages than the pa
 5. Do these steps, nothing else:
    1. Write `setup-github-mode` with write-skill (PS01), playbooks generate and update.
    2. Templates in `references/` (flat); dotnet commands and standards linked, not copied (REF08).
-   3. Step 0: detect existing files and the language packs in the repo.
-   4. Command file, add to the command list (8 commands: needs Sven's yes).
+   3. Step 0: detect existing files, language packs, task types with or without a playbook, repo flows and `docs/` folders.
+   4. Playbook check per task type: create or update via PS01, chart first.
+   5. Statechart per flow via `statechart-mode` into `docs/architecture/<flow>.md`, update in place.
+   6. Write `docs.instructions.md` and the `.gitignore` block.
+   7. Command file, add to the command list (8 commands: needs Sven's yes).
 6. Run every command in section 8. All must pass.
 7. Open one PR titled `PS21: /setup-github: generate or update the repo .github instruction files`. Body: link to this file, the section 3 table, the section 8 output.
 
@@ -173,6 +202,9 @@ Also: Command count 7 to 8: Sven must say yes.; Out: other languages than the pa
 |---|---|---|---|---|---|
 | setup | [setup-pstack](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/setup-pstack/SKILL.md) | MIT (cursor/plugins, Lauren Tan) | copy + adapt | `plugins/pack-check/skills/pack-check-mode/playbooks/setup.md` | Our plugin setup (Sven). Upstream writes `~/.cursor/rules` (Cursor only, home dir); our copy writes the role to tier table into the repo from `models.source.json`. |
 | always on | [caveman, caveman-compress](https://github.com/JuliusBrussee/caveman/tree/5184b3d11ac6a1acb7d44b9bfaa31698157cff97/skills/caveman) | MIT (cursor/plugins, Lauren Tan) | pin | `plugins/squad/external-skills.json` | We change nothing (Sven 2026-11-01: "als we geen wijzigingen gaan doen hou gewoon extern"). Always on: hub `## Writing the reply` and every agent prompt, locally and in gh-aw. |
+| playbooks | [upstream playbook authoring-a-skill](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/poteto-mode/playbooks/authoring-a-skill.md) | MIT (cursor/plugins, Lauren Tan) | copy + adapt | `pack-author-mode/playbooks/write-skill.md` | Calls Cursor built-in create-skill. We replace it with our make steps and validate. Keeps our standards and gates (PS09). |
+| flows | [statechart](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/statechart/SKILL.md) | MIT (cursor/plugins, Lauren Tan) | copy + adapt | `plugins/squad/skills/statechart-mode/` | Upstream has `disable-model-invocation: true` and is named like the command. Sven wants `/statechart` plus auto use in the flow. We rename to `statechart-mode`, allow model use, add `docs/architecture/` output and the scenario export to `/scenarios`. Scripts stay byte-equal. |
+| docs tree | [Matt domain-modeling](https://github.com/mattpocock/skills/blob/4ae2317ddb22b046e26455e4f9c9b3aaaf62212d/skills/engineering/domain-modeling/SKILL.md) | MIT (mattpocock/skills) | pin | `plugins/squad/external-skills.json` | Writes `docs/adr/*` and GLOSSARY as Sven wants; used unchanged from the domain playbook. |
 | docs | [technical-writing](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/technical-writing/SKILL.md) | MIT (cursor/plugins, Lauren Tan) | copy + adapt | `plugins/squad/skills/technical-writing/` | Cursor-only parts at ae5650f: calls swarm. Our copy moves them under `## Provider notes` and adds Standards, Gates, Autonomy. |
 | docs | [unslop](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/unslop/SKILL.md) | MIT (cursor/plugins, Lauren Tan) | pin | `plugins/squad/external-skills.json` | We change nothing and it has no Cursor-only parts (scanned at ae5650f), so it stays external at the 40-hex SHA. In gh-aw the generator vendors it into the commit and `aw-closure.json` lists it. |
 
@@ -180,6 +212,9 @@ Route per external skill ([decision](README.md#decision-pin-copy--adapt-weave-or
 
 - setup-pstack: **copy + adapt**. `plugins/pack-check/skills/pack-check-mode/playbooks/setup.md`.
 - caveman, caveman-compress: **pin**. `plugins/squad/external-skills.json`.
+- upstream playbook authoring-a-skill: **copy + adapt**. `pack-author-mode/playbooks/write-skill.md`.
+- statechart: **copy + adapt**. `plugins/squad/skills/statechart-mode/`.
+- Matt domain-modeling: **pin**. `plugins/squad/external-skills.json`.
 - technical-writing: **copy + adapt**. `plugins/squad/skills/technical-writing/`.
 - unslop: **pin**. `plugins/squad/external-skills.json`.
 
@@ -199,6 +234,14 @@ Good:
 - Use the **caveman** skill for every reply.
 - Standards: global `standard-<topic>`, then `standard-csharp-*`, then `.github/instructions/custom-standards*.instructions.md`.
 - New or changed skill or playbook: `/pack-author`, decision chart first.
+```
+```gitignore
+# team lines (kept)
+bin/
+# squad: begin
+.squad/
+*.scratch.md
+# squad: end
 ```
 
 Second run: `git diff --exit-code` is 0.
@@ -226,6 +269,9 @@ Then locally: install `/tmp/agentpacks-marketplace` in Cursor or Claude Code, ru
 - [ ] Same fixture run 2: `git diff --exit-code` 0.
 - [ ] Fixture `fork-repo` with own `team.instructions.md`, text outside `## Squad` and rules in `custom-standards.instructions.md`: all byte-equal after update.
 - [ ] Fixture with `CODING_STANDARDS.md`: only a pointer line appears, the file is untouched.
+- [ ] Fixture `fork-repo` also has its own `.gitignore` lines and own `docs/` rules: byte-equal outside `# squad: begin` to `# squad: end` and outside our files.
+- [ ] Fixture `playbook-repo` with `playbooks/bug.md`: updated in place, `ls playbooks | grep -c bug` is 1.
+- [ ] Run 2 on any fixture: no second `docs/architecture/<flow>.md` and no second `.gitignore` block (`grep -c "# squad: begin" .gitignore` is 1).
 - [ ] `grep -rnP "[\x{2013}\x{2014}]"` and placeholder grep `{[A-Z]*}` on generated files: 0.
 - [ ] Local install: plugin installed from the local marketplace, `/setup-github` run on the fixture, Copilot lists the instruction files.
 - [ ] Local: works in Cursor, Claude Code and CLI (Copilot CLI, Codex). Proof offline: generated client manifests and fixture tests (`ClientManifestTests`, `ComponentGenerationTests`).
@@ -242,4 +288,4 @@ Then locally: install `/tmp/agentpacks-marketplace` in Cursor or Claude Code, ru
 
 ## 10. For forks
 
-Rules for every fork: [FORKS.md](FORKS.md). For this PBI: Fork instruction files are not in our manifest, so `/setup-github` never touches them; the fork fixture proves it.
+Rules for every fork: [FORKS.md](FORKS.md). For this PBI: Fork instruction files, `.gitignore` lines outside the squad block and own `docs/` rules are not ours, so `/setup-github` never touches them; the fork fixture proves it.
