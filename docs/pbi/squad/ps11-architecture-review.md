@@ -27,6 +27,20 @@
 | review | [architect (+ design-red-flags)](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/architect/SKILL.md) | pin | external-skills.json | Client neutral, used as is. |
 | review | [Matt codebase-design](https://github.com/mattpocock/skills/blob/4ae2317ddb22b046e26455e4f9c9b3aaaf62212d/skills/engineering/codebase-design/SKILL.md) | pin | external-skills.json | Sven likes design it twice and deep vs shallow; use as is. |
 
+## Example
+
+Good (what the result looks like):
+
+```text
+Finding (architecture, medium): OrderService is shallow (6 public
+methods, each 1 line to the repo). Deepen: one PlaceOrder entry.
+Only for code Sven wrote; no grilling, no HTML report.
+```
+
+Bad (what we do not want):
+
+Running the architecture rewrite on vendored or generated code, or asking Sven 10 grilling questions first.
+
 ## Subagents and what they load
 
 - squad-architect, readonly.

@@ -65,6 +65,24 @@ Playbooks rule: the todo list starts with the matched playbook steps verbatim; a
 | pr | [upstream playbook opening-a-pr](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/poteto-mode/playbooks/opening-a-pr.md) | copy + adapt | `squad-md/playbooks/pr.md` | Uses deslop and swarm. We merge it with Matt pr (Evidence, Merge Danger) and our squash and personal-only standards. Keeps our standards and gates (PS09). |
 | fallback | [figure-it-out](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/figure-it-out/SKILL.md) | pin | external-skills.json | Fallback when no playbook fits. Resolves our arena copy by name. |
 
+## Example
+
+Good (what the result looks like):
+
+```markdown
+### Bug fix
+Source: <bug-fix.md at ae5650f...>, MIT, see NOTICE.
+1. Reproduce it yourself; add the repro row to `docs/squad-plan.md`.
+2. Failing test first (**tdd**).
+Standards: **Review Contract**, **Squash Merge One by One**.
+#### What we changed or added
+- Dropped `/loop`. Added the repro row and one PR per PBI.
+```
+
+Bad (what we do not want):
+
+A playbook pasted from upstream unchanged: still calls `/loop` and swarm, no Source line, our gates gone. Or a pin of a playbook that needs our gates.
+
 ## Subagents and what they load
 
 - planner: plan.md. implementer: bug-fix, feature, domain, perf. reviewer: review.md. retro: retro.md.

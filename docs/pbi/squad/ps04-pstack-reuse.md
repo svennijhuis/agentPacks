@@ -53,6 +53,24 @@ Migrate then delete (principle): `shared/standards/engineering.md` sections poin
 | not used | [setup-pstack](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/setup-pstack/SKILL.md) | not used | `docs/PSTACK-ROLES.md` | Writes `~/.cursor/rules` (Cursor only, and no long-term setup on the shared box). We document role to tier instead. |
 | not used | [swarm, reflect, ketchup, deslop, control-cli, control-ui](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/swarm/SKILL.md) | not used | none | Only needed by the Cursor-heavy playbooks we copy and trim. control-cli and control-ui: Sven removed CLI and UI driving on 2026-11-01. Pinned later only if REF01 still finds a reference. |
 
+## Example
+
+Good (what the result looks like):
+
+```json
+{ "name": "principle-fix-root-causes",
+  "repo": "cursor/plugins",
+  "sha": "ae5650febf4320793844c12c4adaa937f417f8da",
+  "path": "pstack/skills/principle-fix-root-causes" }
+```
+
+Bad (what we do not want):
+
+```json
+{ "name": "principle-fix-root-causes", "repo": "cursor/plugins", "ref": "main" }
+```
+Branch instead of 40-hex SHA: the text can change under us.
+
 ## Subagents and what they load
 
 - none here; loads are set in PS15

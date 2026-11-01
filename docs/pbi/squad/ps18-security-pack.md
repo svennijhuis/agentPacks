@@ -26,6 +26,19 @@ Steps to a playbook, Non-negotiables, interrogate and blast-radius refs; agents 
 | review | [interrogate](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/interrogate/SKILL.md) | pin | external-skills.json | Used as is in review. |
 | review | [blast-radius](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/blast-radius/SKILL.md) | pin | external-skills.json | Used as is in plan, task and review. |
 
+## Example
+
+Good (what the result looks like):
+
+```text
+squad-security-reviewer: finding high, src/Upload.cs:22,
+path from user input reaches File.Open. Proven by interrogate step.
+```
+
+Bad (what we do not want):
+
+A security finding with no file:line or no proof, or a full-repo audit started from a PR review.
+
 ## Subagents and what they load
 
 - validator: interrogate; recon: how.

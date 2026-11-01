@@ -27,6 +27,21 @@ Templates in `squad-md/references/templates/`: `CODING_STANDARDS.md` and `.githu
 | docs | [statechart](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/statechart/SKILL.md) | copy + adapt | `plugins/squad/skills/statechart-md/` | Upstream has `disable-model-invocation: true` and is named like the command. Sven wants `/statechart` plus auto use in the flow. We rename to `statechart-md`, allow model use, add `docs/architecture/` output and the scenario export to `/scenarios`. Scripts stay byte-equal. |
 | review | [Matt code-review](https://github.com/mattpocock/skills/blob/4ae2317ddb22b046e26455e4f9c9b3aaaf62212d/skills/engineering/code-review/SKILL.md) | weave | `squad-reviewer`, `references/review-contract.md` | Two axes (Standards, Spec). Our severity words and CODING_STANDARDS.md stay. |
 
+## Example
+
+Good (what the result looks like):
+
+```markdown
+# Coding standards (repo X)
+- HTTP collections use a named envelope: `{"users": [...]}`.
+- Application layer never calls a storage SDK directly.
+Review cites: "CS-02 violated at src/Orders/Api.cs:41".
+```
+
+Bad (what we do not want):
+
+A CODING_STANDARDS.md that says "write clean code" with no rule a reviewer can cite by id.
+
 ## Subagents and what they load
 
 - squad-planner proposes it; squad-reviewer reads it.

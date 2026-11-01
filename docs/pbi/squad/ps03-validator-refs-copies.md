@@ -34,6 +34,24 @@
 |---|---|---|---|---|
 | kebab rule | [poteto-mode (hub)](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/poteto-mode/SKILL.md) | not used | structure copied into `squad-md` | Hub names `poteto-agent`, Cursor model slugs and Cursor Task. Would break on Claude, Copilot, Codex. We copy its H2 structure only, not the file. |
 
+## Example
+
+Good (what the result looks like):
+
+```text
+REF04 error plugins/squad/skills/squad-md/SKILL.md:88
+  playbook pointer playbooks/perf.md does not exist
+REF06 error plugins/squad/skills/tdd/SKILL.md:3
+  copy has no "Source: ... at <40-hex SHA>" line
+```
+
+Bad (what we do not want):
+
+```text
+warning: some links might be broken
+```
+No rule id, no file:line, not a hard failure.
+
 ## Subagents and what they load
 
 - none

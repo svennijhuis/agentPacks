@@ -28,6 +28,20 @@ feature and domain playbooks call create-verification-skill when the repo has no
 | build | [create-formal-verification-skill](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/create-formal-verification-skill/SKILL.md) | pin | external-skills.json | Risky code only. |
 | retro | [maintain-formal-verification-skill](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/maintain-formal-verification-skill/SKILL.md) | pin | external-skills.json | Retro, risky code only. |
 
+## Example
+
+Good (what the result looks like):
+
+```text
+Repo has no verification skill -> create-verification-skill writes
+.cursor/skills/verify-orders/ with 3 checks; verifier runs them.
+Formal pair only for code marked risky in the plan.
+```
+
+Bad (what we do not want):
+
+Writing a formal verification skill for every small change (token cost, no gain).
+
 ## Subagents and what they load
 
 - implementer runs create; retro runs maintain.

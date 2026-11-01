@@ -27,6 +27,19 @@ Drop boilerplate, add index lines; pin typescript-best-practices in `plugins/typ
 | typescript | [typescript-best-practices](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/typescript-best-practices/SKILL.md) | pin | `plugins/typescript/external-skills.json` | Sven: add to the typescript plugin. |
 | test | [tdd](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/tdd/SKILL.md) | copy + adapt | `plugins/squad/skills/tdd/` | Upstream has `disable-model-invocation: true` and says "use only when the user explicitly asks". Sven wants it on every behavior change ("We can use this really hard"). So we change the trigger and the flag; the loop stays. |
 
+## Example
+
+Good (what the result looks like):
+
+```text
+csharp: test fails when Application references Azure.Storage.*
+(import-boundary test, rule from standard Layers).
+```
+
+Bad (what we do not want):
+
+A language pack restating the shared HTTP rule in its own words instead of the shared leaf.
+
 ## Subagents and what they load
 
 - none

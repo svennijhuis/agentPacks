@@ -52,6 +52,33 @@ write-skill steps:
 | step 7 | [no-comments](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/no-comments/SKILL.md) | copy + adapt | `plugins/squad/skills/no-comments/` | Spawns the `comment-sicko` plugin agent, which we cannot pin. We point it to `squad-simplifier`. |
 | principles | [24 principle-* leafs](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/principle-prove-it-works/SKILL.md) | pin | `plugins/squad/external-skills.json` | Generic, short, no client-specific text. Exactly what Sven asked ("get all principles-* skills"). Replaces our paraphrased `shared/standards/engineering.md` sections. |
 
+## Example
+
+Good (what the result looks like):
+
+```markdown
+---
+name: retry-policy
+description: When code calls a remote service and needs retries.
+---
+# Retry policy
+
+## Non-negotiables
+- Any behavior change goes to the **tdd** skill.
+
+## Principles
+- **Fix Root Causes.** A retry hides a bug. Leaf: principle-fix-root-causes.
+```
+
+Bad (what we do not want):
+
+```markdown
+## Principles
+Fix root causes means you should always look for the real cause of a bug
+before you add a workaround, because workarounds pile up and ...
+```
+Restates the leaf text in the skill (two copies drift). The index line only names it.
+
 ## Subagents and what they load
 
 - `pack-author-reviewer` scores against `skill-bars.md`. Loads **unslop**. Principles: Minimize Reader Load, Prove It Works.

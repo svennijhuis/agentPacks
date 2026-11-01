@@ -25,6 +25,20 @@
 |---|---|---|---|---|
 | roles | [setup-pstack](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/setup-pstack/SKILL.md) | not used | `docs/PSTACK-ROLES.md` | Writes `~/.cursor/rules` (Cursor only, and no long-term setup on the shared box). We document role to tier instead. |
 
+## Example
+
+Good (what the result looks like):
+
+```markdown
+| pstack role | Used by | Claude | Copilot | Cursor | Codex |
+|---|---|---|---|---|---|
+| candidate | arena (our copy) | tier-high | tier-high | tier-high | tier-high |
+```
+
+Bad (what we do not want):
+
+Running setup-pstack on the shared box, which writes `~/.cursor/rules`.
+
 ## Subagents and what they load
 
 - none

@@ -40,6 +40,20 @@ PR a: planner, architect, implementer, reviewer, simplifier. PR b: the rest.
 | all | [tdd](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/tdd/SKILL.md) | copy + adapt | `plugins/squad/skills/tdd/` | Upstream has `disable-model-invocation: true` and says "use only when the user explicitly asks". Sven wants it on every behavior change ("We can use this really hard"). So we change the trigger and the flag; the loop stays. |
 | all | [arena](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/arena/SKILL.md) | copy + adapt | `plugins/squad/skills/arena/` | Picks models by setup-pstack roles (Cursor only). We map to our tiers, cap at 3 candidates and high-risk work only (token budget). |
 
+## Example
+
+Good (what the result looks like):
+
+```markdown
+| Agent | Loads | Standards | Returns |
+|---|---|---|---|
+| squad-implementer | tdd, no-comments, playbook | Coding Standards File | diff, tests |
+```
+
+Bad (what we do not want):
+
+An agent prompt that inlines whole skills, or has no absolute hub path.
+
 ## Subagents and what they load
 
 - This PBI is the agents. Same table goes in the hub Subagents chapter.

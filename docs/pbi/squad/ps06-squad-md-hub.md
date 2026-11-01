@@ -59,6 +59,27 @@ Flow sections move into these H2s or `references/`, no behavior change.
 | Comments | [no-comments](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/no-comments/SKILL.md) | copy + adapt | `plugins/squad/skills/no-comments/` | Spawns the `comment-sicko` plugin agent, which we cannot pin. We point it to `squad-simplifier`. |
 | Principles | [24 principle-* leafs](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/principle-prove-it-works/SKILL.md) | pin | `plugins/squad/external-skills.json` | Generic, short, no client-specific text. Exactly what Sven asked ("get all principles-* skills"). Replaces our paraphrased `shared/standards/engineering.md` sections. |
 
+## Example
+
+Good (what the result looks like):
+
+```markdown
+## Playbooks
+Pick by `Task type:` in the plan row.
+- **bug** to playbooks/bug-fix.md
+- **feature** to playbooks/feature.md
+- none fits: **figure-it-out**
+```
+
+Bad (what we do not want):
+
+```markdown
+## Route
+When the request is a bug, first reproduce, then write a failing test,
+then fix it, then ... (40 lines of steps in the hub)
+```
+Steps belong in the playbook, the hub only routes.
+
 ## Subagents and what they load
 
 - Subagents chapter: table filled in PS15. Fresh agent per fix round; hub re-reads the diff.

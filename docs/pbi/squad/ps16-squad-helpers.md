@@ -26,6 +26,20 @@ scenarios-md steps to `playbooks/write-scenarios.md` and it reads statechart pat
 | scenarios | [statechart](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/statechart/SKILL.md) | copy + adapt | `plugins/squad/skills/statechart-md/` | Upstream has `disable-model-invocation: true` and is named like the command. Sven wants `/statechart` plus auto use in the flow. We rename to `statechart-md`, allow model use, add `docs/architecture/` output and the scenario export to `/scenarios`. Scripts stay byte-equal. |
 | verify | [create-verification-skill](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/create-verification-skill/SKILL.md) | pin | external-skills.json | Used as is; covers old feature map PBIs. |
 
+## Example
+
+Good (what the result looks like):
+
+```text
+/pack-check
+  REF01..REF06, HUB01: 0 errors, 0 warnings (same as CLI validate)
+  language pack csharp: installed
+```
+
+Bad (what we do not want):
+
+`/pack-check` with its own rule copy that drifts from `validate`.
+
 ## Subagents and what they load
 
 - none new

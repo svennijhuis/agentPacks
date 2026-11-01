@@ -30,6 +30,21 @@ One edit per Matt skill into its home (see reuse table), one NOTICE line each.
 | retro | [Matt retro](https://github.com/mattpocock/skills/blob/4ae2317ddb22b046e26455e4f9c9b3aaaf62212d/skills/engineering/retro/SKILL.md) | weave | `squad-retro`, `references/retro.md` | Environment fixes into our retro. |
 | pr | [Matt pr (Summary from humanlayer show-me, Apache-2.0)](https://github.com/mattpocock/skills/blob/4ae2317ddb22b046e26455e4f9c9b3aaaf62212d/skills/engineering/pr/SKILL.md) | weave | `playbooks/pr.md` | Evidence and Merge Danger; Apache-2.0 credit in NOTICE. |
 
+## Example
+
+Good (what the result looks like):
+
+```markdown
+## Review (two axes, from Matt code-review)
+- Standards axis: each finding names a CODING_STANDARDS.md rule.
+- Spec axis: each finding names a PBI acceptance line.
+Severity words stay ours: blocker, high, medium, low, tiny.
+```
+
+Bad (what we do not want):
+
+Replacing our review contract with Matt's file, which loses our severity words and finding identity.
+
 ## Subagents and what they load
 
 - reviewer two axes; planner research; retro Matt retro.

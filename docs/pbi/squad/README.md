@@ -81,6 +81,16 @@ B0 fixes the writer first so every later file comes out in the new style. Standa
 
 ## Reuse mode per skill
 
+### Decision rule: pin or copy
+
+1. **Pin** when the skill fits our flow unchanged and misses none of our standards or gates. Example per kind: principle leaf `principle-fix-root-causes`; stand-alone skill `blast-radius`; Matt skill `codebase-design`.
+2. **Copy + adapt** when we must add our rules, gates or flow steps, or when it has Cursor-only parts. Example per kind: playbook `bug-fix` (add repro row, one PR per PBI, drop `/loop`); skill `tdd` (must run on every behavior change, upstream is user-only); skill `arena` (Cursor model roles to our tiers).
+3. **Weave** when only some steps help and we already own the file. Example: Matt `code-review` two axes into our review contract.
+4. **Rewrite** when the idea helps but the text does not fit at all. Example: Matt `improve-codebase-architecture`, only for code Sven wrote.
+5. **Not used** when it needs a client, a login or long-term setup we do not allow. Example: `setup-pstack`.
+
+Quick test: would a pinned copy break any of No Em Dash, Squash Merge One by One, Personal Account Only, one PBI per PR, `docs/squad-plan.md`, max 2 fix rounds? Yes means copy + adapt.
+
 Modes: **pin** (unchanged, `external-skills.json` at 40-hex SHA), **copy + adapt** (default for playbooks; our folder, `Source:` line with SHA, NOTICE, `## What we changed`), **weave** (parts into our file, NOTICE line), **rewrite** (our own skill from the idea, NOTICE line), **not used**.
 
 | Skill | Mode | Lives in | Reason |

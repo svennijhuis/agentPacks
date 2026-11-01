@@ -29,6 +29,22 @@ Pin `codebase-design` (path `skills/engineering/codebase-design`, `4ae2317ddb22b
 | weave later | [Matt pr (Summary from humanlayer show-me, Apache-2.0)](https://github.com/mattpocock/skills/blob/4ae2317ddb22b046e26455e4f9c9b3aaaf62212d/skills/engineering/pr/SKILL.md) | weave | `playbooks/pr.md` | Evidence and Merge Danger; Apache-2.0 credit in NOTICE. |
 | parked | [Matt chief-of-staff](https://github.com/mattpocock/skills/blob/4ae2317ddb22b046e26455e4f9c9b3aaaf62212d/skills/in-progress/chief-of-staff/SKILL.md) | not used | parked | Waits for Sven. |
 
+## Example
+
+Good (what the result looks like):
+
+```text
+NOTICE
+mattpocock/skills at 4ae2317, MIT, Copyright (c) 2026 Matt Pocock.
+  woven: code-review, diagnosing-bugs, domain-modeling, pr, research, retro
+  rewritten: improve-codebase-architecture
+humanlayer show-me (pr Summary), Apache-2.0, credit kept.
+```
+
+Bad (what we do not want):
+
+Woven Matt text with no NOTICE line, or the Apache-2.0 Summary without credit.
+
 ## Subagents and what they load
 
 - squad-architect loads codebase-design (PS15).

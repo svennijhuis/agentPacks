@@ -60,6 +60,28 @@ Return: findings with path:line, severity, cited standard or principle.
 | subagent rules | [poteto-mode (hub)](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/poteto-mode/SKILL.md) | not used | structure copied into `squad-md` | Hub names `poteto-agent`, Cursor model slugs and Cursor Task. Would break on Claude, Copilot, Codex. We copy its H2 structure only, not the file. |
 | principles | [24 principle-* leafs](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/principle-prove-it-works/SKILL.md) | pin | `plugins/squad/external-skills.json` | Generic, short, no client-specific text. Exactly what Sven asked ("get all principles-* skills"). Replaces our paraphrased `shared/standards/engineering.md` sections. |
 
+## Example
+
+Good (what the result looks like):
+
+```markdown
+---
+name: squad-verifier
+description: Runs the plan's verify commands and reports numbers.
+---
+Load `/abs/path/plugins/squad/skills/squad-md/SKILL.md` first.
+Read only: **Prove It Works**, **Explain the Number**, **Review Contract**.
+Return: PASS or FAIL, command, run count, numbers.
+```
+
+Bad (what we do not want):
+
+```markdown
+You are a helpful verifier. Load all skills you think are useful
+and check if the code looks fine.
+```
+No hub path, no named leafs, no return shape.
+
 ## Subagents and what they load
 
 - `pack-author-reviewer` (standard, readonly) reads `skill-bars.md` or `subagent-bars.md` by target kind.

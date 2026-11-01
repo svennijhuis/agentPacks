@@ -32,6 +32,21 @@
 | command and flow | [statechart](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/statechart/SKILL.md) | copy + adapt | `plugins/squad/skills/statechart-md/` | Upstream has `disable-model-invocation: true` and is named like the command. Sven wants `/statechart` plus auto use in the flow. We rename to `statechart-md`, allow model use, add `docs/architecture/` output and the scenario export to `/scenarios`. Scripts stay byte-equal. |
 | formal | [create-formal-verification-skill](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/create-formal-verification-skill/SKILL.md) | pin | external-skills.json | Risky code only. |
 
+## Example
+
+Good (what the result looks like):
+
+```text
+/statechart orders
+  wrote docs/architecture/orders.md (mermaid, 5 states)
+  shortest path to bad state: Paid -> Cancelled without refund
+  added 1 row to docs/smoke/orders.md via /scenarios
+```
+
+Bad (what we do not want):
+
+A `/statechart` command that copies the whole upstream skill into the command file, or a chart nobody turns into tests.
+
 ## Subagents and what they load
 
 - squad-planner and squad-architect load statechart-md for stateful tasks.

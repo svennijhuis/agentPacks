@@ -57,6 +57,27 @@ Leafs: `plugins/squad/skills/standard-<x>/SKILL.md`. `shared/standards/*.md` sta
 | shape | [24 principle-* leafs](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/principle-prove-it-works/SKILL.md) | pin | `plugins/squad/external-skills.json` | Generic, short, no client-specific text. Exactly what Sven asked ("get all principles-* skills"). Replaces our paraphrased `shared/standards/engineering.md` sections. |
 | index rule | [poteto-mode (hub)](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/poteto-mode/SKILL.md) | not used | structure copied into `squad-md` | Hub names `poteto-agent`, Cursor model slugs and Cursor Task. Would break on Claude, Copilot, Codex. We copy its H2 structure only, not the file. |
 
+## Example
+
+Good (what the result looks like):
+
+```markdown
+---
+name: standard-no-em-dash
+description: Apply when writing any prose, PR body or comment.
+user-invocable: false
+---
+# No Em Dash
+Never use the long dash. Use a period, comma or parentheses.
+Why: Sven, 2026-09-06.
+Good: "Fixed the bug. Tests pass."  Bad: the same with a long dash between.
+Check: the em dash check in `validate` and check-plan.
+```
+
+Bad (what we do not want):
+
+A standard that only lives in room chat or memory, or a leaf that copies the full text of `shared/standards/engineering.md` instead of pointing to it.
+
 ## Subagents and what they load
 
 - Each agent names only its leafs (PS15).
