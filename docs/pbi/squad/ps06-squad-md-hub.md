@@ -44,7 +44,7 @@ PS04. Start only when those PBIs are merged on main. Build order: [README](READM
 | command | `plugins/squad/commands/squad-review.md` | same | edit: load `squad-md` |
 | hub | `plugins/squad/skills/squad/SKILL.md` | `plugins/squad/skills/squad-md/SKILL.md` | rename and restyle; old dir kept as a one-line pointer until GA07 |
 | contract | `plugins/squad/skills/squad/references/*.md (11 files)` | `plugins/squad/skills/squad-md/references/*.md` | move |
-| fork | (fork files) | `standard-local-*, references/custom-rules.md, hub local block` | keep (fork-owned, never edited) |
+| fork | (fork files) | `standard-<name> (fork), references/custom-rules.md, hub index` | keep (fork-owned, never edited) |
 
 Full list for all PBIs: [MIGRATION.md](MIGRATION.md#path-table).
 
@@ -96,8 +96,6 @@ Unattended (no human, for example gh-aw): take the default answer and write the 
 ## Comments
 ## Playbooks
 ## Standards
-<!-- local:start -->
-<!-- local:end -->
 ```
 
 ### 4.3 Target detail
@@ -284,4 +282,4 @@ Then locally: install `/tmp/agentpacks-marketplace` in Cursor or Claude Code, ru
 
 ## 10. For forks
 
-Rules for every fork: [FORKS.md](FORKS.md). For this PBI: Your own lines in the old hub: move them between the `local:start` and `local:end` markers in `squad-md`. Every later PBI keeps that block byte-equal.
+Rules for every fork: [FORKS.md](FORKS.md). For this PBI: Your own lines in the old hub: move them between the `squad-md` index sections as normal lines, each listed in `fork-inventory.md`. Every later PBI keeps that block byte-equal.

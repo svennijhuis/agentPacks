@@ -154,4 +154,4 @@ for f in tests/fixtures/gh-aw/*.md tests/fixtures/fork-acme/.github/workflows/*.
 
 ## 10. For forks
 
-Rules: [FORKS.md](../FORKS.md). For this PBI: The fixture fork has its own fixture workflow; it must compile with your `standard-local-*` leaf in `skills:`.
+Rules: [FORKS.md](../FORKS.md). For this PBI: The fixture fork has its own fixture workflow; it must compile with your fork `standard-<name>` leafs leaf in `skills:`.

@@ -103,8 +103,6 @@ Bundled skills live at `../<name>/SKILL.md` from this file, so put this file's a
 - **check a skill** to playbooks/check-skill.md
 - **change a skill** to playbooks/change.md
 ## Standards
-<!-- local:start -->
-<!-- local:end -->
 ```
 
 ### 4.3 Target detail

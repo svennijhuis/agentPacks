@@ -14,8 +14,8 @@ Write `docs/pbi/squad/fork-inventory.md` in your fork from that list. One row pe
 ```markdown
 | Path in fork | Added or changed | Kind | v2 place | PBI | Status |
 |---|---|---|---|---|---|
-| plugins/squad/skills/squad/SKILL.md (lines 80 to 92) | changed | hub lines | squad-md local block | PS06 | todo |
-| shared/standards/acme-logging.md | added | standard | standard-local-acme-logging + index line; file stays | PS07 | todo |
+| plugins/squad/skills/squad/SKILL.md (lines 80 to 92) | changed | hub lines | squad-md hub index | PS06 | todo |
+| shared/standards/acme-logging.md | added | standard | standard-acme-logging + index line; file stays | PS07 | todo |
 | plugins/squad/skills/acme-deploy/SKILL.md | added | skill | same path, SHAPES skill shape | none | open: owner decides |
 ```
 
@@ -25,17 +25,15 @@ Status is `todo`, `done` or `open: <reason>`. When unsure, the file stays where 
 
 1. **Find by role, not by path.** If your fork renamed a file, use the MIGRATION row's *kind* and the old v1 path to find your copy, then apply the row to it.
 2. **Touch only what the PBI lists.** Section 3 of each PBI is the full list. A file that is not there is not changed, moved or deleted.
-3. **Your lines live in a local block.** Every hub has one block that v2 never edits:
+3. **Your lines live in the hub index.** Every hub has one block that v2 never edits:
 
 ```markdown
 ## Standards
 - **No Em Dash.** Any prose. Leaf: standard-no-em-dash.
-<!-- local:start -->
-- **Acme Logging.** Any service code. Leaf: standard-local-acme-logging.
-<!-- local:end -->
+- **Acme Logging.** Any service code. Leaf: standard-acme-logging.
 ```
 
-4. **Your names start with `local-`.** `standard-local-*`, `playbooks/local-*.md`, agents `<pack>-local-*`. No v2 PBI creates or edits a `local-` name, so nothing collides.
+4. **Your names follow the poteto pattern: kind first, then a plain kebab name.** `standard-acme-logging`, `playbooks/acme-deploy.md`, agents `<pack>-<role>`. No `local-` prefix. `fork-inventory.md` lists every name you own, and REF03 fails when one of them equals a v2 name, so nothing collides silently.
 5. **Run the keep check.** Before and after each PBI:
 
 ```bash
@@ -50,20 +48,20 @@ It reads `migrations/v2.json` (PS03) and prints one line per file: `kept`, `move
 
 | You added in v1 | Put it in v2 | PBI that makes the slot |
 |---|---|---|
-| Lines in `skills/squad/SKILL.md` | local block in `skills/squad-md/SKILL.md` | PS06 |
-| A standard in chat, docs or `shared/standards/` | `skills/standard-local-<name>/SKILL.md` + index line in the local block; `shared/standards/<file>.md` stays and the leaf links it | PS07 |
+| Lines in `skills/squad/SKILL.md` | hub index in `skills/squad-md/SKILL.md` | PS06 |
+| A standard in chat, docs or `shared/standards/` | `skills/standard-<name>/SKILL.md` + index line in the hub index; `shared/standards/<file>.md` stays and the leaf links it | PS07 |
 | Entries in `standards.source.json` (`documents`, `consumers`) | same file, kept; PBIs only edit keys they name | PS17 |
 | Rules in `pack-author-md/references/style.md` | `## Local bars` in `references/skill-bars.md` | PS01 |
 | Your own agents | unchanged; optional `check-subagent` to restyle | PS02, PS15 |
 | Edits to our agents | a `## Local` section at the end of that agent | PS15 |
-| Extra task types | `squad-md/playbooks/local-<type>.md` + line in local block | PS09 |
+| Extra task types | `squad-md/playbooks/<type>.md` + line in hub index | PS09 |
 | Extra packs in `pack-check` registry | `## Local packs` in `references/packs.md` | PS16 |
 | Extra third-party credits | `## Local` in `NOTICE` | PS05 |
 | Extra commands beyond our 7 | `## Local commands` in skill bars; the 7-command bar counts ours only | PS12 |
 
 ## Fixture fork
 
-`tests/fixtures/fork-acme/` (added in PS03) is a tiny fork with one own standard (`standard-local-acme-logging`) and one own rule (`custom-rules.md`: "Log with the Acme logger"). After each PBI:
+`tests/fixtures/fork-acme/` (added in PS03) is a tiny fork with one own standard (`standard-acme-logging`) and one own rule (`custom-rules.md`: "Log with the Acme logger"). After each PBI:
 
 ```bash
 dotnet run --project tools/AgentPacks.Cli -- migrate-check --base <fixture base> --root tests/fixtures/fork-acme   # 0 LOST
@@ -75,7 +73,7 @@ for f in tests/fixtures/fork-acme/.github/workflows/*.md; do gh aw compile --str
 
 ## gh-aw in a fork
 
-Your fork's marketplace commit is what your workflows pin. The closure generator (GA01) includes `standard-local-*` and `local-*` playbooks it finds from the hub, so your additions are listed in `aw-closure.json` without edits.
+Your fork's marketplace commit is what your workflows pin. The closure generator (GA01) includes fork `standard-<name>` leafs and fork playbooks it finds from the hub, so your additions are listed in `aw-closure.json` without edits.
 
 ## Handing these PBIs to a junior or an agent in your fork
 

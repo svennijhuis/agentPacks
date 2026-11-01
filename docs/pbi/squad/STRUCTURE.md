@@ -56,7 +56,7 @@ plugins/squad/
     squad-reviewer.md  squad-simplifier.md  squad-security-reviewer.md  squad-orchestrator.md  squad-retro.md
   references/smoke-matrix.md        # unchanged
   rules/review-checklist.mdc        # unchanged (Cursor rule)
-  standards/local/                  # FORK EXTENSION POINT: a fork's own standard texts (empty upstream)
+  standards/<name>.md               # FORK EXTENSION POINT: a fork's own standard text (none upstream)
   skills/
     squad-md/
       SKILL.md                      # hub
@@ -69,7 +69,7 @@ plugins/squad/
     standard-no-em-dash/  standard-squash-merge-one-by-one/  standard-personal-account-only/
     standard-one-pbi-per-pr/  standard-no-secrets-in-markdown/  standard-never-force-push/
     standard-named-envelope/  standard-fake-fixtures/  standard-review-contract/      # SKILL.md each (PS07)
-    standard-local-*/               # FORK EXTENSION POINT: leaf per fork standard, links standards/local/<name>.md
+    standard-<name>/                # FORK EXTENSION POINT: fork standard leaf (same shape as ours), listed in fork-inventory.md
     principle-attack-the-premise/
     principle-boundary-discipline/
     principle-build-the-lever/
@@ -142,7 +142,7 @@ docs/pbi/squad/fork-inventory.md    # step 0 output in forks
 | skills/standard-*/ | one leaf per standard: Why, When, Check | PS07 | REF03, leaf bar |
 | skills/principle-*/ | copied pstack principles | PS04 | REF02, REF06 |
 | skills/<pstack or Matt name>/ | copied skills (we change them) | PS04, PS05, PS12, PS13, PS14 | REF06, REF01 |
-| standards/local/, standard-local-*, custom-rules.md | fork-owned, empty upstream | fork | REF03 accepts, migrate-check `fork-owned` |
+| standards/<name>.md, standard-<name> (fork), custom-rules.md | fork-owned, empty upstream | fork | REF03 accepts, migrate-check `fork-owned` |
 | NOTICE | licences of every copy | PS05 | NOTICE test |
 | aw-closure.json | generated skill list for gh-aw | GA01 (generator) | AwClosureTests |
 | external-skills.json | pins: skills we use unchanged, 40-hex SHA | PS04, PS05, PS17 | REF05, ExternalSourceTests |
@@ -156,21 +156,19 @@ A fork's own standards and rules live in four fixed places. No v2 PBI creates, e
 
 | What | Where | How it is found |
 |---|---|---|
-| Own standard text | `plugins/<pack>/standards/local/<name>.md` | linked by its leaf |
-| Own standard leaf | `plugins/<pack>/skills/standard-local-<name>/SKILL.md` (standard leaf shape, [SHAPES](SHAPES.md#standard-leaf)) | one index line inside the hub's local block |
-| Own rule that is not a whole standard | `plugins/<pack>/skills/<hub>/references/custom-rules.md` | the hub's local block links it |
-| Own lines in a hub | between `<!-- local:start -->` and `<!-- local:end -->` under `## Standards` | v2 keeps the block byte-equal |
+| Own standard text | `plugins/<pack>/standards/<name>.md` | linked by its leaf |
+| Own standard leaf | `plugins/<pack>/skills/standard-<name>/SKILL.md` (standard leaf shape, [SHAPES](SHAPES.md#standard-leaf)) | one index line inside the hub's hub index |
+| Own rule that is not a whole standard | `plugins/<pack>/skills/<hub>/references/custom-rules.md` | the hub's hub index links it |
+| Own lines in a hub | normal index lines under `## Standards` (or `## Playbooks`), each listed in `fork-inventory.md` | v2 regen keeps every listed line |
 
 ```markdown
 ## Standards
 - **No Em Dash.** Any prose. Leaf: standard-no-em-dash.
-<!-- local:start -->
-- **Acme Logging.** Any service code. Leaf: standard-local-acme-logging.
+- **Acme Logging.** Any service code. Leaf: standard-acme-logging.
 - Rules: references/custom-rules.md
-<!-- local:end -->
 ```
 
-Validator: REF03 accepts `standard-local-*`; HUB01 allows the local block; `migrate-check` reports these files as `fork-owned`. Details: [FORKS.md](FORKS.md).
+Validator: REF03 accepts fork `standard-<name>` leafs; HUB01 keeps fork index lines listed in `fork-inventory.md`; `migrate-check` reports these files as `fork-owned`. Details: [FORKS.md](FORKS.md).
 
 ## Per kind
 

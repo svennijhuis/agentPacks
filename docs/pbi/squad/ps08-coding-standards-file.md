@@ -196,4 +196,4 @@ Then locally: install `/tmp/agentpacks-marketplace` in Cursor or Claude Code, ru
 
 ## 10. For forks
 
-Rules for every fork: [FORKS.md](FORKS.md). For this PBI: Forks can ship their own template under the local block; the hub reads the repo file first.
+Rules for every fork: [FORKS.md](FORKS.md). For this PBI: Forks can ship their own template under the hub index; the hub reads the repo file first.

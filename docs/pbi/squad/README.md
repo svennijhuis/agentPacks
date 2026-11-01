@@ -28,7 +28,7 @@ Pick the next PBI: the first row in the build order whose **Depends on** PBIs ar
 | closure | the hub plus every skill it reads; gh-aw must list all of them. |
 | gh-aw | GitHub Agentic Workflows: markdown workflows compiled by `gh aw compile`. |
 | weave | take some steps of an upstream skill into our own file, with a `Source:` line. |
-| local block | lines between `<!-- local:start -->` and `<!-- local:end -->` in a hub; owned by a fork, never edited by v2. |
+| fork line | a hub index line whose leaf is listed in `fork-inventory.md`; owned by the fork, kept by every v2 regen. |
 | migrate-check | CLI command (PS03) that says per file: kept, moved, fork-owned or LOST. |
 | REF01 to REF07, HUB01 | validator rules added in PS03 and GA03. |
 

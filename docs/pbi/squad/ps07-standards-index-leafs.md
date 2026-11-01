@@ -44,7 +44,7 @@ PS06. Start only when those PBIs are merged on main. Build order: [README](READM
 | contract | `plugins/squad/skills/squad/references/review-contract.md` | `plugins/squad/skills/squad-md/references/review-contract.md + standard-review-contract` | split: words and verdicts to the leaf, flow stays |
 | standard | (none, rules in chat and memory) | `plugins/squad/skills/standard-*/SKILL.md (9)` | add |
 | standard | `shared/standards/design.md, testing-principles.md, http-api.md` | same | keep; leafs link to them |
-| fork | (fork files) | `standard-local-*, references/custom-rules.md, hub local block` | keep (fork-owned, never edited) |
+| fork | (fork files) | `standard-<name> (fork), references/custom-rules.md, hub index` | keep (fork-owned, never edited) |
 
 Full list for all PBIs: [MIGRATION.md](MIGRATION.md#path-table).
 
@@ -72,7 +72,7 @@ plugins/squad/skills/
   standard-one-pbi-per-pr/SKILL.md
   standard-never-force-push/SKILL.md
   standard-named-envelope/SKILL.md
-squad-md/SKILL.md ## Standards   # 9 index lines + local block
+squad-md/SKILL.md ## Standards   # 9 index lines + hub index
 ```
 
 ### 4.2 Skeleton of the new file
@@ -144,7 +144,7 @@ Leafs: `plugins/squad/skills/standard-<x>/SKILL.md`. `shared/standards/*.md` sta
 flowchart LR
   H["squad-md ## Standards"] --> S1["standard-no-em-dash"]
   H --> S2["standard-review-contract"]
-  H --> SL["local block: standard-local-*"]
+  H --> SL["hub index: standard-<name> (fork)"]
   S2 --> RC["references/review-contract.md flow"]
 ```
 
@@ -159,7 +159,7 @@ flowchart LR
 
 | Rule | Checks | Error message |
 |---|---|---|
-| REF03 | index names resolve, `standard-local-*` accepted | see PS03 |
+| REF03 | index names resolve, fork `standard-<name>` leafs accepted | see PS03 |
 | leaf bar | has Why, When, Check, max 40 lines | `<path>: standard leaf missing '**Check:**'` |
 
 ### 4.8 Risks and what breaks
@@ -266,4 +266,4 @@ Then locally: install `/tmp/agentpacks-marketplace` in Cursor or Claude Code, ru
 
 ## 10. For forks
 
-Rules for every fork: [FORKS.md](FORKS.md). For this PBI: Your standards become `standard-local-<name>` leafs and one index line inside the local block; nothing in v2 names `standard-local-*`, so no PBI can overwrite them.
+Rules for every fork: [FORKS.md](FORKS.md). For this PBI: Your standards become `standard-<name>` leafs and one index line inside the hub index; nothing in v2 names fork `standard-<name>` leafs, so no PBI can overwrite them.

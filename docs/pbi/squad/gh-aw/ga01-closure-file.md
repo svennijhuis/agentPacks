@@ -16,7 +16,7 @@
 **What it gives.**
 
 - Local (Cursor, Claude Code, CLI): Nothing changes for local clients; the file is generated and ignored by Cursor, Claude Code, Copilot and Codex.
-- gh-aw: A workflow copies `aw-closure.json` into `skills:` and gets every skill the hub can reach: copies, vendored pins (caveman always on, in every agent prompt) and fork `standard-local-*` leafs.
+- gh-aw: A workflow copies `aw-closure.json` into `skills:` and gets every skill the hub can reach: copies, vendored pins (caveman always on, in every agent prompt) and fork fork `standard-<name>` leafs leafs.
 
 **Out of scope.** Pin choice (GA02). Fixtures (GA04).
 
@@ -26,7 +26,7 @@ PS03, PS06
 
 ## 3. Target
 
-The generator writes `plugins/<pack>/aw-closure.json`: the hub plus every skill REF01 finds from it, each as `svennijhuis/agentPacks/plugins/<pack>/skills/<name>`. Upstream pstack and Matt skills we change are copied into the pack; skills we use unchanged (caveman, blast-radius, Matt research and the rest of `external-skills.json`) are vendored into the generated commit at their 40-hex SHA and listed too (Sven and PO 2026-11-01), and fork `standard-local-*` leafs are reached through the hub local block, so one agentPacks pin covers them all.
+The generator writes `plugins/<pack>/aw-closure.json`: the hub plus every skill REF01 finds from it, each as `svennijhuis/agentPacks/plugins/<pack>/skills/<name>`. Upstream pstack and Matt skills we change are copied into the pack; skills we use unchanged (caveman, blast-radius, Matt research and the rest of `external-skills.json`) are vendored into the generated commit at their 40-hex SHA and listed too (Sven and PO 2026-11-01), and fork fork `standard-<name>` leafs leafs are reached through the hub index, so one agentPacks pin covers them all.
 
 ```json
 { "pack": "squad", "hub": "squad-md",
@@ -82,7 +82,7 @@ flowchart LR
 | Risk | Handling |
 |---|---|
 | Closure too large for the run | list size printed in the PR; drop leafs no index names |
-| Fork leafs missing | REF01 walks the local block too |
+| Fork leafs missing | REF01 walks the hub index too |
 
 ### 4.8 Per environment
 
@@ -146,4 +146,4 @@ for f in tests/fixtures/gh-aw/*.md tests/fixtures/fork-acme/.github/workflows/*.
 
 ## 10. For forks
 
-Rules: [FORKS.md](../FORKS.md). For this PBI: Your `standard-local-*` leafs and `custom-rules.md` are reached through the hub local block, so they appear in your generated closure. Check the fixture fork closure lists both.
+Rules: [FORKS.md](../FORKS.md). For this PBI: Your fork `standard-<name>` leafs leafs and `custom-rules.md` are reached through the hub index, so they appear in your generated closure. Check the fixture fork closure lists both.

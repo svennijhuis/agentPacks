@@ -295,4 +295,4 @@ Then locally: install `/tmp/agentpacks-marketplace` in Cursor or Claude Code, ru
 
 ## 10. For forks
 
-Rules for every fork: [FORKS.md](FORKS.md). For this PBI: If your fork already has a `principle-*` or `tdd` dir of its own, see MIGRATION conflict case 2 (rename yours to `*-local`, never overwrite). If your fork pinned pstack in external-skills.json, keep the pin row; REF01 resolves the copy first. Your extra sections in engineering.md stay; only link lines are added.
+Rules for every fork: [FORKS.md](FORKS.md). For this PBI: If your fork already has a `principle-*` or `tdd` dir of its own, see MIGRATION conflict case 2 (rename yours with your fork name first, for example `acme-tdd`, never overwrite). If your fork pinned pstack in external-skills.json, keep the pin row; REF01 resolves the copy first. Your extra sections in engineering.md stay; only link lines are added.

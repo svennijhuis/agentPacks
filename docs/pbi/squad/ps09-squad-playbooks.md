@@ -266,4 +266,4 @@ Then locally: install `/tmp/agentpacks-marketplace` in Cursor or Claude Code, ru
 
 ## 10. For forks
 
-Rules for every fork: [FORKS.md](FORKS.md). For this PBI: Your own task types: add `playbooks/local-<type>.md` and one line in `## Playbooks` inside the local block.
+Rules for every fork: [FORKS.md](FORKS.md). For this PBI: Your own task types: add `playbooks/<type>.md` and one line in `## Playbooks` inside the hub index.
