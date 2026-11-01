@@ -1,6 +1,6 @@
 # Shapes in squad v2
 
-How each kind of file must look. [STRUCTURE.md](STRUCTURE.md) says where it lives; this file says what is inside. Built from the analysis of pstack (`ae5650f`) and Matt (`4ae2317`) in the [skill map](sources/pstack-matt-skill-map.md) and the old [CHECKLIST](../pstack-tstack/CHECKLIST.md), plus our bars in `pack-author-md/references/style.md` on main.
+How each kind of file must look. [STRUCTURE.md](STRUCTURE.md) says where it lives; this file says what is inside. Built from the analysis of pstack (`ae5650f`) and Matt (`4ae2317`) in the [skill map](sources/pstack-matt-skill-map.md) and the old [old analysis](sources/old-analysis-checklist.md), plus our bars in `pack-author-md/references/style.md` on main.
 
 Length bars warn (WARN), shape bars fail (FAIL), same as today. Every kind must read the same in Cursor, Claude Code, Copilot, Codex and gh-aw; provider-only text goes under a last `## Provider notes` section.
 

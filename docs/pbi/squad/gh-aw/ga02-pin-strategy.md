@@ -29,6 +29,13 @@ Bad:
 
 `imports:` at `@v2.0.0` and `skills:` at `@main`, or `plugins:` at a main SHA.
 
+## How to do it
+
+1. Branch from main: `git switch -c pbi/ga02-pin-strategy origin/main`.
+2. Read [the gh-aw README](README.md) and [SHAPES.md](../SHAPES.md); the AW repo facts are in its table "Per file".
+3. Do the **Target** exactly, then the steps below. Nothing else.
+4. Run **Done check**, then open one PR titled `GA02: Pin strategy: tag on the generated commit, never a branch`.
+
 ## Steps for Builder
 
 1. Document in this README and in the AW consume how-to (AW room owns that file).
@@ -40,6 +47,15 @@ Bad:
 - gh-aw: every fixture under `tests/fixtures/gh-aw/` passes `gh aw compile --strict` with the pinned gh-aw version. No workflow run, no secrets, no Actions minutes.
 - `validate` 0 errors, 0 warnings; `/pack-check` the same; tests green; main green after merge.
 - Personal svennijhuis only. No em dash, no tokens in markdown, FAKE fixture values only.
+
+## Done check
+
+```bash
+dotnet run --project tools/AgentPacks.Cli -- validate
+dotnet test tools/AgentPacks.Cli.Tests
+dotnet run --project tools/AgentPacks.Cli -- validate-all --out /tmp/agentpacks-marketplace
+for f in tests/fixtures/gh-aw/*.md; do gh aw compile --strict "$f"; done   # GA04 and later
+```
 
 ## Evidence
 

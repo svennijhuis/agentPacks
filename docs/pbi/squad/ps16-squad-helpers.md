@@ -46,6 +46,39 @@ Bad (what we do not want):
 
 - none new
 
+## Files to change
+
+| Kind | Now | After | Action |
+|---|---|---|---|
+| command | `plugins/squad/commands/scenarios.md` | same | edit: restyled skill |
+| command | `plugins/pack-check/commands/pack-check.md` | same | edit: load `pack-check-md` |
+| skill | `plugins/squad/skills/scenarios-md/SKILL.md` | same | restyle; steps to a playbook |
+| skill | `plugins/squad/skills/verify-harness/SKILL.md` | same | restyle |
+| skill | `plugins/pack-check/skills/pack-check/SKILL.md` | `plugins/pack-check/skills/pack-check-md/SKILL.md` | rename (name equals command today); pointer until GA07 |
+
+Full list for all PBIs: [MIGRATION.md](MIGRATION.md#path-table).
+
+## How to do it
+
+1. Branch from main: `git switch -c pbi/ps16-squad-helpers origin/main`.
+2. Read [SHAPES.md](SHAPES.md) for every kind in the table above, and the upstream source linked in **External skills per step**.
+3. Do each row of **Files to change** in order. For a move or rename use `git mv`; for a copy keep the `Source:` line and `## What we changed`.
+4. Follow **Steps for Builder** below. Nothing outside the table and the steps.
+5. Run the checks in **Done check**. All must pass before you open the PR.
+6. Open one PR titled `PS16: Helpers: scenarios-md, verify-harness, pack-check-md`, body: link to this file, the table, the check output.
+
+## Done check
+
+```bash
+dotnet run --project tools/AgentPacks.Cli -- validate
+dotnet test tools/AgentPacks.Cli.Tests
+dotnet run --project tools/AgentPacks.Cli -- validate-all --out /tmp/agentpacks-marketplace
+for f in tests/fixtures/gh-aw/*.md; do gh aw compile --strict "$f"; done   # from GA04 on; before GA04 write "n/a, no fixture yet"
+grep -rnP "[\x{2013}\x{2014}]" plugins docs || echo "no dashes"
+```
+
+Local: install `/tmp/agentpacks-marketplace` in Cursor or Claude Code (README "Install the generated tree") and run the commands this PBI touches once.
+
 ## Steps for Builder
 
 1. Restyle with write-skill.

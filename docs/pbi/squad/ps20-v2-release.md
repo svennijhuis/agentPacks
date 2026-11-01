@@ -51,6 +51,35 @@ Bumping to 2.0.0 with no Breaking list, or tagging `marketplace-beta` and tellin
 
 - none
 
+## Files to change
+
+| Kind | Now | After | Action |
+|---|---|---|---|
+| version | `plugin.json 0.x / 1.0.0` | `2.0.0 for moved plugins, tag v2.0.0` | bump |
+
+Full list for all PBIs: [MIGRATION.md](MIGRATION.md#path-table).
+
+## How to do it
+
+1. Branch from main: `git switch -c pbi/ps20-v2-release origin/main`.
+2. Read [SHAPES.md](SHAPES.md) for every kind in the table above, and the upstream source linked in **External skills per step**.
+3. Do each row of **Files to change** in order. For a move or rename use `git mv`; for a copy keep the `Source:` line and `## What we changed`.
+4. Follow **Steps for Builder** below. Nothing outside the table and the steps.
+5. Run the checks in **Done check**. All must pass before you open the PR.
+6. Open one PR titled `PS20: Squad v2 release: versions, marketplace tag, changelog, v1 to v2 guide`, body: link to this file, the table, the check output.
+
+## Done check
+
+```bash
+dotnet run --project tools/AgentPacks.Cli -- validate
+dotnet test tools/AgentPacks.Cli.Tests
+dotnet run --project tools/AgentPacks.Cli -- validate-all --out /tmp/agentpacks-marketplace
+for f in tests/fixtures/gh-aw/*.md; do gh aw compile --strict "$f"; done   # from GA04 on; before GA04 write "n/a, no fixture yet"
+grep -rnP "[\x{2013}\x{2014}]" plugins docs || echo "no dashes"
+```
+
+Local: install `/tmp/agentpacks-marketplace` in Cursor or Claude Code (README "Install the generated tree") and run the commands this PBI touches once.
+
 ## Steps for Builder
 
 1. Bump versions (PluginVersionContractTests rule).

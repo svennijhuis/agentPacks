@@ -1,5 +1,33 @@
 # Squad v2: pstack and Matt skills woven into our flows (PS01 to PS20, GA01 to GA07)
 
+## Start here (junior or small agent)
+
+Everything for squad v2 is in this one folder. Read in this order, then build one PBI at a time.
+
+1. This README: what v2 is, the build order, pin or copy rule.
+2. [STRUCTURE.md](STRUCTURE.md): where each file lives after v2.
+3. [SHAPES.md](SHAPES.md): how each kind of file must look, with a good and a bad example.
+4. [FLOWS.md](FLOWS.md): what each command does today and after v2.
+5. [MIGRATION.md](MIGRATION.md): every file that moves, is renamed, split, added or removed, with its PBI.
+6. [gh-aw/README.md](gh-aw/README.md): what must hold for GitHub Agentic Workflows.
+7. The PBI file you build. Its **Files to change** table and **How to do it** steps are the whole job; do not do anything not listed there.
+8. Sources: [`sources/`](sources/README.md) (upstream skill map, our old analysis, podcast notes).
+
+Pick the next PBI: the first row in the build order whose **Depends on** PBIs are all merged. One PBI per PR, branch `pbi/<id>-<slug>`, never force push.
+
+### Words used here
+
+| Word | Means |
+|---|---|
+| hub | the main `SKILL.md` of a pack. It only routes: rules plus lists of what to read. |
+| leaf | a small skill with one rule (`principle-*` from pstack, `standard-*` ours). |
+| playbook | step list for one kind of task, in `squad-md/playbooks/`. |
+| pin | use an upstream skill unchanged, recorded at a 40-hex commit in `external-skills.json`. |
+| copy + adapt | copy an upstream file into our folder, add `Source:` and `## What we changed`. |
+| closure | the hub plus every skill it reads; gh-aw must list all of them. |
+| gh-aw | GitHub Agentic Workflows: markdown workflows compiled by `gh aw compile`. |
+| REF01 to REF07, HUB01 | validator rules added in PS03 and GA03. |
+
 ## Squad v2
 
 This set is the squad **v2** release. Commands and our way of planning stay; structure, shapes and flows change, and the pack must work both locally (Cursor, Claude Code, Copilot CLI, Codex) and in GitHub Agentic Workflows.
@@ -20,36 +48,36 @@ Docs only. PR #83 is never merged. No code until Sven says go per PBI. Flows per
 
 ## Status of every PBI against main
 
-Strict rule: a PBI stays only if Sven asked for it and main still lacks it. Done or obsolete PBIs leave the set. Open ones are merged into one new PBI each. The old files in [`../pstack-tstack/`](../pstack-tstack/README.md) stay as history.
+Strict rule: a PBI stays only if Sven asked for it and main still lacks it. Done or obsolete PBIs leave the set. Open ones are merged into one new PBI each. The old set (`docs/pbi/pstack-tstack/`) is removed; each old row links to its file at `9dfed68` in git history. The analysis it was built on (CHECKLIST, RULES, podcast notes) moved to [`sources/`](sources/README.md).
 
 | Old | Title | Status on main | New | Reason |
 |---|---|---|---|---|
-| AP37 | Task type in the plan | open | PS09 | Not on main (no `Task type:`). Merged: the playbook pick needs it. |
-| AP38 | Playbook files per task type | open | PS09 | Not on main. Replaced by copied poteto playbooks. |
-| AP39 | Per-type plan gates | open | PS09 | Not on main. Gates are steps in each playbook. |
-| AP40 | Verifier reruns the repro on the same surface | open | PS09 | Not on main. Step in the bug-fix playbook. |
-| AP41 | verify-harness Drive kinds api and trace | open | PS13 | Not on main. create-verification-skill covers driving per repo. |
-| AP43 | Verdict words and evidence labels | half | PS07 | Severity words and Finding identity on main (`review-contract.md`); BLOCKED and alias table missing. Goes into the Review Contract leaf. |
-| AP44 | Missing engineering principles | half | PS04 | `shared/standards/engineering.md` paraphrases 11 principles (#79 era). Replaced by 24 pinned leafs, paraphrase migrated to pointers. |
-| AP45 | Hand-off in PR-body order | open | PS10 | Not on main. Matt pr plus poteto opening-a-pr. |
-| AP46 | Review loop budget | obsolete | none | Room rules 2026-10-30 and 2026-11-01: Reviewer checks the Cursor review only; Agentpacks fixes all findings on the PR. Squad keeps max 2 fix rounds (on main). |
-| AP47 | Finding ids and the review ledger | obsolete | none | Finding identity already on main (`review-contract.md ## Finding identity`); ledger was for bot review rounds, which are gone. |
-| AP48 | Review line in the PR body and the Reviewer reply | obsolete | none | Reviewer now posts one PASS or FAIL line citing the Cursor review (Sven 2026-11-01). |
-| AP49 | Old PR disposition in /squad-review | obsolete | none | PR Desk bot gives do and don't merge advice every weekday; `/squad-review` stays report-only. |
-| AP50 | Open decisions for Sven (L1 to L5) | obsolete | PS07 (L2 only) | L1 gone with 46, L3 done by moving sources into this set, L4 and L5 gone with 57 and 56. L2 severity alias lands in the Review Contract leaf. |
-| AP51 | Every finding names its guard layer | open | PS14 | correct does this (repeated mistake to check). |
-| AP52 | Feature map in docs/verify.md | open | PS13 | create-verification-skill makes the feature map. |
-| AP53 | Feature map upkeep | open | PS13 | maintain-verification-skill. |
-| AP54 | Measured budgets in docs/verify.md | open | PS09 | perf playbook plus benchmark-checklist. |
-| AP55 | Import-graph boundaries as a test | open | PS17 | No boundary test on main. Per language pack. |
-| AP56 | Trust level per repo | obsolete | none | Merge rights are set per room charter by Sven (Chatmarkt, AW, Agentpacks). |
-| AP57 | Paved path and a size guard | open | PS14 | No `check-diff.sh` on main. correct turns repeated size issues into checks; no fixed 400-line rule until Sven asks. |
-| AP58 | Lint first and the guard ratchet | open | PS14 | correct is lint-first. |
-| AP59 | Gardener: weed log | open | PS13 | maintain-verification-skill plus correct in retro. |
-| AP60 | Low-context agents: canonical example | open | PS07 | Good and bad example in every standard leaf. |
-| AP61 | Outer loop: report, reproduce, Squad bug-fix | open | PS09, PS10 | bug-fix playbook plus Matt diagnosing-bugs. |
-| AP62 | Design patterns catalog | open | PS07 | Standards leafs plus codebase-design vocabulary, no second catalog. |
-| AP63 | Unified rules file | open | PS07 | The Standards index is the one rules list. |
+| [AP37](https://github.com/svennijhuis/agentPacks/blob/9dfed68/docs/pbi/pstack-tstack/37-task-type.md) | Task type in the plan | open | PS09 | Not on main (no `Task type:`). Merged: the playbook pick needs it. |
+| [AP38](https://github.com/svennijhuis/agentPacks/blob/9dfed68/docs/pbi/pstack-tstack/38-playbook-files.md) | Playbook files per task type | open | PS09 | Not on main. Replaced by copied poteto playbooks. |
+| [AP39](https://github.com/svennijhuis/agentPacks/blob/9dfed68/docs/pbi/pstack-tstack/39-per-type-plan-gates.md) | Per-type plan gates | open | PS09 | Not on main. Gates are steps in each playbook. |
+| [AP40](https://github.com/svennijhuis/agentPacks/blob/9dfed68/docs/pbi/pstack-tstack/40-same-surface-reverify.md) | Verifier reruns the repro on the same surface | open | PS09 | Not on main. Step in the bug-fix playbook. |
+| [AP41](https://github.com/svennijhuis/agentPacks/blob/9dfed68/docs/pbi/pstack-tstack/41-drive-kinds.md) | verify-harness Drive kinds api and trace | open | PS13 | Not on main. create-verification-skill covers driving per repo. |
+| [AP43](https://github.com/svennijhuis/agentPacks/blob/9dfed68/docs/pbi/pstack-tstack/43-verdict-labels.md) | Verdict words and evidence labels | half | PS07 | Severity words and Finding identity on main (`review-contract.md`); BLOCKED and alias table missing. Goes into the Review Contract leaf. |
+| [AP44](https://github.com/svennijhuis/agentPacks/blob/9dfed68/docs/pbi/pstack-tstack/44-engineering-principles.md) | Missing engineering principles | half | PS04 | `shared/standards/engineering.md` paraphrases 11 principles (#79 era). Replaced by 24 pinned leafs, paraphrase migrated to pointers. |
+| [AP45](https://github.com/svennijhuis/agentPacks/blob/9dfed68/docs/pbi/pstack-tstack/45-handoff-pr-order.md) | Hand-off in PR-body order | open | PS10 | Not on main. Matt pr plus poteto opening-a-pr. |
+| [AP46](https://github.com/svennijhuis/agentPacks/blob/9dfed68/docs/pbi/pstack-tstack/46-review-loop-budget.md) | Review loop budget | obsolete | none | Room rules 2026-10-30 and 2026-11-01: Reviewer checks the Cursor review only; Agentpacks fixes all findings on the PR. Squad keeps max 2 fix rounds (on main). |
+| [AP47](https://github.com/svennijhuis/agentPacks/blob/9dfed68/docs/pbi/pstack-tstack/47-review-ledger.md) | Finding ids and the review ledger | obsolete | none | Finding identity already on main (`review-contract.md ## Finding identity`); ledger was for bot review rounds, which are gone. |
+| [AP48](https://github.com/svennijhuis/agentPacks/blob/9dfed68/docs/pbi/pstack-tstack/48-review-pr-line.md) | Review line in the PR body and the Reviewer reply | obsolete | none | Reviewer now posts one PASS or FAIL line citing the Cursor review (Sven 2026-11-01). |
+| [AP49](https://github.com/svennijhuis/agentPacks/blob/9dfed68/docs/pbi/pstack-tstack/49-stale-pr-disposition.md) | Old PR disposition in /squad-review | obsolete | none | PR Desk bot gives do and don't merge advice every weekday; `/squad-review` stays report-only. |
+| [AP50](https://github.com/svennijhuis/agentPacks/blob/9dfed68/docs/pbi/pstack-tstack/50-open-decisions.md) | Open decisions for Sven (L1 to L5) | obsolete | PS07 (L2 only) | L1 gone with 46, L3 done by moving sources into this set, L4 and L5 gone with 57 and 56. L2 severity alias lands in the Review Contract leaf. |
+| [AP51](https://github.com/svennijhuis/agentPacks/blob/9dfed68/docs/pbi/pstack-tstack/51-finding-guard-layer.md) | Every finding names its guard layer | open | PS14 | correct does this (repeated mistake to check). |
+| [AP52](https://github.com/svennijhuis/agentPacks/blob/9dfed68/docs/pbi/pstack-tstack/52-feature-map.md) | Feature map in docs/verify.md | open | PS13 | create-verification-skill makes the feature map. |
+| [AP53](https://github.com/svennijhuis/agentPacks/blob/9dfed68/docs/pbi/pstack-tstack/53-feature-map-upkeep.md) | Feature map upkeep | open | PS13 | maintain-verification-skill. |
+| [AP54](https://github.com/svennijhuis/agentPacks/blob/9dfed68/docs/pbi/pstack-tstack/54-measured-budgets.md) | Measured budgets in docs/verify.md | open | PS09 | perf playbook plus benchmark-checklist. |
+| [AP55](https://github.com/svennijhuis/agentPacks/blob/9dfed68/docs/pbi/pstack-tstack/55-import-boundaries.md) | Import-graph boundaries as a test | open | PS17 | No boundary test on main. Per language pack. |
+| [AP56](https://github.com/svennijhuis/agentPacks/blob/9dfed68/docs/pbi/pstack-tstack/56-trust-level.md) | Trust level per repo | obsolete | none | Merge rights are set per room charter by Sven (Chatmarkt, AW, Agentpacks). |
+| [AP57](https://github.com/svennijhuis/agentPacks/blob/9dfed68/docs/pbi/pstack-tstack/57-paved-path-size-guard.md) | Paved path and a size guard | open | PS14 | No `check-diff.sh` on main. correct turns repeated size issues into checks; no fixed 400-line rule until Sven asks. |
+| [AP58](https://github.com/svennijhuis/agentPacks/blob/9dfed68/docs/pbi/pstack-tstack/58-lint-first-ratchet.md) | Lint first and the guard ratchet | open | PS14 | correct is lint-first. |
+| [AP59](https://github.com/svennijhuis/agentPacks/blob/9dfed68/docs/pbi/pstack-tstack/59-gardener-weeds.md) | Gardener: weed log | open | PS13 | maintain-verification-skill plus correct in retro. |
+| [AP60](https://github.com/svennijhuis/agentPacks/blob/9dfed68/docs/pbi/pstack-tstack/60-low-context-examples.md) | Low-context agents: canonical example | open | PS07 | Good and bad example in every standard leaf. |
+| [AP61](https://github.com/svennijhuis/agentPacks/blob/9dfed68/docs/pbi/pstack-tstack/61-outer-loop-repro.md) | Outer loop: report, reproduce, Squad bug-fix | open | PS09, PS10 | bug-fix playbook plus Matt diagnosing-bugs. |
+| [AP62](https://github.com/svennijhuis/agentPacks/blob/9dfed68/docs/pbi/pstack-tstack/62-patterns-catalog.md) | Design patterns catalog | open | PS07 | Standards leafs plus codebase-design vocabulary, no second catalog. |
+| [AP63](https://github.com/svennijhuis/agentPacks/blob/9dfed68/docs/pbi/pstack-tstack/63-rules-catalog.md) | Unified rules file | open | PS07 | The Standards index is the one rules list. |
 | AP64 | Squad session split | done | none | Squashed in [#85](https://github.com/svennijhuis/agentPacks/pull/85), main `6c59f49`. PS06 keeps it. |
 | PS-REWRITE | Interim short set | removed | this set | Builder dropped it at `14954a5`. |
 

@@ -2,7 +2,7 @@
 
 AP63 moves this table to `shared/standards/rules.md` (ids unchanged). Until then this file is the home.
 
-One home per rule, one output format, stable ids. Index: [README.md](README.md).
+One home per rule, one output format, stable ids. Index: [README.md](https://github.com/svennijhuis/agentPacks/blob/9dfed68/docs/pbi/pstack-tstack/README.md).
 
 ## ID scheme
 

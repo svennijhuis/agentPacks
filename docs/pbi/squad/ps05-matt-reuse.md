@@ -51,6 +51,36 @@ Woven Matt text with no NOTICE line, or the Apache-2.0 Summary without credit.
 
 - squad-architect loads codebase-design (PS15).
 
+## Files to change
+
+| Kind | Now | After | Action |
+|---|---|---|---|
+| pins | `plugins/squad/external-skills.json (caveman, caveman-compress)` | same file | add pstack pins and Matt codebase-design; caveman pins stay |
+| licence | (none) | `plugins/squad/NOTICE, plugins/pack-author/NOTICE` | add |
+
+Full list for all PBIs: [MIGRATION.md](MIGRATION.md#path-table).
+
+## How to do it
+
+1. Branch from main: `git switch -c pbi/ps05-matt-reuse origin/main`.
+2. Read [SHAPES.md](SHAPES.md) for every kind in the table above, and the upstream source linked in **External skills per step**.
+3. Do each row of **Files to change** in order. For a move or rename use `git mv`; for a copy keep the `Source:` line and `## What we changed`.
+4. Follow **Steps for Builder** below. Nothing outside the table and the steps.
+5. Run the checks in **Done check**. All must pass before you open the PR.
+6. Open one PR titled `PS05: Matt reuse and NOTICE`, body: link to this file, the table, the check output.
+
+## Done check
+
+```bash
+dotnet run --project tools/AgentPacks.Cli -- validate
+dotnet test tools/AgentPacks.Cli.Tests
+dotnet run --project tools/AgentPacks.Cli -- validate-all --out /tmp/agentpacks-marketplace
+for f in tests/fixtures/gh-aw/*.md; do gh aw compile --strict "$f"; done   # from GA04 on; before GA04 write "n/a, no fixture yet"
+grep -rnP "[\x{2013}\x{2014}]" plugins docs || echo "no dashes"
+```
+
+Local: install `/tmp/agentpacks-marketplace` in Cursor or Claude Code (README "Install the generated tree") and run the commands this PBI touches once.
+
 ## Steps for Builder
 
 1. Add the record.
