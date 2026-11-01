@@ -247,6 +247,7 @@ grep -rnP "[\x{2013}\x{2014}]" plugins docs || echo "no dashes"
 
 Then locally: install `/tmp/agentpacks-marketplace` in Cursor or Claude Code, run `/pack-check` (same result as `validate`) and each command this PBI touches once.
 
+- [ ] One fixture agent per route: loads a pinned skill (caveman), a copied skill (arena) and a woven playbook (pr), and check-skill finds each by exact name; a not-used skill (`swarm`) in an agent prompt fails check-skill.
 - [ ] `playbooks/write-subagent.md` points to the decision chart in `write-skill.md` for any external skill an agent loads, and every agent prompt it writes loads caveman (pinned, always on).
 - [ ] Fixture agent passes validate 0/0 and check-subagent PASS.
 - [ ] Negative fixture fails.

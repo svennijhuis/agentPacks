@@ -207,13 +207,14 @@ Also: Hub over the 40-line router bar until PS03 adds the hub exception. Builder
 3. Read [SHAPES.md](SHAPES.md) for every kind in section 3, and each source in section 6.
 4. Do each row of section 3 in order. Move or rename with `git mv`. If a row's target path already holds a fork file, follow the [conflict table](MIGRATION.md#fork-path). A copy keeps the `Source:` line and `## What we changed or added`.
 5. Do these steps, nothing else:
-   1. Move skill half of `make.md` to `playbooks/write-skill.md` (agent half moves in PS02).
-   2. `review.md` to `playbooks/check-skill.md` with the new bars (Non-negotiables first, index lines resolve, 5-line rule, deps closed, copy rule).
-   3. `change.md` to `playbooks/change.md`.
-   4. `style.md` to `references/skill-bars.md`; Matt bits with MIT line in `plugins/pack-author/NOTICE.md`.
-   5. Rewrite `SKILL.md` as the hub.
-   6. Update `docs/ADD-SKILL.md`, `docs/PACK-AUTHOR.md`.
-   7. Fixture `tests/fixtures/pack-author/new-skill/` written by following write-skill, plus test.
+   1. Move skill half of `make.md` to `playbooks/write-skill.md` (agent half moves in PS02) and put the decision chart at its top; the playbook writes the route form (pin entry, weave `Source:` line, or copy with NOTICE and What we changed or added).
+   2. Add to the `/pack-author` command file and hub Non-negotiables: an external skill goes through the chart first.
+   3. `review.md` to `playbooks/check-skill.md` with the new bars (Non-negotiables first, index lines resolve, 5-line rule, deps closed, copy rule).
+   4. `change.md` to `playbooks/change.md`.
+   5. `style.md` to `references/skill-bars.md`; Matt bits with MIT line in `plugins/pack-author/NOTICE.md`.
+   6. Rewrite `SKILL.md` as the hub.
+   7. Update `docs/ADD-SKILL.md`, `docs/PACK-AUTHOR.md`.
+   8. Fixture `tests/fixtures/pack-author/new-skill/` written by following write-skill, plus test.
 6. Run every command in section 8. All must pass.
 7. Open one PR titled `PS01: pack-author-md hub and skill playbooks (write-skill first)`. Body: link to this file, the section 3 table, the section 8 output.
 
@@ -281,7 +282,8 @@ grep -rnP "[\x{2013}\x{2014}]" plugins docs || echo "no dashes"
 
 Then locally: install `/tmp/agentpacks-marketplace` in Cursor or Claude Code, run `/pack-check` (same result as `validate`) and each command this PBI touches once.
 
-- [ ] `playbooks/write-skill.md` holds the decision chart mermaid and the one-line rule; a fixture that pulls in an unchanged external skill ends as a pin, one with our additions ends as a copy.
+- [ ] `playbooks/write-skill.md` holds the decision chart mermaid and the one-line rule, and `/pack-author` (command file and hub Non-negotiables) says: run the chart first for any external skill.
+- [ ] One fixture per route passes check-skill: pin (`caveman`: entry in `external-skills.json`, 40-hex SHA, REF05), weave (Matt `pr`: lines in our playbook with a `Source:` line), copy + adapt (`tdd`: dir with `Source:`, NOTICE, `## What we changed or added`, REF06), not used (`swarm`: reuse-table row with the reason).
 - [ ] Fixture skill passes validate 0/0 and check-skill PASS first try.
 - [ ] No step lists left in `references/`.
 - [ ] `/pack-author` still routes to `pack-author-md`.
