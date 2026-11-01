@@ -114,7 +114,7 @@ Counts: 28 rows. 1 done (AP64), 2 half (AP43, AP44), 18 open (merged into PS07, 
 | [PS21](ps21-setup-github.md) | /setup-github: generate or update the repo .github instruction files | B6 | PS07, PS17 | none |
 | [PS22](ps22-setup-verification.md) | /setup-github: create once, then maintain, the repo verification and formal verification skills | B6 | PS12, PS13, PS21 | none |
 | [PS23](ps23-setup-repo-process.md) | /setup-github: repo process (git guardrails, pre-commit per language, issue tracker, setup state, retro target) | B6 | PS21 | none |
-| [PS24](ps24-upstream-status.md) | UPSTREAM.md: last checked commit per source (pstack, Matt, caveman) and how to update | B6 | PS04, PS05 | none |
+| [PS24](ps24-upstream-status.md) | docs/upstream.md: last synced commit per source (pstack, Matt, caveman), report-only check, update one source per PR | B6 | PS03, PS04, PS05 | none |
 | [PS20](ps20-v2-release.md) | Squad v2 release: versions, marketplace tag, changelog, v1 to v2 guide | B7 | PS01 to PS19, PS21 to PS24, GA01 to GA06 | none |
 
 ```mermaid

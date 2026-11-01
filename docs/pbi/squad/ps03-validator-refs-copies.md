@@ -102,6 +102,7 @@ gh-aw (from AW room): REF07 fails when a skill in a pack's `aw-closure.json` nam
 | REF06 | A copy has the `Source:` line with a 40-hex SHA, a NOTICE entry, and `## What we changed` | error |
 | REF08 | A playbook or flow file that repeats 5 or more lines of a skill in the pack or `external-skills.json` fails: call it by bold name instead | error |
 | REF09 | A PR diff path on the forbidden list in `pr.instructions.md` fails; a path outside the PBI Files list warns (PS21) | error |
+| REF10 | A SHA in `docs/upstream.md` that differs from `external-skills.json` or a NOTICE fails; a pin or copy with no row fails (PS24) | error |
 | HUB01 | A skill with the hub H2 set may pass 40 lines | none |
 
 ### 4.4 Interfaces and contracts
