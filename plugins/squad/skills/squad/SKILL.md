@@ -53,6 +53,11 @@ are rewritten in place; do not append forever inside the plan.
 
 Cost-first: default `inherit`. Every `squad-*` agent is `standard` except `squad-architect` (`frontier`) and `squad-indexer` (`fast`, the only `fast` agent). Copilot ids use dotted versions (`claude-sonnet-5.5`).
 
+## Session split
+
+Read [session split](references/session-split.md). Before step 1: `/squad split <request>` → forced split (write `docs/squad-plan.md` even under the limits, no code, no retro, stop; a plan exists → ask once: replace or append). A plan exists → status refresh (Done-check exit 0 → `done`; a task waiting on a task not `done` is skipped with the reason), then always ask, also with no request: `Plan <outcome>: task 1 done, task 2 open. Shall I do task 2?` (`started` → half done, finish it?; all done → close it?, yes archives it). Yes → that one task only (set `started`; too big → split that task in place into `<n>.1`, `<n>.2`, no code; else run it, mark it `done` when its done-check passes; stop). A request that does not name the plan → ask once: task or new request; a new request leaves the plan untouched.
+Never rewrite an existing plan. Normal run, after step 2: over any limit (more than one PBI or outcome, more than 3 steps, more than 10 files) → write `docs/squad-plan.md`, build no code, spawn nobody, stop, no retro; a plan already there → ask once: replace or append. Planner `Session split: <n> steps` on next-round or write-plan → the same forced-split exit; first delete this run's draft `docs/plans/` file. The next task runs on the next `/squad`, in a new session.
+
 ## Gated agents
 
 | Agent | When | Job |

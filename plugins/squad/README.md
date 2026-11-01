@@ -1,7 +1,7 @@
 # Squad
 
 A capability pack for a user-invoked, main-agent-controlled Squad workflow.
-`/squad` and `/squad-review` run the Squad loop. Sibling slash `/scenarios` writes smoke
+`/squad` and `/squad-review` run the Squad loop; `/squad split <request>` only writes a task plan. Sibling slash `/scenarios` writes smoke
 markdown from changed code; it is not a Squad phase. `/pack-check` is setup, not a Squad flow.
 The `squad` skill is the thin orchestrator and is not model-invoked.
 
@@ -39,6 +39,19 @@ The main agent owns user interaction, invokes `squad-planner` once per question 
 
 Obvious typos, renames, and one-line fixes take the small-change route: the main agent implements and verifies directly, with a tiny plan (goal, decision, verify command) and without invoking planner, implementer, verifier, or review agents.
 
+Work too big for one session (more than one PBI, more than 3 steps, or more than 10 files) is not
+built. `/squad` writes `docs/squad-plan.md` with numbered tasks (Goal, Done-check, optional Depends,
+Status `open`, `started` or `done`) and stops. An open plan on that write asks once: replace or append.
+`/squad split <request>` forces that split even for
+small work; with a plan already there it asks once: replace or append. Every later `/squad`, in a
+new session, first checks the real state (a task whose done-check passes is done, a task that waits
+on an open task is skipped with the reason) and always asks, also with no request: "Plan X: task 1
+done, task 2 open. Shall I do task 2?" On yes it does that one task and stops; a half done task gets
+"Task 2 was half done, shall I finish it?", and a finished plan gets "shall I close it?" (yes moves
+it to `docs/squad-plans/`). A task still too big is split in place; the plan is never rewritten. A
+new request while a plan is open gets one question: next task or the new request. See
+[session split](skills/squad/references/session-split.md).
+
 ## Components
 
 | Component | Name | Responsibility |
@@ -48,6 +61,7 @@ Obvious typos, renames, and one-line fixes take the small-change route: the main
 | Skill | `verify-harness` | Hidden loop skill. Writes `docs/verify.md` (Launch/Doctor/Drive/Evidence/Cleanup), dry-runs it once, and rewrites tracked `docs/smoke-report.md` each run. |
 | Contract | `planning-contract` | Turn-based grill inside the orchestrator: frontier rounds, recommended answers, confirmation, plan shape |
 | Contract | `review-contract` | Dual-axis review, severity, report formats, verify-path evaluator gates, and verdict rules |
+| Contract | `session-split` | Fits-one-session check, `/squad split`, `docs/squad-plan.md` tasks, status question, one task per run |
 | Contract | `retro` | One `docs/retros/` file per run, human-apply only |
 | Contract | `suggestions` | Append-only pack/skill/agent/command/contract proposals; human applies; never auto-rewrite |
 | Rule | `review-checklist` | Source-review checklist scoped by glob; Cursor-only by design |
