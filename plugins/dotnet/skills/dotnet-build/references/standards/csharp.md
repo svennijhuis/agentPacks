@@ -1,0 +1,168 @@
+<!-- Generated from standards/csharp.md via standards.source.json. Edit the canonical document, not this copy. -->
+
+# C# design standards
+
+Shared rules live in `design` and `engineering`. This file adds language specifics.
+
+## Types and equality
+
+- Use records for data whose identity is its scalar values; use classes for entities, mutable state,
+  framework-managed objects, and objects with a lifetime.
+- Record equality is only as structural as each property. Collections such as `IReadOnlyList<T>`
+  normally retain reference equality, so two records holding equivalent lists are not necessarily
+  equal. Add an explicit value type or comparer when collection contents belong to equality.
+- Keep DTO collection properties read-only at the interface. `IReadOnlyList<T>` prevents callers
+  from depending on mutation; it does not make the collection immutable or structurally comparable.
+- Keep types sealed unless inheritance is part of the intended interface.
+- Use simple `record` types for DTOs and models.
+- Prefer `init` over `set`. Use `set` only when the value must change after construction.
+- Use the smallest visibility: `private` or `internal` unless `public` is needed by another
+  assembly or a framework contract.
+- Seal classes where sensible.
+
+```csharp
+// Bad
+public class OrderDto { public string Id { get; set; } = ""; }
+// Fix
+internal sealed record OrderDto(string Id);
+```
+
+## Nullability and interfaces
+
+- Follow the repository nullable context. A non-nullable type is a promise; guard the boundary that
+  establishes it instead of spreading null-forgiving operators.
+- Prefer `internal` for implementation types (`design.md` keeps public surface small).
+- Return the least-mutable interface that describes caller rights. Do not expose a mutable list when
+  callers only need enumeration or indexed reading.
+- Prefer parameters that name intent over boolean switches at call sites.
+
+## Dependencies and layout
+
+- Accept dependencies in constructors. Use `TimeProvider` for time-dependent code;
+  `FakeTimeProvider` is supplied by the `Microsoft.Extensions.TimeProvider.Testing` package.
+- Match existing project boundaries. A new project creates a compilation and dependency boundary;
+  use a folder when that boundary buys nothing.
+- When the solution already uses Web / Application / Infrastructure (or equivalent) projects, follow
+  [layers.md](layers.md): thin controllers, use cases in Application, adapters in Infrastructure:
+  never EF/`DbContext` or Infrastructure concretes inside Web controllers.
+- One top-level type per file: each class, record, interface, enum, and struct gets its own file
+  named after the type (`Order.cs`, `IOrderStore.cs`). Nested types stay with their parent.
+
+Bad:
+
+```csharp
+// Orders.cs
+public sealed record Order(Guid Id, decimal Total);
+public interface IOrderStore { Task SaveAsync(Order order, CancellationToken ct); }
+public enum OrderStatus { Open, Shipped }
+```
+
+Fix:
+
+```csharp
+// Order.cs
+public sealed record Order(Guid Id, decimal Total);
+// IOrderStore.cs
+public interface IOrderStore { Task SaveAsync(Order order, CancellationToken ct); }
+// OrderStatus.cs
+public enum OrderStatus { Open, Shipped }
+```
+
+- Match repository naming, analyzers, `.editorconfig`, and existing patterns before introducing a
+  new idiom.
+
+## Refactoring
+
+- Keep extract method, extract interface, extract class, and pushing logic down into the domain.
+- Tests stay in place before a behavior-preserving refactor.
+- Never land a shape you know is worse just to finish faster (`design.md`).
+
+Extract method.
+
+Bad:
+
+```csharp
+void Ship(Order order)
+{
+    var cost = Weigh(order) * rate;
+    _mail.Send(order.Id, cost);
+    _log.Write(order.Id);
+}
+```
+
+Fix:
+
+```csharp
+void Ship(Order order)
+{
+    _mail.Send(order.Id, Postage(order));
+    _log.Write(order.Id);
+}
+```
+
+Constructor injection.
+
+Bad:
+
+```csharp
+void Ship(Order order) => new SmtpMailer().Send(order.Id);
+```
+
+Fix:
+
+```csharp
+public Shipper(IMailer mailer) => _mailer = mailer;
+void Ship(Order order) => _mailer.Send(order.Id);
+```
+
+Enum and a small class.
+
+Bad:
+
+```csharp
+if (code == "air") cost = 3m; else if (code == "ground") cost = 1m;
+```
+
+Fix:
+
+```csharp
+enum Lane { Air, Ground }
+
+sealed class Quote
+{
+    public decimal For(Lane lane) => lane == Lane.Air ? 3m : 1m;
+}
+```
+
+Method on the type.
+
+Bad:
+
+```csharp
+void Ship(Order order) { if (order.Lines.Count == 0) throw new InvalidOperationException(); }
+```
+
+Fix:
+
+```csharp
+sealed class Order
+{
+    public void Ship() { if (Lines.Count == 0) throw new InvalidOperationException(); }
+}
+```
+
+## Toolchain and package versions
+
+- Pin the SDK in `global.json`. Pin `TargetFramework` and `LangVersion` in `Directory.Build.props`;
+  projects inherit them instead of copying them.
+- When `Directory.Packages.props` is present, that file is the package-version home. A `.csproj`
+  `PackageReference` has no `Version` attribute.
+- A new project in a multi-project repo inherits those files. Do not restate SDK, language,
+  target-framework, or package versions in the `.csproj` unless the project genuinely targets a
+  different framework.
+
+## Culture-sensitive values
+
+- Use an explicit culture for parsing, formatting, casing, and comparison when the value crosses a
+  storage, protocol, identifier, or user-locale boundary. Do not let the machine's current culture
+  silently define a durable contract.

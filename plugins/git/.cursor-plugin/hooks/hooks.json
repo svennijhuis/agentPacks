@@ -1,0 +1,11 @@
+{
+  "hooks": {
+    "beforeShellExecution": [
+      {
+        "type": "command",
+        "command": "\"./scripts/git-guard\"",
+        "matcher": "git"
+      }
+    ]
+  }
+}
