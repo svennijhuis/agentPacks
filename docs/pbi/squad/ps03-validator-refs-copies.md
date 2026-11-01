@@ -100,6 +100,7 @@ gh-aw (from AW room): REF07 fails when a skill in a pack's `aw-closure.json` nam
 | REF04 | `playbooks/<x>.md` pointer resolves | error |
 | REF05 | Client built-ins allowlist (`/loop` only while some pinned file still names it) | info |
 | REF06 | A copy has the `Source:` line with a 40-hex SHA, a NOTICE entry, and `## What we changed` | error |
+| REF08 | A playbook or flow file that repeats 5 or more lines of a skill in the pack or `external-skills.json` fails: call it by bold name instead | error |
 | HUB01 | A skill with the hub H2 set may pass 40 lines | none |
 
 ### 4.4 Interfaces and contracts

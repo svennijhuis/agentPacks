@@ -209,3 +209,57 @@ flowchart TD
 Unchanged: make, review, change still exist (as playbooks).
 
 Principles: Minimize Reader Load, Encode Lessons in Structure. Standards: No Em Dash, No Secrets in Markdown.
+
+## Reuse
+
+Skills are building blocks: written once, called from every flow that needs them. This is the pstack pattern (a hub or playbook says "see the **tdd** skill", resolved as `../tdd/SKILL.md`) and the Matt pattern (`/name` in text). [Fabric](https://github.com/danielmiessler/fabric/tree/398b55599ef5674c432fee75cbe9c8e704c3f995/data/patterns) does the same with prompts: one `patterns/<name>/system.md` per pattern (266 at that SHA), chained by piping one pattern into the next, never pasted into each other.
+
+**Rule: a flow calls a skill by bold name, never copies it.** A playbook step says "run the **tdd** skill" and adds only what is specific to that step. REF01 resolves the name, REF08 fails a playbook or flow file that repeats 5 or more lines of a skill. One text per skill, so a fix or SHA bump reaches every flow at once.
+
+Which flow calls which skill (from the tables above; gh-aw runs `/squad`, `/squad-review` and `/scenarios`, so its column is what `aw-closure.json` must hold):
+
+| Skill (mode) | `/squad` | `/squad-review` | `/scenarios` | `/statechart` | `/pack-author` | gh-aw |
+|---|---|---|---|---|---|---|
+| [caveman](https://github.com/JuliusBrussee/caveman/tree/5184b3d11ac6a1acb7d44b9bfaa31698157cff97) (pin, always on) | x | x | x | x | x | x |
+| `standard-*` global, then `standard-<language>-*` (ours) | x | x | x | x | x | x |
+| [statechart](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/statechart/SKILL.md) (copy + adapt) | x | x | x | x |  | x |
+| [architect (+ design-red-flags)](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/architect/SKILL.md) (copy + adapt) | x | x |  |  |  | x |
+| [arena](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/arena/SKILL.md) (copy + adapt) | x | x |  |  |  | x |
+| [blast-radius](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/blast-radius/SKILL.md) (pin) | x | x |  |  |  | x |
+| [create-verification-skill](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/create-verification-skill/SKILL.md) (pin) | x |  | x |  |  | x |
+| [interrogate](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/interrogate/SKILL.md) (pin) | x | x |  |  |  | x |
+| [Matt codebase-design](https://github.com/mattpocock/skills/blob/4ae2317ddb22b046e26455e4f9c9b3aaaf62212d/skills/engineering/codebase-design/SKILL.md) (pin) | x | x |  |  |  | x |
+| [Matt code-review](https://github.com/mattpocock/skills/blob/4ae2317ddb22b046e26455e4f9c9b3aaaf62212d/skills/engineering/code-review/SKILL.md) (copy + adapt) | x | x |  |  |  | x |
+| [no-comments](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/no-comments/SKILL.md) (copy + adapt) | x |  |  |  | x | x |
+| [unslop](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/unslop/SKILL.md) (pin) | x |  |  |  | x | x |
+| [create-formal-verification-skill](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/create-formal-verification-skill/SKILL.md) (pin) | x |  |  |  |  | x |
+| [correct](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/correct/SKILL.md) (pin) | x |  |  |  |  | x |
+| [figure-it-out](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/figure-it-out/SKILL.md) (copy + adapt) | x |  |  |  |  | x |
+| [Matt improve-codebase-architecture](https://github.com/mattpocock/skills/blob/4ae2317ddb22b046e26455e4f9c9b3aaaf62212d/skills/engineering/improve-codebase-architecture/SKILL.md) (copy + adapt) |  | x |  |  |  | x |
+| [Matt diagnosing-bugs](https://github.com/mattpocock/skills/blob/4ae2317ddb22b046e26455e4f9c9b3aaaf62212d/skills/engineering/diagnosing-bugs/SKILL.md) (weave) | x |  |  |  |  | x |
+| [Matt domain-modeling](https://github.com/mattpocock/skills/blob/4ae2317ddb22b046e26455e4f9c9b3aaaf62212d/skills/engineering/domain-modeling/SKILL.md) (pin) | x |  |  |  |  | x |
+| [Matt pr (Summary from humanlayer show-me, Apache-2.0)](https://github.com/mattpocock/skills/blob/4ae2317ddb22b046e26455e4f9c9b3aaaf62212d/skills/engineering/pr/SKILL.md) (weave) | x |  |  |  |  | x |
+| [Matt research](https://github.com/mattpocock/skills/blob/4ae2317ddb22b046e26455e4f9c9b3aaaf62212d/skills/engineering/research/SKILL.md) (pin) | x |  |  |  |  | x |
+| [Matt retro](https://github.com/mattpocock/skills/blob/4ae2317ddb22b046e26455e4f9c9b3aaaf62212d/skills/engineering/retro/SKILL.md) (weave) | x |  |  |  |  | x |
+| [maintain-verification-skill](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/maintain-verification-skill/SKILL.md) (pin) | x |  |  |  |  | x |
+| [upstream playbook bug-fix](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/poteto-mode/playbooks/bug-fix.md) (copy + adapt) | x |  |  |  |  | x |
+| [upstream playbook feature](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/poteto-mode/playbooks/feature.md) (copy + adapt) | x |  |  |  |  | x |
+| [upstream playbook investigation](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/poteto-mode/playbooks/investigation.md) (copy + adapt) | x |  |  |  |  | x |
+| [upstream playbook perf-issue](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/poteto-mode/playbooks/perf-issue.md) (copy + adapt) | x |  |  |  |  | x |
+| [upstream playbook multi-phase-plan](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/poteto-mode/playbooks/multi-phase-plan.md) (copy + adapt) | x |  |  |  |  | x |
+| [upstream playbook opening-a-pr](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/poteto-mode/playbooks/opening-a-pr.md) (copy + adapt) | x |  |  |  |  | x |
+| [upstream playbook refactoring](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/poteto-mode/playbooks/refactoring.md) (copy + adapt) | x |  |  |  |  | x |
+| [upstream playbook authoring-a-skill](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/poteto-mode/playbooks/authoring-a-skill.md) (copy + adapt) |  |  |  |  | x |  |
+| [24 principle-* leafs](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/principle-prove-it-works/SKILL.md) (copy + adapt) | x |  |  |  |  | x |
+| [tdd](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/tdd/SKILL.md) (copy + adapt) | x |  |  |  |  | x |
+| [teach](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/teach/SKILL.md) (pin) | x |  |  |  |  | x |
+| [technical-writing](https://github.com/cursor/plugins/blob/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/technical-writing/SKILL.md) (copy + adapt) |  |  |  | x |  |  |
+
+**Fork: hang your own skill in an existing flow without editing our files.**
+
+1. Write `plugins/<pack>/skills/<your-skill>/SKILL.md` (poteto name, no origin in the name) and list it in `fork-inventory.md`.
+2. Add one line to the hub index, which v2 never edits: under `## Playbooks` for a new task type (`- **migration** to playbooks/migration.md`), or under `### Global` or `### Language` in `## Standards` for a rule.
+3. Your playbook calls our skills by bold name ("run the **tdd** skill, then the **acme-schema-diff** skill").
+4. `validate` (REF01, REF08) and `migrate-check` (0 LOST). The GA01 closure picks it up from the hub, so gh-aw needs no edit.
+
+Fixture: `fork-acme` adds `acme-schema-diff`, called from its own `playbooks/migration.md`; `/squad` on a migration task picks that playbook, and no file of ours changes (PS01, PS03).

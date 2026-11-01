@@ -283,6 +283,7 @@ Then locally: install `/tmp/agentpacks-marketplace` in Cursor or Claude Code, ru
 - [ ] `playbooks/write-skill.md` holds the decision chart mermaid and the one-line rule, and `/pack-author` (command file and hub Non-negotiables) says: run the chart first for any external skill.
 - [ ] One fixture per route passes check-skill: pin (`caveman`: entry in `external-skills.json`, 40-hex SHA, REF05), weave (Matt `pr`: lines in our playbook with a `Source:` line), copy + adapt (`tdd`: dir with `Source:`, NOTICE, `## What we changed or added`, REF06), not used (`swarm`: reuse-table row with the reason).
 - [ ] Fixture skill passes validate 0/0 and check-skill PASS first try.
+- [ ] Reuse fixtures: `reuse-call` (a new playbook says "run the **tdd** skill") passes; `reuse-copy` (same playbook with tdd steps pasted in) fails REF08. `write-skill.md` has a Reuse step: call an existing skill by bold name, never copy it (FLOWS.md#reuse).
 - [ ] No step lists left in `references/`.
 - [ ] `/pack-author` still routes to `pack-author-mode`.
 - [ ] Local: works in Cursor, Claude Code and CLI (Copilot CLI, Codex). Proof offline: generated client manifests and fixture tests (`ClientManifestTests`, `ComponentGenerationTests`).

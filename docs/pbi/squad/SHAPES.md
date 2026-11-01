@@ -59,7 +59,11 @@ Unattended (gh-aw, no human): take the default answer and write the open questio
 - **bug** to playbooks/bug-fix.md
 
 ## Standards
+Global first, then the language of the project.
+### Global
 - **No Em Dash.** Any prose. Leaf: standard-no-em-dash.
+### Language
+- **C# Layers.** .NET project. Leaf: standard-csharp-layers.
 ```
 
 Bad:
@@ -249,10 +253,13 @@ Every kind uses the poteto pattern: role plus a kebab title that says what it is
 
 | Kind | Name | Example |
 |---|---|---|
-| Hub | `<pack>-md` | `squad-mode` |
+| Hub | `<command>-mode` | `squad-mode`, `statechart-mode` (skill name must differ from the command name; same suffix as `poteto-mode`) |
 | Principle leaf | `principle-<title>` | `principle-fix-root-causes` |
-| Standard leaf | `standard-<topic>` | `standard-api-versioning` (fork) next to `standard-squash-merge-one-by-one` (ours) |
+| Global standard leaf | `standard-<topic>` | `standard-api-versioning` (fork) next to `standard-squash-merge-one-by-one` (ours) |
+| Language standard leaf | `standard-<language>-<topic>` | `standard-csharp-layers`, `standard-rust-errors-concurrency`, `standard-typescript-testing` |
 | Playbook | `playbooks/<title>.md` | `playbooks/bug-fix.md` |
 | Subagent | `<pack>-<role>` | `squad-reviewer` |
+
+Standards are the only layer that is ours and not in poteto or Matt (Sven 2026-11-01). Two levels: global for every language, and per language. Global lives in `plugins/squad/skills/`, language in `plugins/<pack>/skills/` of that language pack.
 
 Ownership is not in the name: ours are in the upstream manifest `migrations/v2.json`, a fork's in `fork-inventory.md`. A clash goes to the MIGRATION conflict table, fix by renaming.

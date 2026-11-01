@@ -29,11 +29,16 @@ Status is `todo`, `done` or `open: <reason>`. When unsure, the file stays where 
 
 ```markdown
 ## Standards
+Global first, then the language of the project.
+### Global
 - **No Em Dash.** Any prose. Leaf: standard-no-em-dash.
 - **API Versioning.** Any public API change. Leaf: standard-api-versioning.
+### Language
+- **C# Layers.** .NET project. Leaf: standard-csharp-layers.
+- **C# Nullable Enabled.** .NET project. Leaf: standard-csharp-nullable-enabled.
 ```
 
-4. **Names say what it is, never where it comes from.** Poteto style: role plus a kebab title. Your standard is `standard-<topic>` next to ours (for example `standard-api-versioning`), your principle `principle-<title>`, your playbook `playbooks/<title>.md`, your agent `<pack>-<role>`. No fork name, no `local`, no location. Whether a file is yours shows in `fork-inventory.md` and in our upstream manifest (`migrations/v2.json`): an upgrade touches only files in our manifest, and a leaf not in it always stays. A name equal to one of ours goes to the [conflict table](MIGRATION.md#fork-path) with rename as the fix.
+4. **Names say what it is, never where it comes from.** Poteto style: role plus a kebab title. Your global standard is `standard-<topic>` next to ours (for example `standard-api-versioning`), your language standard `standard-<language>-<topic>` in that language pack (for example `standard-csharp-nullable-enabled`), your principle `principle-<title>`, your playbook `playbooks/<title>.md`, your agent `<pack>-<role>`. No fork name, no `local`, no location. Whether a file is yours shows in `fork-inventory.md` and in our upstream manifest (`migrations/v2.json`): an upgrade touches only files in our manifest, and a leaf not in it always stays. A name equal to one of ours goes to the [conflict table](MIGRATION.md#fork-path) with rename as the fix.
 5. **Run the keep check.** Before and after each PBI:
 
 ```bash
@@ -50,6 +55,7 @@ It reads `migrations/v2.json` (PS03) and prints one line per file: `kept`, `move
 |---|---|---|
 | Lines in `skills/squad/SKILL.md` | hub index in `skills/squad-mode/SKILL.md` | PS06 |
 | A standard in chat, docs or `shared/standards/` | `skills/standard-<name>/SKILL.md` + index line in the hub index; `shared/standards/<file>.md` stays and the leaf links it | PS07 |
+| A language standard in `plugins/<pack>/standards/` | `plugins/<pack>/skills/standard-<language>-<topic>/SKILL.md` + line under `### Language`; the file stays and the leaf links it | PS17 |
 | Entries in `standards.source.json` (`documents`, `consumers`) | same file, kept; PBIs only edit keys they name | PS17 |
 | Rules in `pack-author-mode/references/style.md` | `## Local bars` in `references/skill-bars.md` | PS01 |
 | Your own agents | unchanged; optional `check-subagent` to restyle | PS02, PS15 |
@@ -61,7 +67,7 @@ It reads `migrations/v2.json` (PS03) and prints one line per file: `kept`, `move
 
 ## Fixture fork
 
-`tests/fixtures/fork-acme/` (added in PS03) is a tiny fork with one own standard (`standard-api-versioning`) and one own rule (`custom-rules.md`: "Version every public API"). After each PBI:
+`tests/fixtures/fork-acme/` (added in PS03) is a tiny fork with one own global standard (`standard-api-versioning`), one own language standard (`plugins/dotnet/skills/standard-csharp-nullable-enabled`) one own skill (`acme-schema-diff`, called from its own `playbooks/migration.md`, see [FLOWS](FLOWS.md#reuse)) and one own rule (`custom-rules.md`: "Version every public API"). After each PBI:
 
 ```bash
 dotnet run --project tools/AgentPacks.Cli -- migrate-check --base <fixture base> --root tests/fixtures/fork-acme   # 0 LOST
@@ -69,11 +75,11 @@ dotnet run --project tools/AgentPacks.Cli -- validate --root tests/fixtures/fork
 for f in tests/fixtures/fork-acme/.github/workflows/*.md; do gh aw compile --strict "$f"; done                 # from GA04
 ```
 
-`MigrateCheckTests` asserts both fork items are still present and listed in the fixture's `aw-closure.json`.
+`MigrateCheckTests` asserts all four fork items are still present and listed in the fixture's `aw-closure.json`.
 
 ## gh-aw in a fork
 
-Your fork's marketplace commit is what your workflows pin. The closure generator (GA01) includes fork `standard-<name>` leafs and fork playbooks it finds from the hub, so your additions are listed in `aw-closure.json` without edits.
+Your fork's marketplace commit is what your workflows pin. The closure generator (GA01) includes fork `standard-<topic>` and `standard-<language>-<topic>` leafs and fork playbooks it finds from the hub, so your additions are listed in `aw-closure.json` without edits.
 
 ## Handing these PBIs to a junior or an agent in your fork
 

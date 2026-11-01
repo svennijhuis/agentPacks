@@ -56,6 +56,7 @@ flowchart LR
 | standard | `shared/standards/engineering.md` | same | edit: links to principle leafs; text kept in v2; trim later | PS04, GA07 |
 | standard | `shared/standards/design.md, testing-principles.md, http-api.md` | same | keep; leafs link to them | PS07 |
 | standard | `plugins/*/standards.source.json` | same | keep | none |
+| standard | `plugins/{dotnet,rust,typescript}/standards/*.md` | same + leaf `standard-<language>-<topic>` per file in `plugins/<pack>/skills/` that links it | add leafs; file text stays (generator source) | PS17 |
 | skill | (none) | `plugins/squad/skills/tdd, statechart-mode, arena, no-comments` | add (copy + adapt) | PS04, PS12 |
 | skill | `plugins/squad/skills/scenarios-mode/SKILL.md` | same | restyle; steps to a playbook | PS16 |
 | skill | `plugins/squad/skills/verify-harness/SKILL.md` | same | restyle | PS16 |
@@ -273,6 +274,7 @@ Forks with their own standards and rules follow [FORKS.md](FORKS.md): step 0 inv
 | Own file on a path we use | fork has `skills/tdd/SKILL.md` of its own; PS04 adds our `tdd` copy there | Do not overwrite. Rename yours to a kebab title that says what it is (for example `tdd-contract-first`); never a fork name or location in the name, update its callers, inventory row `done`; then add ours. If callers are unclear: stop, row `open`. |
 | Own rule clashes with one of our standards | fork rule "merge in batches" vs our `standard-squash-merge-one-by-one` | Fork wins inside the fork: put the rule in `custom-rules.md` and add `Overrides: standard-squash-merge-one-by-one` on its line. The hub reads the hub index after our index, so the override is explicit. Inventory row `done (override)`. |
 | Own standard in `shared/standards/` | `shared/standards/api-versioning.md` | Keep the file. Add `standard-api-versioning` leaf that links it, plus an index line in the hub index (PS07). |
+| Own language standard in `plugins/<pack>/standards/` | `plugins/dotnet/standards/nullable.md` | Keep the file. Add `standard-csharp-nullable-enabled` leaf that links it, plus a line under `### Language` (PS17). |
 | Own entries in `standards.source.json` | extra `documents` key `acme` | Keep. PBIs edit only keys they name (PS17). |
 | Own agent with our name prefix | `squad-deployer.md` | Keep. Not in any table, so `migrate-check` says `fork-owned`. If a future v3 adds the same name, it lands in this table with rename as the fix. |
 

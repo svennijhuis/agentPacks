@@ -39,6 +39,7 @@ PS16. Start only when those PBIs are merged on main. Build order: [README](READM
 
 | Kind | Now | After | Action |
 |---|---|---|---|
+| standard | `plugins/{dotnet,rust,typescript}/standards/*.md` | same + leaf `standard-<language>-<topic>` per file in `plugins/<pack>/skills/` that links it | add leafs; file text stays (generator source) |
 | skill | `plugins/{dotnet,rust,typescript}/skills/*` | same | restyle, drop boilerplate |
 | pins | `plugins/typescript/external-skills.json` | same + typescript-best-practices | add pin (unchanged) |
 
@@ -72,7 +73,7 @@ Shape rules: [SHAPES.md](SHAPES.md#summary).
 
 ### 4.3 Target detail
 
-Drop boilerplate, add index lines; pin typescript-best-practices in `plugins/typescript/external-skills.json`; one boundary-test template per language; review skills cite Coding Standards File.
+Drop boilerplate, add index lines; one `standard-<language>-<topic>` leaf per `plugins/<pack>/standards/*.md` file (csharp: style, layers, async-errors, testing; rust: style, errors-concurrency, testing; typescript: style, testing), each links its file, listed under `### Language` in the hub `## Standards`; pin typescript-best-practices in `plugins/typescript/external-skills.json`; one boundary-test template per language; review skills cite Coding Standards File.
 
 ### 4.4 Interfaces and contracts
 
@@ -128,6 +129,7 @@ Also: Out: new standards text.
 4. Do each row of section 3 in order. Move or rename with `git mv`. If a row's target path already holds a fork file, follow the [conflict table](MIGRATION.md#fork-path). A copy keeps the `Source:` line and `## What we changed or added`.
 5. Do these steps, nothing else:
    1. One PR per language.
+   2. Write the language leafs, link each file, add `### Language` lines.
 6. Run every command in section 8. All must pass.
 7. Open one PR titled `PS17: Language packs restyle, import-boundary tests, typescript-best-practices`. Body: link to this file, the section 3 table, the section 8 output.
 
@@ -176,6 +178,8 @@ grep -rnP "[\x{2013}\x{2014}]" plugins docs || echo "no dashes"
 Then locally: install `/tmp/agentpacks-marketplace` in Cursor or Claude Code, run `/pack-check` (same result as `validate`) and each command this PBI touches once.
 
 - [ ] validate 0/0 per pack.
+- [ ] REF03 resolves every `### Language` line.
+- [ ] fork-acme `standard-csharp-nullable-enabled` still present (migrate-check 0 LOST).
 - [ ] Local: works in Cursor, Claude Code and CLI (Copilot CLI, Codex). Proof offline: generated client manifests and fixture tests (`ClientManifestTests`, `ComponentGenerationTests`).
 - [ ] gh-aw: the fixture workflow under `tests/fixtures/gh-aw/` that uses this PBI's files passes `gh aw compile --strict` (pinned gh-aw, no run, no secrets, no Actions minutes). See [gh-aw README](gh-aw/README.md).
 - [ ] `dotnet run --project tools/AgentPacks.Cli -- validate` exits 0, 0 errors, 0 warnings.

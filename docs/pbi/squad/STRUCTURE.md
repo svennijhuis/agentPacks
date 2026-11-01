@@ -121,6 +121,10 @@ plugins/pack-check/
     references/  detect.md packs.md
     scripts/  check-plan.{sh,ps1} check-retro.{sh,ps1} check-verify.{sh,ps1}
   skills/pack-check/SKILL.md        # pointer until GA07
+plugins/dotnet/skills/  standard-csharp-style/  standard-csharp-layers/  standard-csharp-async-errors/  standard-csharp-testing/   # language leafs (PS17), link plugins/dotnet/standards/*.md
+plugins/rust/skills/  standard-rust-style/  standard-rust-errors-concurrency/  standard-rust-testing/   # language leafs (PS17)
+plugins/typescript/skills/  standard-typescript-style/  standard-typescript-testing/   # language leafs (PS17)
+plugins/<pack>/skills/standard-<language>-<topic>/   # FORK EXTENSION POINT: fork language leaf, listed in fork-inventory.md
 plugins/typescript/external-skills.json   # pin: typescript-best-practices (PS17)
 shared/standards/*.md               # gh-aw import source, kept (engineering.md trimmed in GA07)
 tests/fixtures/gh-aw/*.md           # compile strict fixtures (GA04)
@@ -138,7 +142,8 @@ docs/pbi/squad/fork-inventory.md    # step 0 output in forks
 | skills/squad-mode/SKILL.md | hub with the 8 H2s | PS06 | HUB01 (order, 150 lines) |
 | skills/squad-mode/playbooks/ | one playbook per task type | PS09 | REF04, REF06 for copies |
 | skills/squad-mode/references/ | contracts we own; templates for CODING_STANDARDS.md and `.github/instructions` | PS06, PS07, PS10 | REF01 |
-| skills/standard-*/ | one leaf per standard: Why, When, Check | PS07 | REF03, leaf bar |
+| skills/standard-*/ | global standard leafs: Why, When, Check | PS07 | REF03, leaf bar |
+| plugins/<pack>/skills/standard-<language>-*/ | language standard leafs, link the pack `standards/*.md` | PS17 | REF03, leaf bar |
 | skills/principle-*/ | copied pstack principles | PS04 | REF02, REF06 |
 | skills/<pstack or Matt name>/ | copied skills (we change them) | PS04, PS05, PS12, PS13, PS14 | REF06, REF01 |
 | fork leafs (`standard-<topic>`, `principle-<title>`, `playbooks/<title>.md`), custom-rules.md | fork-owned: not in `migrations/v2.json`, listed in `fork-inventory.md` | fork | REF03 name clash check, migrate-check `fork-owned` |
@@ -155,15 +160,21 @@ The extension point is the hub's own `## Standards` index (and `## Playbooks`). 
 
 | What | Where | How it is found |
 |---|---|---|
-| Own standard | `plugins/<pack>/skills/standard-<topic>/SKILL.md`, for example `standard-api-versioning` (standard leaf shape, [SHAPES](SHAPES.md#standard-leaf)) | one line in the hub `## Standards` index |
+| Own global standard | `plugins/squad/skills/standard-<topic>/SKILL.md`, for example `standard-api-versioning` ([SHAPES](SHAPES.md#names)) | one line under `### Global` in the hub `## Standards` index |
+| Own language standard | `plugins/<pack>/skills/standard-<language>-<topic>/SKILL.md`, for example `standard-csharp-nullable-enabled` | one line under `### Language` |
 | Own principle | `plugins/<pack>/skills/principle-<title>/SKILL.md` | one line in `## Principles` |
 | Own playbook | `plugins/<pack>/skills/<hub>/playbooks/<title>.md` | one line in `## Playbooks` |
 | Own rule that is not a whole standard | `plugins/<pack>/skills/<hub>/references/custom-rules.md` | linked from the `## Standards` index |
 
 ```markdown
 ## Standards
+Global first, then the language of the project.
+### Global
 - **No Em Dash.** Any prose. Leaf: standard-no-em-dash.
 - **API Versioning.** Any public API change. Leaf: standard-api-versioning.
+### Language
+- **C# Layers.** .NET project. Leaf: standard-csharp-layers.
+- **C# Nullable Enabled.** .NET project. Leaf: standard-csharp-nullable-enabled.
 - Rules: references/custom-rules.md
 ```
 
@@ -176,8 +187,9 @@ Validator: REF03 accepts fork `standard-<name>` leafs; HUB01 keeps fork index li
 | Command | Thin entry the user types. Loads a hub, nothing else. | `plugins/squad/commands/<name>.md` | `statechart.md` loads `statechart-mode` | write-skill (command section), then `validate` |
 | Hub | One skill per command family that routes: rules first, then indexes. | `skills/squad-mode/SKILL.md` | `## Playbooks` lists Task type to playbook | write-skill, check-skill |
 | Playbook | Ordered steps for one task type. Copy + adapt by default. | `squad-mode/playbooks/<type>.md` | `bug-fix.md`: repro row, failing test, fix, verify | write-skill (playbook mode); Source line and `What we changed or added` kept current |
-| Principle | How to think. Pinned upstream leaf, never copied. | `external-skills.json` | `principle-fix-root-causes` | bump the SHA in one PR; REF02 checks the index |
-| Standard | Our rule that must hold. Same shape as a principle leaf plus how to check. | `skills/standard-<x>/SKILL.md` | `standard-no-em-dash` | write-skill (standard kind), index line in hub; REF03 |
+| Principle | How to think. Copy + adapt of the pstack leaf (we add Standards, Gates and Autonomy lines). | `skills/principle-<title>/SKILL.md` | `principle-fix-root-causes` | edit the copy, keep `Source:` and `What we changed`; REF02, REF06 |
+| Global standard | Our rule for every language. Principle shape plus how to check. | `plugins/squad/skills/standard-<topic>/SKILL.md` | `standard-no-em-dash` | write-skill (standard kind), line under `### Global` in the hub; REF03 |
+| Language standard | Our rule for one language. Same shape. | `plugins/<pack>/skills/standard-<language>-<topic>/SKILL.md` | `standard-csharp-layers` in `plugins/dotnet` | write-skill (standard kind), line under `### Language`; REF03 |
 | Copied skill | Upstream skill we must change (gates, client parts). | `skills/<name>/` | `tdd` (runs on every behavior change) | edit the copy, update `What we changed`; REF06 |
 | Pinned skill | Upstream skill that fits unchanged. | `external-skills.json` | `blast-radius` | bump SHA; check upstream diff first |
 | Woven part | A few steps from a Matt skill inside our own file. | the file that uses it | two review axes in `review-contract.md` | edit our file; NOTICE line stays |
@@ -185,16 +197,44 @@ Validator: REF03 accepts fork `standard-<name>` leafs; HUB01 keeps fork index li
 | Contract | Shared format between agents. | `squad-mode/references/` | `planning-contract.md` | write-skill (change mode); tests in `SquadContractTests` |
 | Template | File the squad writes into a target repo. | `references/templates/` | `CODING_STANDARDS.md` | write-skill; fixture shows planner proposes it |
 
-## Next to poteto and Matt
+## Their trees, our tree
 
-| Part | poteto (pstack) | Matt skills | Ours | What we take, where we differ |
-|---|---|---|---|---|
-| Hub | `poteto-mode/SKILL.md` | none (flat skills) | `squad-mode/SKILL.md` | Take the H2 order. Differ: add `## Standards`, no Cursor model slugs or `poteto-agent`. |
-| Rules first | Non-negotiables | none | Non-negotiables | Same. Ours route to tdd, unslop, no-comments and our gates. |
-| Principles | `principle-*` leafs, index in hub | none | same leafs, pinned | Same, unchanged. |
-| Standards | none | none | `standard-*` leafs, index in hub | New, built in the principle shape plus a "how to check" line. |
-| Playbooks | `poteto-mode/playbooks/*.md` | none | `squad-mode/playbooks/*.md` | Copy + adapt. Differ: our plan file, one PR per PBI, no `/loop` or swarm. |
-| Skills | one folder per skill | one folder per skill, grouped by area | one folder per skill | Same. Matt parts are woven, not copied whole. |
-| Subagents | `poteto-agent` (Cursor) | none | 10 `squad-*` agents | Ours, with hub path and named leafs in every prompt. |
-| Commands | Cursor slash and built-ins | none | 7 thin commands | Ours. Planning stays ours (`docs/squad-plan.md`). |
-| Licence | MIT | MIT | NOTICE lists both | Source line with SHA on every copy. |
+We take the pstack and Matt structure one to one (Sven 2026-11-01: "use there structures"). Checked at the pinned SHAs.
+
+pstack ([ae5650f](https://github.com/cursor/plugins/tree/ae5650febf4320793844c12c4adaa937f417f8da/pstack)):
+
+```text
+pstack/
+  .cursor-plugin/plugin.json        # skills + agents, no commands/
+  agents/poteto-agent.md
+  skills/
+    poteto-mode/                    # the one hub, -mode suffix
+      SKILL.md  playbooks/*.md (24)  references/  scripts/
+    principle-<title>/SKILL.md      # leafs, indexed from the hub
+    statechart/  tdd/  arena/ ...   # bare names; SKILL.md + references/ + scripts/
+```
+
+Matt ([4ae2317](https://github.com/mattpocock/skills/tree/4ae2317ddb22b046e26455e4f9c9b3aaaf62212d)):
+
+```text
+skills/
+  engineering/tdd/  SKILL.md  mocking.md ...        # sub-docs next to SKILL.md, no hub
+  engineering/codebase-design/  SKILL.md  DEEPENING.md
+  productivity/teach/  SKILL.md
+```
+
+| Part | pstack | Matt | Ours |
+|---|---|---|---|
+| Hub | `poteto-mode/` | none | `<command>-mode/`, same layout |
+| Sub-docs | `playbooks/`, `references/`, `scripts/` in the skill dir | `.md` next to `SKILL.md` | pstack layout (we have playbooks) |
+| Leafs | `principle-<title>/` | none | same, plus standard leafs |
+| Other skills | bare kebab name | bare kebab name, area folder | bare kebab name, one plugin per pack |
+| Calls a skill | bold name ("the **tdd** skill"), resolved as `../<name>/SKILL.md` | `/name` in text | bold name, `../<name>/SKILL.md` (REF01) |
+| Agents | `agents/poteto-agent.md` | none | `agents/<pack>-<role>.md` |
+
+Where we differ, and why:
+
+| Difference | Why |
+|---|---|
+| **Standards layer**: `standard-<topic>` (global, in `plugins/squad`) and `standard-<language>-<topic>` (in each language pack), indexed from the hub `## Standards` as `### Global` then `### Language` | Sven 2026-11-01: only standards are ours. Neither pstack nor Matt has standards. |
+| `commands/` files | Kept from main: Copilot needs `/squad:*` and the 7-command list. Not a structure of theirs; the command only loads the `-mode` hub, so the skill name differs from the command. |

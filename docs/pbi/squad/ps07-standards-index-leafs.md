@@ -106,7 +106,9 @@ Index in `squad-mode`:
 ```markdown
 ## Standards
 
-Read the leaf skill in full for any standard you apply. Each entry names when it applies. Each leaf is the **standard-<title>** skill, title in kebab case.
+Read global first, then the language of the project. Read the leaf skill in full for any standard you apply. Each entry names when it applies. Each leaf is the **standard-<title>** skill, title in kebab case.
+
+### Global
 
 - **No Em Dash.** Any prose. Leaf: standard-no-em-dash.
 - **No Secrets in Markdown.** Any file, PR body or comment.
@@ -117,6 +119,10 @@ Read the leaf skill in full for any standard you apply. Each entry names when it
 - **HTTP API Shape.** Any HTTP collection (named envelope).
 - **Layers.** Any new module (from `design.md`).
 - **Test Behavior.** Any test (from `testing-principles.md`, points to the principle leaf).
+
+### Language
+
+Lines for the language of the project, added by PS17 (for example **C# Layers.** .NET project. Leaf: standard-csharp-layers.).
 ```
 
 | poteto `principle-<x>/SKILL.md` | our `standard-<x>/SKILL.md` |
