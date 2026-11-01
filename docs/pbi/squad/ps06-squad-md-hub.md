@@ -44,7 +44,7 @@ PS04. Start only when those PBIs are merged on main. Build order: [README](READM
 | command | `plugins/squad/commands/squad-review.md` | same | edit: load `squad-md` |
 | hub | `plugins/squad/skills/squad/SKILL.md` | `plugins/squad/skills/squad-md/SKILL.md` | rename and restyle; old dir kept as a one-line pointer until GA07 |
 | contract | `plugins/squad/skills/squad/references/*.md (11 files)` | `plugins/squad/skills/squad-md/references/*.md` | move |
-| fork | (fork files) | `standard-<name> (fork), references/custom-rules.md, hub index` | keep (fork-owned, never edited) |
+| fork | (fork files) | `fork leafs not in migrations/v2.json (standard-<topic>, principle-<title>, playbooks/<title>.md), references/custom-rules.md` | keep (fork-owned, never edited) |
 
 Full list for all PBIs: [MIGRATION.md](MIGRATION.md#path-table).
 

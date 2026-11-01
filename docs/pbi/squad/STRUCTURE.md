@@ -56,7 +56,6 @@ plugins/squad/
     squad-reviewer.md  squad-simplifier.md  squad-security-reviewer.md  squad-orchestrator.md  squad-retro.md
   references/smoke-matrix.md        # unchanged
   rules/review-checklist.mdc        # unchanged (Cursor rule)
-  standards/<name>.md               # FORK EXTENSION POINT: a fork's own standard text (none upstream)
   skills/
     squad-md/
       SKILL.md                      # hub
@@ -142,7 +141,7 @@ docs/pbi/squad/fork-inventory.md    # step 0 output in forks
 | skills/standard-*/ | one leaf per standard: Why, When, Check | PS07 | REF03, leaf bar |
 | skills/principle-*/ | copied pstack principles | PS04 | REF02, REF06 |
 | skills/<pstack or Matt name>/ | copied skills (we change them) | PS04, PS05, PS12, PS13, PS14 | REF06, REF01 |
-| standards/<name>.md, standard-<name> (fork), custom-rules.md | fork-owned, empty upstream | fork | REF03 accepts, migrate-check `fork-owned` |
+| fork leafs (`standard-<topic>`, `principle-<title>`, `playbooks/<title>.md`), custom-rules.md | fork-owned: not in `migrations/v2.json`, listed in `fork-inventory.md` | fork | REF03 name clash check, migrate-check `fork-owned` |
 | NOTICE | licences of every copy | PS05 | NOTICE test |
 | aw-closure.json | generated skill list for gh-aw | GA01 (generator) | AwClosureTests |
 | external-skills.json | pins: skills we use unchanged, 40-hex SHA | PS04, PS05, PS17 | REF05, ExternalSourceTests |
@@ -152,19 +151,19 @@ Dependencies (found by scanning the upstream files at the pinned SHAs) are pinne
 
 ## Fork extension point
 
-A fork's own standards and rules live in four fixed places. No v2 PBI creates, edits or deletes them, `validate` accepts them, and the gh-aw closure (GA01) includes them.
+The extension point is the hub's own `## Standards` index (and `## Playbooks`). A fork adds leafs next to ours with the same naming, role plus kebab title, never the origin or a location in the name. Ownership: ours are listed in the upstream manifest `migrations/v2.json`, a fork's in `fork-inventory.md`. An upgrade touches only files in our manifest; a leaf not in it always stays. A fork name equal to ours goes to the MIGRATION conflict table, fix by renaming.
 
 | What | Where | How it is found |
 |---|---|---|
-| Own standard text | `plugins/<pack>/standards/<name>.md` | linked by its leaf |
-| Own standard leaf | `plugins/<pack>/skills/standard-<name>/SKILL.md` (standard leaf shape, [SHAPES](SHAPES.md#standard-leaf)) | one index line inside the hub's hub index |
-| Own rule that is not a whole standard | `plugins/<pack>/skills/<hub>/references/custom-rules.md` | the hub's hub index links it |
-| Own lines in a hub | normal index lines under `## Standards` (or `## Playbooks`), each listed in `fork-inventory.md` | v2 regen keeps every listed line |
+| Own standard | `plugins/<pack>/skills/standard-<topic>/SKILL.md`, for example `standard-api-versioning` (standard leaf shape, [SHAPES](SHAPES.md#standard-leaf)) | one line in the hub `## Standards` index |
+| Own principle | `plugins/<pack>/skills/principle-<title>/SKILL.md` | one line in `## Principles` |
+| Own playbook | `plugins/<pack>/skills/<hub>/playbooks/<title>.md` | one line in `## Playbooks` |
+| Own rule that is not a whole standard | `plugins/<pack>/skills/<hub>/references/custom-rules.md` | linked from the `## Standards` index |
 
 ```markdown
 ## Standards
 - **No Em Dash.** Any prose. Leaf: standard-no-em-dash.
-- **Acme Logging.** Any service code. Leaf: standard-acme-logging.
+- **API Versioning.** Any public API change. Leaf: standard-api-versioning.
 - Rules: references/custom-rules.md
 ```
 

@@ -39,7 +39,7 @@ PS01. Start only when those PBIs are merged on main. Build order: [README](READM
 
 | Kind | Now | After | Action |
 |---|---|---|---|
-| fork | (fork files) | `standard-<name> (fork), references/custom-rules.md, hub index` | keep (fork-owned, never edited) |
+| fork | (fork files) | `fork leafs not in migrations/v2.json (standard-<topic>, principle-<title>, playbooks/<title>.md), references/custom-rules.md` | keep (fork-owned, never edited) |
 | validator | `SkillReferenceValidator (backticked `/name` only)` | + REF01 to REF06, HUB01 | add |
 
 Full list for all PBIs: [MIGRATION.md](MIGRATION.md#path-table).
@@ -66,7 +66,7 @@ migrations/v2.json             # NEW: moves from MIGRATION.md, machine readable
 tools/AgentPacks.Cli.Tests/
   SkillReferenceRulesTests.cs  HubValidatorTests.cs  MigrateCheckTests.cs   # NEW
 tests/fixtures/fork-acme/      # NEW: fixture fork, FAKE values
-  plugins/squad/skills/standard-acme-logging/SKILL.md   # one own standard
+  plugins/squad/skills/standard-api-versioning/SKILL.md   # one own standard
   plugins/squad/skills/squad-md/references/custom-rules.md    # one own rule
   aw-closure.json              # lists both
 docs/pbi/squad/fork-inventory.md   # NEW: empty template, header row only
@@ -130,7 +130,7 @@ flowchart TD
 | Rules in C# validator, same as today | A separate script | `validate` is the CI gate; `/pack-check` reuses it (PO decision 1). |
 | `migrate-check` as a CLI command | Tell forks to diff by hand | Juniors and forks need a yes or no, not a manual diff. |
 | Kind `CompanyPolicy` | `Warning` | Broken references break agents; they must fail the build. |
-| Fork extension point: poteto-style names (`standard-acme-logging`), `custom-rules.md`, owner list in `fork-inventory.md` | A `local-` prefix and marker block (Sven 2026-11-01: does not like it) | Same naming as `principle-*` leafs; ownership lives in one list, not in the name. |
+| Fork extension point: poteto-style names (`standard-api-versioning`), `custom-rules.md`, owner list in `fork-inventory.md` | A `local-` prefix and marker block (Sven 2026-11-01: does not like it) | Same naming as `principle-*` leafs; ownership lives in one list, not in the name. |
 
 ### 4.7 Checks and error messages
 
@@ -143,9 +143,9 @@ flowchart TD
 | REF05 | pinned skill dir is byte-equal to its pin | `REF05 <dir>: differs from pin 40-hex; copy it to our folder and mark copy + adapt` |
 | REF06 | copied file has `Source:` under H1 and `## What we changed` | `REF06 <path>: copy without Source line` |
 | HUB01 | hub H2 order and max 150 lines | `HUB01 <path>: missing '## Standards'` |
-| migrate-check | no file from base is gone unless in moves | `LOST plugins/squad/skills/standard-acme-logging/SKILL.md: not in migrations/v2.json, restore it` |
-| HUB01 fork lines | index lines whose leaf is in `fork-inventory.md` are kept on regen and counted in the 150 | `HUB01 <hub>: fork line standard-acme-logging dropped` |
-| REF03 fork names | a fork name equal to a v2 name is an error | `REF03 standard-acme-logging: name used by v2` |
+| migrate-check | no file from base is gone unless in moves | `LOST plugins/squad/skills/standard-api-versioning/SKILL.md: not in migrations/v2.json, restore it` |
+| HUB01 fork lines | index lines whose leaf is in `fork-inventory.md` are kept on regen and counted in the 150 | `HUB01 <hub>: fork line standard-api-versioning dropped` |
+| REF03 fork names | a fork name equal to a v2 name is an error | `REF03 standard-api-versioning: name used by v2` |
 
 ### 4.8 Risks and what breaks
 

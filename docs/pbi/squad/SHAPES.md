@@ -242,3 +242,17 @@ Load the `statechart-md` skill with the Skill tool by exact name. Run its flow. 
 ```
 
 Bad: a command file with the full procedure, so Copilot, Claude and gh-aw imports each carry a different copy.
+
+## Names
+
+Every kind uses the poteto pattern: role plus a kebab title that says what it is. Never the origin (fork, upstream, `local`) or a location in the name.
+
+| Kind | Name | Example |
+|---|---|---|
+| Hub | `<pack>-md` | `squad-md` |
+| Principle leaf | `principle-<title>` | `principle-fix-root-causes` |
+| Standard leaf | `standard-<topic>` | `standard-api-versioning` (fork) next to `standard-squash-merge-one-by-one` (ours) |
+| Playbook | `playbooks/<title>.md` | `playbooks/bug-fix.md` |
+| Subagent | `<pack>-<role>` | `squad-reviewer` |
+
+Ownership is not in the name: ours are in the upstream manifest `migrations/v2.json`, a fork's in `fork-inventory.md`. A clash goes to the MIGRATION conflict table, fix by renaming.

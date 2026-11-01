@@ -15,8 +15,8 @@ Write `docs/pbi/squad/fork-inventory.md` in your fork from that list. One row pe
 | Path in fork | Added or changed | Kind | v2 place | PBI | Status |
 |---|---|---|---|---|---|
 | plugins/squad/skills/squad/SKILL.md (lines 80 to 92) | changed | hub lines | squad-md hub index | PS06 | todo |
-| shared/standards/acme-logging.md | added | standard | standard-acme-logging + index line; file stays | PS07 | todo |
-| plugins/squad/skills/acme-deploy/SKILL.md | added | skill | same path, SHAPES skill shape | none | open: owner decides |
+| shared/standards/api-versioning.md | added | standard | standard-api-versioning + index line; file stays | PS07 | todo |
+| plugins/squad/skills/deploy-preview/SKILL.md | added | skill | same path, SHAPES skill shape | none | open: owner decides |
 ```
 
 Status is `todo`, `done` or `open: <reason>`. When unsure, the file stays where it is and the row is `open`. Nothing in the inventory is deleted or overwritten.
@@ -30,10 +30,10 @@ Status is `todo`, `done` or `open: <reason>`. When unsure, the file stays where 
 ```markdown
 ## Standards
 - **No Em Dash.** Any prose. Leaf: standard-no-em-dash.
-- **Acme Logging.** Any service code. Leaf: standard-acme-logging.
+- **API Versioning.** Any public API change. Leaf: standard-api-versioning.
 ```
 
-4. **Your names follow the poteto pattern: kind first, then a plain kebab name.** `standard-acme-logging`, `playbooks/acme-deploy.md`, agents `<pack>-<role>`. No `local-` prefix. `fork-inventory.md` lists every name you own, and REF03 fails when one of them equals a v2 name, so nothing collides silently.
+4. **Names say what it is, never where it comes from.** Poteto style: role plus a kebab title. Your standard is `standard-<topic>` next to ours (for example `standard-api-versioning`), your principle `principle-<title>`, your playbook `playbooks/<title>.md`, your agent `<pack>-<role>`. No fork name, no `local`, no location. Whether a file is yours shows in `fork-inventory.md` and in our upstream manifest (`migrations/v2.json`): an upgrade touches only files in our manifest, and a leaf not in it always stays. A name equal to one of ours goes to the [conflict table](MIGRATION.md#fork-path) with rename as the fix.
 5. **Run the keep check.** Before and after each PBI:
 
 ```bash
@@ -61,7 +61,7 @@ It reads `migrations/v2.json` (PS03) and prints one line per file: `kept`, `move
 
 ## Fixture fork
 
-`tests/fixtures/fork-acme/` (added in PS03) is a tiny fork with one own standard (`standard-acme-logging`) and one own rule (`custom-rules.md`: "Log with the Acme logger"). After each PBI:
+`tests/fixtures/fork-acme/` (added in PS03) is a tiny fork with one own standard (`standard-api-versioning`) and one own rule (`custom-rules.md`: "Version every public API"). After each PBI:
 
 ```bash
 dotnet run --project tools/AgentPacks.Cli -- migrate-check --base <fixture base> --root tests/fixtures/fork-acme   # 0 LOST

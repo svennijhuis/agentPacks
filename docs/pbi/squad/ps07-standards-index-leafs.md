@@ -44,7 +44,7 @@ PS06. Start only when those PBIs are merged on main. Build order: [README](READM
 | contract | `plugins/squad/skills/squad/references/review-contract.md` | `plugins/squad/skills/squad-md/references/review-contract.md + standard-review-contract` | split: words and verdicts to the leaf, flow stays |
 | standard | (none, rules in chat and memory) | `plugins/squad/skills/standard-*/SKILL.md (9)` | add |
 | standard | `shared/standards/design.md, testing-principles.md, http-api.md` | same | keep; leafs link to them |
-| fork | (fork files) | `standard-<name> (fork), references/custom-rules.md, hub index` | keep (fork-owned, never edited) |
+| fork | (fork files) | `fork leafs not in migrations/v2.json (standard-<topic>, principle-<title>, playbooks/<title>.md), references/custom-rules.md` | keep (fork-owned, never edited) |
 
 Full list for all PBIs: [MIGRATION.md](MIGRATION.md#path-table).
 
@@ -144,7 +144,7 @@ Leafs: `plugins/squad/skills/standard-<x>/SKILL.md`. `shared/standards/*.md` sta
 flowchart LR
   H["squad-md ## Standards"] --> S1["standard-no-em-dash"]
   H --> S2["standard-review-contract"]
-  H --> SL["hub index: standard-<name> (fork)"]
+  H --> SL["fork leaf: standard-api-versioning"]
   S2 --> RC["references/review-contract.md flow"]
 ```
 
