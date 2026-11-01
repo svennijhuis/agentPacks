@@ -20,6 +20,8 @@
 
 ## Target structure
 
+gh-aw (from AW room): REF07 fails when a skill in a pack's `aw-closure.json` names a tool not in the fixture workflow's `tools.bash`, unless it gives a fallback (`rg`, else `grep -rn`). Pins: 40-hex or tag only, never a branch. Detail: [GA01](gh-aw/ga01-closure-file.md), [GA03](gh-aw/ga03-provider-neutral-unattended.md).
+
 | Rule | Check | Severity |
 |---|---|---|
 | REF01 | `../<name>/SKILL.md` resolves to a plugin skill or an `external-skills.json` record | error |

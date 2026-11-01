@@ -22,7 +22,7 @@ flowchart LR
 |---|---|
 | Consumer workflow `.md` | `workflow_dispatch` only until Sven says yes (POL25); caps, permissions, network and `tools.bash` in its own frontmatter (not importable); `skills:` lives here only. |
 | `workflows/shared/*.md` | No `on:`, no `skills:` (gh-aw drops it silently, POL31). |
-| Imported command or skill file | Only known frontmatter keys (`name`, `description`, and skill keys we already ship). |
+| Imported command or skill file | Frontmatter `name` and `description` only. |
 | Every pin | `@vX.Y.Z` on the generated commit or a 40-hex SHA. Never a branch, never `marketplace-beta`. |
 | Skills in the closure | Name only tools the workflow allows, or give a fallback (REF07). |
 

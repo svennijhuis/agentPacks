@@ -19,7 +19,7 @@
 
 ## Target structure
 
-scenarios-md steps to `playbooks/write-scenarios.md` and it reads statechart paths; verify-harness restyle; pack-check-md rename plus hygiene mode that runs validate locally.
+gh-aw: `pack-check-md` install and reload and `/statechart` TLA+ scripts are local only; imported command and skill files carry only `name` and `description` frontmatter so `gh aw compile --strict` stays clean ([gh-aw README](gh-aw/README.md)). scenarios-md steps to `playbooks/write-scenarios.md` and it reads statechart paths; verify-harness restyle; pack-check-md rename plus hygiene mode that runs validate locally.
 
 ## External skills per step
 

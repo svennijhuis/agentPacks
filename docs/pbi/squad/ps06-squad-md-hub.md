@@ -21,6 +21,8 @@
 
 ## Target structure
 
+gh-aw: hub `## Autonomy` gets: a run with no human takes the default answer and writes the open question into the report. Local only: yes or no asks, `docs/squad-plan.md` and retro writes. Rename `squad` to `squad-md` lands with the old dir as a pointer; the AW pin bump (path + closure + `@v2.0.0`) is one PR in the AW repo ([GA05](gh-aw/ga05-aw-catalog-bump.md)), see [MIGRATION](MIGRATION.md#what-breaks-from-v1).
+
 ```markdown
 ---
 name: squad-md
