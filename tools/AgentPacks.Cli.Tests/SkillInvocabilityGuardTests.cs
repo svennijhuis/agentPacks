@@ -1,6 +1,3 @@
-using System.Diagnostics;
-using AgentPacks.Cli.Generation;
-
 namespace AgentPacks.Cli.Tests;
 
 /// <summary>
@@ -26,7 +23,7 @@ public sealed class SkillInvocabilityGuardTests
         var output = Directory.CreateTempSubdirectory("skill-guard-").FullName;
         try
         {
-            Generate(root, output);
+            TestRepository.RunValidateAllOut(output);
             var failures = new List<string>();
             var sources = Directory.GetFiles(Path.Combine(root, "plugins"), "SKILL.md", SearchOption.AllDirectories)
                 .Where(path => !TestRepository.IsGeneratedPath(Path.GetRelativePath(root, path)))
@@ -38,7 +35,7 @@ public sealed class SkillInvocabilityGuardTests
             foreach (var path in sources.Concat(generated))
             {
                 var name = Path.GetFileName(Path.GetDirectoryName(path))!;
-                var frontmatter = FrontmatterText(File.ReadAllText(path));
+                var frontmatter = TestRepository.FrontmatterYaml(File.ReadAllText(path));
                 var where = path.StartsWith(output, StringComparison.Ordinal) ? "generated " + Path.GetRelativePath(output, path) : Path.GetRelativePath(root, path);
                 if (!UserInvocableAllowlist.Contains(name) && !HasLine(frontmatter, "user-invocable: false"))
                 {
@@ -61,30 +58,4 @@ public sealed class SkillInvocabilityGuardTests
 
     private static bool HasLine(string frontmatter, string line) =>
         frontmatter.Split('\n').Any(l => l.Trim() == line);
-
-    private static string FrontmatterText(string text)
-    {
-        text = text.Replace("\r", "", StringComparison.Ordinal);
-        if (!text.StartsWith("---\n", StringComparison.Ordinal))
-        {
-            return string.Empty;
-        }
-
-        var end = text.IndexOf("\n---", 4, StringComparison.Ordinal);
-        return end < 0 ? string.Empty : text[4..end];
-    }
-
-    private static void Generate(string root, string output)
-    {
-        var cli = typeof(GeneratedFile).Assembly.Location;
-        var info = new ProcessStartInfo("dotnet", [cli, "validate-all", "--out", output])
-        {
-            WorkingDirectory = root, RedirectStandardOutput = true, RedirectStandardError = true,
-        };
-        using var process = Process.Start(info)!;
-        var stdout = process.StandardOutput.ReadToEndAsync();
-        var stderr = process.StandardError.ReadToEnd();
-        process.WaitForExit();
-        Assert.True(process.ExitCode == 0, stdout.Result + stderr);
-    }
 }

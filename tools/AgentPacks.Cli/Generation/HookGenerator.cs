@@ -88,17 +88,7 @@ internal static class HookGenerator
             hooks[name] = entries;
         }
 
-        var document = new JsonObject();
-
-        // Copilot's format carries a version; the other three reject nothing but declare none.
-        if (profile.HookDocumentVersion is { } version)
-        {
-            document["version"] = version;
-        }
-
-        document["hooks"] = hooks;
-
-        return document;
+        return HookDocument(profile, hooks);
     }
 
     private static void Append(JsonArray target, ClientProfile profile, HookInvocation invocation, string? matcher)
@@ -199,7 +189,13 @@ internal static class HookGenerator
         WindowsCommand(profile, $"scripts/{invocation.Script}", invocation.ScriptMatcher);
 
     /// <summary>An empty document in this client's shape, for a plugin that authored no hooks.</summary>
-    public static JsonObject EmptyDocument(ClientProfile profile)
+    public static JsonObject EmptyDocument(ClientProfile profile) =>
+        HookDocument(profile, new JsonObject());
+
+    /// <summary>
+    /// Copilot's format carries a version; the other three reject nothing but declare none.
+    /// </summary>
+    private static JsonObject HookDocument(ClientProfile profile, JsonObject hooks)
     {
         var document = new JsonObject();
 
@@ -208,7 +204,7 @@ internal static class HookGenerator
             document["version"] = version;
         }
 
-        document["hooks"] = new JsonObject();
+        document["hooks"] = hooks;
 
         return document;
     }
