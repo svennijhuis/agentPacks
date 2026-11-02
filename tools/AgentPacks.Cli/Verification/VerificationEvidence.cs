@@ -121,7 +121,7 @@ public static partial class VerificationEvidence
             .Select(match => Criterion(
                 int.Parse(match.Groups[1].Value),
                 match.Groups[2].Value.Trim().Trim('`').Trim().ToLowerInvariant(),
-                Unwrap(match.Groups[3].Value),
+                MarkdownCells.Unwrap(match.Groups[3].Value),
                 match.Groups[4].Value.Trim()))
             .ToList();
 
@@ -254,7 +254,7 @@ public static partial class VerificationEvidence
     /// <summary>A command that can actually cover a criterion, not a dash or an empty cell.</summary>
     public static bool IsCoveringCommand(string command)
     {
-        var value = Unwrap(command);
+        var value = MarkdownCells.Unwrap(command);
         return value.Length > 0 && value != "—" && value != "-" && value != "none";
     }
 
@@ -288,7 +288,7 @@ public static partial class VerificationEvidence
     /// (`p95 143 ms ≤ 200 ms`). A pass count or a test name is not a measurement.
     /// </summary>
     public static bool IsMeasuredAgainstBound(string evidence) =>
-        MeasuredAgainstBound.IsMatch(Unwrap(evidence));
+        MeasuredAgainstBound.IsMatch(MarkdownCells.Unwrap(evidence));
 
     /// <summary>
     /// A command that only builds, restores, formats, or type-checks (`dotnet build`, `cargo check`,
@@ -297,7 +297,7 @@ public static partial class VerificationEvidence
     /// </summary>
     public static bool IsCompileOnlyCommand(string command)
     {
-        var value = Unwrap(command);
+        var value = MarkdownCells.Unwrap(command);
         return CompileVerb.IsMatch(value) && !ExecutesCode.IsMatch(value);
     }
 
@@ -338,18 +338,6 @@ public static partial class VerificationEvidence
 
     private static bool IsAffirmative(string value) =>
         ContainsAny(value, "yes", "covered", "verified", "checked");
-
-    private static string Unwrap(string value)
-    {
-        var trimmed = value.Trim();
-
-        if (trimmed.Length >= 2 && trimmed[0] == '`' && trimmed[^1] == '`')
-        {
-            return trimmed[1..^1].Trim();
-        }
-
-        return trimmed;
-    }
 
     private static bool ContainsAny(string value, params string[] needles) =>
         needles.Any(needle => value.Contains(needle, StringComparison.OrdinalIgnoreCase));

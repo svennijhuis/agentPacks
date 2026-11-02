@@ -1,5 +1,3 @@
-using System.Diagnostics;
-
 namespace AgentPacks.Cli.Tests;
 
 /// <summary>
@@ -122,7 +120,7 @@ public sealed class VerifyLintTests : IDisposable
     [Fact]
     public void Posix_and_powershell_twins_exist()
     {
-        var scripts = Path.Combine(TestRepository.SourceRoot(), "plugins", "pack-check", "skills", "pack-check", "scripts");
+        var scripts = PackCheckScriptTwin.ScriptsRoot();
         Assert.True(File.Exists(Path.Combine(scripts, "check-verify.sh")));
         Assert.True(File.Exists(Path.Combine(scripts, "check-verify.ps1")));
         var sh = File.ReadAllText(Path.Combine(scripts, "check-verify.sh"));
@@ -348,50 +346,6 @@ public sealed class VerifyLintTests : IDisposable
             File.WriteAllText(evidencePath, evidenceText);
             files.Add(evidencePath);
         }
-        var posix = Run("sh", [Script("check-verify.sh"), .. files], name);
-        if (PwshAvailable.Value)
-        {
-            var powerShell = Run("pwsh", ["-NoProfile", "-NonInteractive", "-File", Script("check-verify.ps1"), .. files], name);
-            Assert.Equal(posix.Exit, powerShell.Exit);
-            Assert.Equal(
-                posix.Output.Replace("\r", "", StringComparison.Ordinal),
-                powerShell.Output.Replace("\r", "", StringComparison.Ordinal));
-        }
-        return posix;
-    }
-
-    private static readonly Lazy<bool> PwshAvailable = new(() =>
-    {
-        try
-        {
-            using var probe = Process.Start(new ProcessStartInfo("pwsh", "-NoProfile -Command exit")
-            {
-                RedirectStandardOutput = true, UseShellExecute = false
-            })!;
-            probe.WaitForExit(20000);
-            return probe.ExitCode == 0;
-        }
-        catch (System.ComponentModel.Win32Exception)
-        {
-            return false;
-        }
-    });
-
-    private static string Script(string file) => Path.Combine(TestRepository.SourceRoot(),
-        "plugins", "pack-check", "skills", "pack-check", "scripts", file);
-
-    private static (int Exit, string Output) Run(string shell, string[] arguments, string name)
-    {
-        var start = new ProcessStartInfo(shell) { RedirectStandardOutput = true, UseShellExecute = false };
-        foreach (var argument in arguments)
-            start.ArgumentList.Add(argument);
-        using var process = Process.Start(start)!;
-        var read = process.StandardOutput.ReadToEndAsync();
-        if (!process.WaitForExit(TimeSpan.FromSeconds(20)))
-        {
-            process.Kill(entireProcessTree: true);
-            Assert.Fail($"{shell} check-verify did not finish within 20 s on {name}.");
-        }
-        return (process.ExitCode, read.Result);
+        return PackCheckScriptTwin.Run("check-verify", files, name);
     }
 }

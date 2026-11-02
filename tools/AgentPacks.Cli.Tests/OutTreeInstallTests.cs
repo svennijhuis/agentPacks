@@ -1,5 +1,4 @@
 using System.Diagnostics;
-using AgentPacks.Cli.Generation;
 
 namespace AgentPacks.Cli.Tests;
 
@@ -13,17 +12,7 @@ public sealed class OutTreeInstallTests
         var output = Directory.CreateTempSubdirectory("out-tree-").FullName;
         try
         {
-            var info = new ProcessStartInfo("dotnet", [typeof(GeneratedFile).Assembly.Location, "validate-all", "--out", output])
-            {
-                WorkingDirectory = root, RedirectStandardOutput = true, RedirectStandardError = true,
-            };
-            using (var process = Process.Start(info)!)
-            {
-                var stdout = process.StandardOutput.ReadToEnd();
-                var stderr = process.StandardError.ReadToEnd();
-                process.WaitForExit();
-                Assert.True(process.ExitCode == 0, stdout + stderr);
-            }
+            TestRepository.RunValidateAllOut(output);
 
             var squad = Path.Combine(output, "plugins", "squad");
             foreach (var relative in new[]
@@ -38,7 +27,7 @@ public sealed class OutTreeInstallTests
 
             foreach (var script in new[] { "check-plan.sh", "check-plan.ps1", "check-retro.sh", "check-retro.ps1", "check-verify.sh", "check-verify.ps1" })
             {
-                Assert.True(File.Exists(Path.Combine(output, "plugins", "pack-check", "skills", "pack-check", "scripts", script)), $"out tree is missing {script}");
+                Assert.True(File.Exists(Path.Combine(TestRepository.PackCheckSkillScriptsRoot(output), script)), $"out tree is missing {script}");
             }
 
             var outNames = Directory.EnumerateFiles(output, "*", SearchOption.AllDirectories).Select(Path.GetFileName).ToHashSet(StringComparer.Ordinal);

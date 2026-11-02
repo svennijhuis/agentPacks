@@ -37,19 +37,10 @@ Do not rewrite skills, and do not grow a graph from it.
 
 The main agent owns user interaction, invokes `squad-planner` once per question round, launches applicable reviewers in parallel, and routes the merged verdict. `squad-orchestrator` only merges completed reports and verifier evidence. No phase commits, merges, or pushes.
 
-Obvious typos, renames, and one-line fixes take the small-change route: the main agent implements and verifies directly, with a tiny plan (goal, decision, verify command) and without invoking planner, implementer, verifier, or review agents.
+Small change: Locked v1 step 3 above. Examples: typos, renames, one-line fixes.
 
-Work too big for one session (more than one PBI, more than 3 steps, or more than 10 files) is not
-built. `/squad` writes `docs/squad-plan.md` with numbered tasks (Goal, Done-check, optional Depends,
-Status `open`, `started` or `done`) and stops. An open plan on that write asks once: replace or append.
-`/squad split <request>` forces that split even for
-small work; with a plan already there it asks once: replace or append. Every later `/squad`, in a
-new session, first checks the real state (a task whose done-check passes is done, a task that waits
-on an open task is skipped with the reason) and always asks, also with no request: "Plan X: task 1
-done, task 2 open. Shall I do task 2?" On yes it does that one task and stops; a half done task gets
-"Task 2 was half done, shall I finish it?", and a finished plan gets "shall I close it?" (yes moves
-it to `docs/squad-plans/`). A task still too big is split in place; the plan is never rewritten. A
-new request while a plan is open gets one question: next task or the new request. See
+Work that does not fit one session is split into `docs/squad-plan.md` and not built.
+`/squad split <request>` forces that split. Modes, questions, and one-task-per-run:
 [session split](skills/squad/references/session-split.md).
 
 ## Components

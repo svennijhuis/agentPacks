@@ -8,12 +8,7 @@ This pack is not a Squad phase and not a pack-check probe. v1 writes a skill or 
 
 ## Flow
 
-```text
-/pack-author
-1. make: PLAN.md owning pack, Matt-tiny skill or agent stub, ADD-SKILL or ADD-AGENT, validate hints
-2. review: pack-author-reviewer returns PASS/WARN/FAIL
-3. change: at most two human-approved rounds on FAIL items
-```
+Modes (`make`, `review`, `change`) are in the [skill](skills/pack-author-md/SKILL.md).
 
 ## Components
 
