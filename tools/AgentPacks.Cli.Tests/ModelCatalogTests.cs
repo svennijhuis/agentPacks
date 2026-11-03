@@ -187,7 +187,7 @@ public sealed class ModelCatalogTests
     public void Authored_squad_skill_is_user_invoked()
     {
         var skill = File.ReadAllText(Path.Combine(
-            TestRepository.SourceRoot(), "plugins", "squad", "skills", "squad", "SKILL.md"));
+            TestRepository.SourceRoot(), "plugins", "squad", "skills", "squad-mode", "SKILL.md"));
         var parsed = TestRepository.ParseFrontmatter(skill);
         Assert.Equal("true", parsed!.Scalar("disable-model-invocation"));
     }

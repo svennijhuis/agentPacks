@@ -13,7 +13,7 @@ This file defines the shared wire format between Loop agents.
 
 In a planned loop, any `high` or `medium` means `fix`; only `low` and `tiny` can pass with notes. A
 problem no change to this diff can resolve means `replan`. `pass` additionally requires a `pass` row
-with adequate evidence for every acceptance criterion. Only `squad-orchestrator` assigns the verdict.
+with adequate evidence for every acceptance criterion. Only `main chat` assigns the verdict.
 Standalone diff review has no verdict or fix-round effect; severity ranks its findings only.
 
 ## Finding identity
@@ -72,7 +72,7 @@ apply.
 result. Severity cannot exceed demonstrated impact. A defense-in-depth gap with no reachable attack
 is not a finding. Source-first: do not probe live or shared systems. A control that exists only in
 deployment, IdP, or proxy config and is absent from the repo is omitted (not a finding); name it
-under **Examined**. Prefix `A01`–`A10`. Mark N/A; no filler.
+under **Examined**. Prefix `A01`-`A10`. Mark N/A; no filler.
 
 Walk this table in order. Trace each changed surface from entry to the last trusted decision.
 
@@ -140,13 +140,13 @@ Pathspec when those paths are in the diff: `':(exclude)docs/plans' ':(exclude)do
 If omitting them leaves nothing to review, stop.
 
 On merge, drop any finding whose location is a run file, and any finding that a run file is missing.
-Keep synthesized `squad-verifier` rows that use the plan path as `Location`: that path is an
+Keep synthesized `verifier role` rows that use the plan path as `Location`: that path is an
 identifier, not a review target.
 
 ## Verifier report
 
 ```markdown
-## squad-verifier: round <n>
+## verifier role: round <n>
 
 | Criterion | Result | Command | Evidence |
 |---|---|---|---|
@@ -198,13 +198,13 @@ A verified `pass` is the outcome of the evaluator, not a hopeful reading of the 
 | Agent-written tests are happy-path only | Not a pass. Name behavioral and edge coverage. |
 | Blank or unconfirmed Seam, or tests that hit internals not named in the Seam column | That row is `not verified`. Not a pass. |
 | A quantitative criterion's Evidence does not quote the verifier's own measured value against the bound (`p95 143 ms ≤ 200 ms`) | That row is `not verified`. A green test name is not a measurement. A measured value on the other side of the bound goes under **Assumptions challenged**. |
-| `Evidence gaps` is not `None` and the gap is not already a merged finding with the same cause | Not a pass. Orchestrator synthesizes a finding attributed to `squad-verifier`. |
-| `Assumptions challenged` is not `None` and the challenge is not already a merged finding with the same cause | Not a pass. Orchestrator synthesizes a finding attributed to `squad-verifier`. |
+| `Evidence gaps` is not `None` and the gap is not already a merged finding with the same cause | Not a pass. Orchestrator synthesizes a finding attributed to `verifier role`. |
+| `Assumptions challenged` is not `None` and the challenge is not already a merged finding with the same cause | Not a pass. Orchestrator synthesizes a finding attributed to `verifier role`. |
 
 A `fail`, `not verified`, `blocked`, or `not run` row blocks `pass`. A `blocked` row is unproven,
 not failed. A `skipped` row does not block `pass`. During merge, the orchestrator turns any blocking
 row that is not already represented by a reviewer finding with the same cause into a finding
-attributed to `squad-verifier`. Use the supplied plan path as `Location`; name the criterion number
+attributed to `verifier role`. Use the supplied plan path as `Location`; name the criterion number
 and command evidence in `Problem` and `Fix`. This preserves the verifier report fields and requires
 no new search.
 This is the one exception to normal finding identity: a reviewer finding with the same cause covers
@@ -215,7 +215,7 @@ The same synthesis applies to non-`None` **Evidence gaps** and **Assumptions cha
 ## Implementer report
 
 ```markdown
-## squad-implementer: round <n>
+## implementer role: round <n>
 
 **Criteria claimed:** <numbers>
 **Fix list entries resolved:** <numbers and deferred low/tiny entries>

@@ -150,7 +150,7 @@ public sealed class PlanLintTests : IDisposable
     [Fact]
     public void Planning_contract_template_lints_clean_in_both_twins()
     {
-        var contract = File.ReadAllText(Path.Combine(TestRepository.SourceRoot(), "plugins", "squad", "skills", "squad", "references", "planning-contract.md"))
+        var contract = File.ReadAllText(Path.Combine(TestRepository.SourceRoot(), "plugins", "squad", "skills", "squad-mode", "references", "planning-contract.md"))
             .Replace("\r", "", StringComparison.Ordinal);
         var start = contract.IndexOf("````markdown\n", StringComparison.Ordinal);
         Assert.True(start >= 0, "plan template fence missing");

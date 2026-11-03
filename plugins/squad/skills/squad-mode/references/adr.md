@@ -8,7 +8,7 @@ links to the others by name. A second ADR for the same plan adds a suffix: `NNNN
 
 Write one only for a hard-to-reverse decision: a new layer or boundary (including a new
 `Infrastructure.<Vendor>` project), a new dependency, a storage
-or API contract change, or a dropped option. `squad-architect` flags these under
+or API contract change, or a dropped option. `architect role` flags these under
 `### Hard decisions` in `## Design`. Everything else stays in the plan.
 
 ## Shape (Nygard)

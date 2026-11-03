@@ -47,14 +47,14 @@ public sealed partial class SquadSessionSplitTests
     [Fact]
     public void Skill_and_readme_point_to_the_session_split_contract()
     {
-        var skill = Source("skills", "squad", "SKILL.md");
+        var skill = Source("skills", "squad-mode", "SKILL.md");
         Assert.Contains("references/session-split.md", skill, StringComparison.Ordinal);
         Assert.Contains("more than one PBI or outcome, more than 3 steps, more than 10 files", skill, StringComparison.Ordinal);
         Assert.Contains("build no code, spawn nobody, stop", skill, StringComparison.Ordinal);
         Assert.Contains("that one task only", skill, StringComparison.Ordinal);
         Assert.Contains("`/squad split <request>` → forced split", skill, StringComparison.Ordinal);
 
-        var contract = Source("skills", "squad", "references", "session-split.md");
+        var contract = Source("skills", "squad-mode", "references", "session-split.md");
         Assert.Contains("Not fit → write `docs/squad-plan.md`, build no code, spawn nobody, write no retro, and stop.", contract, StringComparison.Ordinal);
         Assert.Contains("Take the offered task the user said yes to.", contract, StringComparison.Ordinal);
         Assert.Contains("A request is never dropped", contract, StringComparison.Ordinal);
@@ -63,10 +63,10 @@ public sealed partial class SquadSessionSplitTests
         Assert.Contains("Stop. Do not start the next task in this session.", contract, StringComparison.Ordinal);
         Parse(contract.Replace("<n>", "1", StringComparison.Ordinal)); // the template block is itself a valid task
 
-        Assert.Contains("skills/squad/references/session-split.md", Source("README.md"), StringComparison.Ordinal);
+        Assert.Contains("skills/squad-mode/references/session-split.md", Source("README.md"), StringComparison.Ordinal);
         Assert.Contains("`/squad split <request>`", Source("README.md"), StringComparison.Ordinal);
         Assert.Contains("`/squad split <request>`", File.ReadAllText(Path.Combine(TestRepository.SourceRoot(), "README.md")), StringComparison.Ordinal);
-        Assert.Contains("Session split: <n> steps", Source("agents", "squad-planner.md"), StringComparison.Ordinal);
+        Assert.Contains("Session split: <n> steps", Source("agents", "squad-agent.md"), StringComparison.Ordinal);
     }
 
     [Fact]
@@ -105,7 +105,7 @@ public sealed partial class SquadSessionSplitTests
     [Fact]
     public void New_request_with_an_open_plan_asks_and_leaves_the_plan_untouched()
     {
-        var contract = Source("skills", "squad", "references", "session-split.md");
+        var contract = Source("skills", "squad-mode", "references", "session-split.md");
         Assert.Contains("Any other request → the status line plus the new request\n   question; new request → normal run, and the plan is not read or written again when it fits.", contract.Replace("\r", "", StringComparison.Ordinal), StringComparison.Ordinal);
         Assert.Equal("Plan health and version endpoints: task 1 open. Do task 1, or run the new request?",
             Question(BeforePlan("new-request")!, RequestOf("new-request")));
@@ -148,7 +148,7 @@ public sealed partial class SquadSessionSplitTests
     private enum Mode { Split, SplitAsk, Status, Ask, Close, Blocked, Normal, NothingToRun }
 
     private static string Contract() =>
-        Source("skills", "squad", "references", "session-split.md").Replace("\r", "", StringComparison.Ordinal);
+        Source("skills", "squad-mode", "references", "session-split.md").Replace("\r", "", StringComparison.Ordinal);
 
     /// <summary>The words that make a request name the plan, read from the contract itself.</summary>
     private static List<string> PlanNames()
@@ -306,7 +306,7 @@ public sealed partial class SquadSessionSplitTests
         Assert.Equal(Mode.Normal, ModeFor(null, "/squad add a split view"));
 
         const string Ask = "then always ask, also with no request";
-        Assert.Contains(Ask, Source("skills", "squad", "SKILL.md"), StringComparison.Ordinal);
+        Assert.Contains(Ask, Source("skills", "squad-mode", "SKILL.md"), StringComparison.Ordinal);
         Assert.Contains("then always ask, also with no request text", Source("commands", "squad.md"), StringComparison.Ordinal);
         Assert.Contains("then always ask, also when `/squad` has no request\n   text", Contract(), StringComparison.Ordinal);
     }
@@ -415,7 +415,7 @@ public sealed partial class SquadSessionSplitTests
     public void Squad_command_carries_the_session_split_gates()
     {
         var command = Source("commands", "squad.md").Replace("\r", "", StringComparison.Ordinal);
-        var gate = command.IndexOf("Session split: read `skills/squad/references/session-split.md`", StringComparison.Ordinal);
+        var gate = command.IndexOf("Session split: read `skills/squad-mode/references/session-split.md`", StringComparison.Ordinal);
         var step1 = command.IndexOf("\n1. Print the request", StringComparison.Ordinal);
         var step2 = command.IndexOf("\n2. For an obvious small change", StringComparison.Ordinal);
         Assert.True(gate > 0 && gate < step1 && step1 < step2, "the session split gate sits before the numbered steps");
@@ -435,9 +435,9 @@ public sealed partial class SquadSessionSplitTests
         Assert.Contains("spawn nobody, write no retro, stop.", step4, StringComparison.Ordinal);
 
         // The skill flow numbers orient as step 2; the command numbers it as step 1. Both must point at orient.
-        Assert.Contains("\n2. Orient codebase", Source("skills", "squad", "SKILL.md").Replace("\r", "", StringComparison.Ordinal), StringComparison.Ordinal);
-        Assert.Contains("Normal run, after step 2:", Source("skills", "squad", "SKILL.md"), StringComparison.Ordinal);
-        Assert.Contains("(skill flow step 2, `/squad` step 1)", Source("skills", "squad", "references", "session-split.md").Replace("\n", " ", StringComparison.Ordinal), StringComparison.Ordinal);
+        Assert.Contains("\n2. Orient codebase", Source("skills", "squad-mode", "SKILL.md").Replace("\r", "", StringComparison.Ordinal), StringComparison.Ordinal);
+        Assert.Contains("Normal run, after step 2:", Source("skills", "squad-mode", "SKILL.md"), StringComparison.Ordinal);
+        Assert.Contains("(skill flow step 2, `/squad` step 1)", Source("skills", "squad-mode", "references", "session-split.md").Replace("\n", " ", StringComparison.Ordinal), StringComparison.Ordinal);
     }
 
     [Fact]
@@ -450,7 +450,7 @@ public sealed partial class SquadSessionSplitTests
         Assert.True(at >= 0, "the over-limit write is missing");
         Assert.StartsWith("A " + Guard + ".", command[(at + Write.Length)..], StringComparison.Ordinal);
 
-        var skill = Source("skills", "squad", "SKILL.md").Replace("\r", "", StringComparison.Ordinal);
+        var skill = Source("skills", "squad-mode", "SKILL.md").Replace("\r", "", StringComparison.Ordinal);
         const string SkillWrite = "Normal run, after step 2: over any limit (more than one PBI or outcome, more than 3 steps, more than 10 files) → write `docs/squad-plan.md`, build no code, spawn nobody, stop, no retro; a " + Guard;
         Assert.Contains(SkillWrite, skill, StringComparison.Ordinal);
 
@@ -471,7 +471,7 @@ public sealed partial class SquadSessionSplitTests
         Assert.Contains("a plan already there → ask once: replace or append", step5, StringComparison.Ordinal);
         Assert.Contains("spawn nobody, write no retro, stop", step5, StringComparison.Ordinal);
 
-        var skill = Source("skills", "squad", "SKILL.md");
+        var skill = Source("skills", "squad-mode", "SKILL.md");
         Assert.Contains("Planner `Session split: <n> steps` on next-round or write-plan → the same forced-split exit", skill, StringComparison.Ordinal);
         Assert.Contains("from next-round or write-plan, takes the same exit", Contract(), StringComparison.Ordinal);
     }
@@ -483,10 +483,10 @@ public sealed partial class SquadSessionSplitTests
         const string Drop = "draft `docs/plans/` file";
         var docs = new Dictionary<string, string>
         {
-            ["planner"] = Source("agents", "squad-planner.md"),
-            ["planning-contract"] = Source("skills", "squad", "references", "planning-contract.md"),
-            ["session-split"] = Source("skills", "squad", "references", "session-split.md").Replace("\n", " ", StringComparison.Ordinal),
-            ["skill"] = Source("skills", "squad", "SKILL.md"),
+            ["planner"] = Source("agents", "squad-agent.md"),
+            ["planning-contract"] = Source("skills", "squad-mode", "references", "planning-contract.md"),
+            ["session-split"] = Source("skills", "squad-mode", "references", "session-split.md").Replace("\n", " ", StringComparison.Ordinal),
+            ["skill"] = Source("skills", "squad-mode", "SKILL.md"),
             ["command"] = Source("commands", "squad.md"),
         };
         foreach (var (name, text) in docs)

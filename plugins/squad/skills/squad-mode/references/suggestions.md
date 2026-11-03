@@ -26,7 +26,7 @@ do not append.
 ## 2026-09-15: /squad
 
 - Entrypoint: squad
-- Target: plugins/squad/skills/squad/references/review-contract.md
+- Target: plugins/squad/skills/squad-mode/references/review-contract.md
 - Kind: contract
 - Evidence: verifier returned blocked on the secret path; merge still spent a fix round
 - Suggestion: treat blocked as unproven on the verdict table; do not count it as fail

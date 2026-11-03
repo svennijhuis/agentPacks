@@ -35,7 +35,7 @@ Do not require a named cloud product or TST. Do not invent a host.
 7. Auth header only, by default: `Auth: Bearer TOKEN_VALID (tester supplies)`.
    Add `auth` / policy rows ONLY when the user ask or the OpenAPI change is about auth or new policies. Do not spam 401/403 rows by default.
 8. Placeholders only: `TOKEN_VALID`. Never a real token.
-9. Local secrets: the Squad local-secrets rule: [squad skill](../squad/SKILL.md).
+9. Local secrets: the Squad local-secrets rule: [squad skill](../squad-mode/SKILL.md).
 10. Do not edit product source. Do not commit, merge, or push.
 11. Bruno/Postman: optional mention of an existing app-repo collection. Do not write one.
 
