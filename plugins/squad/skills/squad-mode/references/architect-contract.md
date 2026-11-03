@@ -1,6 +1,6 @@
 # Architect contract
 
-`squad-architect` is read-only. It returns two sections; the planner writes them into the draft plan.
+`architect role` is read-only. It returns two sections; the planner writes them into the draft plan.
 
 ## When
 

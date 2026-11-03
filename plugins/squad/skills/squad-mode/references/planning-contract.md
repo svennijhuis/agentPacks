@@ -1,6 +1,6 @@
 # Planning contract
 
-This file defines the turn-based handoff between the main agent and `squad-planner`.
+This file defines the turn-based handoff between the main agent and `planner role`.
 
 ## Ownership
 
@@ -160,7 +160,7 @@ Ownership: the architect owns `## Design` and `## Map` (where the change goes an
 owns `## Slices` (what gets built and in what order). Each slice lists its files (taken from the Map),
 the test it adds, and its done check. A change that touches more than one project needs at least 2 slices, or a `Single slice because: <reason>` line under `## Slices`.
 
-If the work is too big for one implementer pass, write ordered `## Slices` (data structures and scaffold first, ports and seams before adapters, each slice ending green). Up to 3 slices stay in one session. Cap: ≤3 slices; more → session split: return `Session split: <n> steps` with no `## Slices`, and the main agent deletes this run's draft `docs/plans/` file (so retro catch-up never sees it), writes `docs/squad-plan.md` by the forced-split rules (a plan already there → ask once: replace or append; in task mode: splits that task in place, never rewrites the plan) and stops ([session split](session-split.md)). A slice that would ship a known-worse shape → stop, split, or ask. One plan file. Same branch. Sequential: one fresh `squad-implementer` per slice, then the next.
+If the work is too big for one implementer pass, write ordered `## Slices` (data structures and scaffold first, ports and seams before adapters, each slice ending green). Up to 3 slices stay in one session. Cap: ≤3 slices; more → session split: return `Session split: <n> steps` with no `## Slices`, and the main agent deletes this run's draft `docs/plans/` file (so retro catch-up never sees it), writes `docs/squad-plan.md` by the forced-split rules (a plan already there → ask once: replace or append; in task mode: splits that task in place, never rewrites the plan) and stops ([session split](session-split.md)). A slice that would ship a known-worse shape → stop, split, or ask. One plan file. Same branch. Sequential: one fresh `implementer role` per slice, then the next.
 
 Write mode is valid only when the input includes the user's confirmation, every applicable decision branch is settled, and the open frontier is empty. Otherwise return the missing condition without writing.
 
@@ -179,9 +179,9 @@ The plan contains:
 <questions, answers, decisions, rejected options>
 
 ## Design
-<from squad-architect (references/architect-contract.md), or `Design: skipped (small)`>
+<from architect role (references/architect-contract.md), or `Design: skipped (small)`>
 ## Map
-<from squad-architect, omitted when Design is skipped; lists `docs/adr/`>
+<from architect role, omitted when Design is skipped; lists `docs/adr/`>
 ```mermaid
 flowchart LR
   A[Api] --> B[Application]
@@ -236,7 +236,7 @@ draft | confirmed | implementing | implementing slice <n>/<total> | verifying | 
 ````
 
 `## Status`, `## Fix list`, and `## Handoff notes` are **run scratch**: the main agent and
-`squad-orchestrator` rewrite those sections in place during the loop. Do not append forever inside
+`main chat` rewrite those sections in place during the loop. Do not append forever inside
 the plan. No writer puts U+2014 (em dash) into these sections; use `:` or `,`. Lessons go to the run's retro file. While implementing, `## Status` may say
 `implementing slice <n>/<total>`.
 
@@ -282,8 +282,8 @@ Precedence: the repo's own structure and conventions come first; the architect M
 
 ## Gap markers
 
-- `Design gap: <question>`: the planner found a hole in `## Design`. The main agent spawns `squad-indexer` with that gap question (the files, functions, types or callers it names), then reruns `squad-architect` once with that question and the list, then the planner continues. At most 1 rerun.
-- `Plan gap: <question>`: the implementer needs a decision the plan lacks. It stops the slice instead of guessing and leaves any partial diff uncommitted. The main agent runs the planner in `next-round` mode on that gap only, so the question goes to the user. The answer is recorded in `## Grill log` and `## Decisions`. The architect reruns only when the gap is about design (spawn `squad-indexer` first with the gap question). A fresh implementer then redoes that slice with the updated plan path (spawn `squad-indexer` first with that slice's files, types or callers to locate).
+- `Design gap: <question>`: the planner found a hole in `## Design`. The main agent spawns `file pointers` with that gap question (the files, functions, types or callers it names), then reruns `architect role` once with that question and the list, then the planner continues. At most 1 rerun.
+- `Plan gap: <question>`: the implementer needs a decision the plan lacks. It stops the slice instead of guessing and leaves any partial diff uncommitted. The main agent runs the planner in `next-round` mode on that gap only, so the question goes to the user. The answer is recorded in `## Grill log` and `## Decisions`. The architect reruns only when the gap is about design (spawn `file pointers` first with the gap question). A fresh implementer then redoes that slice with the updated plan path (spawn `file pointers` first with that slice's files, types or callers to locate).
 - Saving a Plan gap: before the planner round, the main agent saves the partial diff, untracked files included, to `$(git rev-parse --git-dir)/squad/<yyyy-mm-dd>-<slug>.gap-<n>.patch` (never a literal `.git/` path: in a linked worktree `.git` is a file), and checks that the file exists and is non-empty. Saving fails → stop the run. Implementers never commit, so there is no slice commit to reset to: the tree is left as it is (no `reset --hard`, `clean`, `checkout`, or `restore`; the git pack blocks them and they would drop finished slices). The patch lives outside the worktree, so it is never committed and needs no ignore rule: never edit the product `.gitignore` for it. `git status` after the save shows only the slice files. The fresh implementer gets the patch path to read and redoes the slice on the current tree, keeping or replacing the partial edits to match the updated plan. The retro lists the gap.
 
 ```sh

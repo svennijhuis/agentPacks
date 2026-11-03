@@ -28,8 +28,8 @@ public sealed class OutTreeInstallTests
             var squad = Path.Combine(output, "plugins", "squad");
             foreach (var relative in new[]
                      {
-                         "skills/squad/SKILL.md", "skills/squad/references/planning-contract.md",
-                         "commands/squad.md", "commands/squad-review.md", "agents/squad-planner.md",
+                         "skills/squad-mode/SKILL.md", "skills/squad-mode/references/planning-contract.md",
+                         "commands/squad.md", "commands/squad-review.md", "agents/squad-agent.md",
                          ".cursor-plugin/plugin.json", "plugin.json",
                      })
             {
@@ -104,7 +104,7 @@ public sealed class OutTreeInstallTests
             var stamp = copy[close + 1];
             Assert.StartsWith("Squad plugin root: ", stamp, StringComparison.Ordinal);
             var stamped = stamp["Squad plugin root: ".Length..];
-            Assert.True(File.Exists(Path.Combine(stamped, "skills", "squad", "SKILL.md")), stamped);
+            Assert.True(File.Exists(Path.Combine(stamped, "skills", "squad-mode", "SKILL.md")), stamped);
             Assert.Equal(1, copy.Count(l => l.StartsWith("Squad plugin root:", StringComparison.Ordinal)));
         }
         finally

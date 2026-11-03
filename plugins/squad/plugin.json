@@ -2,7 +2,7 @@
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "squad",
   "version": "0.1.5",
-  "description": "User-invoked /squad, /squad-review, and /scenarios: the main agent mediates planning, runs plan-bound implementation and verification, fans dual-axis reviewers, and merges at most two fix rounds before an uncommitted hand-off. /scenarios writes docs/smoke/<slug>.md from changed code.",
+  "description": "User-invoked /squad and /squad-review. The main chat runs one playbook, spawns a fresh delegate per step, and opens a pull request only after the review loop passes. /scenarios writes docs/smoke/<slug>.md from changed code.",
   "author": {
     "name": "agentPacks Maintainers"
   },

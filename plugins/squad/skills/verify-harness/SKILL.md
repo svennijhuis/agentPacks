@@ -38,6 +38,6 @@ Rules:
 - **Stop only what this run started (track PIDs), never kill by name**, because other work may share the box.
 - **Run Cleanup on failure too, and confirm evidence still exists after it**, because the proof is the point.
 - **No app: Launch and Doctor say none, Drive uses the CLI or tests**, so libraries still get a harness.
-- **Secrets: follow the local-secrets rule in [squad skill](../squad/SKILL.md); tokens only inline in `$(...)` (or SigV4 CLI), never in markdown or model view; one access try then skip; verify never blocks `/squad`**, because invented tokens are worse than a skip.
+- **Secrets: follow the local-secrets rule in [squad skill](../squad-mode/SKILL.md); tokens only inline in `$(...)` (or SigV4 CLI), never in markdown or model view; one access try then skip; verify never blocks `/squad`**, because invented tokens are worse than a skip.
 
 Out of scope: maintaining this skill, browser tooling installs, inventing tokens.

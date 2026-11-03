@@ -90,7 +90,7 @@ public sealed class RedundancyContractTests
     {
         var root = TestRepository.SourceRoot();
         var contract = File.ReadAllText(Path.Combine(
-            root, "plugins", "squad", "skills", "squad", "references", "review-contract.md"));
+            root, "plugins", "squad", "skills", "squad-mode", "references", "review-contract.md"));
         var fieldRules = contract[..contract.IndexOf("## Mechanical vs judgment", StringComparison.Ordinal)];
         Assert.Contains("| Confidence | See Confidence below |", fieldRules, StringComparison.Ordinal);
         Assert.DoesNotContain("Score 0–100", fieldRules, StringComparison.Ordinal);

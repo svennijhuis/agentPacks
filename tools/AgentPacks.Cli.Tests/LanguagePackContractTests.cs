@@ -356,7 +356,7 @@ public class LanguagePackContractTests
     {
         var retro = File.ReadAllText(Path.Combine(
             TestRepository.SourceRoot(),
-            "plugins", "squad", "skills", "squad", "references", "retro.md"));
+            "plugins", "squad", "skills", "squad-mode", "references", "retro.md"));
         Assert.Contains("## Marketplace smoke entry shape", retro, StringComparison.Ordinal);
         Assert.Contains("- Client:", retro, StringComparison.Ordinal);
         Assert.Contains("- Plugins:", retro, StringComparison.Ordinal);
@@ -438,7 +438,7 @@ public class LanguagePackContractTests
         foreach (var relative in new[]
         {
             Path.Combine("plugins", "pack-check", "skills", "pack-check", "SKILL.md"),
-            Path.Combine("plugins", "squad", "skills", "squad", "SKILL.md"),
+            Path.Combine("plugins", "squad", "skills", "squad-mode", "SKILL.md"),
             Path.Combine("plugins", "squad", "skills", "scenarios-md", "SKILL.md")
         })
         {

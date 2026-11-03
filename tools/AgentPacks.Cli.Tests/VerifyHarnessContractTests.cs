@@ -18,7 +18,7 @@ public sealed class VerifyHarnessContractTests
         var metadata = skill.StringMap("metadata");
         Assert.NotNull(metadata);
         Assert.Equal("loop", metadata!["audience"]);
-        Assert.Contains("../squad/SKILL.md", skill.Body, StringComparison.Ordinal);
+        Assert.Contains("../squad-mode/SKILL.md", skill.Body, StringComparison.Ordinal);
         Assert.Contains("needs: kv|secret|auth|local-resource", VerifyHarnessBody(), StringComparison.Ordinal);
         Assert.Contains("$(git rev-parse --git-dir)/squad/verify/", skill.Body, StringComparison.Ordinal);
         Assert.DoesNotContain('\u2014', skill.Body);
@@ -65,7 +65,7 @@ public sealed class VerifyHarnessContractTests
     public void Squad_skill_asks_once_for_verify_harness_and_no_writes_no_file()
     {
         var skill = File.ReadAllText(Path.Combine(
-            TestRepository.SourceRoot(), "plugins", "squad", "skills", "squad", "SKILL.md"));
+            TestRepository.SourceRoot(), "plugins", "squad", "skills", "squad-mode", "SKILL.md"));
         Assert.Contains("Make a runnable verify harness too? (yes/no)", skill, StringComparison.Ordinal);
         Assert.Contains("Yes → load `verify-harness` by exact Skill name", skill, StringComparison.Ordinal);
         Assert.Contains("No → carry on; write no `docs/verify.md`", skill, StringComparison.Ordinal);
@@ -76,7 +76,7 @@ public sealed class VerifyHarnessContractTests
     public void Verifier_hard_doctor_fail_is_blocked_and_needs_kv_skips_rest_runs()
     {
         var verifier = File.ReadAllText(Path.Combine(
-            TestRepository.SourceRoot(), "plugins", "squad", "agents", "squad-verifier.md"));
+            TestRepository.SourceRoot(), "plugins", "squad", "skills", "squad-mode", "references", "verification-contract.md"));
         Assert.Contains("Hard Doctor fail → `blocked`, never `pass`", verifier, StringComparison.Ordinal);
         Assert.Contains("references/doctor-tags.md", verifier, StringComparison.Ordinal);
         var tags = File.ReadAllText(Path.Combine(VerifyHarnessDir(), "references", "doctor-tags.md"));
@@ -169,13 +169,13 @@ public sealed class VerifyHarnessContractTests
         var commands = Path.Combine(root, "plugins", "squad", "commands");
         Assert.Contains("Make a runnable verify harness too? (yes/no)", File.ReadAllText(Path.Combine(commands, "squad.md")), StringComparison.Ordinal);
         Assert.Contains("also writes `docs/verify.md` and `docs/smoke-report.md`", File.ReadAllText(Path.Combine(commands, "scenarios.md")), StringComparison.Ordinal);
-        Assert.Contains("tagged `needs:` → Result tag-only `skipped (needs: <tag>)`", File.ReadAllText(Path.Combine(root, "plugins", "squad", "agents", "squad-verifier.md")), StringComparison.Ordinal);
+        Assert.Contains("tagged `needs:` → Result tag-only `skipped (needs: <tag>)`", File.ReadAllText(Path.Combine(root, "plugins", "squad", "skills", "squad-mode", "references", "verification-contract.md")), StringComparison.Ordinal);
     }
 
     [Theory]
     [InlineData("skills/scenarios-md/SKILL.md")]
     [InlineData("commands/scenarios.md")]
-    [InlineData("skills/squad/SKILL.md")]
+    [InlineData("skills/squad-mode/SKILL.md")]
     [InlineData("commands/squad.md")]
     public void Verify_harness_ask_fires_only_when_verify_md_is_missing(string relative)
     {
@@ -201,7 +201,7 @@ public sealed class VerifyHarnessContractTests
     public void Later_runs_drive_every_touched_scenario()
     {
         Assert.Contains("Every later run (verifier, or `/scenarios` with an existing verify.md) drives every touched scenario", VerifyHarnessBody(), StringComparison.Ordinal);
-        Assert.Contains("Drive for every touched scenario, then Cleanup", File.ReadAllText(Path.Combine(TestRepository.SourceRoot(), "plugins", "squad", "agents", "squad-verifier.md")), StringComparison.Ordinal);
+        Assert.Contains("Drive for every touched scenario, then Cleanup", File.ReadAllText(Path.Combine(TestRepository.SourceRoot(), "plugins", "squad", "skills", "squad-mode", "references", "verification-contract.md")), StringComparison.Ordinal);
     }
 
     [Fact]
@@ -210,7 +210,7 @@ public sealed class VerifyHarnessContractTests
         const string both = "check-verify.sh docs/verify.md docs/smoke-report.md";
         Assert.Contains(both, File.ReadAllText(Path.Combine(VerifyHarnessDir(), "SKILL.md")), StringComparison.Ordinal);
         var verifier = File.ReadAllText(Path.Combine(
-            TestRepository.SourceRoot(), "plugins", "squad", "agents", "squad-verifier.md"));
+            TestRepository.SourceRoot(), "plugins", "squad", "skills", "squad-mode", "references", "verification-contract.md"));
         Assert.Contains("check-verify.sh docs/verify.md", verifier, StringComparison.Ordinal);
         Assert.DoesNotContain(both, verifier, StringComparison.Ordinal);
     }
@@ -219,7 +219,7 @@ public sealed class VerifyHarnessContractTests
     public void Verifier_lints_smoke_report_only_when_it_exists_and_does_not_fix()
     {
         var verifier = File.ReadAllText(Path.Combine(
-            TestRepository.SourceRoot(), "plugins", "squad", "agents", "squad-verifier.md"));
+            TestRepository.SourceRoot(), "plugins", "squad", "skills", "squad-mode", "references", "verification-contract.md"));
         Assert.Contains("adding `docs/smoke-report.md` only if it exists. A finding is `fail`.", verifier, StringComparison.Ordinal);
         Assert.Contains("Read-only: never write these files", verifier, StringComparison.Ordinal);
         Assert.DoesNotContain("a finding is a fix", verifier, StringComparison.Ordinal);
@@ -229,9 +229,9 @@ public sealed class VerifyHarnessContractTests
     public void Squad_skill_lists_verify_harness_in_load_only_allowed()
     {
         var skill = File.ReadAllText(Path.Combine(
-            TestRepository.SourceRoot(), "plugins", "squad", "skills", "squad", "SKILL.md"));
+            TestRepository.SourceRoot(), "plugins", "squad", "skills", "squad-mode", "SKILL.md"));
         Assert.Contains(
-            "Load only with the Skill tool by exact name: `squad`, `caveman`, `verify-harness`,",
+            "Load only with the Skill tool by exact name: `squad-mode`, `caveman`, `verify-harness`,",
             skill,
             StringComparison.Ordinal);
     }
@@ -253,11 +253,11 @@ public sealed class VerifyHarnessContractTests
     {
         var root = TestRepository.SourceRoot();
         var reviewContract = File.ReadAllText(Path.Combine(
-            root, "plugins", "squad", "skills", "squad", "references", "review-contract.md"));
+            root, "plugins", "squad", "skills", "squad-mode", "references", "review-contract.md"));
         var squadSkill = File.ReadAllText(Path.Combine(
-            root, "plugins", "squad", "skills", "squad", "SKILL.md"));
+            root, "plugins", "squad", "skills", "squad-mode", "SKILL.md"));
         var verifier = File.ReadAllText(Path.Combine(
-            root, "plugins", "squad", "agents", "squad-verifier.md"));
+            root, "plugins", "squad", "skills", "squad-mode", "references", "verification-contract.md"));
         foreach (var (name, text) in new[]
         {
             ("review-contract.md", reviewContract),
@@ -451,7 +451,7 @@ public sealed class VerifyHarnessContractTests
             Path.Combine(VerifyHarnessDir(), "references", "smoke-report.md"),
             Path.Combine(
                 TestRepository.SourceRoot(),
-                "plugins", "squad", "skills", "squad", "references", "review-contract.md"),
+                "plugins", "squad", "skills", "squad-mode", "references", "review-contract.md"),
         };
         foreach (var path in paths)
         {
@@ -559,7 +559,7 @@ public sealed class VerifyHarnessContractTests
     [Fact]
     public void Small_change_verify_runs_wider_unit_suite_once()
     {
-        var skill = File.ReadAllText(Path.Combine(TestRepository.SourceRoot(), "plugins", "squad", "skills", "squad", "SKILL.md"));
+        var skill = File.ReadAllText(Path.Combine(TestRepository.SourceRoot(), "plugins", "squad", "skills", "squad-mode", "SKILL.md"));
         Assert.Contains("verify (verify cmd, then the wider unit suite once;", skill, StringComparison.Ordinal);
         Assert.Contains("Verify runs that command, then the wider unit suite once.", skill, StringComparison.Ordinal);
         Assert.Contains("verify directly: run the verify command, then the wider unit suite once.",
@@ -570,10 +570,10 @@ public sealed class VerifyHarnessContractTests
     public void Implementer_writes_no_comments_and_simplifier_flags_them()
     {
         var agents = Path.Combine(TestRepository.SourceRoot(), "plugins", "squad", "agents");
-        Assert.Contains("- Prefer no new comments. Put a constraint in a test, type or lint instead, because agents copy comments. Write a comment only when none of those can hold it, and say why in it.", File.ReadAllText(Path.Combine(agents, "squad-implementer.md")), StringComparison.Ordinal);
-        Assert.Contains("Exception: public API doc comments a pack standard asks for stay (C# `///` XML docs, rustdoc `///`, TSDoc on exported symbols); an inline or workaround comment needs that reason.", File.ReadAllText(Path.Combine(agents, "squad-implementer.md")), StringComparison.Ordinal);
-        Assert.Contains("List every comment added in the diff by `file:line` with `kept` or `not kept` and the reason.", File.ReadAllText(Path.Combine(agents, "squad-simplifier.md")), StringComparison.Ordinal);
-        Assert.Contains("- A comment in the diff without a stated reason a test, type or lint can't hold is a finding. Keep one for something we can't change (an external API quirk, a vendor bug) when it says why. Public API doc comments a pack standard asks for (C# `///` XML docs, rustdoc `///`, TSDoc on exported symbols) are not findings.", File.ReadAllText(Path.Combine(agents, "squad-simplifier.md")), StringComparison.Ordinal);
+        Assert.Contains("- Prefer no new comments. Put a constraint in a test, type or lint instead, because agents copy comments. Write a comment only when none of those can hold it, and say why in it.", File.ReadAllText(Path.Combine(agents, "squad-agent.md")), StringComparison.Ordinal);
+        Assert.Contains("Exception: public API doc comments a pack standard asks for stay (C# `///` XML docs, rustdoc `///`, TSDoc on exported symbols); an inline or workaround comment needs that reason.", File.ReadAllText(Path.Combine(agents, "squad-agent.md")), StringComparison.Ordinal);
+        Assert.Contains("List every comment added in the diff by `file:line` with `kept` or `not kept` and the reason.", File.ReadAllText(Path.Combine(agents, "squad-agent.md")), StringComparison.Ordinal);
+        Assert.Contains("- A comment in the diff without a stated reason a test, type or lint can't hold is a finding. Keep one for something we can't change (an external API quirk, a vendor bug) when it says why. Public API doc comments a pack standard asks for (C# `///` XML docs, rustdoc `///`, TSDoc on exported symbols) are not findings.", File.ReadAllText(Path.Combine(agents, "squad-agent.md")), StringComparison.Ordinal);
     }
 
     private static string RunLocalAccessRedaction(string script, string line)
