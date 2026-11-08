@@ -1,0 +1,101 @@
+{
+  "$schema": "../../schema/external-skills.schema.json",
+  "sources": [
+    {
+      "name": "frontend-design",
+      "description": "Sets the visual direction for a new or reshaped UI, and names the generated-design tells to avoid. The pack's authority on aesthetic direction.",
+      "repository": "https://github.com/anthropics/skills",
+      "path": "skills/frontend-design",
+      "commit": "2c5958ecac7cee2b583967a2c4981d0f4a75c579",
+      "license": "Apache-2.0"
+    },
+    {
+      "name": "webapp-testing",
+      "description": "Drives a local web app with Playwright to verify frontend behaviour, capture screenshots, and read browser logs. The pack's browser-verification step.",
+      "repository": "https://github.com/anthropics/skills",
+      "path": "skills/webapp-testing",
+      "commit": "2c5958ecac7cee2b583967a2c4981d0f4a75c579",
+      "license": "Apache-2.0"
+    },
+    {
+      "name": "emil-design-eng",
+      "description": "Emil Kowalski's design-engineering philosophy: component detail, perceived performance, and the invisible polish behind interfaces that feel good.",
+      "repository": "https://github.com/emilkowalski/skills",
+      "path": "skills/emil-design-eng",
+      "commit": "5206a950b715e0cabe7043ea0b2304332b91494e",
+      "license": "MIT"
+    },
+    {
+      "name": "apple-design",
+      "description": "Apple's interface and fluid-motion approach translated to the web: springs, gestures, interruptible transitions, materials, and optical typography.",
+      "repository": "https://github.com/emilkowalski/skills",
+      "path": "skills/apple-design",
+      "commit": "5206a950b715e0cabe7043ea0b2304332b91494e",
+      "license": "MIT"
+    },
+    {
+      "name": "animate",
+      "description": "Builds one web animation from scratch in decision order: whether, why, which tool, which properties, curve, duration, interruption, exit.",
+      "repository": "https://github.com/emilkowalski/skills",
+      "path": "skills/animate",
+      "commit": "5206a950b715e0cabe7043ea0b2304332b91494e",
+      "license": "MIT"
+    },
+    {
+      "name": "animate-expo",
+      "description": "The React Native and Expo half of 'animate', using Reanimated, Gesture Handler and expo-haptics. Imported because 'animate' hands native work to it by name.",
+      "repository": "https://github.com/emilkowalski/skills",
+      "path": "skills/animate-expo",
+      "commit": "5206a950b715e0cabe7043ea0b2304332b91494e",
+      "license": "MIT"
+    },
+    {
+      "name": "choreograph",
+      "description": "Coordinates several elements animating together: order, overlap, stillness. Imported because 'animate' owns single animations and defers groups to it.",
+      "repository": "https://github.com/emilkowalski/skills",
+      "path": "skills/choreograph",
+      "commit": "5206a950b715e0cabe7043ea0b2304332b91494e",
+      "license": "MIT"
+    },
+    {
+      "name": "review-animations",
+      "description": "Reviews a motion diff against the same craft bar, flagging by default. Imported because 'animate', 'choreograph' and 'improve-animations' all point at it by name.",
+      "repository": "https://github.com/emilkowalski/skills",
+      "path": "skills/review-animations",
+      "commit": "5206a950b715e0cabe7043ea0b2304332b91494e",
+      "license": "MIT"
+    },
+    {
+      "name": "improve-animations",
+      "description": "Surveys a whole codebase's motion and writes prioritized plans without editing source. Imported for reference closure from 'animate' and 'review-animations'.",
+      "repository": "https://github.com/emilkowalski/skills",
+      "path": "skills/improve-animations",
+      "commit": "5206a950b715e0cabe7043ea0b2304332b91494e",
+      "license": "MIT"
+    },
+    {
+      "name": "find-animation-opportunities",
+      "description": "Finds places that should animate and rejects the rest, read-only. Imported because 'choreograph' defers the whether-to-animate question to it by name.",
+      "repository": "https://github.com/emilkowalski/skills",
+      "path": "skills/find-animation-opportunities",
+      "commit": "5206a950b715e0cabe7043ea0b2304332b91494e",
+      "license": "MIT"
+    },
+    {
+      "name": "remove-animations",
+      "description": "Subtracts motion an interface does not need. The other half of the whether-to-animate question 'choreograph' delegates, so it is imported with it.",
+      "repository": "https://github.com/emilkowalski/skills",
+      "path": "skills/remove-animations",
+      "commit": "5206a950b715e0cabe7043ea0b2304332b91494e",
+      "license": "MIT"
+    },
+    {
+      "name": "pick-ui-library",
+      "description": "Picks a library for a frontend task from a curated list. Imported because 'animate' stops and invokes it by name when the task needs a component.",
+      "repository": "https://github.com/emilkowalski/skills",
+      "path": "skills/pick-ui-library",
+      "commit": "5206a950b715e0cabe7043ea0b2304332b91494e",
+      "license": "MIT"
+    }
+  ]
+}

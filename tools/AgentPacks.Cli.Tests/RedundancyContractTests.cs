@@ -58,7 +58,7 @@ public sealed class RedundancyContractTests
         Assert.Contains("public static readonly string[] ShippedPluginNames", testRepository, StringComparison.Ordinal);
         Assert.Contains("public static readonly string[] SquadAgentNames", testRepository, StringComparison.Ordinal);
         Assert.Contains("public static string PluginRoot", testRepository, StringComparison.Ordinal);
-        Assert.Equal(1, TestRepository.CountOccurrences(testRepository, "[\"dotnet\", \"git\", \"pack-author\""));
+        Assert.Equal(1, TestRepository.CountOccurrences(testRepository, "[\"dotnet\", \"frontend\", \"git\", \"pack-author\""));
 
         var model = File.ReadAllText(Path.Combine(root, "tools", "AgentPacks.Cli", "Loading", "Model.cs"));
         Assert.Contains("public string CanonicalName", model, StringComparison.Ordinal);

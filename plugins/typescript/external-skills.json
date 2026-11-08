@@ -1,4 +1,45 @@
 {
   "$schema": "../../schema/external-skills.schema.json",
-  "sources": []
+  "sources": [
+    {
+      "name": "vercel-react-best-practices",
+      "description": "Framework skill. React and Next.js performance: rendering, re-renders, bundles, server data fetching. Reached through typescript-build and typescript-review, never by a contracted slot name.",
+      "repository": "https://github.com/vercel-labs/agent-skills",
+      "path": "skills/react-best-practices",
+      "commit": "1a2c79d4e6c4a2283dc2c614b6538cbe1ed5ca62",
+      "license": "MIT"
+    },
+    {
+      "name": "vercel-composition-patterns",
+      "description": "Framework skill. React component APIs that scale: compound components, children over render props, explicit variants, React 19 changes.",
+      "repository": "https://github.com/vercel-labs/agent-skills",
+      "path": "skills/composition-patterns",
+      "commit": "1a2c79d4e6c4a2283dc2c614b6538cbe1ed5ca62",
+      "license": "MIT"
+    },
+    {
+      "name": "vercel-react-view-transitions",
+      "description": "Framework skill. React's View Transition API for route changes, shared elements, enter/exit and list reorder, including the Next.js integration.",
+      "repository": "https://github.com/vercel-labs/agent-skills",
+      "path": "skills/react-view-transitions",
+      "commit": "1a2c79d4e6c4a2283dc2c614b6538cbe1ed5ca62",
+      "license": "MIT"
+    },
+    {
+      "name": "vercel-react-native-skills",
+      "description": "Framework skill. React Native and Expo list performance, native UI affordances, navigation, styling and monorepo dependency shape.",
+      "repository": "https://github.com/vercel-labs/agent-skills",
+      "path": "skills/react-native-skills",
+      "commit": "1a2c79d4e6c4a2283dc2c614b6538cbe1ed5ca62",
+      "license": "MIT"
+    },
+    {
+      "name": "shadcn",
+      "description": "Framework skill. Adds, searches, fixes and composes shadcn/ui components, registries and presets, and applies a DESIGN.md or brand spec to them.",
+      "repository": "https://github.com/shadcn-ui/ui",
+      "path": "skills/shadcn",
+      "commit": "8ab27715521cbd4f87ae6886cd989cbb678f6de7",
+      "license": "MIT"
+    }
+  ]
 }

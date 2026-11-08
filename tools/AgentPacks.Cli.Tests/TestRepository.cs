@@ -60,7 +60,7 @@ internal sealed class TestRepository : IDisposable
         || path.Contains($"{Path.DirectorySeparatorChar}.git{Path.DirectorySeparatorChar}", StringComparison.Ordinal);
 
     public static readonly string[] ShippedPluginNames =
-        ["dotnet", "git", "pack-author", "pack-check", "rust", "security", "squad", "typescript"];
+        ["dotnet", "frontend", "git", "pack-author", "pack-check", "rust", "security", "squad", "typescript"];
 
     public static readonly string[] SquadAgentNames =
     [
