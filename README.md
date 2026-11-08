@@ -4,7 +4,7 @@ Portable [Agent Plugins](https://agent-plugins.org) that wire a workflow into th
 
 ## Available plugins
 
-Five capability packs, installed because you want a behaviour wired into the agent loop rather than knowledge sitting on a shelf, and three language packs, installed because of the ecosystem you compile in:
+Five capability packs, installed because you want a behaviour wired into the agent loop rather than knowledge sitting on a shelf, one role pack, installed because of the kind of work you do, and three language packs, installed because of the ecosystem you compile in:
 
 | Plugin | Use it for |
 | --- | --- |
@@ -15,7 +15,8 @@ Five capability packs, installed because you want a behaviour wired into the age
 | `pack-author` | User-invoked `/pack-author`: make, review, or change a marketplace skill or agent. Edits wait for approval. Fifth slash is intentional |
 | `dotnet` | Teaching the loop how C# is built, tested and reviewed, backed by one canonical set of standards distributed only to the skills that need each document |
 | `rust` | Teaching the loop how Cargo workspaces are built, tested and reviewed, backed by canonical Rust, error/concurrency, and testing standards |
-| `typescript` | Teaching the loop how TypeScript is typechecked, tested and reviewed, backed by canonical type and testing standards |
+| `typescript` | Teaching the loop how TypeScript is typechecked, tested and reviewed, backed by canonical type and testing standards. Also carries the pinned React, React Native and shadcn/ui framework skills |
+| `frontend` | Building interfaces: visual direction, motion decisions and verification in a real browser, as twelve reviewed external skills pinned to exact upstream commits. No slash command, no hook, no Squad slot |
 
 That is the whole catalog. [`docs/PLAN.md`](docs/PLAN.md) is the rule for what earns a later pack, not a list of packs that exist.
 
@@ -33,6 +34,7 @@ copilot plugin install pack-author@agentpacks
 copilot plugin install dotnet@agentpacks
 copilot plugin install rust@agentpacks
 copilot plugin install typescript@agentpacks
+copilot plugin install frontend@agentpacks
 ```
 
 **Install from Source** (VS Code / Copilot): use `#marketplace` or a marketplace-branch clone - not default `main`.
@@ -57,6 +59,7 @@ codex plugin add pack-author@agentpacks
 codex plugin add dotnet@agentpacks
 codex plugin add rust@agentpacks
 codex plugin add typescript@agentpacks
+codex plugin add frontend@agentpacks
 ```
 
 Open `/plugins` in Codex to inspect the installed plugins. Update later with:
@@ -77,6 +80,7 @@ claude plugin install pack-author@agentpacks --scope user
 claude plugin install dotnet@agentpacks --scope user
 claude plugin install rust@agentpacks --scope user
 claude plugin install typescript@agentpacks --scope user
+claude plugin install frontend@agentpacks --scope user
 ```
 
 Update later with:
@@ -116,6 +120,7 @@ ln -s ~/.cursor/agentPacks/plugins/pack-author ~/.cursor/plugins/local/pack-auth
 ln -s ~/.cursor/agentPacks/plugins/dotnet ~/.cursor/plugins/local/dotnet
 ln -s ~/.cursor/agentPacks/plugins/rust ~/.cursor/plugins/local/rust
 ln -s ~/.cursor/agentPacks/plugins/typescript ~/.cursor/plugins/local/typescript
+ln -s ~/.cursor/agentPacks/plugins/frontend ~/.cursor/plugins/local/frontend
 ```
 
 On Windows PowerShell, junctions work without Developer Mode (`ln -s` does not):
@@ -339,7 +344,13 @@ repository, the Loop uses Rust, .NET, TypeScript, or the applicable mix from the
 [Its README](plugins/rust/README.md) covers Cargo commands, standards, and repository evidence.
 
 `typescript` needs no invocation. Its skills are loaded for an applicable `package.json` / `tsconfig.json` tree.
-[Its README](plugins/typescript/README.md) covers package-manager detection, `tsc`, and test runners.
+[Its README](plugins/typescript/README.md) covers package-manager detection, `tsc`, test runners, and
+the pinned React, React Native and shadcn/ui framework skills it now carries.
+
+`frontend` needs no invocation and fills no Squad slot. It is twelve external imports, so because a
+dozen skills have opinions about the same screen, [its README](plugins/frontend/README.md) writes
+down the precedence between them, what the pack does inside a Squad review, and the five candidates
+that were reviewed and rejected.
 
 Installed skills are selected when relevant to your request.
 
