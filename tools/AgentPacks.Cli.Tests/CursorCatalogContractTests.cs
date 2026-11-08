@@ -130,8 +130,8 @@ public sealed class CursorCatalogContractTests
     /// Official Cursor workflow packs set <c>category: developer-tools</c> on
     /// <c>.cursor-plugin/plugin.json</c> (orchestrate, pstack, thermos, ralph-loop).
     /// The marketplace catalog still cannot: additionalProperties: false. Claude
-    /// and Copilot catalogs stay without a Cursor-only category so the four-client
-    /// entry shapes do not grow a field only one picker reads.
+    /// catalog entries use the official Claude taxonomy (<c>development</c> /
+    /// <c>security</c>). Copilot's published community catalog does not set category.
     /// </summary>
     [Fact]
     public void Cursor_plugin_manifests_set_developer_tools_category()
@@ -152,23 +152,26 @@ public sealed class CursorCatalogContractTests
 
         foreach (var name in PluginNames)
         {
-            Assert.Equal(
-                "developer-tools",
-                run.File($"plugins/{name}/.cursor-plugin/plugin.json")
-                    .Content["category"]!.GetValue<string>());
-            Assert.Null(claudeEntries[name]["category"]);
+            var cursor = run.File($"plugins/{name}/.cursor-plugin/plugin.json").Content;
+            Assert.Equal(CatalogCategory.CursorDeveloperTools, cursor["category"]!.GetValue<string>());
+            Assert.Equal("./skills/", cursor["skills"]!.GetValue<string>());
+            Assert.NotNull(cursor["tags"]);
+            Assert.Equal(CatalogCategory.Claude(name), claudeEntries[name]["category"]!.GetValue<string>());
             Assert.Null(copilotEntries[name]["category"]);
         }
 
         Assert.All(cursorEntries, entry => Assert.Null(entry["category"]));
+        Assert.Equal(CatalogCategory.ClaudeDevelopment, CatalogCategory.Claude("squad"));
+        Assert.Equal(CatalogCategory.ClaudeSecurity, CatalogCategory.Claude("security"));
     }
 
     /// <summary>
     /// Official openai/plugins classifies coding/workflow packs as
     /// <c>Developer Tools</c> (superpowers, github, plugin-eval) and audit packs
     /// as <c>Security</c> (codex-security). <c>Productivity</c> is for Linear /
-    /// Notion / calendar apps. Claude and Copilot catalogs have no Codex category
-    /// field; Cursor catalog entries still cannot carry one.
+    /// Notion / calendar apps. Claude catalog entries use Claude's own taxonomy;
+    /// Copilot's community catalog has no category field. Cursor catalog entries
+    /// still cannot carry one.
     /// </summary>
     [Fact]
     public void Codex_catalog_uses_official_developer_tools_taxonomy()
@@ -202,7 +205,7 @@ public sealed class CursorCatalogContractTests
                 category,
                 run.File($"plugins/{name}/.codex-plugin/plugin.json")
                     .Content["interface"]!["category"]!.GetValue<string>());
-            Assert.Null(claudeEntries[name]["category"]);
+            Assert.Equal(CatalogCategory.Claude(name), claudeEntries[name]["category"]!.GetValue<string>());
             Assert.Null(copilotEntries[name]["category"]);
         }
 

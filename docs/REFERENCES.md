@@ -52,9 +52,10 @@ There is no JSON Schema for skills. The normative frontmatter table in the speci
 ## Claude Code
 
 - Plugins: https://code.claude.com/docs/en/plugins
-- Plugin reference: https://code.claude.com/docs/en/plugins-reference
-- Marketplaces: https://code.claude.com/docs/en/plugin-marketplaces
-- Discover and install: https://code.claude.com/docs/en/discover-plugins
+- Plugin manifest: https://code.claude.com/docs/en/plugins/manifest-reference
+- Marketplace reference: https://code.claude.com/docs/en/plugins/marketplace-reference
+- Host a marketplace: https://code.claude.com/docs/en/plugins/host-marketplace
+- Discover and install: https://code.claude.com/docs/en/plugins/discover
 - MCP: https://code.claude.com/docs/en/mcp
 
 ## Security

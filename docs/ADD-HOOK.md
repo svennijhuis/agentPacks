@@ -9,12 +9,12 @@ Hooks run a command at a lifecycle point the user did not trigger. Every client 
 3. Run `dotnet run --project tools/AgentPacks.Cli -- validate`.
 4. Open a pull request.
 
-Never create `hooks/hooks.json` by hand. Cursor owns that default path on most packs; generated
-marketplace and manifest component paths route Claude, Codex and Copilot to their own dialects
-instead. Exception: `pack-check` and `git` omit a Claude marketplace `hooks` path or array (Claude
-rejects those) and emit Claude-shaped `hooks/hooks.json` at the plugin root so Claude auto-discovers
-it. Cursor cannot read that dialect, so those packs also emit `.cursor-plugin/hooks/hooks.json` and
-set `"hooks"` on `.cursor-plugin/plugin.json`. Copilot still reads `com.github.copilot/hooks/hooks.json`
+Never create `hooks/hooks.json` by hand. Cursor owns that default path on packs with no Claude
+hooks; generated marketplace and manifest component paths route Codex and Copilot to their own
+dialects. Claude marketplace entries omit a `hooks` path or array (those hooks never run) and
+emit Claude-shaped `hooks/hooks.json` at the plugin root so Claude auto-discovers it. Cursor
+cannot read that dialect, so hooked packs also emit `.cursor-plugin/hooks/hooks.json` and set
+`"hooks"` on `.cursor-plugin/plugin.json`. Copilot still reads `com.github.copilot/hooks/hooks.json`
 in Copilot's dialect.
 
 ## The manifest
@@ -101,8 +101,8 @@ The matcher argument is spelled `-Matcher`, with one dash and a capital. That is
 
 | Path | For |
 |---|---|
-| `hooks/hooks.json` | Cursor: flat entries, camelCase events. On `pack-check` and `git` this file is Claude-shaped instead so Claude can auto-discover it |
-| `.cursor-plugin/hooks/hooks.json` | Cursor-shaped copy for `pack-check` and `git`, pointed at by `.cursor-plugin/plugin.json` |
+| `hooks/hooks.json` | Cursor: flat entries, camelCase events. On hooked packs this file is Claude-shaped instead so Claude can auto-discover it |
+| `.cursor-plugin/hooks/hooks.json` | Cursor-shaped copy for hooked packs, pointed at by `.cursor-plugin/plugin.json` |
 | `com.anthropic.claude-code/hooks/hooks.json` | Claude: nested entries, PascalCase events |
 | `com.openai.codex/hooks/hooks.json` | Codex: nested, plus `commandWindows` |
 | `com.github.copilot/hooks/hooks.json` | Copilot |

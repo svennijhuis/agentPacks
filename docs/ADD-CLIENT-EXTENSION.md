@@ -40,6 +40,6 @@ plugins/squad/
 └── com.github.copilot/             # generated
 ```
 
-Cursor keeps the plugin root for commands, rules and hooks. Agents are routed by `.cursor-plugin/plugin.json` to the remapped copies under `.cursor-plugin/agents/`. Claude is redirected by component paths in its marketplace entry, and Codex by `.codex-plugin/plugin.json`. See [ADD-HOOK.md](ADD-HOOK.md), [ADD-AGENT.md](ADD-AGENT.md) and [ADD-RULE.md](ADD-RULE.md).
+Cursor keeps the plugin root for commands, rules and most hooks. Agents are routed by `.cursor-plugin/plugin.json` to the remapped copies under `.cursor-plugin/agents/`. When Claude owns plugin-root `hooks/hooks.json`, that manifest also points `hooks` at `.cursor-plugin/hooks/hooks.json`. Claude is redirected by component paths in its marketplace entry (hooks omitted: auto-discovered at the plugin root), and Codex by `.codex-plugin/plugin.json`. See [ADD-HOOK.md](ADD-HOOK.md), [ADD-AGENT.md](ADD-AGENT.md) and [ADD-RULE.md](ADD-RULE.md).
 
 Never edit a namespace directory by hand. They are generated, and `drift.yml` fails when they stop matching the source.

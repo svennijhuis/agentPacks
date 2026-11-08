@@ -126,7 +126,7 @@ cp plugins/squad/com.openai.codex/agents/*.toml .codex/agents/
 
 Authored: `plugin.json`, `mcp.json` (empty scaffold), `skills/`, `rules/`, `agents/`, and `commands/`.
 
-Generated only in validation output or on `marketplace` / `marketplace-beta`: client manifests and `com.*` provider trees.
+Generated only in validation output or on `marketplace` / `marketplace-beta`: client manifests and `com.*` provider trees. Cursor's `.cursor-plugin/plugin.json` matches official workflow packs (`orchestrate`, `pstack`, `thermos`): `displayName`, `category: developer-tools`, `skills`, and `tags` from keywords.
 
 Portable model tiers are authored on each agent (`model:` tier); the repo maps them to client ids at build time.
 Default `inherit`. Every squad agent is `standard` except `squad-architect` (`frontier`) and `squad-indexer` (`fast`, the only `fast` agent). Copilot ids use dotted versions (`claude-sonnet-5.5`, `claude-opus-5.5`).

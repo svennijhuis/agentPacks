@@ -69,7 +69,7 @@ public class StandardsGenerationTests
         Assert.Equal("./skills/", claude["skills"]!.GetValue<string>());
         Assert.Equal("./skills/", copilot["skills"]!.GetValue<string>());
         Assert.Equal("./skills/", codex["skills"]!.GetValue<string>());
-        Assert.Null(cursor["skills"]); // Cursor uses the standard root skills/ convention.
+        Assert.Equal("./skills/", cursor["skills"]!.GetValue<string>());
         Assert.Single(run.Generated, f => f.RelativePath.Replace('\\', '/') ==
             "plugins/engineering/skills/dotnet-build/references/standards/csharp.md");
     }

@@ -22,12 +22,13 @@ The catalog entry points at the completed plugin directory on that same branch:
   "name": "squad",
   "displayName": "Squad",
   "source": "./plugins/squad",
+  "category": "development",
   "skills": "./skills/",
   "strict": true
 }
 ```
 
-`displayName` is the Claude Code v2.1.143+ picker title. Install still uses kebab-case `name` (`squad@agentpacks`). Copilot's catalog has no display-name field, so it stays kebab-case.
+`displayName` is the Claude Code v2.1.143+ picker title. Install still uses kebab-case `name` (`squad@agentpacks`). `category` follows the official Claude catalog taxonomy (`development` or `security`). Copilot's catalog has no display-name field, so it stays kebab-case. Marketplace entries never declare `hooks`: a file-path or array never runs, so hooked plugins auto-discover Claude-shaped `hooks/hooks.json` at the plugin root.
 
 ## Why `.mcp.json` exists
 
@@ -41,9 +42,9 @@ Claude resolves plugin updates from an explicit `version` first, and only falls 
 
 ## Why `strict: true`
 
-Claude auto-discovers root `commands/` (Cursor's dialect) unless the marketplace entry is strict. The catalog already points at `com.anthropic.claude-code/commands/`, so `strict: false` loads both trees and `/squad` plus `/squad-review` appear twice.
+Without a per-plugin `plugin.json` the marketplace entry is the manifest. Claude still auto-discovers root `commands/` (Cursor's dialect) unless the entry names other paths. The catalog already points at `com.anthropic.claude-code/commands/`, so a missing or false `strict` plus root discovery would load both trees and `/squad` plus `/squad-review` appear twice.
 
-`strict: true` keeps Claude on the declared paths. Cursor still reads root `commands/`. Skills and `.mcp.json` stay explicitly declared; a plugin.json version bump is not how Claude picks up this change (the catalog omits `version` and updates from the commit SHA).
+`strict: true` (the documented default) keeps Claude on the declared paths. Cursor still reads root `commands/`. Skills and `.mcp.json` stay explicitly declared; a plugin.json version bump is not how Claude picks up this change (the catalog omits `version` and updates from the commit SHA).
 
 ## Install
 

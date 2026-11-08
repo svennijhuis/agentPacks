@@ -89,15 +89,6 @@ internal sealed record PluginPackage
     public JsonObject? McpServers =>
         Mcp?["mcpServers"] is JsonObject servers && servers.Count > 0 ? servers : null;
 
-    /// <summary>
-    /// Claude marketplace rejects a hooks file-path or array, so <c>pack-check</c> and <c>git</c>
-    /// omit that field. Claude then auto-discovers plugin-root <c>hooks/hooks.json</c>, which
-    /// must be Claude-shaped for those two packs. Cursor reads <c>.cursor-plugin/hooks/hooks.json</c>
-    /// via the Cursor plugin manifest instead.
-    /// </summary>
-    public bool ClaudeAutoDiscoversRootHooks =>
-        CanonicalName is "pack-check" or "git";
-
     public ScriptDefinition? Script(string name) =>
         Scripts.FirstOrDefault(s => string.Equals(s.Name, name, StringComparison.Ordinal));
 }
