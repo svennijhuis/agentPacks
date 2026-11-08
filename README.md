@@ -4,7 +4,7 @@ Portable [Agent Plugins](https://agent-plugins.org) that wire a workflow into th
 
 ## Available plugins
 
-Three capability packs, installed because you want a behaviour wired into the agent loop rather than knowledge sitting on a shelf, and two language packs, installed because of the ecosystem you compile in:
+Three capability packs, installed because you want a behaviour wired into the agent loop rather than knowledge sitting on a shelf, one role pack, installed because of the kind of work you do, and two language packs, installed because of the ecosystem you compile in:
 
 | Plugin | Use it for |
 | --- | --- |
@@ -13,6 +13,7 @@ Three capability packs, installed because you want a behaviour wired into the ag
 | `git` | Blocking the git commands that destroy work an agent cannot get back — `reset --hard`, `clean -fd`, `push --force`, `branch -D`, `checkout .` — before the client runs them |
 | `dotnet` | Teaching the loop how C# is built, tested and reviewed, backed by one canonical set of standards distributed only to the skills that need each document |
 | `rust` | Teaching the loop how Cargo workspaces are built, tested and reviewed, backed by canonical Rust, error/concurrency, and testing standards |
+| `frontend` | Building interfaces: visual direction, motion, React and React Native implementation, shadcn/ui composition, and verification in a real browser, as seventeen reviewed external skills pinned to exact upstream commits |
 
 That is the whole catalog today, deliberately. The remaining role packs (`engineering`, `productivity`, `security`) and language pack (`typescript`) are planned and have their own rules for what earns one — a pack that ships nothing but an empty `plugin.json` advertises an install that does nothing, so they are added when there is real content to add. The reasoning is in [`docs/PLAN.md`](docs/PLAN.md).
 
@@ -27,6 +28,7 @@ copilot plugin install pack-check@agentpacks
 copilot plugin install git@agentpacks
 copilot plugin install dotnet@agentpacks
 copilot plugin install rust@agentpacks
+copilot plugin install frontend@agentpacks
 ```
 
 Update later with:
@@ -44,6 +46,7 @@ codex plugin add pack-check@agentpacks
 codex plugin add git@agentpacks
 codex plugin add dotnet@agentpacks
 codex plugin add rust@agentpacks
+codex plugin add frontend@agentpacks
 ```
 
 Open `/plugins` in Codex to inspect the installed plugins. Update later with:
@@ -61,6 +64,7 @@ claude plugin install pack-check@agentpacks --scope user
 claude plugin install git@agentpacks --scope user
 claude plugin install dotnet@agentpacks --scope user
 claude plugin install rust@agentpacks --scope user
+claude plugin install frontend@agentpacks --scope user
 ```
 
 Update later with:
@@ -81,6 +85,7 @@ ln -s ~/.cursor/agentPacks/plugins/pack-check ~/.cursor/plugins/local/pack-check
 ln -s ~/.cursor/agentPacks/plugins/git ~/.cursor/plugins/local/git
 ln -s ~/.cursor/agentPacks/plugins/dotnet ~/.cursor/plugins/local/dotnet
 ln -s ~/.cursor/agentPacks/plugins/rust ~/.cursor/plugins/local/rust
+ln -s ~/.cursor/agentPacks/plugins/frontend ~/.cursor/plugins/local/frontend
 ```
 
 Create only the links for the plugins you want, then restart Cursor or run **Developer: Reload Window**. Update later with:
@@ -141,6 +146,11 @@ the plugin while agents match the repository they are working in.
 `rust` needs no invocation. Its skills are loaded for an applicable Cargo workspace. In a mixed
 repository, the Loop uses Rust, .NET, or both from the target paths, diff, and acceptance criteria.
 [Its README](plugins/rust/README.md) covers Cargo commands, standards, and repository evidence.
+
+`frontend` needs no invocation and fills no loop slot; its skills are reached the ordinary way, by an
+agent reading a description. Because seventeen imported skills have opinions about the same screen,
+[its README](plugins/frontend/README.md) writes down the precedence between them, what it does to a
+`delivery-loop` review, and the five candidates that were reviewed and rejected.
 
 Installed skills are selected when relevant to your request.
 

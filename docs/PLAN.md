@@ -23,7 +23,7 @@ review × rust × backend × axum   →  a plugin per combination
 | --- | --- | --- |
 | Role | engineering, review, testing, security, product | Yes, when it is language-agnostic |
 | Language | dotnet, typescript, rust | Yes — this is the main split for code |
-| Layer | frontend, backend | Only after a language pack gets fat |
+| Layer | frontend, backend | Only after a language pack gets fat — but see [`frontend`](#the-frontend-pack-is-a-role-not-a-layer) |
 | Framework | react, nestjs, axum, aspnet | Never — it is a skill |
 
 Framework churn is high: Next.js, Axum and NestJS patterns move faster than the languages under them. Plugins should outlive frameworks. A skill can be added or dropped in one pull request; a plugin is something people have already installed.
@@ -43,8 +43,8 @@ Both give a Rust shop a way to avoid installing .NET skills. Only one stays read
 
 ## What ships today
 
-The repository currently ships **three capability packs and two language packs**: `delivery-loop`,
-`pack-check`, `git`, `dotnet`, and `rust`.
+The repository currently ships **one role pack, three capability packs and two language packs**:
+`frontend`, `delivery-loop`, `pack-check`, `git`, `dotnet`, and `rust`.
 
 The earlier catalog carried five role packs and three language packs, six of which held nothing but a `plugin.json`. An empty pack is not a placeholder — it is an install that appears in the marketplace, resolves, and does nothing, which is worse than not being listed. They were removed in the same branch that added `delivery-loop`; the pinned external-skill imports and the two authored skills (`engineering/testing`, `dotnet/dotnet-review`) are in history at `007f609` and can be restored when there is a pack around them worth installing.
 
@@ -61,6 +61,7 @@ Role packs — installed because of how you work, not what you compile:
 | `migrations` | platform teams | Azure DevOps to GitHub and similar moves *(empty for now)* |
 | `engineering` | any builder | **only** cross-language craft: `domain-modeling`, `codebase-design`, `diagnosing-bugs`, `improve-codebase-architecture`, `code-review`, `to-tickets`, `triage`, `wayfinder`, `research`, `grill-with-docs`, `setup-matt-pocock-skills`, `grilling`, `testing` |
 | `security` | anyone shipping software | threat modeling and general checklists *(empty for now)* |
+| `frontend` | anyone building interfaces | reviewed external imports for visual direction, motion, React and React Native implementation, shadcn/ui composition, and browser verification — see [the pack README](../plugins/frontend/README.md) |
 
 Capability packs — installed because of a workflow you want wired into the agent loop, not just knowledge you want available:
 
@@ -101,6 +102,25 @@ Platform team    migrations + productivity
 ```
 
 `engineering` stays small and strict on purpose. It is not a dumping ground: if a skill only makes sense with a compiler in hand, it belongs to a language pack.
+
+### The `frontend` pack is a role, not a layer
+
+The axis table puts `frontend` under Layer, where the rule is "only after a language pack gets fat".
+That rule governs cutting `typescript` in half, and `frontend` is not that cut. It holds no
+TypeScript-specific skill, fills no [language-pack slot](ADD-LANGUAGE-PACK.md), and its design,
+motion and verification skills apply to a Swift screen or a static HTML page as readily as to
+Next.js. It installs because of what you build, which is the role-pack test, so it is listed with
+the role packs above.
+
+Its React, React Native and shadcn skills are framework skills, which this plan already places
+inside a pack rather than giving them plugins of their own. They live in `frontend` rather than
+`typescript` because they travel with the skills that decide what they implement, and because no
+`typescript` pack exists yet. When one does and the frontend set outgrows this pack, the split is
+the ordinary one in [When to split further](#when-to-split-further).
+
+The pack authors no skills. Every entry is a pinned external import, so the review duty in
+[External skills travel with their dependencies](#external-skills-travel-with-their-dependencies)
+carries the whole pack: nine of its eleven motion skills are pinned because another one names them.
 
 ## Naming skills inside a pack
 

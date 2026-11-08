@@ -1,0 +1,28 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "frontend",
+  "version": "0.1.0",
+  "description": "The frontend craft pack: reviewed external skills for visual direction, motion, React and React Native implementation, shadcn/ui composition, and browser verification.",
+  "author": {
+    "name": "agentPacks Maintainers"
+  },
+  "license": "UNLICENSED",
+  "keywords": [
+    "frontend",
+    "design",
+    "ui",
+    "ux",
+    "animation",
+    "motion",
+    "react",
+    "react-native",
+    "shadcn",
+    "accessibility",
+    "external-skills"
+  ],
+  "extensions": {
+    "com.anthropic.claude-code": {},
+    "com.openai.codex": {},
+    "com.github.copilot": {}
+  }
+}
