@@ -71,8 +71,9 @@ public sealed class ClientManifestTests
 
     /// <summary>
     /// Claude auto-discovers agents/, commands/ and hooks/ at the plugin root unless the
-    /// marketplace entry is strict. The root holds Cursor's dialect. Explicit paths plus
-    /// <c>strict: true</c> keep Claude on its own tree.
+    /// marketplace entry names other paths. The root holds Cursor's dialect. Explicit paths plus
+    /// <c>strict: true</c> keep Claude on its own tree. Marketplace entries omit hooks: a
+    /// file-path never runs, so hooked plugins auto-discover plugin-root hooks/hooks.json.
     /// </summary>
     [Fact]
     public void The_claude_entry_points_at_its_own_namespace()
@@ -89,11 +90,14 @@ public sealed class ClientManifestTests
 
         Assert.True(entry["strict"]!.GetValue<bool>());
         Assert.Equal("Engineering", entry["displayName"]!.GetValue<string>());
+        Assert.Equal(CatalogCategory.ClaudeDevelopment, entry["category"]!.GetValue<string>());
         Assert.Equal(
             "./com.anthropic.claude-code/agents/reviewer.md",
             entry["agents"]![0]!.GetValue<string>());
         Assert.Equal("./com.anthropic.claude-code/commands/", entry["commands"]![0]!.GetValue<string>());
-        Assert.Equal("./com.anthropic.claude-code/hooks/hooks.json", entry["hooks"]!.GetValue<string>());
+        Assert.Null(entry["hooks"]);
+        Assert.True(run.HasFile($"{Plugin}/hooks/hooks.json"));
+        Assert.True(run.HasFile($"{Plugin}/{ClientProfile.RelocatedCursorHooks}"));
     }
 
     [Fact]
@@ -110,16 +114,28 @@ public sealed class ClientManifestTests
         Assert.Equal("./skills/", entry["skills"]!.GetValue<string>());
     }
 
-    /// <summary>Rules reach Claude only as a SessionStart hook, so they imply the hooks path too.</summary>
+    /// <summary>
+    /// Rules reach Claude only as a SessionStart hook. Marketplace entries omit hooks, so the
+    /// generated Claude-shaped document lands at plugin-root hooks/hooks.json for auto-discovery.
+    /// </summary>
     [Fact]
-    public void A_plugin_with_only_rules_still_declares_the_claude_hooks_path()
+    public void A_plugin_with_only_rules_auto_discovers_claude_root_hooks()
     {
         using var repo = new TestRepository();
         var run = repo.WithValidPlugin().WithRule("standards").ValidateAndGenerate();
 
         var entry = (JsonObject)run.File(Marketplace).Content["plugins"]![0]!;
 
-        Assert.Equal("./com.anthropic.claude-code/hooks/hooks.json", entry["hooks"]!.GetValue<string>());
+        Assert.Null(entry["hooks"]);
+        Assert.True(run.HasFile($"{Plugin}/hooks/hooks.json"));
+        Assert.True(run.HasFile($"{Plugin}/com.anthropic.claude-code/hooks/hooks.json"));
+        Assert.Equal(
+            run.File($"{Plugin}/com.anthropic.claude-code/hooks/hooks.json").Text,
+            run.File($"{Plugin}/hooks/hooks.json").Text);
+        Assert.True(run.HasFile($"{Plugin}/{ClientProfile.RelocatedCursorHooks}"));
+        Assert.Equal(
+            $"./{ClientProfile.RelocatedCursorHooks}",
+            run.File($"{Plugin}/.cursor-plugin/plugin.json").Content["hooks"]!.GetValue<string>());
     }
 
     /// <summary>
@@ -138,8 +154,10 @@ public sealed class ClientManifestTests
 
         Assert.Equal("engineering", cursor["name"]!.GetValue<string>());
         Assert.Equal("Engineering", cursor["displayName"]!.GetValue<string>());
-        Assert.Equal("developer-tools", cursor["category"]!.GetValue<string>());
+        Assert.Equal(CatalogCategory.CursorDeveloperTools, cursor["category"]!.GetValue<string>());
         Assert.Equal("Test plugin.", cursor["description"]!.GetValue<string>());
+        Assert.Equal("./skills/", cursor["skills"]!.GetValue<string>());
+        Assert.Null(cursor["tags"]);
         Assert.Null(cursor["agents"]);
     }
 

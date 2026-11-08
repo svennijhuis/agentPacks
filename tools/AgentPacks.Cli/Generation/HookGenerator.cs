@@ -26,6 +26,14 @@ internal static class HookGenerator
         || (profile.Client is Client.Claude or Client.Copilot
             && plugin.Rules.Any(rule => ComponentWriter.Flag(rule, "alwaysApply")));
 
+    /// <summary>
+    /// Claude marketplace entries cannot declare a hooks file-path or array: those hooks never
+    /// run. Any plugin that emits Claude hooks therefore owns plugin-root <c>hooks/hooks.json</c>
+    /// (Claude-shaped auto-discovery), and Cursor reads a relocated Cursor-shaped copy.
+    /// </summary>
+    public static bool ClaudeOwnsPluginRoot(PluginPackage plugin) =>
+        EmitsHooksFile(plugin, ClientProfile.Claude);
+
     /// <summary>Builds the hooks document, or null when the plugin declares no usable hooks.</summary>
     public static JsonObject? Build(PluginPackage plugin, ClientProfile profile)
     {

@@ -101,6 +101,17 @@ agent plugin marketplace update agentpacks
 
 There is still no non-interactive `agent plugin install`. After adding the marketplace, pick each pack in **Customize** or the CLI `/plugin` Marketplace tab.
 
+To pin project-scope installs without that picker, commit `.cursor/settings.json`. The CLI loads those packs when it starts in the folder (the same file `/plugin` writes for project scope):
+
+```json
+{
+  "plugins": {
+    "agentpacks/squad": { "enabled": true },
+    "agentpacks/pack-check": { "enabled": true }
+  }
+}
+```
+
 Teams and Enterprise administrators can import this repository's `marketplace` branch as a team marketplace. The generated `.cursor-plugin/marketplace.json` lists every pack, so **Import from Repo** and Auto Refresh pick them all up.
 
 For local development without adding a marketplace, clone the branch and symlink into Cursor's local plugin directory:

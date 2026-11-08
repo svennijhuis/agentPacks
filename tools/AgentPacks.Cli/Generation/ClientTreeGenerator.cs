@@ -43,16 +43,25 @@ internal sealed class ClientTreeGenerator(RepositoryContext context, ModelCatalo
         // the generated rules hook, and emitting the same path twice would write it twice and diff
         // it against itself.
         //
-        // pack-check and git put Claude-shaped hooks at plugin-root hooks/hooks.json so Claude
-        // can auto-discover them (marketplace omits a hooks path). Cursor cannot read that
-        // dialect, so those packs write Cursor-shaped hooks under .cursor-plugin/ and point
-        // the Cursor manifest at them. Do not write Claude shape into Copilot's tree.
+        // Hooked plugins put Claude-shaped hooks at plugin-root hooks/hooks.json so Claude can
+        // auto-discover them (marketplace omits a hooks path: a file-path or array never runs).
+        // Cursor cannot read that dialect, so those packs write Cursor-shaped hooks under
+        // .cursor-plugin/ and point the Cursor manifest at them. Do not write Claude shape into
+        // Copilot's tree.
+        var claudeOwnsRootHooks = HookGenerator.ClaudeOwnsPluginRoot(plugin);
+
         foreach (var profile in ClientProfile.All
                      .Where(p => p.Client is not (Client.Claude or Client.Copilot)))
         {
-            if (HookGenerator.Build(plugin, profile) is { } hooks)
+            var hooks = HookGenerator.Build(plugin, profile);
+            if (hooks is null && profile.Client == Client.Cursor && claudeOwnsRootHooks)
             {
-                var relative = profile.Client == Client.Cursor && plugin.ClaudeAutoDiscoversRootHooks
+                hooks = HookGenerator.EmptyDocument(profile);
+            }
+
+            if (hooks is { })
+            {
+                var relative = profile.Client == Client.Cursor && claudeOwnsRootHooks
                     ? ClientProfile.RelocatedCursorHooks
                     : profile.PluginRelative("hooks/hooks.json");
                 AddJson(relative, hooks);
@@ -139,7 +148,7 @@ internal sealed class ClientTreeGenerator(RepositoryContext context, ModelCatalo
             if (HookGenerator.Build(plugin, profile) is { } authored)
             {
                 addJson(profile.PluginRelative("hooks/hooks.json"), authored);
-                MaybeWriteClaudeRootHooks(plugin, profile, addJson, authored);
+                MaybeWriteClaudeRootHooks(profile, addJson, authored);
             }
 
             return;
@@ -154,21 +163,20 @@ internal sealed class ClientTreeGenerator(RepositoryContext context, ModelCatalo
 
         var document = HooksWithRules(plugin, profile);
         addJson(profile.PluginRelative("hooks/hooks.json"), document);
-        MaybeWriteClaudeRootHooks(plugin, profile, addJson, document);
+        MaybeWriteClaudeRootHooks(profile, addJson, document);
     }
 
     /// <summary>
-    /// Claude marketplace cannot declare a hooks path, so pack-check and git also emit the
+    /// Claude marketplace cannot declare a hooks path, so every hooked plugin also emits the
     /// Claude-shaped document at plugin-root hooks/hooks.json. Copilot keeps
     /// <c>com.github.copilot/hooks/hooks.json</c> in its own dialect.
     /// </summary>
     private static void MaybeWriteClaudeRootHooks(
-        PluginPackage plugin,
         ClientProfile profile,
         Action<string, JsonNode> addJson,
         JsonObject document)
     {
-        if (profile.Client != Client.Claude || !plugin.ClaudeAutoDiscoversRootHooks)
+        if (profile.Client != Client.Claude)
         {
             return;
         }
@@ -224,9 +232,10 @@ internal sealed class ClientTreeGenerator(RepositoryContext context, ModelCatalo
     /// authored portable tiers. <c>displayName</c> is the official-schema title (squad → Squad).
     /// <c>category</c> is the official-schema classifier: cursor/plugins first-party workflow
     /// packs (orchestrate, pstack, thermos, ralph-loop) all set <c>developer-tools</c> on
-    /// <c>.cursor-plugin/plugin.json</c>. Marketplace entries still cannot carry it
-    /// (additionalProperties: false). When Claude owns plugin-root hooks, the manifest also
-    /// points at <see cref="ClientProfile.RelocatedCursorHooks"/>.
+    /// <c>.cursor-plugin/plugin.json</c>. They also declare <c>skills</c> and <c>tags</c>.
+    /// Marketplace entries still cannot carry category (additionalProperties: false). When
+    /// Claude owns plugin-root hooks, the manifest also points at
+    /// <see cref="ClientProfile.RelocatedCursorHooks"/>.
     /// </summary>
     private void GenerateCursor(
         PluginPackage plugin,
@@ -241,10 +250,25 @@ internal sealed class ClientTreeGenerator(RepositoryContext context, ModelCatalo
             ["displayName"] = PluginDisplayName.From(plugin),
             // Official cursor/plugins manifests classify workflow packs this way. The catalog
             // entry cannot: schemas/marketplace.schema.json forbids category on plugins[].
-            ["category"] = "developer-tools"
+            ["category"] = CatalogCategory.Cursor()
         };
 
-        JsonFile.CopyProperties(cursor, manifest, "version", "description", "author", "license", "keywords");
+        JsonFile.CopyProperties(
+            cursor,
+            manifest,
+            "version", "description", "author", "homepage", "repository", "license", "keywords");
+
+        if (manifest["keywords"] is JsonArray keywords && keywords.Count > 0)
+        {
+            cursor["tags"] = keywords.DeepClone();
+        }
+
+        // Official orchestrate / pstack / thermos declare skills on the manifest. Default
+        // folder scan would find them anyway; naming the path matches the published schema.
+        if (plugin.HasSkillsDirectory)
+        {
+            cursor["skills"] = "./skills/";
+        }
 
         // Cursor's default scan is root agents/ (portable tiers). Remapped ids live under
         // .cursor-plugin/agents/; declaring the path replaces folder discovery so Cursor
@@ -254,8 +278,7 @@ internal sealed class ClientTreeGenerator(RepositoryContext context, ModelCatalo
             cursor["agents"] = "./.cursor-plugin/agents/";
         }
 
-        if (plugin.ClaudeAutoDiscoversRootHooks &&
-            HookGenerator.EmitsHooksFile(plugin, ClientProfile.Cursor))
+        if (HookGenerator.ClaudeOwnsPluginRoot(plugin))
         {
             cursor["hooks"] = $"./{ClientProfile.RelocatedCursorHooks}";
         }

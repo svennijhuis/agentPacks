@@ -9,6 +9,7 @@ namespace AgentPacks.Cli.Generation;
 /// the Claude-compatible catalog, so each client receives component paths in its own dialect.
 /// <c>strict</c> is omitted: Copilot's documented default is true, and the flag is schema
 /// validation, not Claude path-only routing. github/copilot-cli#1513 (honouring false) is open.
+/// <c>category</c> is omitted: the field is documented, but github/awesome-copilot does not set it.
 /// </summary>
 internal sealed class CopilotMarketplaceGenerator(RepositoryContext context)
 {

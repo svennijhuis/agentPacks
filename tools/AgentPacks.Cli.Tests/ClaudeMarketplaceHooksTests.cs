@@ -7,9 +7,9 @@ namespace AgentPacks.Cli.Tests;
 public sealed class ClaudeMarketplaceHooksTests
 {
     /// <summary>
-    /// Po 47 fail bar. Claude rejects a marketplace <c>hooks</c> file-path or array.
-    /// <c>pack-check</c> and <c>git</c> omit the field entirely so install can succeed.
-    /// Other plugins with hooks still declare the namespaced path.
+    /// Po 47 fail bar. Official Claude marketplace entries cannot declare a <c>hooks</c>
+    /// file-path or array: those hooks never run. Every hooked plugin omits the field so
+    /// Claude auto-discovers plugin-root <c>hooks/hooks.json</c>.
     /// </summary>
     [Fact]
     public void Claude_marketplace_omits_hooks_path_and_array()
@@ -37,7 +37,10 @@ public sealed class ClaudeMarketplaceHooksTests
         var otherRun = other.ValidateAndGenerate();
         var engineering = (JsonObject)otherRun.File(".claude-plugin/marketplace.json")
             .Content["plugins"]![0]!;
-        Assert.Equal("./com.anthropic.claude-code/hooks/hooks.json", engineering["hooks"]!.GetValue<string>());
+        Assert.Null(engineering["hooks"]);
+        Assert.DoesNotContain("hooks/hooks.json", engineering.ToJsonString(), StringComparison.Ordinal);
+        Assert.True(otherRun.HasFile("plugins/engineering/hooks/hooks.json"));
+        Assert.True(otherRun.HasFile($"plugins/engineering/{ClientProfile.RelocatedCursorHooks}"));
     }
 
     /// <summary>
@@ -135,9 +138,8 @@ public sealed class ClaudeMarketplaceHooksTests
     }
 
     /// <summary>
-    /// Claude owns plugin-root hooks/hooks.json on git and pack-check. Cursor cannot read that
-    /// dialect, and until the Cursor manifest pointed at a Cursor-shaped copy the guard never
-    /// fired on Cursor (including Windows). Folder discovery stays on root hooks/ for other packs.
+    /// Claude owns plugin-root hooks/hooks.json on every hooked pack. Cursor cannot read that
+    /// dialect, so the Cursor manifest points at a Cursor-shaped copy under .cursor-plugin/.
     /// </summary>
     [Fact]
     public void Cursor_loads_relocated_cursor_shaped_hooks_when_claude_owns_root()
@@ -179,8 +181,13 @@ public sealed class ClaudeMarketplaceHooksTests
             .WithHook("beforeShellExecution");
         var otherRun = other.ValidateAndGenerate();
         Assert.True(otherRun.HasFile("plugins/engineering/hooks/hooks.json"));
-        Assert.False(otherRun.HasFile($"plugins/engineering/{ClientProfile.RelocatedCursorHooks}"));
-        Assert.Null(otherRun.File("plugins/engineering/.cursor-plugin/plugin.json").Content["hooks"]);
+        Assert.True(otherRun.HasFile($"plugins/engineering/{ClientProfile.RelocatedCursorHooks}"));
+        Assert.NotEqual(
+            otherRun.File("plugins/engineering/hooks/hooks.json").Text,
+            otherRun.File($"plugins/engineering/{ClientProfile.RelocatedCursorHooks}").Text);
+        Assert.Equal(
+            $"./{ClientProfile.RelocatedCursorHooks}",
+            otherRun.File("plugins/engineering/.cursor-plugin/plugin.json").Content["hooks"]!.GetValue<string>());
     }
 
     private static IEnumerable<JsonObject> CopilotHookEntries(JsonObject events)

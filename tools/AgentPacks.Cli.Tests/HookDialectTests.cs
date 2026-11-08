@@ -11,7 +11,7 @@ namespace AgentPacks.Cli.Tests;
 public sealed class HookDialectTests
 {
     private const string ClaudeHooks = "plugins/engineering/com.anthropic.claude-code/hooks/hooks.json";
-    private const string CursorHooks = "plugins/engineering/hooks/hooks.json";
+    private const string CursorHooks = "plugins/engineering/" + ClientProfile.RelocatedCursorHooks;
     private const string CodexHooks = "plugins/engineering/com.openai.codex/hooks/hooks.json";
     private const string CopilotHooks = "plugins/engineering/com.github.copilot/hooks/hooks.json";
 

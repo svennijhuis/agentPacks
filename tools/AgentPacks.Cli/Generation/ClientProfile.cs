@@ -18,9 +18,9 @@ internal sealed record ClientProfile(
 {
     /// <summary>
     /// Claude reads the root agents/, commands/ and hooks/ by default unless the marketplace
-    /// entry is strict. The entry points at this namespace and sets strict so Cursor's root
-    /// dialect is not a second discoverable copy. pack-check and git omit marketplace hooks
-    /// (Claude rejects a path or array) and put this dialect at plugin-root hooks/hooks.json.
+    /// entry names other paths. The entry points at this namespace and sets strict so Cursor's
+    /// root dialect is not a second discoverable copy. Marketplace entries omit hooks (a
+    /// file-path or array never runs) and put this dialect at plugin-root hooks/hooks.json.
     /// </summary>
     public static readonly ClientProfile Claude = new(
         Client.Claude,
@@ -34,7 +34,8 @@ internal sealed record ClientProfile(
 
     /// <summary>
     /// Cursor-shaped hooks for packs whose plugin-root <c>hooks/hooks.json</c> is Claude-shaped
-    /// (Claude marketplace cannot declare a hooks path). Cursor's plugin manifest points here.
+    /// (Claude marketplace cannot declare a hooks path, so hooked plugins auto-discover at
+    /// the root). Cursor's plugin manifest points here.
     /// </summary>
     public const string RelocatedCursorHooks = ".cursor-plugin/hooks/hooks.json";
 
