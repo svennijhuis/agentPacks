@@ -29,7 +29,7 @@ Constraints:
 - Never write U+2014 (em dash) into the plan (`## Fix list`, `## Handoff notes`, `## Status`); use `:` or `,`.
 - Do not run the full suite; targeted checks only while building.
 - Guard the context window: read only the files and output this slice needs. Do not load whole trees or full logs.
-- Fresh fix-round invocation. You are not the author of the rejected code. Only the plan's `## Fix list`. High/medium must be fixed. Low/tiny only if that code is already touched. Ignore `## Slices` on a fix-round. Skip a row whose Found by is `tester`. A red test named in a Fix is made green by product code, never by editing that test.
+- Fresh fix-round invocation. You are not the author of the rejected code. Only the plan's `## Fix list`. High/medium must be fixed. Low/tiny only if that code is already touched. Ignore `## Slices` on a fix-round. Skip only a row whose Found by is `tester` (the missing-test gap). A red test named in a Fix is Found by the blast-radius or statechart step and is made green by product code, never by editing that test.
 
 1. Read `docs/plans/<yyyy-mm-dd>-<slug>.md`. The spawn names the active slice or `fix-list`.
    - Slice build: only that named `## Slices` entry's criteria and matrix rows (whole plan when the section is missing or has one entry).

@@ -1,4 +1,5 @@
 using System.Text.Json.Nodes;
+using System.Text.RegularExpressions;
 
 namespace AgentPacks.Cli.Tests;
 
@@ -75,6 +76,12 @@ public sealed class ReviewSequenceContractTests
         Assert.Contains("subagent with skill `<lang>-test-patterns`", squad, StringComparison.Ordinal);
         Assert.Contains("Do not load those skills in this command.", squad, StringComparison.Ordinal);
         Assert.Contains("If the second fix review is still FAIL, stop and report the open fix list. Do not push.", squad, StringComparison.Ordinal);
+        var step7 = squad.Split('\n').First(line => line.StartsWith("7. ", StringComparison.Ordinal));
+        Assert.Contains("steps 1-6 only", step7, StringComparison.Ordinal);
+        Assert.Contains("Stop before `squad-orchestrator`", step7, StringComparison.Ordinal);
+        Assert.DoesNotContain("then `squad-orchestrator`", step7, StringComparison.Ordinal);
+        Assert.DoesNotContain("then this list again", Squad("skills", "squad", "playbooks", "review.md"), StringComparison.Ordinal);
+        Assert.Contains("review-base product diff, not `main`", Squad("skills", "squad", "playbooks", "review.md"), StringComparison.Ordinal);
         Assert.DoesNotContain("squad-deslop", squad, StringComparison.Ordinal);
         Assert.DoesNotContain("squad-tester", squad, StringComparison.Ordinal);
 
@@ -93,9 +100,68 @@ public sealed class ReviewSequenceContractTests
         Assert.Contains("correctness and plan", reviewer, StringComparison.OrdinalIgnoreCase);
         Assert.Contains("Do not repeat a finding already in the blast-radius or statechart report", reviewer, StringComparison.Ordinal);
         Assert.Contains("Automation check from the review contract", reviewer, StringComparison.Ordinal);
-        Assert.Contains("Skip a row whose Found by is `tester`", Squad("agents", "squad-implementer.md"), StringComparison.Ordinal);
+        Assert.Contains("Skip only a row whose Found by is `tester` (the missing-test gap).", Squad("agents", "squad-implementer.md"), StringComparison.Ordinal);
+        Assert.Contains("Found by the blast-radius or statechart step", Squad("agents", "squad-implementer.md"), StringComparison.Ordinal);
+        Assert.Contains("Do not file a failure of those tests", Squad("agents", "squad-reviewer.md"), StringComparison.Ordinal);
         Assert.Contains("**Gate:** PASS | FAIL", Squad("skills", "squad", "references", "review-contract.md"), StringComparison.Ordinal);
         Assert.Contains("`Rules not checked` is a handoff note, not a fix row, and it does not fail the gate.", Squad("skills", "squad", "references", "review-contract.md"), StringComparison.Ordinal);
+    }
+
+    [Theory]
+    [InlineData("note-only", "PATCH /orders/{id}/note writes Order.Note. No other actor writes Order.", false, false, "PASS")]
+    [InlineData("status-shared", "PATCH /orders/{id} and the worker both write Order.Status.", true, true, "FAIL")]
+    public void Dry_run_runs_each_step_with_its_skill_and_gates(
+        string sample, string diff, bool sharedState, bool confirmedHigh, string gate)
+    {
+        var playbook = Squad("skills", "squad", "playbooks", "review.md");
+        var steps = FullLoopSteps(playbook);
+        Assert.Equal(6, steps.Count);
+
+        var trace = new List<string>();
+        foreach (var step in steps)
+        {
+            var conditional = step.Contains("only when step 3 says `Shared state: yes`", StringComparison.Ordinal);
+            var ran = !conditional || sharedState;
+            var skill = SkillOf(step);
+            trace.Add($"{(ran ? "run" : "skip")} {skill} | {sample} | {diff}");
+            if (skill == "statechart")
+                Assert.Equal(sharedState, ran);
+            else
+                Assert.True(ran, step);
+        }
+
+        Assert.Equal(
+            ["deslop", "squad-verifier", "blast-radius", "statechart", "<lang>-test-patterns", "squad-reviewer"],
+            steps.Select(SkillOf).ToArray());
+        Assert.Equal(gate, confirmedHigh ? "FAIL" : "PASS");
+        Assert.Contains(gate == "PASS" ? "Gate: PASS or FAIL" : "Gate: PASS or FAIL", playbook, StringComparison.Ordinal);
+        Console.WriteLine(string.Join("\n", trace) + $"\nGate: {gate}");
+
+        var pins = JsonNode.Parse(File.ReadAllText(Path.Combine(
+            TestRepository.SourceRoot(), "plugins", "squad", "external-skills.json")))!["sources"]!.AsArray()
+            .Select(node => node!["name"]!.GetValue<string>())
+            .ToHashSet(StringComparer.Ordinal);
+        foreach (var skill in new[] { "deslop", "blast-radius", "statechart" })
+            Assert.Contains(skill, pins);
+    }
+
+    private static List<string> FullLoopSteps(string playbook)
+    {
+        var start = playbook.IndexOf("## Full loop", StringComparison.Ordinal);
+        var end = playbook.IndexOf("```mermaid", start, StringComparison.Ordinal);
+        return playbook[start..end].Split('\n')
+            .Select(line => line.Trim())
+            .Where(line => Regex.IsMatch(line, @"^\d+\. "))
+            .ToList();
+    }
+
+    private static string SkillOf(string step)
+    {
+        var match = Regex.Match(step, @"skill `([^`]+)`");
+        if (match.Success)
+            return match.Groups[1].Value;
+        var agent = Regex.Match(step, @"`(squad-[a-z-]+)`");
+        return agent.Success ? agent.Groups[1].Value : step;
     }
 
     [Fact]

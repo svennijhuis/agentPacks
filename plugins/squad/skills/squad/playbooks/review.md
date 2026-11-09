@@ -12,21 +12,20 @@ report is the trigger.
 
 Each review round, including the round after a fix-list implementer. Announce the round number.
 
-1. Subagent with skill `deslop`. Output: `Result` pass or fail, and `Evidence`. Gate: `pass` or `fail`.
+1. Subagent with skill `deslop`. Output: `Result` pass or fail, and `Evidence`. Gate: `pass` or `fail`. Input is the review-base product diff, not `main`. A cleanup that would change behavior is reported and left unedited.
 2. `squad-verifier`. Output: the verifier report. Gate: the review contract.
 3. Subagent with skill `blast-radius`. Output: `Result` pass or fail, `Shared state` yes or no, and `Evidence`. Gate: `pass` or `fail`.
 4. Subagent with skill `statechart`, only when step 3 says `Shared state: yes`. Output: `Result`, spec path, `Evidence` or `Rules not checked`, at most 5 invariants. Gate: `pass` or `fail`. `Rules not checked` does not fail.
 5. Subagent with skill `<lang>-test-patterns`. Output: red unit or component tests for confirmed high or medium paths, or the green-CI skip. Gate: `pass` or `fail`.
-6. `squad-reviewer`, `squad-simplifier`, and `squad-security-reviewer` when the Security gate says run, in parallel. Output: findings, or `No findings.`
-7. `squad-orchestrator`. Output: verdict and fix list. Gate: PASS or FAIL.
+6. `squad-reviewer`, `squad-simplifier`, and `squad-security-reviewer` when the Security gate says run, in parallel. Pass the tester step's Added names into `squad-reviewer`. Output: findings, or `No findings.` Do not file a failure of an Added test, and do not prescribe an edit to that test.
 
 When step 3 says `Shared state: no`, do not run step 4. Pass `statechart: skipped (no shared state)`.
 When it says yes, pass `docs/reviews/<yyyy-mm-dd>-<slug>/statechart/` (the plan slug).
 
-A code-writing step is followed by the remaining steps. Verdict `fix` spawns a fresh
-`squad-implementer` (`fix-list`), then this list again. At most two fix rounds. If the second
-fix review is still FAIL, stop and report the open fix list. Do not push. Hand off uncommitted.
-Residual fixup stays one spot-check. It is not another review round.
+Stop after step 6. The command merges once after that (`squad-orchestrator`). Gate: PASS or FAIL.
+A `fix` re-runs steps 1-6, then merges once again. At most two fix rounds. This playbook does not
+merge and does not start a fix round. Do not push. Hand off uncommitted. Residual fixup stays one
+spot-check. It is not another review round.
 
 ```mermaid
 flowchart TD

@@ -372,6 +372,9 @@ High or medium from a step forces `fix`, same as a reviewer finding. Low or tiny
 **Evidence:** <what the skill reported>
 ```
 
+Input is the review-base product diff, not `main`. A cleanup that would change behavior is
+reported in Evidence and left unedited.
+
 ### Blast-radius report
 
 ```markdown
@@ -411,11 +414,12 @@ A `confirmed` high or medium row in Evidence is a finding. `not confirmed` and `
 
 `pass` when every confirmed high or medium path is in Added or Skipped. Skip a path the verifier
 report or green CI already covers. `fail` when a confirmed high or medium path is in neither.
-That gap is a fix row Found by `tester`. The implementer skips rows whose Found by is
-`tester`.
+That gap is the only fix row Found by `tester`. The implementer skips only that row.
 
-Each Added red test becomes a fix row at the finding's severity. Fix: make that test green
-without editing the test. Location is the product `file:line`.
+Each Added red test becomes a fix row at the finding's severity. Found by is the blast-radius
+or statechart step that confirmed it, not `tester`. Fix: make that test green without editing
+the test. Location is the product `file:line`. The reviewer spawn receives the Added names and
+does not file those failures.
 
 ### Automation check
 
