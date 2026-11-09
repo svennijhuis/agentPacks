@@ -66,24 +66,20 @@ Never rewrite an existing plan. Normal run, after step 2: over any limit (more t
 | `squad-architect` | full change crossing layers, new project/package, or public API | read-only `## Design` and `## Map` ([contract](references/architect-contract.md)) |
 | `squad-indexer` | `/squad` spawns it before `squad-architect` and each `squad-implementer` | read-only `file:line` lookups on the `fast` model; no code, no verdicts. `/squad` passes the list in those spawns; workers never spawn it |
 | `squad-implementer` | full change only | build |
-| `squad-deslop` | full-loop review, before the verifier | loads `deslop` |
-| `squad-verifier` | after deslop, before red tests | evidence; `not verified` is not a pass; `blocked` is unproven, not a pass |
-| `squad-blast-radius` | every review round | loads `blast-radius` |
-| `squad-statechart` | only when shared state is yes | loads `statechart` |
-| `squad-tester` | full loop only | red unit or component tests for confirmed high/medium |
+| `squad-verifier` | review playbook, after deslop, before red tests | evidence; `not verified` is not a pass; `blocked` is unproven, not a pass |
 | `squad-reviewer` | every review phase | correctness + plan/spec |
 | `squad-simplifier` | every review phase | reuse, quality, efficiency in one spawn |
 | `squad-security-reviewer` | trust boundary only | OWASP gate |
 | `squad-orchestrator` | merge only | verdict / ≤2 fixes |
 | `squad-retro` | end of a full run or `/squad-review`, also on stop or fail | one `docs/retros/` file ([retro](references/retro.md)) |
 
-Small change: spawn none of these; no retro. `squad-tester` is the review tester (ADR 0002, `docs/adr/0002-review-sequence.md`). Do not split simplifier. `squad-orchestrator` never launches agents, edits product code, or plans.
+Small change: spawn none of these; no retro. A review step that only loads a skill is a playbook subagent, not a `squad-*` agent (ADR 0002, `docs/adr/0002-review-sequence.md`). Do not split simplifier. `squad-orchestrator` never launches agents, edits product code, or plans.
 
 ## Skills
 
 Load only with the Skill tool by exact name: `squad`, `caveman`, `verify-harness`, `deslop`, `blast-radius`, `statechart`, `<lang>-build`,
 `<lang>-test-patterns`, `<lang>-review`, `<lang>-security-review`, and `<lang>-solution` when it exists.
-Load `caveman` with the Skill tool by exact name `caveman`. Never write `/caveman` as prose to load it. Review subagents load `deslop`, `blast-radius`, and `statechart`; the main agent does not.
+Load `caveman` with the Skill tool by exact name `caveman`. Never write `/caveman` as prose to load it. A review playbook subagent loads `deslop`, `blast-radius`, or `statechart` by exact name. The main agent does not.
 Never write slash-prose. Language-pack slots are internals (`metadata.audience: loop`).
 Authored `mcp.json` files are empty scaffolds. No shipped MCP server. No new command. No credentials. No remote service.
 Local-secrets rule: unauthorized Key Vault / secret store on local is often expected: not a product fail. Mention it and ask: continue? (workaround / mock / skip secret path). Do not invent tokens. Do not hard-fail the whole run without ask. A hard secret path left unrun is `blocked`, never `pass`. A `needs:`-tagged Doctor check that fails is `skipped (needs: <tag>)` (tag only); reason once in a one-line `Local access:` note in the verifier report; it does not block.

@@ -69,11 +69,7 @@ new request while a plan is open gets one question: next task or the new request
 | Agent | `squad-architect` | Read-only; returns `## Design` and `## Map` text for the planner to paste when the architect rule fires |
 | Agent | `squad-indexer` | Read-only, `fast` model; `/squad` spawns it and passes its `file:line` locations to the architect and implementer, never code or verdicts |
 | Agent | `squad-implementer` | Implements a confirmed plan or merged fix list |
-| Agent | `squad-deslop` | Loads pinned `deslop`. Full loop only |
-| Agent | `squad-verifier` | Reports independent evidence per plan criterion, after deslop and before red tests |
-| Agent | `squad-blast-radius` | Loads pinned `blast-radius` |
-| Agent | `squad-statechart` | Loads pinned `statechart` when shared state is yes |
-| Agent | `squad-tester` | Red unit or component tests for confirmed high or medium paths. Full loop only |
+| Agent | `squad-verifier` | Reports independent evidence per plan criterion, after the deslop step and before red tests |
 | Agent | `squad-reviewer` | Reviews correctness and plan compliance. On `--pr`, also checks Cursor Automation threads |
 | Agent | `squad-security-reviewer` | Reviews trust-boundary diffs against [OWASP Top 10:2025](https://owasp.org/Top10/) using the review contract's Security gate. Full-repo audits are `/security-audit` on the `security` pack |
 | Agent | `squad-simplifier` | Finds unnecessary implementation complexity |
@@ -84,7 +80,7 @@ new request while a plan is open gets one question: next task or the new request
 | Command | `scenarios` | From changed code (OpenAPI optional), writes only `docs/smoke/<slug>.md`. Copilot picker: `/squad:scenarios` |
 | Playbook | `review` | Step list for the review round. Names subagents only. [playbook](skills/squad/playbooks/review.md) |
 
-All fourteen agents remain portable across supported generated clients.
+All ten agents remain portable across supported generated clients.
 
 ## Planning
 
@@ -94,13 +90,13 @@ After every decision is settled, the planner returns a shared-understanding conf
 
 ## Review and verdicts
 
-For a planned change, the main agent follows [the review playbook](skills/squad/playbooks/review.md): `squad-deslop`, `squad-verifier`, `squad-blast-radius`, `squad-statechart` only when shared state is yes, `squad-tester`, then `squad-reviewer`, `squad-simplifier`, and security when the gate says run, then `squad-orchestrator`. The playbook names steps and subagents. Each subagent loads its own skill. The diagram is in the playbook and in ADR 0002 (`docs/adr/0002-review-sequence.md`).
+For a planned change, the main agent follows [the review playbook](skills/squad/playbooks/review.md). A step that only loads a skill is "subagent with skill", not a `squad-*` agent. `squad-verifier`, the reviewers, and `squad-orchestrator` stay real agents. The diagram is in the playbook and in ADR 0002 (`docs/adr/0002-review-sequence.md`).
 
 `pass` (gate PASS) requires adequate evidence for every criterion and no blocking merged finding. `high` or `medium` findings produce `fix` (gate FAIL). A plan defect produces `replan` (gate FAIL). At most two fix rounds. A code-writing step is followed by the rest of the playbook. If the second fix review is still FAIL, stop and report the open fix list. The pack does not push.
 
 Malformed-report re-ask: one re-ask per producer per review round, then the axis marker; details in [malformed-reask.md](skills/squad/references/malformed-reask.md). After `pass`, or after two fix rounds with only residual `low`/`tiny` notes, at most one residual fixup may run; details in [residual-fixup.md](skills/squad/references/residual-fixup.md). Still hand off uncommitted.
 
-`/squad-review` is report mode in that playbook: `squad-blast-radius`, `squad-statechart` only when shared state is yes, then the same reviewers. No `squad-deslop`, no `squad-tester`, no plan, no verifier evidence, no verdict, and no fix round. Reviewers get the product diff only: plans, saved review reports, retros, suggestions, and scenarios md stay on the branch and are Not examined. A missing run file is not a finding and not a blocker. At the end it always writes `docs/reviews/<yyyy-mm-dd>-<slug>.md` and still shows the findings in the IDE/CLI. Never `docs/decisions.md`.
+`/squad-review` is report mode in that playbook: subagent with skill `blast-radius`, subagent with skill `statechart` only when shared state is yes, then the same reviewers. No deslop step, no tester step, no plan, no verifier evidence, no verdict, and no fix round. Reviewers get the product diff only: plans, saved review reports, retros, suggestions, and scenarios md stay on the branch and are Not examined. A missing run file is not a finding and not a blocker. At the end it always writes `docs/reviews/<yyyy-mm-dd>-<slug>.md` and still shows the findings in the IDE/CLI. Never `docs/decisions.md`.
 
 ## Stack and workspace
 

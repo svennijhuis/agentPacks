@@ -25,7 +25,7 @@ public class SquadContractTests
         File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "Fixtures", "squad", name));
 
     [Fact]
-    public void All_fourteen_agents_are_preserved_in_every_generated_agent_client()
+    public void All_ten_agents_are_preserved_in_every_generated_agent_client()
     {
         using var repo = new TestRepository().WithPlugin("squad", Manifest);
         foreach (var agent in AgentNames)
@@ -34,7 +34,7 @@ public class SquadContractTests
         var run = repo.ValidateAndGenerate();
 
         Assert.False(run.HasErrors, run.Text);
-        Assert.Equal(14, AgentNames.Length);
+        Assert.Equal(10, AgentNames.Length);
         foreach (var agent in AgentNames)
         {
             Assert.Equal(agent, TestRepository.ParseFrontmatter(Fixture($"{agent}.md")).Scalar("name"));
@@ -102,8 +102,6 @@ public class SquadContractTests
         Assert.Equal(
         [
             "squad-architect",
-            "squad-blast-radius",
-            "squad-deslop",
             "squad-implementer",
             "squad-indexer",
             "squad-orchestrator",
@@ -112,8 +110,6 @@ public class SquadContractTests
             "squad-reviewer",
             "squad-security-reviewer",
             "squad-simplifier",
-            "squad-statechart",
-            "squad-tester",
             "squad-verifier"
         ], names);
         foreach (var name in names)
@@ -218,7 +214,7 @@ public class SquadContractTests
         Assert.Contains("\"write\"", cursor, StringComparison.Ordinal);
         Assert.DoesNotContain("readonly: true", cursor, StringComparison.Ordinal);
         Assert.Contains("sandbox_mode = \"workspace-write\"", run.File("plugins/squad/com.openai.codex/agents/squad-planner.toml").Text, StringComparison.Ordinal);
-        foreach (var agent in new[] { "squad-architect", "squad-reviewer", "squad-verifier", "squad-blast-radius" })
+        foreach (var agent in new[] { "squad-architect", "squad-reviewer", "squad-verifier" })
             Assert.Contains("sandbox_mode = \"read-only\"", run.File($"plugins/squad/com.openai.codex/agents/{agent}.toml").Text, StringComparison.Ordinal);
     }
 

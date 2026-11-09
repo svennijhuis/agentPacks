@@ -342,13 +342,13 @@ The merged list sorts every finding into one bucket: **Act on** (real, in scope,
 Step order and which subagent runs each step: [the review playbook](../playbooks/review.md).
 Skills stay on the subagents. This section is the wire format.
 
-A full-loop round's producers are `squad-deslop`, `squad-verifier`, `squad-blast-radius`,
-`squad-statechart` or the skip line, `squad-tester`, `squad-reviewer`, `squad-simplifier`, and
-the security decision. Report mode (`/squad-review`) drops `squad-deslop`, `squad-verifier`, and
-`squad-tester`, and it has no verdict.
+A full-loop round's producers are the deslop step, `squad-verifier`, the blast-radius step,
+the statechart step or the skip line, the tester step, `squad-reviewer`, `squad-simplifier`, and
+the security decision. Report mode (`/squad-review`) drops the deslop step, `squad-verifier`, and
+the tester step, and it has no verdict.
 
-When blast-radius reports `Shared state: no`, the main agent does not spawn `squad-statechart`.
-It passes `squad-statechart: skipped (no shared state)`. That skip is expected, not malformed,
+When blast-radius reports `Shared state: no`, the main agent does not run the statechart step.
+It passes `statechart: skipped (no shared state)`. That skip is expected, not malformed,
 and it is not a fix row.
 
 `Shared state: yes` means two endpoints, clients, or actors read or write the same model, DTO,
@@ -356,7 +356,7 @@ serializer, or DB column.
 
 ### Step result
 
-`squad-deslop`, `squad-blast-radius`, `squad-statechart`, and `squad-tester` return
+The deslop, blast-radius, statechart, and tester steps return
 `**Result:** pass` or `fail`, plus `**Evidence:**`. Evidence is the proof the step ran. A missing
 report is malformed, not a pass.
 
@@ -366,7 +366,7 @@ High or medium from a step forces `fix`, same as a reviewer finding. Low or tiny
 ### Deslop report
 
 ```markdown
-## squad-deslop: round <n>
+## deslop: round <n>
 
 **Result:** pass | fail
 **Evidence:** <what the skill reported>
@@ -375,7 +375,7 @@ High or medium from a step forces `fix`, same as a reviewer finding. Low or tiny
 ### Blast-radius report
 
 ```markdown
-## squad-blast-radius: round <n>
+## blast-radius: round <n>
 
 **Result:** pass | fail
 **Shared state:** yes | no
@@ -388,7 +388,7 @@ are findings.
 ### Statechart report
 
 ```markdown
-## squad-statechart: round <n>
+## statechart: round <n>
 
 **Result:** pass | fail
 **Spec:** docs/reviews/<yyyy-mm-dd>-<slug>/statechart/
@@ -401,7 +401,7 @@ A `confirmed` high or medium row in Evidence is a finding. `not confirmed` and `
 ### Tester report
 
 ```markdown
-## squad-tester: round <n>
+## tester: round <n>
 
 **Result:** pass | fail
 **Evidence:** <red test output, or the skip>
@@ -411,8 +411,8 @@ A `confirmed` high or medium row in Evidence is a finding. `not confirmed` and `
 
 `pass` when every confirmed high or medium path is in Added or Skipped. Skip a path the verifier
 report or green CI already covers. `fail` when a confirmed high or medium path is in neither.
-That gap is a fix row Found by `squad-tester`. The implementer skips rows whose Found by is
-`squad-tester`.
+That gap is a fix row Found by `tester`. The implementer skips rows whose Found by is
+`tester`.
 
 Each Added red test becomes a fix row at the finding's severity. Fix: make that test green
 without editing the test. Location is the product `file:line`.

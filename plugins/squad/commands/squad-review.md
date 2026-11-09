@@ -9,8 +9,8 @@ Load the `squad` skill with the Skill tool by exact name `squad`. Never write `/
 to load it. Then read `references/review-contract.md` and `playbooks/review.md` (report mode). Read
 the latest same-entrypoint `docs/retros/` file when present; carry its Lessons and Improvements as facts.
 
-This command reviews an existing change with no plan. Report mode: blast-radius, then statechart only when shared state is yes, then correctness and the spec implied
-by the diff. Security only when the review contract's Security gate says run. Do not spawn `squad-deslop` or `squad-tester`.
+This command reviews an existing change with no plan. Report mode in the playbook: subagent with skill `blast-radius`, then subagent with skill `statechart` only when shared state is yes, then correctness and the spec implied
+by the diff. Security only when the review contract's Security gate says run. Do not run the deslop step or the tester step.
 
 1. Resolve the diff under review:
    - default / `--uncommitted`: unstaged then staged work;
@@ -22,7 +22,7 @@ by the diff. Security only when the review contract's Security gate says run. Do
    Empty or bad pin → stop before any review spawn.
    If the product diff is empty, say so and stop before any review spawn.
 2. Apply the review contract's Security gate: run `squad-security-reviewer` when the product diff touches auth, untrusted input, files, shell, crypto, dependencies, credentials, or exceptional conditions; otherwise skip. Record that reason. Do not launch a full-repo audit from this review.
-3. Spawn `squad-blast-radius` in report mode against the product diff. When it reports `Shared state: yes`, spawn `squad-statechart` in report mode and pass `docs/reviews/<yyyy-mm-dd>-<slug>/statechart/`. When it reports no, do not spawn `squad-statechart`; pass `skipped (no shared state)`. Then launch `squad-reviewer`, `squad-simplifier`, and, when applicable, `squad-security-reviewer` in parallel. Pass `--pr` to `squad-reviewer` when the pin is `--pr`.
+3. Follow report mode in `playbooks/review.md`: subagent with skill `blast-radius` against the product diff. When it reports `Shared state: yes`, subagent with skill `statechart` and pass `docs/reviews/<yyyy-mm-dd>-<slug>/statechart/`. When it reports no, do not run statechart; pass `statechart: skipped (no shared state)`. Then launch `squad-reviewer`, `squad-simplifier`, and, when applicable, `squad-security-reviewer` in parallel. Pass `--pr` to `squad-reviewer` when the pin is `--pr`.
 4. After every report completes, pass the reports, security decision, `round number: 1`, `plan path: none`, and `verifier evidence: none` to `squad-orchestrator` for normalization and merge only. If it returns an input error for a missing or malformed report, re-ask that producer **once** (hard cap: one re-ask per producer per review round), then merge again with the **same round number**. Never a second re-ask for the same producer in the same round. Never "keep fixing the report until it parses". Do not increment the round for parse repair. After a failed re-ask, or if the budget is spent, merge **once** with that axis marked `accepted, malformed after re-ask` **replacing** the bad payload (**non-blocking**), do not spawn that producer again. If input-error still returns after the marker was already supplied, stop and surface: no further merge. The orchestrator itself never retries or launches agents.
 5. Return the ranked merged list in the IDE/CLI. Do not assign a Squad verdict, write a plan, or start a fix round.
 6. Write the merged review to `docs/reviews/<yyyy-mm-dd>-<slug>.md` and show the findings in the IDE/CLI. Do not ask. Never write `docs/decisions.md`. Do not start a fix round.

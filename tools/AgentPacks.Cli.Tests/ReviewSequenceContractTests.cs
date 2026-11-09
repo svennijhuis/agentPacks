@@ -49,35 +49,20 @@ public sealed class ReviewSequenceContractTests
     public void Playbook_names_subagents_and_agents_load_the_skills()
     {
         var playbook = Squad("skills", "squad", "playbooks", "review.md");
-        Assert.Contains("| `squad-deslop` | `deslop` |", playbook, StringComparison.Ordinal);
-        Assert.Contains("| `squad-blast-radius` | `blast-radius` |", playbook, StringComparison.Ordinal);
-        Assert.Contains("| `squad-statechart` | `statechart`", playbook, StringComparison.Ordinal);
+        Assert.Contains("Subagent with skill `deslop`. Output:", playbook, StringComparison.Ordinal);
+        Assert.Contains("Subagent with skill `blast-radius`. Output:", playbook, StringComparison.Ordinal);
+        Assert.Contains("Subagent with skill `statechart`, only when step 3 says `Shared state: yes`. Output:", playbook, StringComparison.Ordinal);
+        Assert.Contains("Subagent with skill `<lang>-test-patterns`. Output:", playbook, StringComparison.Ordinal);
+        Assert.DoesNotContain("squad-deslop", playbook, StringComparison.Ordinal);
+        Assert.DoesNotContain("squad-blast-radius", playbook, StringComparison.Ordinal);
+        Assert.DoesNotContain("squad-statechart", playbook, StringComparison.Ordinal);
+        Assert.DoesNotContain("squad-tester", playbook, StringComparison.Ordinal);
         Assert.DoesNotContain("unslop", playbook, StringComparison.Ordinal);
-        foreach (var restated in new[] { "narrating", "INVARIANT", "scripts/statechart", "safety fact" })
-            Assert.DoesNotContain(restated, playbook, StringComparison.Ordinal);
 
-        var full = playbook.IndexOf("## Full loop", StringComparison.Ordinal);
-        var report = playbook.IndexOf("## Report mode", StringComparison.Ordinal);
-        Assert.True(full >= 0 && report > full);
-        var fullLoop = playbook[full..report];
-        var deslop = fullLoop.IndexOf("`squad-deslop`", StringComparison.Ordinal);
-        var verifier = fullLoop.IndexOf("`squad-verifier`", StringComparison.Ordinal);
-        var blast = fullLoop.IndexOf("`squad-blast-radius`", StringComparison.Ordinal);
-        var chart = fullLoop.IndexOf("`squad-statechart`", StringComparison.Ordinal);
-        var tester = fullLoop.IndexOf("`squad-tester`", StringComparison.Ordinal);
-        Assert.True(deslop < verifier && verifier < blast && blast < chart && chart < tester, fullLoop);
+        var agents = Path.Combine(TestRepository.SourceRoot(), "plugins", "squad", "agents");
+        foreach (var name in new[] { "squad-deslop", "squad-blast-radius", "squad-statechart", "squad-tester" })
+            Assert.False(File.Exists(Path.Combine(agents, name + ".md")), name);
 
-        Assert.Contains("exact name `deslop`", Squad("agents", "squad-deslop.md"), StringComparison.Ordinal);
-        Assert.Contains("exact name `blast-radius`", Squad("agents", "squad-blast-radius.md"), StringComparison.Ordinal);
-        Assert.Contains("exact name `statechart`", Squad("agents", "squad-statechart.md"), StringComparison.Ordinal);
-        Assert.Contains("`<lang>-test-patterns`", Squad("agents", "squad-tester.md"), StringComparison.Ordinal);
-        foreach (var agent in new[] { "squad-deslop.md", "squad-blast-radius.md", "squad-statechart.md" })
-        {
-            var body = Squad("agents", agent);
-            Assert.True(TestRepository.NonEmptyBodyLines(body) <= 6, agent);
-            foreach (var restated in new[] { "narrating", "INVARIANT", "scripts/statechart", "safety fact", "unslop", "Keep behavior" })
-                Assert.DoesNotContain(restated, body, StringComparison.Ordinal);
-        }
         Assert.Contains("**Invariants:** <at most 5>", Squad("skills", "squad", "references", "review-contract.md"), StringComparison.Ordinal);
     }
 
@@ -86,17 +71,18 @@ public sealed class ReviewSequenceContractTests
     {
         var squad = Squad("commands", "squad.md");
         var review = Squad("commands", "squad-review.md");
-        const string order = "spawn `squad-deslop`, then `squad-verifier`, then `squad-blast-radius`, then `squad-statechart` only when `squad-blast-radius` reports `Shared state: yes`";
-        Assert.Contains(order, squad, StringComparison.Ordinal);
-        Assert.Contains("then `squad-tester`", squad, StringComparison.Ordinal);
-        Assert.Contains("Do not load `deslop`, `blast-radius`, or `statechart` in this command.", squad, StringComparison.Ordinal);
+        Assert.Contains("subagent with skill `deslop`, then `squad-verifier`, then subagent with skill `blast-radius`", squad, StringComparison.Ordinal);
+        Assert.Contains("subagent with skill `<lang>-test-patterns`", squad, StringComparison.Ordinal);
+        Assert.Contains("Do not load those skills in this command.", squad, StringComparison.Ordinal);
         Assert.Contains("If the second fix review is still FAIL, stop and report the open fix list. Do not push.", squad, StringComparison.Ordinal);
+        Assert.DoesNotContain("squad-deslop", squad, StringComparison.Ordinal);
+        Assert.DoesNotContain("squad-tester", squad, StringComparison.Ordinal);
 
-        Assert.Contains("Do not spawn `squad-deslop` or `squad-tester`.", review, StringComparison.Ordinal);
-        Assert.Contains("Spawn `squad-blast-radius` in report mode", review, StringComparison.Ordinal);
-        Assert.Contains("When it reports `Shared state: yes`, spawn `squad-statechart`", review, StringComparison.Ordinal);
-        Assert.DoesNotContain("Spawn `squad-deslop`", review, StringComparison.Ordinal);
-        Assert.DoesNotContain("Spawn `squad-tester`", review, StringComparison.Ordinal);
+        Assert.Contains("Do not run the deslop step or the tester step.", review, StringComparison.Ordinal);
+        Assert.Contains("subagent with skill `blast-radius`", review, StringComparison.Ordinal);
+        Assert.Contains("subagent with skill `statechart`", review, StringComparison.Ordinal);
+        Assert.DoesNotContain("squad-deslop", review, StringComparison.Ordinal);
+        Assert.DoesNotContain("squad-tester", review, StringComparison.Ordinal);
     }
 
     [Fact]
@@ -107,7 +93,7 @@ public sealed class ReviewSequenceContractTests
         Assert.Contains("correctness and plan", reviewer, StringComparison.OrdinalIgnoreCase);
         Assert.Contains("Do not repeat a finding already in the blast-radius or statechart report", reviewer, StringComparison.Ordinal);
         Assert.Contains("Automation check from the review contract", reviewer, StringComparison.Ordinal);
-        Assert.Contains("Skip a row whose Found by is `squad-tester`", Squad("agents", "squad-implementer.md"), StringComparison.Ordinal);
+        Assert.Contains("Skip a row whose Found by is `tester`", Squad("agents", "squad-implementer.md"), StringComparison.Ordinal);
         Assert.Contains("**Gate:** PASS | FAIL", Squad("skills", "squad", "references", "review-contract.md"), StringComparison.Ordinal);
         Assert.Contains("`Rules not checked` is a handoff note, not a fix row, and it does not fail the gate.", Squad("skills", "squad", "references", "review-contract.md"), StringComparison.Ordinal);
     }
