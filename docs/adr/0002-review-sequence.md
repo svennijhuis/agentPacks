@@ -14,11 +14,9 @@ and session split stay as they are. Strategy, Builder, Reviewer, Tester, and Pro
 remain the PBI lanes. This record puts the Tester lane's red tests inside the review sequence.
 It does not add a Product Owner agent.
 
-`deslop` is pinned from `cursor/plugins` `cursor-team-kit/skills/deslop`. `blast-radius` and
-`statechart` are pinned from `pstack/skills` in that same repository. Commit
-`6b0300214a09fd6029cfb7077043125758cd1fd2`, MIT. `unslop` is not pinned. The pinned skill
-files do not invoke another skill with a slash command. `blast-radius` names `unslop`, `why`,
-`how`, and `arena` in prose; `squad-blast-radius` must not load them.
+`deslop`, `blast-radius`, and `statechart` are pins in `plugins/squad/external-skills.json`
+(commit `6b0300214a09fd6029cfb7077043125758cd1fd2`, MIT). The repo does not copy their files.
+Each subagent loads its skill by name. `unslop` is not pinned.
 
 ## Decision
 
@@ -36,13 +34,9 @@ Verifier sits after deslop and before the tester. Deslop edits the diff, so the 
 measure the cleaned tree. The tester's red tests would look like a failed criterion if the
 suite ran after them. The tester reads that suite report and skips paths it already covers.
 
-`squad-statechart` proposes at most 5 invariants, does not wait, and lists them for a human
-to check. It writes a findings report: the rule in plain words, the path as numbered steps,
-product `file:line` for each step, walk `confirmed` / `not confirmed` / `unsure`, and the
-smallest fix, plus the mermaid chart. The spec stays at
-`docs/reviews/<yyyy-mm-dd>-<slug>/statechart/` so a later run can reuse it. If Java or TLC
-cannot run, the model is still written and Evidence is `Rules not checked`. That note does
-not fail the gate.
+`squad-statechart` loads `statechart` and writes under
+`docs/reviews/<yyyy-mm-dd>-<slug>/statechart/`. The report lists at most 5 invariants.
+`Rules not checked` does not fail the gate.
 
 `squad-tester` writes red unit or component tests for confirmed high or medium paths. The
 fix-list implementer makes those tests green and does not edit them. Rows found by

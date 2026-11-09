@@ -369,11 +369,8 @@ High or medium from a step forces `fix`, same as a reviewer finding. Low or tiny
 ## squad-deslop: round <n>
 
 **Result:** pass | fail
-**Evidence:** <diff stat, or `No slop.` and what was examined>
-**Left:** <file:line that would change behavior, or `None`>
+**Evidence:** <what the skill reported>
 ```
-
-`fail` when Left is not `None`. Severity is low unless the leftover hides a bug, then medium.
 
 ### Blast-radius report
 
@@ -382,18 +379,11 @@ High or medium from a step forces `fix`, same as a reviewer finding. Low or tiny
 
 **Result:** pass | fail
 **Shared state:** yes | no
-**Why:** <one line>
-**Safety fact:** <one sentence>
-**Proof:** <script or test output, or `unproven`>
-**Cleared:** <what was checked, or `None`>
-
-| # | Severity | Location | Problem | Fix |
+**Evidence:** <what the skill reported>
 ```
 
-`pass` when Proof quotes a run, or when the fact is that nothing else reads the symbol and the
-search that shows that is in Evidence. `unproven` is `fail`: medium, or high when the named cost
-is lost data, a trust boundary, or a broken acceptance criterion. Confirmed rows use the finding
-table. Cite `file:line`. Do not invent a caller.
+`Shared state: yes` is the statechart spawn gate defined above. High or medium rows in Evidence
+are findings.
 
 ### Statechart report
 
@@ -402,22 +392,11 @@ table. Cite `file:line`. Do not invent a caller.
 
 **Result:** pass | fail
 **Spec:** docs/reviews/<yyyy-mm-dd>-<slug>/statechart/
-**Evidence:** <TLC summary, or `Rules not checked`>
-**Invariants for a human to check:**
-1. <at most 5, plain words>
-
-| Rule | Plain words | Path | Code | Walk | Smallest fix |
+**Evidence:** <what the skill reported, or `Rules not checked`>
+**Invariants:** <at most 5>
 ```
 
-Then the mermaid chart. Path is numbered steps. Code is product `file:line` per step. Walk is
-`confirmed`, `not confirmed`, or `unsure`.
-
-`fail` when any Walk is `confirmed`. `confirmed` is high when the shared field is lost or
-corrupted, otherwise medium. That row is a finding: Location is the first Code `file:line`,
-Problem is the plain words, Fix is the smallest fix, Found by `squad-statechart`. `not confirmed`
-and `unsure` are notes, not fix rows and not tests.
-`Rules not checked` means the model is on disk and TLC did not run: Result stays `pass`, and the
-gate does not FAIL for that alone.
+A `confirmed` high or medium row in Evidence is a finding. `not confirmed` and `unsure` are notes.
 
 ### Tester report
 

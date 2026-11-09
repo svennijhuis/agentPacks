@@ -66,10 +66,10 @@ Never rewrite an existing plan. Normal run, after step 2: over any limit (more t
 | `squad-architect` | full change crossing layers, new project/package, or public API | read-only `## Design` and `## Map` ([contract](references/architect-contract.md)) |
 | `squad-indexer` | `/squad` spawns it before `squad-architect` and each `squad-implementer` | read-only `file:line` lookups on the `fast` model; no code, no verdicts. `/squad` passes the list in those spawns; workers never spawn it |
 | `squad-implementer` | full change only | build |
-| `squad-deslop` | full-loop review, before the verifier | remove AI slop; behavior unchanged |
+| `squad-deslop` | full-loop review, before the verifier | loads `deslop` |
 | `squad-verifier` | after deslop, before red tests | evidence; `not verified` is not a pass; `blocked` is unproven, not a pass |
-| `squad-blast-radius` | every review round | breakage outside the diff and one safety fact |
-| `squad-statechart` | only when shared state is yes | TLA+ findings report and chart |
+| `squad-blast-radius` | every review round | loads `blast-radius` |
+| `squad-statechart` | only when shared state is yes | loads `statechart` |
 | `squad-tester` | full loop only | red unit or component tests for confirmed high/medium |
 | `squad-reviewer` | every review phase | correctness + plan/spec |
 | `squad-simplifier` | every review phase | reuse, quality, efficiency in one spawn |

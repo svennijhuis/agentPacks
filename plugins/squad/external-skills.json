@@ -19,7 +19,7 @@
     },
     {
       "name": "deslop",
-      "description": "Removes AI code slop from a diff. Loaded by squad-deslop. From cursor-team-kit, not pstack.",
+      "description": "Pinned for squad-deslop. Loaded by exact name. Not copied into this repo.",
       "repository": "https://github.com/cursor/plugins",
       "path": "cursor-team-kit/skills/deslop",
       "commit": "6b0300214a09fd6029cfb7077043125758cd1fd2",
@@ -27,7 +27,7 @@
     },
     {
       "name": "blast-radius",
-      "description": "Finds what a change breaks outside the diff and proves the one safety fact by running code. Loaded by squad-blast-radius.",
+      "description": "Pinned for squad-blast-radius. Loaded by exact name. Not copied into this repo.",
       "repository": "https://github.com/cursor/plugins",
       "path": "pstack/skills/blast-radius",
       "commit": "6b0300214a09fd6029cfb7077043125758cd1fd2",
@@ -35,7 +35,7 @@
     },
     {
       "name": "statechart",
-      "description": "Checks a small TLA+ model and draws a Mermaid statechart. Loaded by squad-statechart when shared state is yes.",
+      "description": "Pinned for squad-statechart. Loaded by exact name. Not copied into this repo.",
       "repository": "https://github.com/cursor/plugins",
       "path": "pstack/skills/statechart",
       "commit": "6b0300214a09fd6029cfb7077043125758cd1fd2",

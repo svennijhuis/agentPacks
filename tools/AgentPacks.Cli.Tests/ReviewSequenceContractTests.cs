@@ -49,10 +49,12 @@ public sealed class ReviewSequenceContractTests
     public void Playbook_names_subagents_and_agents_load_the_skills()
     {
         var playbook = Squad("skills", "squad", "playbooks", "review.md");
-        Assert.DoesNotContain("Load the `deslop` skill", playbook, StringComparison.Ordinal);
-        Assert.DoesNotContain("Load the `blast-radius` skill", playbook, StringComparison.Ordinal);
-        Assert.DoesNotContain("Load the `statechart` skill", playbook, StringComparison.Ordinal);
+        Assert.Contains("| `squad-deslop` | `deslop` |", playbook, StringComparison.Ordinal);
+        Assert.Contains("| `squad-blast-radius` | `blast-radius` |", playbook, StringComparison.Ordinal);
+        Assert.Contains("| `squad-statechart` | `statechart`", playbook, StringComparison.Ordinal);
         Assert.DoesNotContain("unslop", playbook, StringComparison.Ordinal);
+        foreach (var restated in new[] { "narrating", "INVARIANT", "scripts/statechart", "safety fact" })
+            Assert.DoesNotContain(restated, playbook, StringComparison.Ordinal);
 
         var full = playbook.IndexOf("## Full loop", StringComparison.Ordinal);
         var report = playbook.IndexOf("## Report mode", StringComparison.Ordinal);
@@ -67,11 +69,16 @@ public sealed class ReviewSequenceContractTests
 
         Assert.Contains("exact name `deslop`", Squad("agents", "squad-deslop.md"), StringComparison.Ordinal);
         Assert.Contains("exact name `blast-radius`", Squad("agents", "squad-blast-radius.md"), StringComparison.Ordinal);
-        Assert.Contains("Do not load `unslop`, `why`, `how`, or `arena`.", Squad("agents", "squad-blast-radius.md"), StringComparison.Ordinal);
         Assert.Contains("exact name `statechart`", Squad("agents", "squad-statechart.md"), StringComparison.Ordinal);
-        Assert.Contains("at most 5", Squad("agents", "squad-statechart.md"), StringComparison.OrdinalIgnoreCase);
-        Assert.Contains("`Rules not checked`", Squad("agents", "squad-statechart.md"), StringComparison.Ordinal);
         Assert.Contains("`<lang>-test-patterns`", Squad("agents", "squad-tester.md"), StringComparison.Ordinal);
+        foreach (var agent in new[] { "squad-deslop.md", "squad-blast-radius.md", "squad-statechart.md" })
+        {
+            var body = Squad("agents", agent);
+            Assert.True(TestRepository.NonEmptyBodyLines(body) <= 6, agent);
+            foreach (var restated in new[] { "narrating", "INVARIANT", "scripts/statechart", "safety fact", "unslop", "Keep behavior" })
+                Assert.DoesNotContain(restated, body, StringComparison.Ordinal);
+        }
+        Assert.Contains("**Invariants:** <at most 5>", Squad("skills", "squad", "references", "review-contract.md"), StringComparison.Ordinal);
     }
 
     [Fact]
