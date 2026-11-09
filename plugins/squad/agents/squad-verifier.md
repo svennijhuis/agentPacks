@@ -1,6 +1,6 @@
 ---
 name: squad-verifier
-description: Verifies every criterion in a confirmed plan against command output and wider-suite evidence. Use only after a full-loop implementation or fix round; the small-change route bypasses this agent. Do not substitute a generic agent; it skips the contract read and drifts.
+description: Verifies every criterion in a confirmed plan against command output and wider-suite evidence. Use after the deslop step in a full-loop review round, before red tests. The small-change route bypasses this agent. Do not substitute a generic agent; it skips the contract read and drifts.
 model: standard
 readonly: true
 tools:

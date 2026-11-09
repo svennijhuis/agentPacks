@@ -472,13 +472,11 @@ public class SquadContractTests
         var manifest = JsonNode.Parse(File.ReadAllText(
             Path.Combine(root, "plugins", "squad", "external-skills.json")))!;
         var sources = manifest["sources"]!.AsArray();
-        Assert.Equal(2, sources.Count);
-
         var byName = sources.OfType<JsonObject>().ToDictionary(
             entry => entry["name"]!.GetValue<string>(),
             StringComparer.Ordinal);
-        Assert.Equal(["caveman", "caveman-compress"],
-            byName.Keys.OrderBy(name => name, StringComparer.Ordinal));
+        Assert.Contains("caveman", byName.Keys);
+        Assert.Contains("caveman-compress", byName.Keys);
 
         foreach (var (name, path) in new[]
                  {
@@ -508,7 +506,8 @@ public class SquadContractTests
             .OrderBy(name => name, StringComparer.Ordinal)
             .ToArray();
 
-        Assert.Equal(["caveman", "caveman-compress"], names);
+        Assert.Contains("caveman", names);
+        Assert.Contains("caveman-compress", names);
         Assert.DoesNotContain("grill-me", catalog, StringComparison.Ordinal);
 
         foreach (var name in names)

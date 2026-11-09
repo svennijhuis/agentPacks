@@ -16,6 +16,30 @@
       "path": "skills/caveman-compress",
       "commit": "5184b3d11ac6a1acb7d44b9bfaa31698157cff97",
       "license": "MIT"
+    },
+    {
+      "name": "deslop",
+      "description": "Pinned for the review playbook deslop step. Loaded by exact name on a subagent. Not copied into this repo.",
+      "repository": "https://github.com/cursor/plugins",
+      "path": "cursor-team-kit/skills/deslop",
+      "commit": "6b0300214a09fd6029cfb7077043125758cd1fd2",
+      "license": "MIT"
+    },
+    {
+      "name": "blast-radius",
+      "description": "Pinned for the review playbook blast-radius step. Loaded by exact name on a subagent. Not copied into this repo.",
+      "repository": "https://github.com/cursor/plugins",
+      "path": "pstack/skills/blast-radius",
+      "commit": "6b0300214a09fd6029cfb7077043125758cd1fd2",
+      "license": "MIT"
+    },
+    {
+      "name": "statechart",
+      "description": "Pinned for the review playbook statechart step. Loaded by exact name on a subagent. Not copied into this repo.",
+      "repository": "https://github.com/cursor/plugins",
+      "path": "pstack/skills/statechart",
+      "commit": "6b0300214a09fd6029cfb7077043125758cd1fd2",
+      "license": "MIT"
     }
   ]
 }

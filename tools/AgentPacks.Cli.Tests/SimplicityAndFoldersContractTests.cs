@@ -63,6 +63,7 @@ public sealed class SimplicityAndFoldersContractTests
         Assert.DoesNotMatch(new Regex("spawns? `squad-indexer`(?! (with|first with))"), contract);
         Assert.Contains("spawn `squad-indexer` first with the slice's files, functions, types or callers to locate; spawn passes the slice name, the plan path, and the `file:line` list", Squad("SKILL.md"), StringComparison.Ordinal);
         Assert.Contains("All ten agents remain portable", Source("plugins", "squad", "README.md"), StringComparison.Ordinal);
+        Assert.DoesNotContain("All fourteen agents remain portable", Source("plugins", "squad", "README.md"), StringComparison.Ordinal);
         Assert.DoesNotContain("All nine agents remain portable", Source("plugins", "squad", "README.md"), StringComparison.Ordinal);
     }
 
