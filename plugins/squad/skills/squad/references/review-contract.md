@@ -298,6 +298,7 @@ Malformed or missing input on a merge attempt (no replacing marker for that prod
 ## Fix list: round <n>
 
 **Verdict:** fix | pass | replan
+**Gate:** PASS | FAIL
 **Security gate:** ran, <reason> | skipped, no trust boundary changed
 
 | # | Severity | Location | Problem | Fix | Found by |
@@ -310,7 +311,7 @@ Malformed or missing input on a merge attempt (no replacing marker for that prod
 
 When appending to the plan, rewrite `## Fix list` and `## Handoff notes` in place (run scratch).
 Do not invent Fix-list severity from handoff prose. Promote a handoff concern into the Fix list
-table only when it already matches a reviewer or verifier finding identity (location + cause).
+table only when it already matches a reviewer, verifier, or review-step finding identity (location + cause).
 Otherwise keep it under **Handoff concerns** / plan `## Handoff notes` only.
 
 ## Standalone merge report
@@ -328,13 +329,139 @@ For standalone diff review, use round 1 and return this shape instead of the orc
 **Lowered:** <finding and reason; omit when empty>
 ```
 
-There is no `Verdict`, plan append, verifier evidence, or fix round in this shape.
+There is no `Verdict`, `Gate`, plan append, verifier evidence, or fix round in this shape.
 
 After this shape is returned, the main agent shows it in the IDE/CLI and always writes `docs/reviews/<yyyy-mm-dd>-<slug>.md` (never `docs/decisions.md`). No question, grill, verdict, or fix round.
 
 ## Judgment buckets
 
 The merged list sorts every finding into one bucket: **Act on** (real, in scope, fix now), **Consider** (real, judgment call), **Noted** (true, not worth a round), **Dismissed** (wrong or out of scope, with the reason). A second failed fix on the same premise is `Replan:`. So is a second `Plan gap:` on one slice (planning-contract Gap markers); the retro records it.
+
+## Review sequence
+
+Step order and which subagent runs each step: [the review playbook](../playbooks/review.md).
+Skills stay on the subagents. This section is the wire format.
+
+A full-loop round's producers are `squad-deslop`, `squad-verifier`, `squad-blast-radius`,
+`squad-statechart` or the skip line, `squad-tester`, `squad-reviewer`, `squad-simplifier`, and
+the security decision. Report mode (`/squad-review`) drops `squad-deslop`, `squad-verifier`, and
+`squad-tester`, and it has no verdict.
+
+When blast-radius reports `Shared state: no`, the main agent does not spawn `squad-statechart`.
+It passes `squad-statechart: skipped (no shared state)`. That skip is expected, not malformed,
+and it is not a fix row.
+
+`Shared state: yes` means two endpoints, clients, or actors read or write the same model, DTO,
+serializer, or DB column.
+
+### Step result
+
+`squad-deslop`, `squad-blast-radius`, `squad-statechart`, and `squad-tester` return
+`**Result:** pass` or `fail`, plus `**Evidence:**`. Evidence is the proof the step ran. A missing
+report is malformed, not a pass.
+
+High or medium from a step forces `fix`, same as a reviewer finding. Low or tiny does not.
+`Rules not checked` is a handoff note, not a fix row, and it does not fail the gate.
+
+### Deslop report
+
+```markdown
+## squad-deslop: round <n>
+
+**Result:** pass | fail
+**Evidence:** <diff stat, or `No slop.` and what was examined>
+**Left:** <file:line that would change behavior, or `None`>
+```
+
+`fail` when Left is not `None`. Severity is low unless the leftover hides a bug, then medium.
+
+### Blast-radius report
+
+```markdown
+## squad-blast-radius: round <n>
+
+**Result:** pass | fail
+**Shared state:** yes | no
+**Why:** <one line>
+**Safety fact:** <one sentence>
+**Proof:** <script or test output, or `unproven`>
+**Cleared:** <what was checked, or `None`>
+
+| # | Severity | Location | Problem | Fix |
+```
+
+`pass` when Proof quotes a run, or when the fact is that nothing else reads the symbol and the
+search that shows that is in Evidence. `unproven` is `fail`: medium, or high when the named cost
+is lost data, a trust boundary, or a broken acceptance criterion. Confirmed rows use the finding
+table. Cite `file:line`. Do not invent a caller.
+
+### Statechart report
+
+```markdown
+## squad-statechart: round <n>
+
+**Result:** pass | fail
+**Spec:** docs/reviews/<yyyy-mm-dd>-<slug>/statechart/
+**Evidence:** <TLC summary, or `Rules not checked`>
+**Invariants for a human to check:**
+1. <at most 5, plain words>
+
+| Rule | Plain words | Path | Code | Walk | Smallest fix |
+```
+
+Then the mermaid chart. Path is numbered steps. Code is product `file:line` per step. Walk is
+`confirmed`, `not confirmed`, or `unsure`.
+
+`fail` when any Walk is `confirmed`. `confirmed` is high when the shared field is lost or
+corrupted, otherwise medium. That row is a finding: Location is the first Code `file:line`,
+Problem is the plain words, Fix is the smallest fix, Found by `squad-statechart`. `not confirmed`
+and `unsure` are notes, not fix rows and not tests.
+`Rules not checked` means the model is on disk and TLC did not run: Result stays `pass`, and the
+gate does not FAIL for that alone.
+
+### Tester report
+
+```markdown
+## squad-tester: round <n>
+
+**Result:** pass | fail
+**Evidence:** <red test output, or the skip>
+**Added:** <test names, or `None`>
+**Skipped:** <path and the green test or CI job, or `None`>
+```
+
+`pass` when every confirmed high or medium path is in Added or Skipped. Skip a path the verifier
+report or green CI already covers. `fail` when a confirmed high or medium path is in neither.
+That gap is a fix row Found by `squad-tester`. The implementer skips rows whose Found by is
+`squad-tester`.
+
+Each Added red test becomes a fix row at the finding's severity. Fix: make that test green
+without editing the test. Location is the product `file:line`.
+
+### Automation check
+
+On `--pr` only, `squad-reviewer` adds:
+
+```markdown
+**Automation:** clean | blocked | skipped (none)
+```
+
+Cursor Automation threads are review threads whose author or app name contains `cursor` or
+`bugbot`. `clean` means unresolved count is 0 and each requested change is in the diff.
+`skipped (none)` means there were no such threads. `blocked` means the thread list could not be
+read. None of those three is a finding. An open thread, or a resolved thread whose change is
+missing, is one `high` finding: land the change and resolve the thread. Do not re-review the
+thread's code.
+
+### Gate
+
+On a planned merge, add `**Gate:** PASS` or `FAIL` under Verdict. PASS is verdict `pass`. FAIL is
+verdict `fix` or `replan`. Report mode has no Gate. The orchestrator folds the step reports. It
+does not review the diff again.
+
+A code-writing step (implementer, deslop, tester) is followed by the remaining playbook steps.
+At most two fix rounds. The second fix review still FAIL: stop and report the open fix list.
+The pack does not push.
 
 ## Spawning agents
 

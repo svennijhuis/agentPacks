@@ -66,7 +66,7 @@ Capability packs: installed because of a workflow you want wired into the agent 
 
 | Plugin | Who installs it | Holds |
 | --- | --- | --- |
-| `squad` | anyone who wants a change planned before it is built and checked after | the user-invoked orchestrator (`/squad` and `/squad-review`), planning, review, retro and suggestions contracts, nine Loop agents, and per-role model tiers |
+| `squad` | anyone who wants a change planned before it is built and checked after | the user-invoked orchestrator (`/squad` and `/squad-review`), planning, review, retro and suggestions contracts, fourteen Loop agents, and per-role model tiers |
 | `git` | anyone letting an agent run git | one `beforeShellExecution` hook that blocks the commands which destroy work: `reset --hard`, `clean -f`, `push --force`, `branch -D`, `checkout .`, `restore .` |
 | `security` | anyone who wants a full-repo audit, not a per-change gate | user-invoked `/security-audit`, recon/hunter/validator agents, and a confirmed vs needs-validation report |
 | `pack-author` | anyone adding or editing marketplace skills and agents | user-invoked `/pack-author` (skill `pack-author-md`; Copilot `/pack-author:author`): make, review, or a human-gated change. One readonly reviewer |
@@ -163,6 +163,8 @@ unasked.
 | Two-axis review of any diff | `engineering` → `code-review` |
 | Full-repo audit / threat-model | `security` → `/security-audit` |
 | Per-change OWASP Top 10 review | `squad` → `squad-security-reviewer` |
+| Slop cleanup, blast radius, shared-state model | `squad` subagents load pinned `deslop`, `blast-radius`, and `statechart` |
+| Red tests for a confirmed review finding | `squad` → `squad-tester`; the fix-list implementer makes them green |
 | .NET crypto and auth footguns | `dotnet` → `dotnet-security-review` |
 | What deserves a test, as philosophy | `engineering` → `testing` |
 | How to write a test in this stack | the language pack → `*-test-patterns` |

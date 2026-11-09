@@ -249,11 +249,11 @@ client. Plans land in `docs/plans/<yyyy-mm-dd>-<slug>.md`, retros in
 2. Orient codebase (applicable stacks only)
 3. Small change? → main agent only, spawn nobody → tiny plan (goal, decision, verify cmd) → verify (verify cmd, then the wider unit suite once; no retro; + suggestions if pack/skill/agent/command/contract evidenced) → hand off uncommitted
 4. Else grill/plan rounds (facts via subagent; decisions = human); draft plan file from round 1 (check-plan it at once, fix findings), each round appended → architect rule fired? main agent spawns squad-architect for Design + Map (planner Design gap → ≤1 architect rerun) → confirm sets Status: confirmed
-5. Gate spins: sequential implementers (missing/one ## Slices → one whole-plan implementer; else one fresh implementer per slice in order; Plan gap → planner next-round on that gap → fresh implementer redoes the slice; 2nd Plan gap on a slice → Replan) → then one verifier → reviewers in parallel (correctness + plan/spec; security ONLY if trust boundary)
-6. Orchestrator merges ≤2 fix rounds; ≤1 re-ask per producer per review round then accept marker (non-blocking); optional residual fixup → hand off uncommitted → squad-retro writes the retro, also on stop or fail (+ suggestions if pack/skill/agent/command/contract evidenced)
+5. Gate spins: sequential implementers (missing/one ## Slices → one whole-plan implementer; else one fresh implementer per slice in order; Plan gap → planner next-round on that gap → fresh implementer redoes the slice; 2nd Plan gap on a slice → Replan) → then the review playbook: deslop, verifier, blast-radius, statechart only on shared state, tester red tests, reviewers in parallel (correctness + plan/spec; security ONLY if trust boundary), orchestrator
+6. Each code-writing step is followed by the rest of that playbook; ≤2 fix rounds; second fix review still FAIL → stop and report, no push; ≤1 re-ask per producer per review round then accept marker (non-blocking); optional residual fixup → hand off uncommitted → squad-retro writes the retro, also on stop or fail (+ suggestions if pack/skill/agent/command/contract evidenced)
 
 /squad-review
-Pin vs PR / uncommitted / main → same gated dual-axis reviewers (no plan/fix loop) → always save report to docs/reviews/<yyyy-mm-dd>-<slug>.md → squad-retro writes the retro from that report (+ suggestions if pack/skill/agent/command/contract evidenced)
+Pin vs PR / uncommitted / main → report mode: blast-radius, statechart only on shared state, then the same gated reviewers (no deslop, no tester, no plan/fix loop) → always save report to docs/reviews/<yyyy-mm-dd>-<slug>.md → squad-retro writes the retro from that report (+ suggestions if pack/skill/agent/command/contract evidenced)
 
 Always
 agent model tiers (default inherit; the tier is on each agent, no file to read); load only contracted <lang>-* by Skill name; coworker docs = real dotnet test/validate on a fixture.
@@ -289,7 +289,7 @@ merging to `main`: [docs/ADD-SKILL.md](docs/ADD-SKILL.md#test-a-skill-locally).
 
 After the merged list, `/squad-review` always writes
 `docs/reviews/<yyyy-mm-dd>-<slug>.md` and still shows the findings in the IDE/CLI.
-No verdict, grill, or fix round. Never `docs/decisions.md`. Reviewers get the product diff
+No verdict, grill, or fix round. Report mode is [the review playbook](plugins/squad/skills/squad/playbooks/review.md): blast-radius, statechart when shared state is yes, then the reviewers. No deslop and no tester. Decision: [ADR 0002](docs/adr/0002-review-sequence.md). Never `docs/decisions.md`. Reviewers get the product diff
 only: plans, saved review reports, retros, suggestions, and scenarios md stay on the branch and are
 Not examined: not a second pass over markdown the loop just wrote. A missing run file is
 not a finding and not a blocker.

@@ -1,6 +1,6 @@
 ---
 name: squad-reviewer
-description: Reviews a change against its plan and verifier evidence when present, then reports correctness findings. Use in every review phase, in parallel with simplification and with security when its gate applies. Do not substitute a generic agent; it skips the contract read and drifts.
+description: Reviews a change for correctness and plan compliance. Use in every review phase, in parallel with simplification and with security when its gate applies. On --pr, also check Cursor Automation threads are clean. Do not repeat blast-radius or statechart findings. Do not substitute a generic agent; it skips the contract read and drifts.
 model: standard
 readonly: true
 tools:
@@ -21,7 +21,8 @@ Constraints:
 - Only findings with confidence ≥ 80. No filler nits.
 - Judgment against the axes and cited standards: not a checkbox tour of every possible style rule.
 - Classify **mechanical** vs **judgment call**. Prefer the repo's existing check over a new prose rule.
-- Blast radius: name callers and consumers outside the diff that the change can break, with the command or search that proves them safe.
+- Do not repeat a finding already in the blast-radius or statechart report (same location and cause).
+- Spawn says `--pr`: Automation check from the review contract. Do not re-review those threads.
 - A banned assertion shape (`testing-principles.md` Test behavior) in a changed test is a finding. A second failed fix on the same premise → `Replan:`, not another fix.
 - Cite the `engineering.md` section on principle findings.
 

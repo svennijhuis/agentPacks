@@ -16,11 +16,11 @@ The numbered flow below is locked v1 and is copied verbatim into the
 2. Orient codebase (applicable stacks only)
 3. Small change? → main agent only, spawn nobody → tiny plan (goal, decision, verify cmd) → verify (verify cmd, then the wider unit suite once; no retro; + suggestions if pack/skill/agent/command/contract evidenced) → hand off uncommitted
 4. Else grill/plan rounds (facts via subagent; decisions = human); draft plan file from round 1 (check-plan it at once, fix findings), each round appended → architect rule fired? main agent spawns squad-architect for Design + Map (planner Design gap → ≤1 architect rerun) → confirm sets Status: confirmed
-5. Gate spins: sequential implementers (missing/one ## Slices → one whole-plan implementer; else one fresh implementer per slice in order; Plan gap → planner next-round on that gap → fresh implementer redoes the slice; 2nd Plan gap on a slice → Replan) → then one verifier → reviewers in parallel (correctness + plan/spec; security ONLY if trust boundary)
-6. Orchestrator merges ≤2 fix rounds; ≤1 re-ask per producer per review round then accept marker (non-blocking); optional residual fixup → hand off uncommitted → squad-retro writes the retro, also on stop or fail (+ suggestions if pack/skill/agent/command/contract evidenced)
+5. Gate spins: sequential implementers (missing/one ## Slices → one whole-plan implementer; else one fresh implementer per slice in order; Plan gap → planner next-round on that gap → fresh implementer redoes the slice; 2nd Plan gap on a slice → Replan) → then the review playbook: deslop, verifier, blast-radius, statechart only on shared state, tester red tests, reviewers in parallel (correctness + plan/spec; security ONLY if trust boundary), orchestrator
+6. Each code-writing step is followed by the rest of that playbook; ≤2 fix rounds; second fix review still FAIL → stop and report, no push; ≤1 re-ask per producer per review round then accept marker (non-blocking); optional residual fixup → hand off uncommitted → squad-retro writes the retro, also on stop or fail (+ suggestions if pack/skill/agent/command/contract evidenced)
 
 /squad-review
-Pin vs PR / uncommitted / main → same gated dual-axis reviewers (no plan/fix loop) → always save report to docs/reviews/<yyyy-mm-dd>-<slug>.md → squad-retro writes the retro from that report (+ suggestions if pack/skill/agent/command/contract evidenced)
+Pin vs PR / uncommitted / main → report mode: blast-radius, statechart only on shared state, then the same gated reviewers (no deslop, no tester, no plan/fix loop) → always save report to docs/reviews/<yyyy-mm-dd>-<slug>.md → squad-retro writes the retro from that report (+ suggestions if pack/skill/agent/command/contract evidenced)
 
 Always
 agent model tiers (default inherit; the tier is on each agent, no file to read); load only contracted <lang>-* by Skill name; coworker docs = real dotnet test/validate on a fixture.
@@ -35,7 +35,7 @@ lesson-to-enforcer table (architecture > type > lint > test > doc). A human appl
 Do not rewrite skills, and do not grow a graph from it.
 `docs/suggestions.md` is optional: write a proposal, do not apply it.
 
-The main agent owns user interaction, invokes `squad-planner` once per question round, launches applicable reviewers in parallel, and routes the merged verdict. `squad-orchestrator` only merges completed reports and verifier evidence. No phase commits, merges, or pushes.
+The main agent owns user interaction, invokes `squad-planner` once per question round, runs the review playbook, and routes the merged verdict. `squad-orchestrator` only merges completed reports and verifier evidence. No phase commits, merges, or pushes.
 
 Obvious typos, renames, and one-line fixes take the small-change route: the main agent implements and verifies directly, with a tiny plan (goal, decision, verify command) and without invoking planner, implementer, verifier, or review agents.
 
@@ -69,8 +69,12 @@ new request while a plan is open gets one question: next task or the new request
 | Agent | `squad-architect` | Read-only; returns `## Design` and `## Map` text for the planner to paste when the architect rule fires |
 | Agent | `squad-indexer` | Read-only, `fast` model; `/squad` spawns it and passes its `file:line` locations to the architect and implementer, never code or verdicts |
 | Agent | `squad-implementer` | Implements a confirmed plan or merged fix list |
-| Agent | `squad-verifier` | Reports independent evidence per plan criterion |
-| Agent | `squad-reviewer` | Reviews correctness and plan compliance |
+| Agent | `squad-deslop` | Removes AI slop from the diff before review. Full loop only |
+| Agent | `squad-verifier` | Reports independent evidence per plan criterion, after deslop and before red tests |
+| Agent | `squad-blast-radius` | Finds breakage outside the diff and proves the one safety fact |
+| Agent | `squad-statechart` | TLA+ findings report when blast-radius says shared state is yes |
+| Agent | `squad-tester` | Red unit or component tests for confirmed high or medium paths. Full loop only |
+| Agent | `squad-reviewer` | Reviews correctness and plan compliance. On `--pr`, also checks Cursor Automation threads |
 | Agent | `squad-security-reviewer` | Reviews trust-boundary diffs against [OWASP Top 10:2025](https://owasp.org/Top10/) using the review contract's Security gate. Full-repo audits are `/security-audit` on the `security` pack |
 | Agent | `squad-simplifier` | Finds unnecessary implementation complexity |
 | Agent | `squad-orchestrator` | Deduplicates completed reports, assigns the verdict, and appends the fix list |
@@ -78,8 +82,9 @@ new request while a plan is open gets one question: next task or the new request
 | Command | `squad` | Runs a new change through the proportional workflow. Copilot picker: `/squad:run` |
 | Command | `squad-review` | Reviews a PR, uncommitted work, or a diff versus main, without a plan, verdict, or fix round |
 | Command | `scenarios` | From changed code (OpenAPI optional), writes only `docs/smoke/<slug>.md`. Copilot picker: `/squad:scenarios` |
+| Playbook | `review` | Step list for the review round. Names subagents only. [playbook](skills/squad/playbooks/review.md) |
 
-All ten agents remain portable across supported generated clients.
+All fourteen agents remain portable across supported generated clients.
 
 ## Planning
 
@@ -89,13 +94,13 @@ After every decision is settled, the planner returns a shared-understanding conf
 
 ## Review and verdicts
 
-For a planned change, the main agent runs correctness and simplification reviewers together, adding security when a trust boundary changed. It then sends completed reports, verifier evidence, round, plan path, and the recorded security decision to the orchestrator.
+For a planned change, the main agent follows [the review playbook](skills/squad/playbooks/review.md): `squad-deslop`, `squad-verifier`, `squad-blast-radius`, `squad-statechart` only when shared state is yes, `squad-tester`, then `squad-reviewer`, `squad-simplifier`, and security when the gate says run, then `squad-orchestrator`. The playbook names steps and subagents. Each subagent loads its own skill. The diagram is in the playbook and in ADR 0002 (`docs/adr/0002-review-sequence.md`).
 
-`pass` requires adequate evidence for every criterion and no blocking merged finding. `high` or `medium` findings produce `fix`; a plan defect produces `replan`. At most two fix rounds are allowed.
+`pass` (gate PASS) requires adequate evidence for every criterion and no blocking merged finding. `high` or `medium` findings produce `fix` (gate FAIL). A plan defect produces `replan` (gate FAIL). At most two fix rounds. A code-writing step is followed by the rest of the playbook. If the second fix review is still FAIL, stop and report the open fix list. The pack does not push.
 
 Malformed-report re-ask: one re-ask per producer per review round, then the axis marker; details in [malformed-reask.md](skills/squad/references/malformed-reask.md). After `pass`, or after two fix rounds with only residual `low`/`tiny` notes, at most one residual fixup may run; details in [residual-fixup.md](skills/squad/references/residual-fixup.md). Still hand off uncommitted.
 
-`/squad-review` uses the same conditional reviewers for a PR, uncommitted work, or a diff versus main, but has no plan, verifier evidence, verdict, or fix round. Reviewers get the product diff only: plans, saved review reports, retros, suggestions, and scenarios md stay on the branch and are Not examined. A missing run file is not a finding and not a blocker. At the end it always writes `docs/reviews/<yyyy-mm-dd>-<slug>.md` and still shows the findings in the IDE/CLI. Never `docs/decisions.md`.
+`/squad-review` is report mode in that playbook: `squad-blast-radius`, `squad-statechart` only when shared state is yes, then the same reviewers. No `squad-deslop`, no `squad-tester`, no plan, no verifier evidence, no verdict, and no fix round. Reviewers get the product diff only: plans, saved review reports, retros, suggestions, and scenarios md stay on the branch and are Not examined. A missing run file is not a finding and not a blocker. At the end it always writes `docs/reviews/<yyyy-mm-dd>-<slug>.md` and still shows the findings in the IDE/CLI. Never `docs/decisions.md`.
 
 ## Stack and workspace
 
@@ -169,7 +174,8 @@ plus Superpowers and MAO; still out of scope for locked v1:
 
 - Peer agents coordinating via a shared state or lock file
 - Recursive subplanner trees or eager multi-worker fan-out
-- Sequential per-task two-stage review, isolated per-task checkouts, architect DAGs
+- Isolated per-task checkouts, architect DAGs
+- A tester agent and sequential review stages: superseded by ADR 0002 (`docs/adr/0002-review-sequence.md`). One shared checkout. The playbook is one step list, not a second catalog
 - Continuous autonomous multi-hour runs without human plan confirm
 - Auto-rewriting skills from `docs/retros/` or `docs/suggestions.md` (reflector / skill rewrite)
 - Growing `squad-orchestrator` into a global quality gate / integrator
