@@ -62,7 +62,11 @@ public sealed class HttpScenariosContractTests
         var claudeEntry = run.File(".claude-plugin/marketplace.json").Content["plugins"]!.AsArray()
             .OfType<JsonObject>()
             .Single(plugin => plugin["name"]!.GetValue<string>() == "squad");
-        Assert.True(claudeEntry["strict"]!.GetValue<bool>());
+        Assert.Null(claudeEntry["strict"]);
+        Assert.Null(claudeEntry["commands"]);
+        Assert.Equal(
+            "./com.anthropic.claude-code/commands/",
+            run.File("plugins/squad/.claude-plugin/plugin.json").Content["commands"]!.GetValue<string>());
     }
 
     [Fact]

@@ -292,18 +292,20 @@ internal sealed class CompatibilityValidator(RepositoryContext context)
             return;
         }
 
+        var claudeCatalog = string.Equals(
+            path, context.MarketplaceRelativePath.Replace('\\', '/'), StringComparison.Ordinal);
         var seen = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 
         foreach (var node in plugins)
         {
             if (node is JsonObject entry)
             {
-                ValidateEntry(entry, path, seen);
+                ValidateEntry(entry, path, seen, claudeCatalog);
             }
         }
     }
 
-    private void ValidateEntry(JsonObject entry, string path, Dictionary<string, string> seen)
+    private void ValidateEntry(JsonObject entry, string path, Dictionary<string, string> seen, bool claudeCatalog)
     {
         var name = ReadUniqueMarketplaceName(
             entry, path, seen, "every generated plugin entry must define 'name'.");
@@ -319,7 +321,35 @@ internal sealed class CompatibilityValidator(RepositoryContext context)
         }
 
         ValidateSource(entry, name, path);
+
+        if (claudeCatalog)
+        {
+            ValidateClaudeCatalogHasNoComponentFields(entry, name, path);
+            return;
+        }
+
         ValidateComponentPaths(entry, name, path);
+    }
+
+    /// <summary>
+    /// Claude marketplace entries that declare a hooks path or array install, then fail to load
+    /// ("not yet supported in a marketplace entry"). Component routing belongs on
+    /// <c>.claude-plugin/plugin.json</c>, where a hooks path is valid and <c>commands</c>/<c>agents</c>
+    /// replace the default root scan.
+    /// </summary>
+    private void ValidateClaudeCatalogHasNoComponentFields(JsonObject entry, string name, string path)
+    {
+        foreach (var field in (string[])["skills", "agents", "commands", "hooks", "mcpServers", "strict"])
+        {
+            if (entry[field] is not null)
+            {
+                context.Diagnostics.Policy(
+                    path,
+                    $"Claude plugin entry '{name}' declares '{field}'. " +
+                    "Put component paths on .claude-plugin/plugin.json; a marketplace hooks " +
+                    "path or array never runs.");
+            }
+        }
     }
 
     private void ValidateSource(JsonObject entry, string name, string path)

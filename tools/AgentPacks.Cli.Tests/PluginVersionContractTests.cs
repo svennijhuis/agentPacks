@@ -39,6 +39,7 @@ public sealed class PluginVersionContractTests
         Assert.Equal(
             "0.1.5",
             run.File("plugins/git/.codex-plugin/plugin.json").Content["version"]!.GetValue<string>());
+        Assert.Null(run.File("plugins/git/.claude-plugin/plugin.json").Content["version"]);
 
         foreach (var catalog in new[]
                  {

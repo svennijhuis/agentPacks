@@ -58,9 +58,9 @@ internal static class PluginLoader
     }
 
     /// <summary>
-    /// The neutral hook manifest. It is deliberately not hooks/hooks.json: Claude, Cursor and Codex
-    /// all auto-discover that path in three incompatible dialects, and Copilot claims the root
-    /// hooks.json. This name is discovered by no client and generated into all four.
+    /// The neutral hook manifest. It is deliberately not hooks/hooks.json: each client would
+    /// auto-discover that path in an incompatible dialect. This name is discovered by no client
+    /// and generated into namespaced files that each client's plugin.json or catalog points at.
     /// </summary>
     public const string HooksFileName = "hooks.source.json";
 

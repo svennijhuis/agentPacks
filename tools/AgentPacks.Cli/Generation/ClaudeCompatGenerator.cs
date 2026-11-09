@@ -6,8 +6,10 @@ namespace AgentPacks.Cli.Generation;
 
 /// <summary>
 /// Builds the Claude compatibility layer from the portable source. Two files come out:
-/// the private marketplace catalog, and one .mcp.json per plugin that declares MCP servers.
-/// The portable mcp.json stays the only authored copy; .mcp.json is derived from it.
+/// a thin marketplace catalog, and one .mcp.json per plugin that declares MCP servers.
+/// Component routing belongs on each plugin's .claude-plugin/plugin.json; a marketplace
+/// hooks path or array never runs. The portable mcp.json stays the only authored copy;
+/// .mcp.json is derived from it so Claude auto-loads the converted document.
 /// </summary>
 internal sealed class ClaudeCompatGenerator(RepositoryContext context)
 {
@@ -66,48 +68,6 @@ internal sealed class ClaudeCompatGenerator(RepositoryContext context)
         // installs pinned to cached content even after skills change.
         JsonFile.CopyProperties(entry, manifest, "author", "homepage", "repository", "license", "keywords");
 
-        if (plugin.HasSkillsDirectory)
-        {
-            entry["skills"] = "./skills/";
-        }
-
-        // Claude auto-discovers agents/, commands/ and hooks/hooks.json at the plugin root unless
-        // strict is on. The root holds Cursor's dialect — Cursor is the only client that cannot be
-        // pointed elsewhere. These explicit paths send Claude to its own namespace instead.
-        var claude = ClientProfile.Claude;
-
-        if (plugin.Agents.Count > 0)
-        {
-            // Claude validates agent component paths as files, unlike commands where a directory
-            // is accepted. Enumerating also ensures a removed agent cannot stay reachable through
-            // a broad directory declaration.
-            var agents = new JsonArray();
-
-            foreach (var agent in plugin.Agents)
-            {
-                agents.Add($"./{claude.Directory}/agents/{agent.Name}.md");
-            }
-
-            entry["agents"] = agents;
-        }
-
-        if (plugin.Commands.Count > 0)
-        {
-            entry["commands"] = new JsonArray { $"./{claude.Directory}/commands/" };
-        }
-
-        // Keyed on what ClientTreeGenerator actually writes, not on hooks.source.json existing: an
-        // event declared with an empty entry array produces no hooks.json, and an entry pointing at
-        // a file that was never written fails the plugin at install time.
-        //
-        // pack-check and git omit the field: Claude rejects a marketplace hooks path or array.
-        // Those packs emit Claude-shaped hooks/hooks.json at the plugin root instead so Claude
-        // auto-discovers it. Do not substitute Copilot's namespaced hooks file.
-        if (HookGenerator.EmitsHooksFile(plugin, claude) && !plugin.ClaudeAutoDiscoversRootHooks)
-        {
-            entry["hooks"] = $"./{claude.Directory}/hooks/hooks.json";
-        }
-
         if (plugin.McpServers is { } servers)
         {
             var mcpFile = new JsonObject
@@ -118,13 +78,7 @@ internal sealed class ClaudeCompatGenerator(RepositoryContext context)
             files.Add(GeneratedFile.FromJson(
                 Path.Combine("plugins", plugin.DirectoryName, ".mcp.json"),
                 mcpFile));
-
-            entry["mcpServers"] = "./.mcp.json";
         }
-
-        // strict:true keeps Claude on the declared paths only. strict:false also auto-discovers
-        // root commands/ (Cursor dialect), so /squad and /squad-review appear twice.
-        entry["strict"] = true;
 
         return entry;
     }

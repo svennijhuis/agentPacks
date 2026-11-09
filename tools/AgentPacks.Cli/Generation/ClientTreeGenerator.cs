@@ -43,16 +43,15 @@ internal sealed class ClientTreeGenerator(RepositoryContext context, ModelCatalo
         // the generated rules hook, and emitting the same path twice would write it twice and diff
         // it against itself.
         //
-        // pack-check and git put Claude-shaped hooks at plugin-root hooks/hooks.json so Claude
-        // can auto-discover them (marketplace omits a hooks path). Cursor cannot read that
-        // dialect, so those packs write Cursor-shaped hooks under .cursor-plugin/ and point
-        // the Cursor manifest at them. Do not write Claude shape into Copilot's tree.
+        // Cursor hooks always live under .cursor-plugin/; Claude, Codex and Copilot each have a
+        // namespaced file. Plugin-root hooks/hooks.json is never a dialect, so Claude's
+        // .claude-plugin/plugin.json can declare a hooks path without merging Cursor's document.
         foreach (var profile in ClientProfile.All
                      .Where(p => p.Client is not (Client.Claude or Client.Copilot)))
         {
             if (HookGenerator.Build(plugin, profile) is { } hooks)
             {
-                var relative = profile.Client == Client.Cursor && plugin.ClaudeAutoDiscoversRootHooks
+                var relative = profile.Client == Client.Cursor
                     ? ClientProfile.RelocatedCursorHooks
                     : profile.PluginRelative("hooks/hooks.json");
                 AddJson(relative, hooks);
@@ -84,6 +83,11 @@ internal sealed class ClientTreeGenerator(RepositoryContext context, ModelCatalo
     /// Claude reads agents/ and commands/ as Markdown with its own frontmatter keys, and has no
     /// rules concept at all — always-on rules become a SessionStart hook that prints them as
     /// context, with the text baked into the generated script so the hook reads no files at runtime.
+    /// Component routing lives on <c>.claude-plugin/plugin.json</c>: <c>commands</c> and
+    /// <c>agents</c> replace the default root scan, and a hooks path is valid there (unlike a
+    /// marketplace entry, where a path or array never runs). Skills and <c>.mcp.json</c> stay on
+    /// their default locations, so they are not restated. <c>version</c> is omitted so updates
+    /// fall back to the Git commit SHA, matching the catalog.
     /// </summary>
     private void GenerateClaude(
         PluginPackage plugin,
@@ -91,6 +95,39 @@ internal sealed class ClientTreeGenerator(RepositoryContext context, ModelCatalo
         Action<string, JsonNode> addJson)
     {
         var profile = ClientProfile.Claude;
+        var manifest = plugin.Manifest!;
+
+        var claude = new JsonObject
+        {
+            ["name"] = plugin.CanonicalName,
+            ["displayName"] = PluginDisplayName.From(plugin)
+        };
+
+        JsonFile.CopyProperties(claude, manifest, "description", "author", "license", "keywords");
+
+        if (plugin.Agents.Count > 0)
+        {
+            var agents = new JsonArray();
+
+            foreach (var agent in plugin.Agents)
+            {
+                agents.Add($"./{profile.Directory}/agents/{agent.Name}.md");
+            }
+
+            claude["agents"] = agents;
+        }
+
+        if (plugin.Commands.Count > 0)
+        {
+            claude["commands"] = $"./{profile.Directory}/commands/";
+        }
+
+        if (HookGenerator.EmitsHooksFile(plugin, profile))
+        {
+            claude["hooks"] = $"./{profile.Directory}/hooks/hooks.json";
+        }
+
+        addJson(".claude-plugin/plugin.json", claude);
 
         foreach (var agent in plugin.Agents)
         {
@@ -139,7 +176,6 @@ internal sealed class ClientTreeGenerator(RepositoryContext context, ModelCatalo
             if (HookGenerator.Build(plugin, profile) is { } authored)
             {
                 addJson(profile.PluginRelative("hooks/hooks.json"), authored);
-                MaybeWriteClaudeRootHooks(plugin, profile, addJson, authored);
             }
 
             return;
@@ -154,26 +190,6 @@ internal sealed class ClientTreeGenerator(RepositoryContext context, ModelCatalo
 
         var document = HooksWithRules(plugin, profile);
         addJson(profile.PluginRelative("hooks/hooks.json"), document);
-        MaybeWriteClaudeRootHooks(plugin, profile, addJson, document);
-    }
-
-    /// <summary>
-    /// Claude marketplace cannot declare a hooks path, so pack-check and git also emit the
-    /// Claude-shaped document at plugin-root hooks/hooks.json. Copilot keeps
-    /// <c>com.github.copilot/hooks/hooks.json</c> in its own dialect.
-    /// </summary>
-    private static void MaybeWriteClaudeRootHooks(
-        PluginPackage plugin,
-        ClientProfile profile,
-        Action<string, JsonNode> addJson,
-        JsonObject document)
-    {
-        if (profile.Client != Client.Claude || !plugin.ClaudeAutoDiscoversRootHooks)
-        {
-            return;
-        }
-
-        addJson("hooks/hooks.json", document);
     }
 
     /// <summary>Merges the generated rules hook into whatever the author declared.</summary>
@@ -224,9 +240,9 @@ internal sealed class ClientTreeGenerator(RepositoryContext context, ModelCatalo
     /// authored portable tiers. <c>displayName</c> is the official-schema title (squad → Squad).
     /// <c>category</c> is the official-schema classifier: cursor/plugins first-party workflow
     /// packs (orchestrate, pstack, thermos, ralph-loop) all set <c>developer-tools</c> on
-    /// <c>.cursor-plugin/plugin.json</c>. Marketplace entries still cannot carry it
-    /// (additionalProperties: false). When Claude owns plugin-root hooks, the manifest also
-    /// points at <see cref="ClientProfile.RelocatedCursorHooks"/>.
+    /// <c>.cursor-plugin/plugin.json</c>. Those packs also set <c>skills</c> and <c>tags</c>;
+    /// marketplace entries still cannot carry extra fields (additionalProperties: false).
+    /// Hooks always point at <see cref="ClientProfile.RelocatedCursorHooks"/>.
     /// </summary>
     private void GenerateCursor(
         PluginPackage plugin,
@@ -246,6 +262,16 @@ internal sealed class ClientTreeGenerator(RepositoryContext context, ModelCatalo
 
         JsonFile.CopyProperties(cursor, manifest, "version", "description", "author", "license", "keywords");
 
+        if (cursor["keywords"] is JsonArray keywords && keywords.Count > 0)
+        {
+            cursor["tags"] = keywords.DeepClone();
+        }
+
+        if (plugin.HasSkillsDirectory)
+        {
+            cursor["skills"] = "./skills/";
+        }
+
         // Cursor's default scan is root agents/ (portable tiers). Remapped ids live under
         // .cursor-plugin/agents/; declaring the path replaces folder discovery so Cursor
         // loads those copies and does not also scan the authored files.
@@ -254,8 +280,7 @@ internal sealed class ClientTreeGenerator(RepositoryContext context, ModelCatalo
             cursor["agents"] = "./.cursor-plugin/agents/";
         }
 
-        if (plugin.ClaudeAutoDiscoversRootHooks &&
-            HookGenerator.EmitsHooksFile(plugin, ClientProfile.Cursor))
+        if (HookGenerator.EmitsHooksFile(plugin, ClientProfile.Cursor))
         {
             cursor["hooks"] = $"./{ClientProfile.RelocatedCursorHooks}";
         }

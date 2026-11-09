@@ -54,9 +54,9 @@ generated `.cmd` shim forwards PowerShell's exit code. Both halves treat a TTY s
 payload and allow, rather than hanging on `cat` / `[Console]::In.ReadToEnd()` when a host attaches a
 console instead of a pipe.
 
-Cursor cannot read the Claude-shaped `hooks/hooks.json` that `git` emits at the plugin root for
-Claude auto-discovery. Generation writes Cursor-shaped hooks to `.cursor-plugin/hooks/hooks.json`
-and points `.cursor-plugin/plugin.json` at that file.
+Cursor reads generated hooks from `.cursor-plugin/hooks/hooks.json` via `.cursor-plugin/plugin.json`.
+Claude reads `com.anthropic.claude-code/hooks/hooks.json` via `.claude-plugin/plugin.json`. Plugin-root
+`hooks/hooks.json` is not a dialect.
 
 ## Privacy and failure behavior
 
@@ -81,7 +81,7 @@ Anything else, including an unset value, keeps it enabled.
 Authored: `plugin.json`, `hooks.source.json`, `scripts/git-guard.sh`, and
 `scripts/git-guard.ps1`.
 
-Generated on `marketplace` / `marketplace-beta` or in temporary validation output, never on `main`: `hooks/`,
-script dispatchers, client manifests, and `com.*` provider trees.
+Generated on `marketplace` / `marketplace-beta` or in temporary validation output, never on `main`:
+`.cursor-plugin/hooks/`, script dispatchers, client manifests, and `com.*` provider trees.
 
 Keep both script implementations aligned. See [ADD-HOOK.md](https://github.com/svennijhuis/agentPacks/blob/main/docs/ADD-HOOK.md).

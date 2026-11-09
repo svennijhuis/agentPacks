@@ -17,10 +17,10 @@ internal sealed record ClientProfile(
     string? HookCwd = null)
 {
     /// <summary>
-    /// Claude reads the root agents/, commands/ and hooks/ by default unless the marketplace
-    /// entry is strict. The entry points at this namespace and sets strict so Cursor's root
-    /// dialect is not a second discoverable copy. pack-check and git omit marketplace hooks
-    /// (Claude rejects a path or array) and put this dialect at plugin-root hooks/hooks.json.
+    /// Claude's generated <c>.claude-plugin/plugin.json</c> points at this namespace.
+    /// <c>commands</c> and <c>agents</c> there replace the default root scan, so Cursor's
+    /// root dialect is not a second discoverable copy. Marketplace entries stay a thin
+    /// name/source list: a hooks path or array in the catalog never runs.
     /// </summary>
     public static readonly ClientProfile Claude = new(
         Client.Claude,
@@ -33,17 +33,16 @@ internal sealed record ClientProfile(
         HookDocumentVersion: null);
 
     /// <summary>
-    /// Cursor-shaped hooks for packs whose plugin-root <c>hooks/hooks.json</c> is Claude-shaped
-    /// (Claude marketplace cannot declare a hooks path). Cursor's plugin manifest points here.
+    /// Cursor-shaped hooks live here so plugin-root <c>hooks/hooks.json</c> is never a dialect.
+    /// Cursor's plugin manifest always points here when the pack has hooks. Claude, Codex and
+    /// Copilot each have their own namespaced file.
     /// </summary>
     public const string RelocatedCursorHooks = ".cursor-plugin/hooks/hooks.json";
 
     /// <summary>
-    /// Cursor keeps the plugin root for commands, rules and most hooks. Agents are the exception:
-    /// .cursor-plugin/plugin.json points at the remapped copies under .cursor-plugin/agents/.
+    /// Cursor keeps the plugin root for commands and rules. Agents are remapped under
+    /// .cursor-plugin/agents/; hooks are remapped to <see cref="RelocatedCursorHooks"/>.
     /// Its official template uses plugin-relative commands, so no root token is substituted.
-    /// When Claude owns the root hooks file, the manifest points at
-    /// <see cref="RelocatedCursorHooks"/> instead.
     /// </summary>
     public static readonly ClientProfile Cursor = new(
         Client.Cursor,

@@ -5,7 +5,8 @@ namespace AgentPacks.Cli.Generation;
 
 /// <summary>
 /// Shared catalog shell for Cursor and Copilot marketplace JSON. Claude keeps a top-level
-/// description; Codex uses <c>interface.displayName</c> and a local-source object.
+/// description and a thin name/source entry; Codex uses <c>interface.displayName</c> and a
+/// local-source object.
 /// </summary>
 internal static class MarketplaceCatalog
 {

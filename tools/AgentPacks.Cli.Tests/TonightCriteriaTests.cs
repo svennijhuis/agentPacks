@@ -73,8 +73,8 @@ public sealed class TonightCriteriaTests
         nameof(HttpScenariosContractTests.User_commands_stay_squad_squad_review_pack_check_plus_http_scenarios))]
     [InlineData("47 Claude marketplace omits hooks path and array", typeof(ClaudeMarketplaceHooksTests),
         nameof(ClaudeMarketplaceHooksTests.Claude_marketplace_omits_hooks_path_and_array))]
-    [InlineData("47 Claude plugin root hooks json is Claude shaped", typeof(ClaudeMarketplaceHooksTests),
-        nameof(ClaudeMarketplaceHooksTests.Claude_plugin_root_hooks_json_is_claude_shaped))]
+    [InlineData("47 Claude namespaced hooks json is Claude shaped", typeof(ClaudeMarketplaceHooksTests),
+        nameof(ClaudeMarketplaceHooksTests.Claude_namespaced_hooks_json_is_claude_shaped))]
     [InlineData("47 Copilot ships scenarios command", typeof(HttpScenariosContractTests),
         nameof(HttpScenariosContractTests.Copilot_ships_http_scenarios_command))]
     [InlineData("48 all plugins version 0.1.5", typeof(PluginVersionContractTests),
@@ -87,8 +87,8 @@ public sealed class TonightCriteriaTests
         nameof(HttpScenariosContractTests.User_slash_is_scenarios_not_http_scenarios))]
     [InlineData("50 Copilot_hooks_set_cwd_plugin_root", typeof(ClaudeMarketplaceHooksTests),
         nameof(ClaudeMarketplaceHooksTests.Copilot_hooks_set_cwd_plugin_root))]
-    [InlineData("Cursor relocated hooks when Claude owns root", typeof(ClaudeMarketplaceHooksTests),
-        nameof(ClaudeMarketplaceHooksTests.Cursor_loads_relocated_cursor_shaped_hooks_when_claude_owns_root))]
+    [InlineData("Cursor relocated hooks", typeof(ClaudeMarketplaceHooksTests),
+        nameof(ClaudeMarketplaceHooksTests.Cursor_loads_relocated_cursor_shaped_hooks))]
     [InlineData("51 Copilot_scenarios_command_name_differs_from_skill", typeof(HttpScenariosContractTests),
         nameof(HttpScenariosContractTests.Copilot_scenarios_command_name_differs_from_skill))]
     [InlineData("51 Slash_stays_scenarios_or_squad_scenarios", typeof(HttpScenariosContractTests),

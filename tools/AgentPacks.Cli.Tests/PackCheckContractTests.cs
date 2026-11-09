@@ -61,7 +61,8 @@ public sealed class PackCheckContractTests
         var run = repo.ValidateAndGenerate();
 
         Assert.False(run.HasErrors, run.Text);
-        Assert.True(run.HasFile("plugins/pack-check/hooks/hooks.json"));
+        Assert.False(run.HasFile("plugins/pack-check/hooks/hooks.json"));
+        Assert.True(run.HasFile("plugins/pack-check/.cursor-plugin/hooks/hooks.json"));
         Assert.True(run.HasFile("plugins/pack-check/com.anthropic.claude-code/hooks/hooks.json"));
         Assert.True(run.HasFile("plugins/pack-check/com.openai.codex/hooks/hooks.json"));
         Assert.True(run.HasFile("plugins/pack-check/com.github.copilot/hooks/hooks.json"));

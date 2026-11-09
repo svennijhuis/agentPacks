@@ -70,12 +70,12 @@ public sealed class ClientManifestTests
     }
 
     /// <summary>
-    /// Claude auto-discovers agents/, commands/ and hooks/ at the plugin root unless the
-    /// marketplace entry is strict. The root holds Cursor's dialect. Explicit paths plus
-    /// <c>strict: true</c> keep Claude on its own tree.
+    /// Claude's generated <c>.claude-plugin/plugin.json</c> points at its namespace.
+    /// <c>commands</c> and <c>agents</c> replace the default root scan. The marketplace
+    /// entry stays a thin name/source list: a hooks path there never runs.
     /// </summary>
     [Fact]
-    public void The_claude_entry_points_at_its_own_namespace()
+    public void The_claude_manifest_points_at_its_own_namespace()
     {
         using var repo = new TestRepository();
 
@@ -86,14 +86,20 @@ public sealed class ClientManifestTests
             .ValidateAndGenerate();
 
         var entry = (JsonObject)run.File(Marketplace).Content["plugins"]![0]!;
+        var claude = run.File($"{Plugin}/.claude-plugin/plugin.json").Content;
 
-        Assert.True(entry["strict"]!.GetValue<bool>());
+        Assert.Null(entry["strict"]);
+        Assert.Null(entry["agents"]);
+        Assert.Null(entry["commands"]);
+        Assert.Null(entry["hooks"]);
         Assert.Equal("Engineering", entry["displayName"]!.GetValue<string>());
+        Assert.Equal("Engineering", claude["displayName"]!.GetValue<string>());
+        Assert.Null(claude["version"]);
         Assert.Equal(
             "./com.anthropic.claude-code/agents/reviewer.md",
-            entry["agents"]![0]!.GetValue<string>());
-        Assert.Equal("./com.anthropic.claude-code/commands/", entry["commands"]![0]!.GetValue<string>());
-        Assert.Equal("./com.anthropic.claude-code/hooks/hooks.json", entry["hooks"]!.GetValue<string>());
+            claude["agents"]![0]!.GetValue<string>());
+        Assert.Equal("./com.anthropic.claude-code/commands/", claude["commands"]!.GetValue<string>());
+        Assert.Equal("./com.anthropic.claude-code/hooks/hooks.json", claude["hooks"]!.GetValue<string>());
     }
 
     [Fact]
@@ -103,11 +109,16 @@ public sealed class ClientManifestTests
         var run = repo.WithValidPlugin().ValidateAndGenerate();
 
         var entry = (JsonObject)run.File(Marketplace).Content["plugins"]![0]!;
+        var claude = run.File($"{Plugin}/.claude-plugin/plugin.json").Content;
 
         Assert.Null(entry["agents"]);
         Assert.Null(entry["commands"]);
         Assert.Null(entry["hooks"]);
-        Assert.Equal("./skills/", entry["skills"]!.GetValue<string>());
+        Assert.Null(entry["skills"]);
+        Assert.Null(claude["agents"]);
+        Assert.Null(claude["commands"]);
+        Assert.Null(claude["hooks"]);
+        Assert.Null(claude["skills"]);
     }
 
     /// <summary>Rules reach Claude only as a SessionStart hook, so they imply the hooks path too.</summary>
@@ -117,16 +128,17 @@ public sealed class ClientManifestTests
         using var repo = new TestRepository();
         var run = repo.WithValidPlugin().WithRule("standards").ValidateAndGenerate();
 
+        var claude = run.File($"{Plugin}/.claude-plugin/plugin.json").Content;
         var entry = (JsonObject)run.File(Marketplace).Content["plugins"]![0]!;
 
-        Assert.Equal("./com.anthropic.claude-code/hooks/hooks.json", entry["hooks"]!.GetValue<string>());
+        Assert.Null(entry["hooks"]);
+        Assert.Equal("./com.anthropic.claude-code/hooks/hooks.json", claude["hooks"]!.GetValue<string>());
     }
 
     /// <summary>
-    /// Cursor keeps the plugin root for commands, rules and most hooks. The generated
-    /// manifest carries identity; the agents path is added only when remapped agents exist.
-    /// git and pack-check point the manifest at a relocated Cursor-shaped hooks file because
-    /// Claude owns plugin-root hooks/hooks.json.
+    /// Cursor keeps the plugin root for commands and rules. The generated manifest carries
+    /// identity; the agents path is added only when remapped agents exist. Hooks always
+    /// point at a relocated Cursor-shaped file so plugin-root hooks/hooks.json is never a dialect.
     /// </summary>
     [Fact]
     public void The_cursor_manifest_carries_the_plugin_identity()
@@ -140,7 +152,9 @@ public sealed class ClientManifestTests
         Assert.Equal("Engineering", cursor["displayName"]!.GetValue<string>());
         Assert.Equal("developer-tools", cursor["category"]!.GetValue<string>());
         Assert.Equal("Test plugin.", cursor["description"]!.GetValue<string>());
+        Assert.Equal("./skills/", cursor["skills"]!.GetValue<string>());
         Assert.Null(cursor["agents"]);
+        Assert.Null(cursor["hooks"]);
     }
 
     /// <summary>
@@ -426,7 +440,9 @@ public sealed class ClientManifestTests
 
         var paths = run.Generated
             .Select(f => f.RelativePath.Replace('\\', '/'))
-            .Where(p => p != $"{Plugin}/.cursor-plugin/plugin.json" && p != $"{Plugin}/.codex-plugin/plugin.json")
+            .Where(p => p != $"{Plugin}/.cursor-plugin/plugin.json"
+                && p != $"{Plugin}/.codex-plugin/plugin.json"
+                && p != $"{Plugin}/.claude-plugin/plugin.json")
             .ToList();
 
         Assert.Equal([CodexMarketplace, Marketplace, CursorMarketplace, CopilotMarketplace], paths);

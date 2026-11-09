@@ -12,6 +12,7 @@ internal static class GeneratedPaths
     public static readonly string[] OwnedDirectories =
     [
         "hooks",
+        ".claude-plugin",
         ".cursor-plugin",
         ".codex-plugin",
         "com.anthropic.claude-code",

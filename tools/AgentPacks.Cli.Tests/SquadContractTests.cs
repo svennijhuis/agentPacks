@@ -382,14 +382,18 @@ public class SquadContractTests
         var entry = run.File(".claude-plugin/marketplace.json").Content["plugins"]!.AsArray()
             .OfType<JsonObject>()
             .Single(plugin => plugin["name"]!.GetValue<string>() == "squad");
+        var pluginJson = (JsonObject)run.File("plugins/squad/.claude-plugin/plugin.json").Content;
 
-        Assert.True(entry["strict"]!.GetValue<bool>());
+        Assert.Null(entry["strict"]);
+        Assert.Null(entry["commands"]);
         Assert.Null(entry["version"]);
         Assert.Equal("Squad", entry["displayName"]!.GetValue<string>());
-        Assert.Equal("./com.anthropic.claude-code/commands/", entry["commands"]![0]!.GetValue<string>());
+        Assert.Equal("Squad", pluginJson["displayName"]!.GetValue<string>());
+        Assert.Null(pluginJson["version"]);
+        Assert.Equal("./com.anthropic.claude-code/commands/", pluginJson["commands"]!.GetValue<string>());
 
         var pluginDirectory = repo.PluginDirectory("squad");
-        var names = DiscoverableClaudeCommandNames(pluginDirectory, entry);
+        var names = DiscoverableClaudeCommandNames(pluginDirectory, pluginJson);
         Assert.Equal(["scenarios", "squad", "squad-review"], names.OrderBy(name => name, StringComparer.Ordinal));
 
         var rootNames = CommandNames(Path.Combine(pluginDirectory, "commands"));
@@ -397,14 +401,15 @@ public class SquadContractTests
             Path.Combine(pluginDirectory, "com.anthropic.claude-code", "commands"));
         Assert.Equal(rootNames, claudeNames);
         Assert.Equal(claudeNames.Count, names.Count);
+        Assert.Equal(1, names.Count(name => name == "squad"));
 
-        var twins = (JsonObject)entry.DeepClone();
-        twins["strict"] = false;
-        var loose = DiscoverableClaudeCommandNames(pluginDirectory, twins);
+        var defaultScan = (JsonObject)pluginJson.DeepClone();
+        defaultScan.Remove("commands");
+        var loose = DiscoverableClaudeCommandNames(pluginDirectory, defaultScan);
         Assert.True(
-            loose.Count > names.Count,
-            "root commands/ and com.anthropic.claude-code/commands/ must still both exist; strict is what hides the Cursor twin.");
-        Assert.Equal(2, loose.Count(name => name == "squad"));
+            loose.Count == rootNames.Count,
+            "root commands/ still exists for Cursor; plugin.json commands is what hides the Cursor twin.");
+        Assert.Equal(1, loose.Count(name => name == "squad"));
     }
 
     [Fact]
@@ -455,10 +460,8 @@ public class SquadContractTests
             new HashSet<string>(["run", "scenarios", "squad-review"], StringComparer.Ordinal),
             copilotNames);
 
-        var claudeEntry = run.File(".claude-plugin/marketplace.json").Content["plugins"]!.AsArray()
-            .OfType<JsonObject>()
-            .Single(plugin => plugin["name"]!.GetValue<string>() == "squad");
-        var claudeNames = DiscoverableClaudeCommandNames(repo.PluginDirectory("squad"), claudeEntry);
+        var claudeManifest = (JsonObject)run.File("plugins/squad/.claude-plugin/plugin.json").Content;
+        var claudeNames = DiscoverableClaudeCommandNames(repo.PluginDirectory("squad"), claudeManifest);
         Assert.Equal(["scenarios", "squad", "squad-review"], claudeNames.OrderBy(name => name, StringComparer.Ordinal));
         Assert.DoesNotContain("run", claudeNames);
         Assert.Equal(1, claudeNames.Count(name => name == "squad"));
@@ -827,7 +830,7 @@ public class SquadContractTests
                 break;
         }
 
-        if (entry["strict"]?.GetValue<bool>() is not true)
+        if (directories.Count == 0)
         {
             directories.Add(Path.Combine(pluginDirectory, "commands"));
         }

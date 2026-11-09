@@ -33,13 +33,16 @@ Rules, agents, commands and hooks are not portable components: the specification
 ```text
 plugins/squad/
 ├── plugin.json                     # declares the namespaces under "extensions"
-├── rules/  agents/  commands/      # authored, and read directly by Cursor
+├── rules/  agents/  commands/      # authored; Cursor reads commands and rules here
 ├── hooks.source.json               # authored, neutral
+├── .claude-plugin/plugin.json      # generated: Claude component routing
+├── .cursor-plugin/                 # generated: Cursor agents, hooks, manifest
+├── .codex-plugin/                  # generated
 ├── com.anthropic.claude-code/      # generated
 ├── com.openai.codex/               # generated
 └── com.github.copilot/             # generated
 ```
 
-Cursor keeps the plugin root for commands, rules and hooks. Agents are routed by `.cursor-plugin/plugin.json` to the remapped copies under `.cursor-plugin/agents/`. Claude is redirected by component paths in its marketplace entry, and Codex by `.codex-plugin/plugin.json`. See [ADD-HOOK.md](ADD-HOOK.md), [ADD-AGENT.md](ADD-AGENT.md) and [ADD-RULE.md](ADD-RULE.md).
+Cursor keeps the plugin root for commands and rules. Agents are routed by `.cursor-plugin/plugin.json` to the remapped copies under `.cursor-plugin/agents/`; hooks by that same manifest to `.cursor-plugin/hooks/hooks.json`. Claude is redirected by `.claude-plugin/plugin.json` (the catalog stays a thin name/source list), and Codex by `.codex-plugin/plugin.json`. See [ADD-HOOK.md](ADD-HOOK.md), [ADD-AGENT.md](ADD-AGENT.md) and [ADD-RULE.md](ADD-RULE.md).
 
 Never edit a namespace directory by hand. They are generated, and `drift.yml` fails when they stop matching the source.

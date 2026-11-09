@@ -246,15 +246,25 @@ public sealed class CursorCatalogContractTests
 
         foreach (var (name, displayName) in expected)
         {
+            var cursorManifest = run.File($"plugins/{name}/.cursor-plugin/plugin.json").Content;
+            Assert.Equal(displayName, cursorManifest["displayName"]!.GetValue<string>());
+            Assert.Equal("./skills/", cursorManifest["skills"]!.GetValue<string>());
             Assert.Equal(
-                displayName,
-                run.File($"plugins/{name}/.cursor-plugin/plugin.json")
-                    .Content["displayName"]!.GetValue<string>());
+                cursorManifest["keywords"]!.AsArray().Select(node => node!.GetValue<string>()),
+                cursorManifest["tags"]!.AsArray().Select(node => node!.GetValue<string>()));
             Assert.Equal(
                 displayName,
                 run.File($"plugins/{name}/.codex-plugin/plugin.json")
                     .Content["interface"]!["displayName"]!.GetValue<string>());
+            Assert.Equal(
+                displayName,
+                run.File($"plugins/{name}/.claude-plugin/plugin.json")
+                    .Content["displayName"]!.GetValue<string>());
+            Assert.Null(run.File($"plugins/{name}/.claude-plugin/plugin.json").Content["version"]);
             Assert.Equal(displayName, claudeEntries[name]["displayName"]!.GetValue<string>());
+            Assert.Null(claudeEntries[name]["strict"]);
+            Assert.Null(claudeEntries[name]["commands"]);
+            Assert.Null(claudeEntries[name]["hooks"]);
             Assert.Null(copilotEntries[name]["displayName"]);
         }
 

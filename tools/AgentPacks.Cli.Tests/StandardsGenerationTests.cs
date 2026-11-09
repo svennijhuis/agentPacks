@@ -66,10 +66,10 @@ public class StandardsGenerationTests
         var codex = run.File("plugins/engineering/.codex-plugin/plugin.json").Content;
         var cursor = run.File("plugins/engineering/.cursor-plugin/plugin.json").Content;
 
-        Assert.Equal("./skills/", claude["skills"]!.GetValue<string>());
+        Assert.Null(claude["skills"]);
         Assert.Equal("./skills/", copilot["skills"]!.GetValue<string>());
         Assert.Equal("./skills/", codex["skills"]!.GetValue<string>());
-        Assert.Null(cursor["skills"]); // Cursor uses the standard root skills/ convention.
+        Assert.Equal("./skills/", cursor["skills"]!.GetValue<string>());
         Assert.Single(run.Generated, f => f.RelativePath.Replace('\\', '/') ==
             "plugins/engineering/skills/dotnet-build/references/standards/csharp.md");
     }

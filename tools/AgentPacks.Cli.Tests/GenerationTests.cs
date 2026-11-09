@@ -45,9 +45,9 @@ public class GenerationTests
         var entry = FirstEntry(repo.ValidateAndGenerate());
 
         Assert.Null(entry["version"]);
+        Assert.Null(entry["strict"]);
         Assert.Equal("Engineering", entry["displayName"]!.GetValue<string>());
         Assert.Equal("./plugins/engineering", entry["source"]!.GetValue<string>());
-        Assert.True(entry["strict"]!.GetValue<bool>());
     }
 
     [Fact]
@@ -55,21 +55,33 @@ public class GenerationTests
     {
         using var repo = new TestRepository().WithPlugin().WithSkill("testing");
 
-        var entry = FirstEntry(repo.ValidateAndGenerate());
+        var run = repo.ValidateAndGenerate();
+        var entry = FirstEntry(run);
+        var claude = run.File("plugins/engineering/.claude-plugin/plugin.json").Content;
 
-        Assert.Equal("./skills/", entry["skills"]!.GetValue<string>());
+        Assert.Null(entry["skills"]);
         Assert.Null(entry["mcpServers"]);
+        Assert.Null(claude["skills"]);
+        Assert.Null(claude["mcpServers"]);
+        Assert.Null(claude["version"]);
+        Assert.Equal("./skills/", run.File("plugins/engineering/.cursor-plugin/plugin.json")
+            .Content["skills"]!.GetValue<string>());
     }
 
     [Fact]
-    public void Mcp_json_is_generated_and_pointed_at_by_the_entry()
+    public void Mcp_json_is_generated_and_auto_loaded_by_claude()
     {
         using var repo = new TestRepository().WithValidPlugin().WithMcp(StdioAndRemote);
 
         var run = repo.ValidateAndGenerate();
         var entry = FirstEntry(run);
 
-        Assert.Equal("./.mcp.json", entry["mcpServers"]!.GetValue<string>());
+        Assert.Null(entry["mcpServers"]);
+        Assert.Null(run.File("plugins/engineering/.claude-plugin/plugin.json").Content["mcpServers"]);
+        Assert.Equal(
+            "./.mcp.json",
+            ((JsonObject)run.File(".github/plugin/marketplace.json").Content["plugins"]![0]!)["mcpServers"]!
+                .GetValue<string>());
         Assert.True(run.HasFile("plugins/engineering/.mcp.json"));
         Assert.True(File.Exists(Path.Combine(repo.PluginDirectory(), ".mcp.json")));
     }

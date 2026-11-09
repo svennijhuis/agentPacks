@@ -1,15 +1,20 @@
 using System.Text.Json.Nodes;
 using AgentPacks.Cli.Generation;
+using AgentPacks.Cli.Loading;
+using AgentPacks.Cli.Validation;
 
 namespace AgentPacks.Cli.Tests;
 
-/// <summary>Po 47 fail bars: Claude marketplace omits hooks path/array; root hooks are Claude-shaped.</summary>
+/// <summary>
+/// Claude marketplace entries stay a thin name/source list. Component routing, including a
+/// hooks path that actually runs, lives on <c>.claude-plugin/plugin.json</c>. Plugin-root
+/// <c>hooks/hooks.json</c> is never a dialect.
+/// </summary>
 public sealed class ClaudeMarketplaceHooksTests
 {
     /// <summary>
-    /// Po 47 fail bar. Claude rejects a marketplace <c>hooks</c> file-path or array.
-    /// <c>pack-check</c> and <c>git</c> omit the field entirely so install can succeed.
-    /// Other plugins with hooks still declare the namespaced path.
+    /// Official Claude docs: a marketplace hooks path or array never runs. Every pack omits
+    /// the field. Packs that have hooks declare the namespaced file on plugin.json instead.
     /// </summary>
     [Fact]
     public void Claude_marketplace_omits_hooks_path_and_array()
@@ -26,9 +31,11 @@ public sealed class ClaudeMarketplaceHooksTests
         {
             var entry = plugins[name];
             Assert.False(entry.ContainsKey("hooks"));
-            Assert.Null(entry["hooks"]);
-            Assert.False(entry["hooks"] is JsonArray);
-            Assert.DoesNotContain("hooks/hooks.json", entry.ToJsonString(), StringComparison.Ordinal);
+            Assert.Null(entry["strict"]);
+            Assert.Null(entry["skills"]);
+            Assert.Equal(
+                "./com.anthropic.claude-code/hooks/hooks.json",
+                run.File($"plugins/{name}/.claude-plugin/plugin.json").Content["hooks"]!.GetValue<string>());
         }
 
         using var other = new TestRepository()
@@ -37,17 +44,45 @@ public sealed class ClaudeMarketplaceHooksTests
         var otherRun = other.ValidateAndGenerate();
         var engineering = (JsonObject)otherRun.File(".claude-plugin/marketplace.json")
             .Content["plugins"]![0]!;
-        Assert.Equal("./com.anthropic.claude-code/hooks/hooks.json", engineering["hooks"]!.GetValue<string>());
+        Assert.Null(engineering["hooks"]);
+        Assert.Equal(
+            "./com.anthropic.claude-code/hooks/hooks.json",
+            otherRun.File("plugins/engineering/.claude-plugin/plugin.json")
+                .Content["hooks"]!.GetValue<string>());
     }
 
     /// <summary>
-    /// Po 47 fail bar. Claude auto-discovers plugin-root <c>hooks/hooks.json</c> when the
-    /// marketplace omits the field. That file is the Claude dialect (nested, PascalCase,
-    /// <c>command</c>), copied from <c>com.anthropic.claude-code/hooks/</c>. Copilot's
-    /// namespaced tree stays Copilot-shaped.
+    /// A leftover marketplace hooks path fails compatibility the way Claude Code fails to load it.
     /// </summary>
     [Fact]
-    public void Claude_plugin_root_hooks_json_is_claude_shaped()
+    public void Claude_marketplace_rejects_component_fields()
+    {
+        using var repo = new TestRepository().WithValidPlugin();
+        var run = repo.ValidateAndGenerate();
+        Assert.False(run.HasErrors, run.Text);
+
+        var marketplace = (JsonObject)run.File(".claude-plugin/marketplace.json").Content.DeepClone()!;
+        var entry = (JsonObject)marketplace["plugins"]![0]!;
+        entry["hooks"] = "./com.anthropic.claude-code/hooks/hooks.json";
+        entry["strict"] = true;
+
+        var context = new RepositoryContext { Root = repo.Root };
+        new CompatibilityValidator(context).Validate(
+            [GeneratedFile.FromJson(".claude-plugin/marketplace.json", marketplace)]);
+
+        var text = context.Diagnostics.Render();
+        Assert.True(context.Diagnostics.HasErrors, text);
+        Assert.Contains("declares 'hooks'", text, StringComparison.Ordinal);
+        Assert.Contains("declares 'strict'", text, StringComparison.Ordinal);
+        Assert.Contains("never runs", text, StringComparison.Ordinal);
+    }
+
+    /// <summary>
+    /// Namespaced Claude hooks stay Claude-shaped. Copilot's namespaced tree stays Copilot-shaped.
+    /// Plugin-root hooks/hooks.json is not written.
+    /// </summary>
+    [Fact]
+    public void Claude_namespaced_hooks_json_is_claude_shaped()
     {
         using var repo = HookedCapabilityPacks();
         var run = repo.ValidateAndGenerate();
@@ -59,30 +94,28 @@ public sealed class ClaudeMarketplaceHooksTests
             var claude = $"plugins/{plugin}/com.anthropic.claude-code/hooks/hooks.json";
             var copilot = $"plugins/{plugin}/com.github.copilot/hooks/hooks.json";
 
-            Assert.True(run.HasFile(root), root);
+            Assert.False(run.HasFile(root), root);
             Assert.True(run.HasFile(claude), claude);
             Assert.True(run.HasFile(copilot), copilot);
 
-            Assert.Equal(run.File(claude).Text, run.File(root).Text);
-
-            var rootDoc = run.File(root).Content;
+            var claudeDoc = run.File(claude).Content;
             var copilotDoc = run.File(copilot).Content;
 
-            Assert.Null(rootDoc["version"]);
+            Assert.Null(claudeDoc["version"]);
             Assert.Equal(1, copilotDoc["version"]!.GetValue<int>());
 
-            var rootEvents = (JsonObject)rootDoc["hooks"]!;
+            var claudeEvents = (JsonObject)claudeDoc["hooks"]!;
             var copilotEvents = (JsonObject)copilotDoc["hooks"]!;
-            Assert.All(rootEvents, pair => Assert.Matches("^[A-Z]", pair.Key));
+            Assert.All(claudeEvents, pair => Assert.Matches("^[A-Z]", pair.Key));
 
-            var rootEntry = FirstHookEntry(rootEvents);
+            var claudeEntry = FirstHookEntry(claudeEvents);
             var copilotEntry = FirstHookEntry(copilotEvents);
 
-            Assert.True(rootEntry["hooks"] is JsonArray);
-            Assert.Contains("command", ((JsonObject)((JsonArray)rootEntry["hooks"]!)[0]!).ToJsonString(), StringComparison.Ordinal);
-            Assert.DoesNotContain("bash", rootEntry.ToJsonString(), StringComparison.Ordinal);
-            Assert.DoesNotContain("${PLUGIN_ROOT}", rootEntry.ToJsonString(), StringComparison.Ordinal);
-            Assert.Contains("${CLAUDE_PLUGIN_ROOT}", rootEntry.ToJsonString(), StringComparison.Ordinal);
+            Assert.True(claudeEntry["hooks"] is JsonArray);
+            Assert.Contains("command", ((JsonObject)((JsonArray)claudeEntry["hooks"]!)[0]!).ToJsonString(), StringComparison.Ordinal);
+            Assert.DoesNotContain("bash", claudeEntry.ToJsonString(), StringComparison.Ordinal);
+            Assert.DoesNotContain("${PLUGIN_ROOT}", claudeEntry.ToJsonString(), StringComparison.Ordinal);
+            Assert.Contains("${CLAUDE_PLUGIN_ROOT}", claudeEntry.ToJsonString(), StringComparison.Ordinal);
 
             Assert.Null(copilotEntry["hooks"]);
             Assert.Contains("bash", copilotEntry.ToJsonString(), StringComparison.Ordinal);
@@ -96,8 +129,8 @@ public sealed class ClaudeMarketplaceHooksTests
     /// cannot be resolved from the project cwd (github/copilot-cli#3659).
     /// Generated Copilot hooks.json for git and pack-check must set
     /// <c>cwd</c> to <c>${PLUGIN_ROOT}</c> on every script-running entry.
-    /// Claude root hooks stay Claude-shaped with no Copilot cwd, and the
-    /// marketplace still omits a hooks path (item 47).
+    /// Claude namespaced hooks stay Claude-shaped with no Copilot cwd, and the
+    /// marketplace still omits a hooks path.
     /// </summary>
     [Fact]
     public void Copilot_hooks_set_cwd_plugin_root()
@@ -109,7 +142,7 @@ public sealed class ClaudeMarketplaceHooksTests
         foreach (var plugin in (string[])["pack-check", "git"])
         {
             var copilotPath = $"plugins/{plugin}/com.github.copilot/hooks/hooks.json";
-            var rootPath = $"plugins/{plugin}/hooks/hooks.json";
+            var claudePath = $"plugins/{plugin}/com.anthropic.claude-code/hooks/hooks.json";
             Assert.True(run.HasFile(copilotPath), copilotPath);
 
             var copilotEvents = (JsonObject)run.File(copilotPath).Content["hooks"]!;
@@ -123,11 +156,11 @@ public sealed class ClaudeMarketplaceHooksTests
                 Assert.Equal("${PLUGIN_ROOT}", entry["cwd"]!.GetValue<string>());
             }
 
-            var rootEvents = (JsonObject)run.File(rootPath).Content["hooks"]!;
-            var rootGroup = FirstHookEntry(rootEvents);
-            Assert.Null(rootGroup["cwd"]);
-            Assert.Null(((JsonObject)((JsonArray)rootGroup["hooks"]!)[0]!)["cwd"]);
-            Assert.DoesNotContain("\"cwd\"", run.File(rootPath).Text, StringComparison.Ordinal);
+            var claudeEvents = (JsonObject)run.File(claudePath).Content["hooks"]!;
+            var claudeGroup = FirstHookEntry(claudeEvents);
+            Assert.Null(claudeGroup["cwd"]);
+            Assert.Null(((JsonObject)((JsonArray)claudeGroup["hooks"]!)[0]!)["cwd"]);
+            Assert.DoesNotContain("\"cwd\"", run.File(claudePath).Text, StringComparison.Ordinal);
         }
 
         Claude_marketplace_omits_hooks_path_and_array();
@@ -135,12 +168,12 @@ public sealed class ClaudeMarketplaceHooksTests
     }
 
     /// <summary>
-    /// Claude owns plugin-root hooks/hooks.json on git and pack-check. Cursor cannot read that
-    /// dialect, and until the Cursor manifest pointed at a Cursor-shaped copy the guard never
-    /// fired on Cursor (including Windows). Folder discovery stays on root hooks/ for other packs.
+    /// Cursor-shaped hooks always live under .cursor-plugin/. Plugin-root hooks/hooks.json is
+    /// not written, so Claude's plugin.json can declare a hooks path without merging Cursor's
+    /// document. Folder discovery is replaced by the Cursor manifest path.
     /// </summary>
     [Fact]
-    public void Cursor_loads_relocated_cursor_shaped_hooks_when_claude_owns_root()
+    public void Cursor_loads_relocated_cursor_shaped_hooks()
     {
         using var repo = HookedCapabilityPacks();
         var run = repo.ValidateAndGenerate();
@@ -153,16 +186,12 @@ public sealed class ClaudeMarketplaceHooksTests
             var manifestPath = $"plugins/{plugin}/.cursor-plugin/plugin.json";
 
             Assert.True(run.HasFile(cursorPath), cursorPath);
-            Assert.True(run.HasFile(rootPath), rootPath);
-            Assert.NotEqual(run.File(rootPath).Text, run.File(cursorPath).Text);
+            Assert.False(run.HasFile(rootPath), rootPath);
 
             var cursorDoc = run.File(cursorPath).Content;
-            var rootDoc = run.File(rootPath).Content;
             var cursorEvents = (JsonObject)cursorDoc["hooks"]!;
-            var rootEvents = (JsonObject)rootDoc["hooks"]!;
 
             Assert.All(cursorEvents, pair => Assert.Matches("^[a-z]", pair.Key));
-            Assert.All(rootEvents, pair => Assert.Matches("^[A-Z]", pair.Key));
 
             var cursorEntry = FirstHookEntry(cursorEvents);
             Assert.Null(cursorEntry["hooks"]);
@@ -178,9 +207,11 @@ public sealed class ClaudeMarketplaceHooksTests
             .WithValidPlugin()
             .WithHook("beforeShellExecution");
         var otherRun = other.ValidateAndGenerate();
-        Assert.True(otherRun.HasFile("plugins/engineering/hooks/hooks.json"));
-        Assert.False(otherRun.HasFile($"plugins/engineering/{ClientProfile.RelocatedCursorHooks}"));
-        Assert.Null(otherRun.File("plugins/engineering/.cursor-plugin/plugin.json").Content["hooks"]);
+        Assert.False(otherRun.HasFile("plugins/engineering/hooks/hooks.json"));
+        Assert.True(otherRun.HasFile($"plugins/engineering/{ClientProfile.RelocatedCursorHooks}"));
+        Assert.Equal(
+            $"./{ClientProfile.RelocatedCursorHooks}",
+            otherRun.File("plugins/engineering/.cursor-plugin/plugin.json").Content["hooks"]!.GetValue<string>());
     }
 
     private static IEnumerable<JsonObject> CopilotHookEntries(JsonObject events)
@@ -213,5 +244,4 @@ public sealed class ClaudeMarketplaceHooksTests
 
         return repo;
     }
-
 }

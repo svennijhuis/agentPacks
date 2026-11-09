@@ -4,8 +4,9 @@ namespace AgentPacks.Cli.Generation;
 
 /// <summary>
 /// Human-readable plugin titles for Cursor <c>plugin.json</c>, Codex
-/// <c>interface.displayName</c>, and Claude marketplace entries
-/// (<c>displayName</c>, Claude Code v2.1.143+). Kebab-case becomes title case
+/// <c>interface.displayName</c>, Claude <c>.claude-plugin/plugin.json</c>, and
+/// Claude marketplace entries (<c>displayName</c>, Claude Code v2.1.143+).
+/// Kebab-case becomes title case
 /// (squad → Squad, pack-check → Pack Check); <c>dotnet</c> and <c>typescript</c>
 /// keep their product spelling so pickers do not show "Dotnet" / "Typescript".
 /// Copilot's marketplace schema has no display-name field, so it stays kebab-case.
