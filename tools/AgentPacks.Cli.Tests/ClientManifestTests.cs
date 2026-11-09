@@ -425,7 +425,7 @@ public sealed class ClientManifestTests
         var run = repo.WithValidPlugin().ValidateAndGenerate();
 
         var paths = run.Generated
-            .Select(f => f.RelativePath.Replace('\\', '/'))
+            .Select(f => f.NormalizedRelativePath)
             .Where(p => p != $"{Plugin}/.cursor-plugin/plugin.json" && p != $"{Plugin}/.codex-plugin/plugin.json")
             .ToList();
 

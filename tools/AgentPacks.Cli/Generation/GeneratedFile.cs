@@ -10,6 +10,9 @@ namespace AgentPacks.Cli.Generation;
 /// </summary>
 internal sealed record GeneratedFile(string RelativePath, string Text, bool Executable = false)
 {
+    /// <summary>Repository-relative path with forward slashes, for identity checks and --check.</summary>
+    public string NormalizedRelativePath => RelativePath.Replace('\\', '/');
+
     /// <summary>The parsed document for JSON output, so validators can inspect it without reparsing.</summary>
     public JsonNode? Json { get; private init; }
 

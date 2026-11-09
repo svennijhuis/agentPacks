@@ -21,15 +21,12 @@ public class SquadContractTests
 
     private static readonly string[] AgentNames = TestRepository.SquadAgentNames;
 
-    private static string Fixture(string name) =>
-        File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "Fixtures", "squad", name));
-
     [Fact]
     public void All_ten_agents_are_preserved_in_every_generated_agent_client()
     {
         using var repo = new TestRepository().WithPlugin("squad", Manifest);
         foreach (var agent in AgentNames)
-            repo.WithFile($"plugins/squad/agents/{agent}.md", Fixture($"{agent}.md"));
+            repo.WithFile($"plugins/squad/agents/{agent}.md", TestRepository.SquadFixture($"{agent}.md"));
 
         var run = repo.ValidateAndGenerate();
 
@@ -37,7 +34,7 @@ public class SquadContractTests
         Assert.Equal(10, AgentNames.Length);
         foreach (var agent in AgentNames)
         {
-            Assert.Equal(agent, TestRepository.ParseFrontmatter(Fixture($"{agent}.md")).Scalar("name"));
+            Assert.Equal(agent, TestRepository.ParseFrontmatter(TestRepository.SquadFixture($"{agent}.md")).Scalar("name"));
             Assert.False(string.IsNullOrWhiteSpace(run.File($"plugins/squad/com.anthropic.claude-code/agents/{agent}.md").Text));
             Assert.False(string.IsNullOrWhiteSpace(run.File($"plugins/squad/com.openai.codex/agents/{agent}.toml").Text));
             Assert.False(string.IsNullOrWhiteSpace(run.File($"plugins/squad/com.github.copilot/agents/{agent}.agent.md").Text));
@@ -64,7 +61,7 @@ public class SquadContractTests
     [Fact]
     public void Two_user_invoked_entrypoints_are_squad_and_review()
     {
-        var skill = TestRepository.ParseFrontmatter(Fixture("SKILL.md"));
+        var skill = TestRepository.ParseFrontmatter(TestRepository.SquadFixture("SKILL.md"));
         Assert.Equal("true", skill.Scalar("disable-model-invocation"));
         Assert.Equal("false", skill.Scalar("user-invocable"));
         Assert.Equal("squad", skill.Scalar("name"));
@@ -127,7 +124,7 @@ public class SquadContractTests
     {
         foreach (var agent in AgentNames)
         {
-            var lines = TestRepository.NonEmptyBodyLines(Fixture($"{agent}.md"));
+            var lines = TestRepository.NonEmptyBodyLines(TestRepository.SquadFixture($"{agent}.md"));
             var cap = agent == "squad-security-reviewer" ? 44 : 32;
             Assert.True(lines <= cap, $"{agent} body is {lines} lines; cap is {cap}.");
         }
@@ -136,18 +133,18 @@ public class SquadContractTests
     [Fact]
     public void Architect_is_read_only_frontier_and_planner_cannot_run_shell()
     {
-        var architect = TestRepository.ParseFrontmatter(Fixture("squad-architect.md"));
+        var architect = TestRepository.ParseFrontmatter(TestRepository.SquadFixture("squad-architect.md"));
         Assert.Equal("frontier", architect.Scalar("model"));
         Assert.Equal("true", architect.Scalar("readonly"));
-        var tools = Fixture("squad-architect.md");
+        var tools = TestRepository.SquadFixture("squad-architect.md");
         foreach (var tool in new[] { "write", "edit", "bash", "websearch" })
             Assert.DoesNotContain($"\n  - {tool}\n", tools, StringComparison.Ordinal);
         var frontier = AgentNames
-            .Where(name => TestRepository.ParseFrontmatter(Fixture($"{name}.md")).Scalar("model") == "frontier")
+            .Where(name => TestRepository.ParseFrontmatter(TestRepository.SquadFixture($"{name}.md")).Scalar("model") == "frontier")
             .ToArray();
         Assert.Equal(["squad-architect"], frontier);
 
-        var planner = Fixture("squad-planner.md");
+        var planner = TestRepository.SquadFixture("squad-planner.md");
         Assert.Contains("\n  - write\n", planner, StringComparison.Ordinal);
         Assert.DoesNotContain("\n  - bash\n", planner, StringComparison.Ordinal);
         Assert.DoesNotContain("\n  - edit\n", planner, StringComparison.Ordinal);
@@ -204,7 +201,7 @@ public class SquadContractTests
     {
         using var repo = new TestRepository().WithPlugin("squad", Manifest);
         foreach (var agent in AgentNames)
-            repo.WithFile($"plugins/squad/agents/{agent}.md", Fixture($"{agent}.md"));
+            repo.WithFile($"plugins/squad/agents/{agent}.md", TestRepository.SquadFixture($"{agent}.md"));
         var run = repo.ValidateAndGenerate();
         Assert.False(run.HasErrors, run.Text);
 
@@ -235,7 +232,7 @@ public class SquadContractTests
     {
         var root = TestRepository.SourceRoot();
         Assert.Contains("When `## Design` exists, skip the shape compare and the architecture fitness check; write `see ## Design` for both.",
-            Fixture("squad-planner.md"), StringComparison.Ordinal);
+            TestRepository.SquadFixture("squad-planner.md"), StringComparison.Ordinal);
         var skill = File.ReadAllText(Path.Combine(root, "plugins", "squad", "skills", "squad", "SKILL.md"));
         var squad = File.ReadAllText(Path.Combine(root, "plugins", "squad", "commands", "squad.md"));
         Assert.Contains("spawn passes the slice name, the plan path, and the `file:line` list;", skill, StringComparison.Ordinal);
@@ -257,17 +254,17 @@ public class SquadContractTests
     [Fact]
     public void Loop_agents_keep_role_tiers()
     {
-        Assert.Equal("standard", TestRepository.ParseFrontmatter(Fixture("squad-implementer.md")).Scalar("model"));
-        Assert.Equal("standard", TestRepository.ParseFrontmatter(Fixture("squad-planner.md")).Scalar("model"));
-        Assert.Equal("true", TestRepository.ParseFrontmatter(Fixture("squad-simplifier.md")).Scalar("readonly"));
+        Assert.Equal("standard", TestRepository.ParseFrontmatter(TestRepository.SquadFixture("squad-implementer.md")).Scalar("model"));
+        Assert.Equal("standard", TestRepository.ParseFrontmatter(TestRepository.SquadFixture("squad-planner.md")).Scalar("model"));
+        Assert.Equal("true", TestRepository.ParseFrontmatter(TestRepository.SquadFixture("squad-simplifier.md")).Scalar("readonly"));
         foreach (var agent in AgentNames.Where(name => name is not ("squad-implementer" or "squad-planner" or "squad-architect" or "squad-indexer")))
         {
-            Assert.Equal("standard", TestRepository.ParseFrontmatter(Fixture($"{agent}.md")).Scalar("model"));
+            Assert.Equal("standard", TestRepository.ParseFrontmatter(TestRepository.SquadFixture($"{agent}.md")).Scalar("model"));
         }
 
         foreach (var agent in AgentNames.Where(name => name != "squad-architect"))
         {
-            Assert.NotEqual("frontier", TestRepository.ParseFrontmatter(Fixture($"{agent}.md")).Scalar("model"));
+            Assert.NotEqual("frontier", TestRepository.ParseFrontmatter(TestRepository.SquadFixture($"{agent}.md")).Scalar("model"));
         }
     }
 
@@ -284,15 +281,15 @@ public class SquadContractTests
         var skills = Directory.GetDirectories(Path.Combine(root, "plugins", "squad", "skills"))
             .Select(path => Path.GetFileName(path)).Order(StringComparer.Ordinal).ToArray();
         Assert.Equal(["scenarios-md", "squad", "verify-harness"], skills);
-        var retro = TestRepository.ParseFrontmatter(Fixture("squad-retro.md"));
+        var retro = TestRepository.ParseFrontmatter(TestRepository.SquadFixture("squad-retro.md"));
         Assert.Equal("squad-retro", retro.Scalar("name"));
         Assert.Equal("standard", retro.Scalar("model"));
-        Assert.Contains("\n  - write\n", Fixture("squad-retro.md"), StringComparison.Ordinal);
+        Assert.Contains("\n  - write\n", TestRepository.SquadFixture("squad-retro.md"), StringComparison.Ordinal);
         Assert.Contains(
             "Writes exactly one file, `docs/retros/<date-slug>.md` (`<date-slug>-interrupted.md` for a catch-up), and never edits skills, standards, or code.",
             retro.Body, StringComparison.Ordinal);
         foreach (var tool in new[] { "edit", "bash" })
-            Assert.DoesNotContain($"\n  - {tool}\n", Fixture("squad-retro.md"), StringComparison.Ordinal);
+            Assert.DoesNotContain($"\n  - {tool}\n", TestRepository.SquadFixture("squad-retro.md"), StringComparison.Ordinal);
         Squad_commands_are_exactly_squad_and_review();
     }
 
@@ -350,10 +347,10 @@ public class SquadContractTests
     {
         Assert.Equal(
             "Plan → build → verify → review (gated). Uncommitted hand-off.",
-            TestRepository.ParseFrontmatter(Fixture("squad.md")).Scalar("description"));
+            TestRepository.ParseFrontmatter(TestRepository.SquadFixture("squad.md")).Scalar("description"));
         Assert.Equal(
             "Report-only review of a PR / uncommitted / vs main.",
-            TestRepository.ParseFrontmatter(Fixture("squad-review.md")).Scalar("description"));
+            TestRepository.ParseFrontmatter(TestRepository.SquadFixture("squad-review.md")).Scalar("description"));
         Assert.Equal(
             "From changed code, write docs/smoke/<slug>.md. No product-code edits.",
             TestRepository.ParseFrontmatter(File.ReadAllText(
@@ -628,7 +625,7 @@ public class SquadContractTests
         var contract = File.ReadAllText(Path.Combine(
             TestRepository.SourceRoot(),
             "plugins", "squad", "skills", "squad", "references", "review-contract.md"));
-        var agent = Fixture("squad-security-reviewer.md");
+        var agent = TestRepository.SquadFixture("squad-security-reviewer.md");
 
         Assert.Contains("## Security gate", contract, StringComparison.Ordinal);
         Assert.DoesNotContain("A01_2025-Broken_Access_Control", agent, StringComparison.Ordinal);
@@ -671,17 +668,17 @@ public class SquadContractTests
         var agents = new[] { "squad-reviewer", "squad-simplifier", "squad-security-reviewer" };
 
         foreach (var agent in agents)
-            Assert.Contains(line, Fixture($"{agent}.md"), StringComparison.Ordinal);
+            Assert.Contains(line, TestRepository.SquadFixture($"{agent}.md"), StringComparison.Ordinal);
 
-        Assert.DoesNotContain(line, Fixture("squad-orchestrator.md"), StringComparison.Ordinal);
+        Assert.DoesNotContain(line, TestRepository.SquadFixture("squad-orchestrator.md"), StringComparison.Ordinal);
         Assert.Contains(
             "Do not launch, retry, or hand work to another agent",
-            Fixture("squad-orchestrator.md"),
+            TestRepository.SquadFixture("squad-orchestrator.md"),
             StringComparison.Ordinal);
 
         using var repo = new TestRepository().WithPlugin("squad", Manifest);
         foreach (var agent in AgentNames)
-            repo.WithFile($"plugins/squad/agents/{agent}.md", Fixture($"{agent}.md"));
+            repo.WithFile($"plugins/squad/agents/{agent}.md", TestRepository.SquadFixture($"{agent}.md"));
 
         var run = repo.ValidateAndGenerate();
         Assert.False(run.HasErrors, run.Text);
@@ -715,7 +712,7 @@ public class SquadContractTests
     [Fact]
     public void Squad_skill_progressive_disclosure_moves_four_bodies_to_references()
     {
-        var skill = Fixture("SKILL.md");
+        var skill = TestRepository.SquadFixture("SKILL.md");
         var body = TestRepository.ParseFrontmatter(skill).Body;
         foreach (var href in new[]
                  {
@@ -737,7 +734,7 @@ public class SquadContractTests
     [Fact]
     public void Squad_skill_body_is_not_grown()
     {
-        var lines = TestRepository.NonEmptyBodyLines(Fixture("SKILL.md"));
+        var lines = TestRepository.NonEmptyBodyLines(TestRepository.SquadFixture("SKILL.md"));
         Assert.True(lines <= 87, $"squad SKILL.md body is {lines} nonempty lines; cap is 87.");
     }
 
@@ -839,16 +836,13 @@ public class SquadContractTests
             .ToList();
     }
 
-    private static string Squad(params string[] parts) =>
-        File.ReadAllText(Path.Combine([TestRepository.SourceRoot(), "plugins", "squad", .. parts]));
-
     [Fact]
     public void Repo_conventions_outrank_skill_standards_unless_an_improvement_is_logged()
     {
         const string line = "A standard overrides a repo convention only as an explicit improvement, logged under `## Decisions`";
-        Assert.Contains(line, Squad("skills", "squad", "references", "planning-contract.md"), StringComparison.Ordinal);
-        Assert.Contains(line, Squad("agents", "squad-implementer.md"), StringComparison.Ordinal);
-        var reviewer = Squad("agents", "squad-reviewer.md");
+        Assert.Contains(line, TestRepository.SquadSource("skills", "squad", "references", "planning-contract.md"), StringComparison.Ordinal);
+        Assert.Contains(line, TestRepository.SquadSource("agents", "squad-implementer.md"), StringComparison.Ordinal);
+        var reviewer = TestRepository.SquadSource("agents", "squad-reviewer.md");
         Assert.Contains("A break from a repo convention without an improvement logged under `## Decisions` → `medium`", reviewer, StringComparison.Ordinal);
         Assert.Contains("a break from our standard where the repo has no convention → `medium`", reviewer, StringComparison.Ordinal);
         Assert.DoesNotContain("convention → `low`", reviewer, StringComparison.Ordinal);
@@ -857,8 +851,8 @@ public class SquadContractTests
     [Fact]
     public void Design_gap_reruns_the_architect_at_most_once()
     {
-        Assert.Contains("`Design gap: <question>`", Squad("agents", "squad-planner.md"), StringComparison.Ordinal);
-        var command = Squad("commands", "squad.md");
+        Assert.Contains("`Design gap: <question>`", TestRepository.SquadSource("agents", "squad-planner.md"), StringComparison.Ordinal);
+        var command = TestRepository.SquadSource("commands", "squad.md");
         Assert.Contains("rerun `squad-architect` once with that question", command, StringComparison.Ordinal);
         Assert.Contains("at most 1 rerun", command, StringComparison.Ordinal);
     }
@@ -866,8 +860,8 @@ public class SquadContractTests
     [Fact]
     public void Plan_gap_stops_the_slice_and_routes_to_one_planner_round()
     {
-        Assert.Contains("return `Plan gap: <question>` instead of guessing", Squad("agents", "squad-implementer.md"), StringComparison.Ordinal);
-        var command = Squad("commands", "squad.md");
+        Assert.Contains("return `Plan gap: <question>` instead of guessing", TestRepository.SquadSource("agents", "squad-implementer.md"), StringComparison.Ordinal);
+        var command = TestRepository.SquadSource("commands", "squad.md");
         Assert.Contains("then `squad-planner` in `next-round` mode on that gap only", command, StringComparison.Ordinal);
         Assert.Contains("`## Grill log` and `## Decisions`", command, StringComparison.Ordinal);
         Assert.Contains("a fresh `squad-implementer` redoes that slice", command, StringComparison.Ordinal);
@@ -876,10 +870,10 @@ public class SquadContractTests
     [Fact]
     public void Second_plan_gap_on_a_slice_is_replan_and_the_retro_records_it()
     {
-        Assert.Contains("a second becomes `Replan:` for the whole plan and the retro records it", Squad("commands", "squad.md"), StringComparison.Ordinal);
-        Assert.Contains("A second one on the same slice becomes `Replan:` for the whole plan", Squad("skills", "squad", "references", "planning-contract.md"), StringComparison.Ordinal);
-        Assert.Contains("second `Plan gap:` on one slice", Squad("skills", "squad", "references", "review-contract.md"), StringComparison.Ordinal);
-        Assert.Contains("each `Plan gap:`", Squad("skills", "squad", "references", "retro.md"), StringComparison.Ordinal);
+        Assert.Contains("a second becomes `Replan:` for the whole plan and the retro records it", TestRepository.SquadSource("commands", "squad.md"), StringComparison.Ordinal);
+        Assert.Contains("A second one on the same slice becomes `Replan:` for the whole plan", TestRepository.SquadSource("skills", "squad", "references", "planning-contract.md"), StringComparison.Ordinal);
+        Assert.Contains("second `Plan gap:` on one slice", TestRepository.SquadSource("skills", "squad", "references", "review-contract.md"), StringComparison.Ordinal);
+        Assert.Contains("each `Plan gap:`", TestRepository.SquadSource("skills", "squad", "references", "retro.md"), StringComparison.Ordinal);
     }
 
     [Fact]
@@ -893,15 +887,15 @@ public class SquadContractTests
             return text[open..close].Replace("\r", "", StringComparison.Ordinal);
         }
 
-        var skill = Fence(Squad("skills", "squad", "SKILL.md"));
-        Assert.Equal(skill, Fence(Squad("README.md")));
+        var skill = Fence(TestRepository.SquadSource("skills", "squad", "SKILL.md"));
+        Assert.Equal(skill, Fence(TestRepository.SquadSource("README.md")));
         Assert.Equal(skill, Fence(File.ReadAllText(Path.Combine(TestRepository.SourceRoot(), "README.md"))));
     }
 
     [Fact]
     public void After_a_plan_gap_the_gitignored_patch_holds_the_diff_and_the_tree_is_kept()
     {
-        var contract = Squad("skills", "squad", "references", "planning-contract.md");
+        var contract = TestRepository.SquadSource("skills", "squad", "references", "planning-contract.md");
         var start = contract.IndexOf("```sh\np=\"$(git rev-parse --git-dir)/squad/", StringComparison.Ordinal);
         Assert.True(start >= 0, "save command missing from planning-contract");
         var save = contract[(start + 6)..contract.IndexOf("\n```", start + 6, StringComparison.Ordinal)]
@@ -943,7 +937,7 @@ public class SquadContractTests
     [Fact]
     public void Replan_after_a_plan_gap_gets_the_main_agent_diff_stat_and_patch()
     {
-        var contract = Squad("skills", "squad", "references", "planning-contract.md");
+        var contract = TestRepository.SquadSource("skills", "squad", "references", "planning-contract.md");
         var at = contract.IndexOf("Replan after a Plan gap", StringComparison.Ordinal);
         Assert.True(at >= 0, "replan-after-plan-gap line missing");
         var line = contract[at..contract.IndexOf('\n', at)];
@@ -951,7 +945,7 @@ public class SquadContractTests
         Assert.Contains("`$(git rev-parse --git-dir)/squad/<yyyy-mm-dd>-<slug>.gap-<n>.patch`", line, StringComparison.Ordinal);
         Assert.Contains("the main agent runs `git diff --stat`", line, StringComparison.Ordinal);
         Assert.Contains("keeps its already-changed files", line, StringComparison.Ordinal);
-        Assert.Contains("run `git diff --stat`, then `squad-planner` in `next-round` mode on that gap only", Squad("commands", "squad.md"), StringComparison.Ordinal);
+        Assert.Contains("run `git diff --stat`, then `squad-planner` in `next-round` mode on that gap only", TestRepository.SquadSource("commands", "squad.md"), StringComparison.Ordinal);
     }
 
     [Fact]
@@ -972,16 +966,16 @@ public class SquadContractTests
     public void Main_agent_fixes_check_plan_errors_before_confirming()
     {
         Assert.Contains("fixes every error-level finding in the plan text, and reruns until it exits 0",
-            Squad("skills", "squad", "references", "planning-contract.md"), StringComparison.Ordinal);
+            TestRepository.SquadSource("skills", "squad", "references", "planning-contract.md"), StringComparison.Ordinal);
         Assert.Contains("Before confirming, run check-plan on the draft and fix every error-level finding (em dash included; paraphrase quoted vendor text)",
-            Squad("commands", "squad.md"), StringComparison.Ordinal);
+            TestRepository.SquadSource("commands", "squad.md"), StringComparison.Ordinal);
     }
 
     [Fact]
     public void Retro_writer_never_emits_an_em_dash()
     {
-        Assert.Contains("Never emit U+2014 (em dash) in the retro", Squad("agents", "squad-retro.md"), StringComparison.Ordinal);
-        Assert.Contains("The retro never contains U+2014 (em dash)", Squad("skills", "squad", "references", "retro.md"), StringComparison.Ordinal);
+        Assert.Contains("Never emit U+2014 (em dash) in the retro", TestRepository.SquadSource("agents", "squad-retro.md"), StringComparison.Ordinal);
+        Assert.Contains("The retro never contains U+2014 (em dash)", TestRepository.SquadSource("skills", "squad", "references", "retro.md"), StringComparison.Ordinal);
     }
 
     [Fact]
@@ -1001,17 +995,17 @@ public class SquadContractTests
     public void Main_agent_lints_the_retro_and_fixes_findings_before_done(string command)
     {
         Assert.Contains("After `squad-retro` writes, run the `pack-check` skill's `scripts/check-retro.sh <retro>` (or `check-retro.ps1` without `sh`) and fix every finding in the retro before reporting Done",
-            Squad("commands", command), StringComparison.Ordinal);
+            TestRepository.SquadSource("commands", command), StringComparison.Ordinal);
     }
 
     [Fact]
     public void Check_plan_reruns_after_every_plan_write_and_a_rejected_call_is_not_a_pass()
     {
         Assert.Contains("Every time the plan is written (round 1 draft, each round, write-plan, `## Status`, `## Fix list`, `## Handoff notes`",
-            Squad("skills", "squad", "references", "planning-contract.md"), StringComparison.Ordinal);
-        Assert.Contains("A rejected or failed linter call counts as not run, never as a manual pass:", Squad("skills", "squad", "references", "planning-contract.md"), StringComparison.Ordinal);
-        Assert.Contains("A rejected or failed linter call counts as not run, never as a manual pass.", Squad("commands", "squad.md"), StringComparison.Ordinal);
-        Assert.Contains("a rejected linter call is not run, never a manual pass.", Squad("skills", "squad", "SKILL.md"), StringComparison.Ordinal);
+            TestRepository.SquadSource("skills", "squad", "references", "planning-contract.md"), StringComparison.Ordinal);
+        Assert.Contains("A rejected or failed linter call counts as not run, never as a manual pass:", TestRepository.SquadSource("skills", "squad", "references", "planning-contract.md"), StringComparison.Ordinal);
+        Assert.Contains("A rejected or failed linter call counts as not run, never as a manual pass.", TestRepository.SquadSource("commands", "squad.md"), StringComparison.Ordinal);
+        Assert.Contains("a rejected linter call is not run, never a manual pass.", TestRepository.SquadSource("skills", "squad", "SKILL.md"), StringComparison.Ordinal);
     }
 
     [Theory]
@@ -1020,60 +1014,60 @@ public class SquadContractTests
     [InlineData("squad-planner.md")]
     public void Plan_writers_never_write_an_em_dash(string agent)
     {
-        Assert.Contains("Never write U+2014 (em dash) into the plan (`## Fix list`, `## Handoff notes`, `## Status`)", Squad("agents", agent), StringComparison.Ordinal);
-        Assert.Contains("No writer puts U+2014 (em dash) into these sections", Squad("skills", "squad", "references", "planning-contract.md"), StringComparison.Ordinal);
+        Assert.Contains("Never write U+2014 (em dash) into the plan (`## Fix list`, `## Handoff notes`, `## Status`)", TestRepository.SquadSource("agents", agent), StringComparison.Ordinal);
+        Assert.Contains("No writer puts U+2014 (em dash) into these sections", TestRepository.SquadSource("skills", "squad", "references", "planning-contract.md"), StringComparison.Ordinal);
     }
 
     [Fact]
     public void No_shell_is_an_environment_block_not_a_fix_round()
     {
-        var contract = Squad("skills", "squad", "references", "review-contract.md");
+        var contract = TestRepository.SquadSource("skills", "squad", "references", "review-contract.md");
         Assert.Contains("the main agent stops before routing and reports `Environment block: no shell`", contract, StringComparison.Ordinal);
         Assert.Contains("Environment block (at verify and fix rounds; a rejected linter call at a plan edit stops the same way", contract, StringComparison.Ordinal);
-        var command = Squad("commands", "squad.md");
+        var command = TestRepository.SquadSource("commands", "squad.md");
         var block = command.IndexOf("No shell (calls rejected) at verify: stop and report `Environment block: no shell` before routing", StringComparison.Ordinal);
         Assert.True(block >= 0, "no-shell stop missing from /squad");
         Assert.True(block < command.IndexOf("Route `fix`, `pass`, or `replan`", StringComparison.Ordinal), "no-shell stop must come before routing a fix");
-        Assert.Contains("Shell calls rejected → `blocked: environment (no shell)`", Squad("agents", "squad-verifier.md"), StringComparison.Ordinal);
+        Assert.Contains("Shell calls rejected → `blocked: environment (no shell)`", TestRepository.SquadSource("agents", "squad-verifier.md"), StringComparison.Ordinal);
     }
 
     [Fact]
     public void Catch_up_retro_uses_the_interrupted_suffix()
     {
-        Assert.Contains("`docs/retros/<yyyy-mm-dd>-<slug>-interrupted.md`", Squad("skills", "squad", "references", "retro.md"), StringComparison.Ordinal);
-        Assert.Contains("retro with the same date-slug (`<date-slug>.md` or `<date-slug>-interrupted.md`)", Squad("skills", "squad", "references", "retro.md"), StringComparison.Ordinal);
-        Assert.Contains("it writes `docs/retros/<yyyy-mm-dd>-<slug>-interrupted.md`", Squad("commands", "squad.md"), StringComparison.Ordinal);
-        Assert.Contains("`<date-slug>-interrupted.md` for a catch-up", Squad("agents", "squad-retro.md"), StringComparison.Ordinal);
+        Assert.Contains("`docs/retros/<yyyy-mm-dd>-<slug>-interrupted.md`", TestRepository.SquadSource("skills", "squad", "references", "retro.md"), StringComparison.Ordinal);
+        Assert.Contains("retro with the same date-slug (`<date-slug>.md` or `<date-slug>-interrupted.md`)", TestRepository.SquadSource("skills", "squad", "references", "retro.md"), StringComparison.Ordinal);
+        Assert.Contains("it writes `docs/retros/<yyyy-mm-dd>-<slug>-interrupted.md`", TestRepository.SquadSource("commands", "squad.md"), StringComparison.Ordinal);
+        Assert.Contains("`<date-slug>-interrupted.md` for a catch-up", TestRepository.SquadSource("agents", "squad-retro.md"), StringComparison.Ordinal);
     }
 
     [Fact]
     public void Round_one_draft_is_linted_right_away()
     {
-        Assert.Contains("Right after round 1 writes the draft, the main agent runs check-plan on it and fixes its findings", Squad("skills", "squad", "references", "planning-contract.md"), StringComparison.Ordinal);
-        Assert.Contains("After round 1 writes the draft plan, run check-plan on it right away and fix its findings", Squad("commands", "squad.md"), StringComparison.Ordinal);
-        Assert.Contains("draft plan file from round 1 (check-plan it at once, fix findings)", Squad("skills", "squad", "SKILL.md"), StringComparison.Ordinal);
+        Assert.Contains("Right after round 1 writes the draft, the main agent runs check-plan on it and fixes its findings", TestRepository.SquadSource("skills", "squad", "references", "planning-contract.md"), StringComparison.Ordinal);
+        Assert.Contains("After round 1 writes the draft plan, run check-plan on it right away and fix its findings", TestRepository.SquadSource("commands", "squad.md"), StringComparison.Ordinal);
+        Assert.Contains("draft plan file from round 1 (check-plan it at once, fix findings)", TestRepository.SquadSource("skills", "squad", "SKILL.md"), StringComparison.Ordinal);
     }
 
     [Fact]
     public void Catch_up_retro_is_linted_with_check_retro()
     {
-        Assert.Contains("Then run check-retro on that file (not just `test -f`) and fix its findings", Squad("commands", "squad.md"), StringComparison.Ordinal);
-        Assert.Contains("the main agent runs check-retro on it (not just `test -f`) and fixes its findings", Squad("skills", "squad", "references", "retro.md"), StringComparison.Ordinal);
-        Assert.Contains("the main agent runs check-retro on it (not just `test -f`) and fixes its findings before round 1 starts", Squad("skills", "squad", "references", "planning-contract.md"), StringComparison.Ordinal);
+        Assert.Contains("Then run check-retro on that file (not just `test -f`) and fix its findings", TestRepository.SquadSource("commands", "squad.md"), StringComparison.Ordinal);
+        Assert.Contains("the main agent runs check-retro on it (not just `test -f`) and fixes its findings", TestRepository.SquadSource("skills", "squad", "references", "retro.md"), StringComparison.Ordinal);
+        Assert.Contains("the main agent runs check-retro on it (not just `test -f`) and fixes its findings before round 1 starts", TestRepository.SquadSource("skills", "squad", "references", "planning-contract.md"), StringComparison.Ordinal);
     }
 
     [Fact]
     public void Every_plan_edit_is_a_hard_check_plan_step_including_resume()
     {
-        var contract = Squad("skills", "squad", "references", "planning-contract.md");
+        var contract = TestRepository.SquadSource("skills", "squad", "references", "planning-contract.md");
         Assert.Contains("Plan edits are a hard step.", contract, StringComparison.Ordinal);
         Assert.Contains("and on a resumed or stopped run", contract, StringComparison.Ordinal);
         Assert.Contains("reruns until it exits 0 before doing anything else", contract, StringComparison.Ordinal);
         Assert.Contains("## Resume\n\nA resumed or stopped run edits the plan too", contract, StringComparison.Ordinal);
-        var command = Squad("commands", "squad.md");
+        var command = TestRepository.SquadSource("commands", "squad.md");
         Assert.Contains("Resume: a resumed or stopped run that edits the plan (`## Status`) runs check-plan and does not continue until it exits 0.", command, StringComparison.Ordinal);
         Assert.Contains("Every plan edit is a hard step: write, run check-plan, fix, and do not continue until it exits 0", command, StringComparison.Ordinal);
-        Assert.Contains("Every plan edit (resume and stop too): write, run check-plan, continue only at exit 0", Squad("skills", "squad", "SKILL.md"), StringComparison.Ordinal);
+        Assert.Contains("Every plan edit (resume and stop too): write, run check-plan, continue only at exit 0", TestRepository.SquadSource("skills", "squad", "SKILL.md"), StringComparison.Ordinal);
     }
 
     [Theory]
@@ -1084,23 +1078,23 @@ public class SquadContractTests
     public void Last_plan_edit_is_linted_before_every_spawn_and_retro(string step)
     {
         const string rule = "Before any agent starts or the retro is written, the last plan edit must be followed by check-plan exit 0: ";
-        foreach (var text in new[] { Squad("commands", "squad.md"), Squad("skills", "squad", "references", "planning-contract.md") })
+        foreach (var text in new[] { TestRepository.SquadSource("commands", "squad.md"), TestRepository.SquadSource("skills", "squad", "references", "planning-contract.md") })
         {
             var at = text.IndexOf(rule, StringComparison.Ordinal);
             Assert.True(at >= 0, "spawn lint rule missing");
             var line = text.Substring(at, text.IndexOf('.', at + rule.Length) - at);
             Assert.Contains(step, line, StringComparison.Ordinal);
         }
-        Assert.Contains("the last edit exits 0 before any agent starts or the retro is written", Squad("skills", "squad", "SKILL.md"), StringComparison.Ordinal);
+        Assert.Contains("the last edit exits 0 before any agent starts or the retro is written", TestRepository.SquadSource("skills", "squad", "SKILL.md"), StringComparison.Ordinal);
     }
 
     [Fact]
     public void Linter_path_is_named_and_old_duplicate_rule_is_gone()
     {
-        var command = Squad("commands", "squad.md");
+        var command = TestRepository.SquadSource("commands", "squad.md");
         Assert.Contains("`skills/pack-check/scripts/check-plan.sh <plan>` (or `check-plan.ps1`); do not search the filesystem", command, StringComparison.Ordinal);
         Assert.DoesNotContain("After every plan write (fix list, hand-off notes, status), rerun check-plan", command, StringComparison.Ordinal);
-        var contract = Squad("skills", "squad", "references", "planning-contract.md");
+        var contract = TestRepository.SquadSource("skills", "squad", "references", "planning-contract.md");
         Assert.Contains("`skills/pack-check/scripts/check-plan.sh` and `skills/pack-check/scripts/check-plan.ps1`", contract, StringComparison.Ordinal);
         foreach (var f in new[] { "check-plan.sh", "check-plan.ps1" })
             Assert.True(File.Exists(Path.Combine(TestRepository.SourceRoot(), "plugins", "pack-check", "skills", "pack-check", "scripts", f)), f);
@@ -1109,7 +1103,7 @@ public class SquadContractTests
     [Fact]
     public void Plan_gap_step_allows_the_save_reset_and_bans_only_destructive_git()
     {
-        var command = Squad("commands", "squad.md");
+        var command = TestRepository.SquadSource("commands", "squad.md");
         Assert.Contains("which ends with `git reset -q`; no `reset --hard`, `clean`, `checkout`, or `restore`", command, StringComparison.Ordinal);
         Assert.DoesNotContain("no reset or clean", command, StringComparison.Ordinal);
     }
@@ -1117,7 +1111,7 @@ public class SquadContractTests
     [Fact]
     public void Slice_loop_lints_status_before_each_implementer_and_back_to_back_edits_each_lint()
     {
-        var command = Squad("commands", "squad.md");
+        var command = TestRepository.SquadSource("commands", "squad.md");
         Assert.Contains("Inside the loop, slice 1 included: write `## Status` (implementing slice i/N), run check-plan, wait for exit 0, then spawn the implementer.", command, StringComparison.Ordinal);
         Assert.Contains("Two plan edits in a row each get their own check-plan, or combine them into one write and lint that.", command, StringComparison.Ordinal);
     }
@@ -1125,7 +1119,7 @@ public class SquadContractTests
     [Fact]
     public void Skill_and_linter_paths_are_named_and_filesystem_search_is_banned()
     {
-        var command = Squad("commands", "squad.md");
+        var command = TestRepository.SquadSource("commands", "squad.md");
         Assert.Contains("read `skills/squad/SKILL.md` relative to the squad plugin root (its `--plugin-dir`", command, StringComparison.Ordinal);
         Assert.DoesNotContain("the parent of this `commands/` folder", command, StringComparison.Ordinal);
         Assert.Contains("`../pack-check/skills/pack-check/scripts/` from that root", command, StringComparison.Ordinal);
@@ -1139,20 +1133,20 @@ public class SquadContractTests
     [Fact]
     public void Gap_patch_is_dated_outside_the_worktree_and_never_touches_gitignore()
     {
-        foreach (var text in new[] { Squad("commands", "squad.md"), Squad("skills", "squad", "references", "planning-contract.md") })
+        foreach (var text in new[] { TestRepository.SquadSource("commands", "squad.md"), TestRepository.SquadSource("skills", "squad", "references", "planning-contract.md") })
         {
             Assert.Contains("`$(git rev-parse --git-dir)/squad/<yyyy-mm-dd>-<slug>.gap-<n>.patch`", text, StringComparison.Ordinal);
             Assert.DoesNotContain("docs/plans/<slug>.gap-", text, StringComparison.Ordinal);
             Assert.DoesNotContain("gitignored by", text, StringComparison.Ordinal);
             Assert.DoesNotContain("`.git/squad", text, StringComparison.Ordinal);
         }
-        Assert.Contains("never edit the product `.gitignore` for it", Squad("skills", "squad", "references", "planning-contract.md"), StringComparison.Ordinal);
+        Assert.Contains("never edit the product `.gitignore` for it", TestRepository.SquadSource("skills", "squad", "references", "planning-contract.md"), StringComparison.Ordinal);
     }
 
     [Fact]
     public void Gap_save_works_in_a_linked_worktree()
     {
-        var contract = Squad("skills", "squad", "references", "planning-contract.md");
+        var contract = TestRepository.SquadSource("skills", "squad", "references", "planning-contract.md");
         var start = contract.IndexOf("```sh\np=\"$(git rev-parse --git-dir)/squad/", StringComparison.Ordinal);
         var save = contract[(start + 6)..contract.IndexOf("\n```", start + 6, StringComparison.Ordinal)]
             .Replace("<yyyy-mm-dd>-<slug>", "2026-10-12-x", StringComparison.Ordinal).Replace("<n>", "1", StringComparison.Ordinal);
@@ -1183,7 +1177,7 @@ public class SquadContractTests
     [Fact]
     public void Command_body_starts_with_exact_paths_and_readme_mirrors_them()
     {
-        var command = Squad("commands", "squad.md").Replace("\r\n", "\n", StringComparison.Ordinal);
+        var command = TestRepository.SquadSource("commands", "squad.md").Replace("\r\n", "\n", StringComparison.Ordinal);
         var body = command[(command.IndexOf("\n---\n", 4, StringComparison.Ordinal) + 5)..].TrimStart('\n');
         var first = body[..body.IndexOf('\n')];
         Assert.StartsWith("Root: use the stamped `Squad plugin root:` line above this one when present, else the squad `--plugin-dir`; never search for it (no find/glob). Paths, relative to that root:", first, StringComparison.Ordinal);
@@ -1204,14 +1198,14 @@ public class SquadContractTests
     public void Plan_gap_answer_needs_the_user_unless_this_session_accepts_recommendations()
     {
         Assert.Contains("Who answers a Plan gap: the user, unless this session explicitly said to accept recommendations. An old grill log or a prior plan is not authorization.",
-            Squad("skills", "squad", "references", "planning-contract.md"), StringComparison.Ordinal);
+            TestRepository.SquadSource("skills", "squad", "references", "planning-contract.md"), StringComparison.Ordinal);
     }
 
     [Fact]
     public void Gap_save_step_runs_the_contract_command_verbatim_with_test_s()
     {
-        Assert.Contains("run the planning contract's save command word for word, no substitutes, so `test -s \"$p\"` fails an empty patch and the run stops", Squad("commands", "squad.md"), StringComparison.Ordinal);
-        var contract = Squad("skills", "squad", "references", "planning-contract.md");
+        Assert.Contains("run the planning contract's save command word for word, no substitutes, so `test -s \"$p\"` fails an empty patch and the run stops", TestRepository.SquadSource("commands", "squad.md"), StringComparison.Ordinal);
+        var contract = TestRepository.SquadSource("skills", "squad", "references", "planning-contract.md");
         var start = contract.IndexOf("```sh\np=\"$(git rev-parse --git-dir)/squad/", StringComparison.Ordinal);
         var save = contract[start..contract.IndexOf("\n```", start + 6, StringComparison.Ordinal)];
         Assert.Contains("> \"$p\" && test -s \"$p\" && git reset -q", save, StringComparison.Ordinal);
@@ -1222,13 +1216,13 @@ public class SquadContractTests
     [InlineData("agents", "squad-implementer.md")]
     public void Exploration_uses_git_ls_files_and_rg_never_find(string folder, string file)
     {
-        Assert.Contains("Explore the repo with `git ls-files` and `rg`, never `find`.", Squad(folder, file), StringComparison.Ordinal);
+        Assert.Contains("Explore the repo with `git ls-files` and `rg`, never `find`.", TestRepository.SquadSource(folder, file), StringComparison.Ordinal);
     }
 
     [Fact]
     public void Planner_explores_with_its_own_tools_not_shell()
     {
-        var planner = Squad("agents", "squad-planner.md");
+        var planner = TestRepository.SquadSource("agents", "squad-planner.md");
         Assert.Contains("Explore the repo with your `grep` and `glob` tools inside the workspace (you have no shell), never a box-wide search.", planner, StringComparison.Ordinal);
         Assert.DoesNotContain("git ls-files", planner, StringComparison.Ordinal);
     }
@@ -1236,8 +1230,8 @@ public class SquadContractTests
     [Fact]
     public void Multi_project_change_needs_two_slices_or_a_reason()
     {
-        Assert.Contains("More than one project touched: at least 2 slices, or a `Single slice because: <reason>` line", Squad("agents", "squad-planner.md"), StringComparison.Ordinal);
-        var contract = Squad("skills", "squad", "references", "planning-contract.md");
+        Assert.Contains("More than one project touched: at least 2 slices, or a `Single slice because: <reason>` line", TestRepository.SquadSource("agents", "squad-planner.md"), StringComparison.Ordinal);
+        var contract = TestRepository.SquadSource("skills", "squad", "references", "planning-contract.md");
         Assert.Contains("A change that touches more than one project needs at least 2 slices, or a `Single slice because: <reason>` line", contract, StringComparison.Ordinal);
         Assert.Contains("Single slice because: <reason;", contract, StringComparison.Ordinal);
     }

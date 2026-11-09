@@ -80,6 +80,33 @@ public sealed class RedundancyContractTests
         Assert.Contains("MarketplaceCatalog.Metadata", copilot, StringComparison.Ordinal);
         Assert.DoesNotContain("agentPacks Maintainers", cursor, StringComparison.Ordinal);
         Assert.DoesNotContain("agentPacks Maintainers", copilot, StringComparison.Ordinal);
+
+        var markdownText = File.ReadAllText(Path.Combine(
+            root, "tools", "AgentPacks.Cli", "Verification", "MarkdownText.cs"));
+        Assert.Contains("public static string Unwrap", markdownText, StringComparison.Ordinal);
+        Assert.Empty(ClonedHelpers(
+            Path.Combine(root, "tools", "AgentPacks.Cli"),
+            "private static string " + "Unwrap"));
+
+        var routing = File.ReadAllText(Path.Combine(
+            root, "tools", "AgentPacks.Cli", "Generation", "PluginComponentRouting.cs"));
+        Assert.Contains("public static RoutedComponents ApplySkillsHooksMcp", routing, StringComparison.Ordinal);
+        Assert.Contains("PluginComponentRouting.ApplySkillsHooksMcp", copilot, StringComparison.Ordinal);
+        Assert.Contains("PluginComponentRouting.ApplySkillsHooksMcp", generator, StringComparison.Ordinal);
+
+        var generatedFile = File.ReadAllText(Path.Combine(
+            root, "tools", "AgentPacks.Cli", "Generation", "GeneratedFile.cs"));
+        Assert.Contains("public string NormalizedRelativePath", generatedFile, StringComparison.Ordinal);
+
+        Assert.Contains("public static IEnumerable<string> AuthoredMarkdown", testRepository, StringComparison.Ordinal);
+        Assert.Contains("public static string SquadFixture", testRepository, StringComparison.Ordinal);
+        Assert.Contains("public static string SquadSource", testRepository, StringComparison.Ordinal);
+        Assert.Contains("public static string SourceText", testRepository, StringComparison.Ordinal);
+        Assert.Contains("public static string OutputFixture", testRepository, StringComparison.Ordinal);
+        Assert.Contains("public Dictionary<string, JsonObject> CatalogEntries", testRepository, StringComparison.Ordinal);
+        Assert.Empty(ClonedHelpers(tests, "private static string " + "Squad("));
+        Assert.Empty(ClonedHelpers(tests, "private static IEnumerable<string> " + "AuthoredSkillTreeMarkdown"));
+        Assert.Empty(ClonedHelpers(tests, "private static string " + "RelativeToPlugins"));
     }
 
     /// <summary>

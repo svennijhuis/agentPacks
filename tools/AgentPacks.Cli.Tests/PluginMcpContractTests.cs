@@ -40,7 +40,7 @@ public sealed class PluginMcpContractTests
     [Fact]
     public void Solution_tools_are_three_read_only_lookups_on_local_files()
     {
-        var dir = Path.Combine(AppContext.BaseDirectory, "Fixtures", "dotnet-solution");
+        var dir = TestRepository.OutputFixturePath("dotnet-solution");
         var sln = File.ReadAllText(Path.Combine(dir, "Sample.sln"));
         var slnx = File.ReadAllText(Path.Combine(dir, "Sample.slnx"));
         var csproj = File.ReadAllText(Path.Combine(dir, "Sample.csproj"));
@@ -64,8 +64,7 @@ public sealed class PluginMcpContractTests
     [Fact]
     public void Swagger_recipe_keeps_a_filtered_get_set_not_one_tool_per_endpoint()
     {
-        var openApi = File.ReadAllText(Path.Combine(
-            AppContext.BaseDirectory, "Fixtures", "dotnet-solution", "pets.openapi.json"));
+        var openApi = TestRepository.OutputFixture("dotnet-solution", "pets.openapi.json");
 
         var tools = SwaggerToolFilter.SelectGetTools(openApi, ["pets"]);
 
@@ -125,11 +124,7 @@ public sealed class PluginMcpContractTests
 
         Assert.True(loopSkills >= 10, $"loop-audience scan must run; found {loopSkills}.");
 
-        foreach (var agent in Directory.GetFiles(Path.Combine(root, "plugins"), "*.md",
-                     SearchOption.AllDirectories).Where(path =>
-                         path.Contains($"{Path.DirectorySeparatorChar}agents{Path.DirectorySeparatorChar}", StringComparison.Ordinal)
-                         && !path.Contains($"{Path.DirectorySeparatorChar}com.", StringComparison.Ordinal)
-                         && !path.Contains(".cursor-plugin", StringComparison.Ordinal)))
+        foreach (var agent in TestRepository.AuthoredMarkdown("agents", root))
         {
             var name = Path.GetFileNameWithoutExtension(agent);
             var parsed = TestRepository.ParseFrontmatter(File.ReadAllText(agent), name);
@@ -139,11 +134,7 @@ public sealed class PluginMcpContractTests
             Assert.True(parsed.Has("tools"));
         }
 
-        foreach (var command in Directory.GetFiles(Path.Combine(root, "plugins"), "*.md",
-                     SearchOption.AllDirectories).Where(path =>
-                         path.Contains($"{Path.DirectorySeparatorChar}commands{Path.DirectorySeparatorChar}", StringComparison.Ordinal)
-                         && !path.Contains($"{Path.DirectorySeparatorChar}com.", StringComparison.Ordinal)
-                         && !path.Contains(".cursor-plugin", StringComparison.Ordinal)))
+        foreach (var command in TestRepository.AuthoredMarkdown("commands", root))
         {
             var parsed = TestRepository.ParseFrontmatter(File.ReadAllText(command), command);
             Assert.False(string.IsNullOrWhiteSpace(parsed!.Scalar("name")));

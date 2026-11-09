@@ -7,7 +7,7 @@ namespace AgentPacks.Cli.Tests;
 public sealed class GitGuardTests
 {
     private static readonly string Script =
-        Path.Combine(AppContext.BaseDirectory, "Fixtures", "git", "git-guard.sh");
+        TestRepository.OutputFixturePath("git", "git-guard.sh");
 
     public static TheoryData<string, string> Providers() => new()
     {
@@ -183,7 +183,7 @@ public sealed class GitGuardTests
     }
 
     private static readonly string PowerShellScript =
-        Path.Combine(AppContext.BaseDirectory, "Fixtures", "git", "git-guard.ps1");
+        TestRepository.OutputFixturePath("git", "git-guard.ps1");
 
     /// <summary>Resolved once: the parity theory is skipped rather than failed where pwsh is absent.</summary>
     private static readonly string? PowerShell = ResolvePowerShell();

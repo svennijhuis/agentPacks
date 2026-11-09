@@ -8,9 +8,9 @@ namespace AgentPacks.Cli.Tests;
 public sealed class PackCheckContractTests
 {
     private static readonly string FixtureRoot =
-        Path.Combine(AppContext.BaseDirectory, "Fixtures", "pack-check");
+        TestRepository.OutputFixturePath("pack-check");
 
-    private static string Fixture(string name) => File.ReadAllText(Path.Combine(FixtureRoot, name));
+    private static string Fixture(string name) => TestRepository.OutputFixture("pack-check", name);
 
     [Fact]
     public void Pack_check_does_not_opt_into_the_language_pack_contract()

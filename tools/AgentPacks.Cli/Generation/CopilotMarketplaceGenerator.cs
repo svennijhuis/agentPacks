@@ -32,11 +32,7 @@ internal sealed class CopilotMarketplaceGenerator(RepositoryContext context)
         JsonFile.CopyProperties(entry, manifest, "author", "homepage", "repository", "license", "keywords");
 
         var profile = ClientProfile.Copilot;
-
-        if (plugin.HasSkillsDirectory)
-        {
-            entry["skills"] = "./skills/";
-        }
+        PluginComponentRouting.ApplySkillsHooksMcp(entry, plugin, profile);
 
         if (plugin.Agents.Count > 0)
         {
@@ -46,24 +42,6 @@ internal sealed class CopilotMarketplaceGenerator(RepositoryContext context)
         if (plugin.Commands.Count > 0)
         {
             entry["commands"] = $"./{profile.Directory}/commands/";
-        }
-
-        // Keyed on what ClientTreeGenerator actually writes: always-on rules become a SessionStart
-        // hook for Copilot the same way they do for Claude, so a plugin with no authored hooks but
-        // one alwaysApply rule still produces a hooks.json that has to be declared.
-        if (HookGenerator.EmitsHooksFile(plugin, profile))
-        {
-            entry["hooks"] = $"./{profile.Directory}/hooks/hooks.json";
-        }
-
-        // Keyed on what the generator actually produces, and pointed at the converted copy rather
-        // than the authored one: mcp.json is the portable dialect, and .mcp.json is what
-        // ClaudeValueConverter rewrites out of it. Declaring the source file here would hand
-        // Copilot unexpanded ${PLUGIN_ROOT} values and the portable transport name, and would
-        // declare servers for a plugin whose mcpServers object is empty.
-        if (plugin.McpServers is not null)
-        {
-            entry["mcpServers"] = "./.mcp.json";
         }
 
         return entry;

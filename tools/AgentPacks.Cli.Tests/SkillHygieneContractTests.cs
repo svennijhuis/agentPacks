@@ -46,9 +46,9 @@ public sealed class SkillHygieneContractTests
         foreach (var path in TestRepository.AuthoredSkillFiles())
         {
             var text = File.ReadAllText(path);
-            var frontmatter = TestRepository.ParseFrontmatter(text, RelativeToPlugins(path));
+            var frontmatter = TestRepository.ParseFrontmatter(text, TestRepository.RelativeToPlugins(path));
             var description = frontmatter.Scalar("description") ?? string.Empty;
-            var relative = RelativeToPlugins(path);
+            var relative = TestRepository.RelativeToPlugins(path);
 
             Assert.False(string.IsNullOrWhiteSpace(description), $"{relative} is missing description.");
             Assert.DoesNotContain('\n', description);
@@ -110,10 +110,10 @@ public sealed class SkillHygieneContractTests
             var skillDir = Directory.GetParent(path)!.FullName;
             var skillName = Directory.GetParent(path)!.Name;
             var text = File.ReadAllText(path);
-            var frontmatter = TestRepository.ParseFrontmatter(text, RelativeToPlugins(path));
+            var frontmatter = TestRepository.ParseFrontmatter(text, TestRepository.RelativeToPlugins(path));
             var body = frontmatter.Body;
             var lines = body.Split('\n').Count(line => !string.IsNullOrWhiteSpace(line));
-            var relative = RelativeToPlugins(path);
+            var relative = TestRepository.RelativeToPlugins(path);
 
             if (skillName.Equals("squad", StringComparison.Ordinal))
             {
@@ -150,10 +150,10 @@ public sealed class SkillHygieneContractTests
     [Fact]
     public void No_astra_personality_in_portable_skills()
     {
-        foreach (var path in AuthoredSkillTreeMarkdown())
+        foreach (var path in TestRepository.AuthoredMarkdown("skills"))
         {
             var text = File.ReadAllText(path);
-            var relative = RelativeToPlugins(path);
+            var relative = TestRepository.RelativeToPlugins(path);
 
             Assert.False(
                 Regex.IsMatch(text, @"\bAstra\b", RegexOptions.IgnoreCase),
@@ -166,24 +166,14 @@ public sealed class SkillHygieneContractTests
         }
     }
 
-    private static IEnumerable<string> AuthoredSkillTreeMarkdown() =>
-        Directory.GetFiles(Path.Combine(TestRepository.SourceRoot(), "plugins"), "*.md", SearchOption.AllDirectories)
-            .Where(path => path.Contains($"{Path.DirectorySeparatorChar}skills{Path.DirectorySeparatorChar}", StringComparison.Ordinal)
-                && !path.Contains($"{Path.DirectorySeparatorChar}com.", StringComparison.Ordinal))
-            .OrderBy(path => path, StringComparer.Ordinal);
-
     private static void AssertRouterLinksReference(string skillDir, string href)
     {
         var skillPath = Path.Combine(skillDir, "SKILL.md");
-        var relative = RelativeToPlugins(skillPath);
+        var relative = TestRepository.RelativeToPlugins(skillPath);
         var body = TestRepository.ParseFrontmatter(File.ReadAllText(skillPath), relative).Body;
         Assert.Contains(href, body, StringComparison.Ordinal);
 
         var target = Path.GetFullPath(Path.Combine(skillDir, href));
         Assert.True(File.Exists(target), $"{relative} links to missing {href}.");
     }
-
-    private static string RelativeToPlugins(string path) =>
-        Path.GetRelativePath(Path.Combine(TestRepository.SourceRoot(), "plugins"), path);
-
 }

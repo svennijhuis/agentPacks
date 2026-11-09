@@ -80,7 +80,7 @@ internal sealed class Pipeline(RepositoryContext context)
                 continue;
             }
 
-            var relative = file.RelativePath.Replace('\\', '/');
+            var relative = file.NormalizedRelativePath;
 
             if (!File.Exists(destination))
             {
@@ -136,7 +136,7 @@ internal sealed class Pipeline(RepositoryContext context)
     private void RemoveStaleFiles(IReadOnlyList<GeneratedFile> files, string root, CommandOptions options)
     {
         var expected = files
-            .Select(f => f.RelativePath.Replace('\\', '/'))
+            .Select(f => f.NormalizedRelativePath)
             .ToHashSet(StringComparer.Ordinal);
 
         var pluginsRoot = Path.Combine(root, "plugins");

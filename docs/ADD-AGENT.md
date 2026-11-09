@@ -101,12 +101,18 @@ Collapse these. One reader or the compiler already has the twin:
 | Repeated test `ParseFrontmatter` / `NonEmptyBodyLines` / occurrence counting | `TestRepository` |
 | Shipped plugin names, Squad agent names, authored skill file walk, plugin root path | `TestRepository` |
 | Marketplace "will we emit hooks.json?" predicate | `HookGenerator.EmitsHooksFile` |
+| Copilot catalog + Codex plugin.json skills/hooks/mcp routing | `PluginComponentRouting.ApplySkillsHooksMcp` |
+| Identical backtick unwrap in verification parsers | `MarkdownText.Unwrap` |
+| Generated-file slash normalization | `GeneratedFile.NormalizedRelativePath` |
 | Claude/Copilot/Cursor catalog entry identity checks | `CompatibilityValidator.ReadUniqueMarketplaceName` |
 | Skill boolean frontmatter (`disable-model-invocation`, `user-invocable`) | `SkillValidator.ValidateBooleanScalar` |
 | Same-file restatements (Confidence table vs section) | One canonical section, table points at it |
 | `/scenarios` command restating the skill's numbered flow | Thin command: load skill, run its flow (same shape as `/pack-check` / `/security-audit`) |
 | `/pack-author` command restating make/review/change | Thin command: load skill, run the named mode |
 | Root README `/scenarios` essay restating the skill | Short blurb + link to `scenarios-md` / smoke-matrix |
+| Repeated squad fixture/source readers | `TestRepository.SquadFixture` / `SquadSource` / `SourceText` / `OutputFixture` |
+| Authored skills/commands/agents markdown walks | `TestRepository.AuthoredMarkdown` |
+| Catalog plugin-entry dictionaries in tests | `ValidationRun.CatalogEntries` |
 
 ## What gets generated
 

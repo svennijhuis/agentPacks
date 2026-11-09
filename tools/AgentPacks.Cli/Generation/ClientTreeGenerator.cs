@@ -298,27 +298,7 @@ internal sealed class ClientTreeGenerator(RepositoryContext context, ModelCatalo
             manifest,
             "version", "description", "author", "homepage", "repository", "license", "keywords");
 
-        if (plugin.HasSkillsDirectory)
-        {
-            codex["skills"] = "./skills/";
-        }
-
-        // Keyed on what the generator actually produces, not on the source file existing: an event
-        // declared with an empty entry array yields no hooks.json, and a manifest pointing at a
-        // file that was never written fails the plugin at install time.
-        var hasHooks = HookGenerator.EmitsHooksFile(plugin, profile);
-
-        if (hasHooks)
-        {
-            codex["hooks"] = $"./{profile.Directory}/hooks/hooks.json";
-        }
-
-        var hasMcp = plugin.McpServers is not null;
-
-        if (hasMcp)
-        {
-            codex["mcpServers"] = "./.mcp.json";
-        }
+        var routed = PluginComponentRouting.ApplySkillsHooksMcp(codex, plugin, profile);
 
         var description = manifest["description"]?.GetValue<string>() ?? plugin.CanonicalName;
         var developer = manifest["author"]?["name"]?.GetValue<string>() ?? MarketplaceCatalog.OwnerName;
@@ -326,17 +306,17 @@ internal sealed class ClientTreeGenerator(RepositoryContext context, ModelCatalo
 
         var capabilities = new JsonArray();
 
-        if (plugin.HasSkillsDirectory)
+        if (routed.Skills)
         {
             capabilities.Add("Skills");
         }
 
-        if (hasHooks)
+        if (routed.Hooks)
         {
             capabilities.Add("Hooks");
         }
 
-        if (hasMcp)
+        if (routed.Mcp)
         {
             capabilities.Add("MCP");
         }

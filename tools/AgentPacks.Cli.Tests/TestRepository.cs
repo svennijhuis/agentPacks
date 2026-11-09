@@ -1,3 +1,4 @@
+using System.Text.Json.Nodes;
 using AgentPacks.Cli.Commands;
 using AgentPacks.Cli.Generation;
 using AgentPacks.Cli.Io;
@@ -95,11 +96,33 @@ internal sealed class TestRepository : IDisposable
         return count;
     }
 
-    public static IEnumerable<string> AuthoredSkillFiles(string? root = null) =>
-        Directory.GetFiles(Path.Combine(root ?? SourceRoot(), "plugins"), "SKILL.md", SearchOption.AllDirectories)
-            .Where(path => !path.Contains($"{Path.DirectorySeparatorChar}com.", StringComparison.Ordinal)
-                && !path.Contains(".cursor-plugin", StringComparison.Ordinal))
+    public static IEnumerable<string> AuthoredMarkdown(string folder, string? root = null) =>
+        Directory.GetFiles(Path.Combine(root ?? SourceRoot(), "plugins"), "*.md", SearchOption.AllDirectories)
+            .Where(path => path.Contains($"{Path.DirectorySeparatorChar}{folder}{Path.DirectorySeparatorChar}", StringComparison.Ordinal)
+                && !path.Contains($"{Path.DirectorySeparatorChar}com.", StringComparison.Ordinal)
+                && !path.Contains(".cursor-plugin", StringComparison.Ordinal)
+                && !IsGeneratedPath(path))
             .OrderBy(path => path, StringComparer.Ordinal);
+
+    public static IEnumerable<string> AuthoredSkillFiles(string? root = null) =>
+        AuthoredMarkdown("skills", root).Where(path => Path.GetFileName(path) == "SKILL.md");
+
+    public static string RelativeToPlugins(string path, string? root = null) =>
+        Path.GetRelativePath(Path.Combine(root ?? SourceRoot(), "plugins"), path);
+
+    public static string OutputFixturePath(string pack, params string[] parts) =>
+        Path.Combine([AppContext.BaseDirectory, "Fixtures", pack, .. parts]);
+
+    public static string OutputFixture(string pack, params string[] parts) =>
+        File.ReadAllText(OutputFixturePath(pack, parts));
+
+    public static string SquadFixture(string name) => OutputFixture("squad", name);
+
+    public static string SquadSource(params string[] parts) =>
+        File.ReadAllText(Path.Combine([SourceRoot(), "plugins", "squad", .. parts]));
+
+    public static string SourceText(params string[] parts) =>
+        File.ReadAllText(Path.Combine([SourceRoot(), .. parts]));
 
     public static string[] ShippedPluginDirectories(string? root = null) =>
         Directory.GetDirectories(Path.Combine(root ?? SourceRoot(), "plugins"))
@@ -392,8 +415,15 @@ internal sealed record ValidationRun(
     public string Text => Context.Diagnostics.Render();
 
     public GeneratedFile File(string relativePath) =>
-        Generated.Single(f => f.RelativePath.Replace('\\', '/') == relativePath);
+        Generated.Single(f => f.NormalizedRelativePath == relativePath);
 
     public bool HasFile(string relativePath) =>
-        Generated.Any(f => f.RelativePath.Replace('\\', '/') == relativePath);
+        Generated.Any(f => f.NormalizedRelativePath == relativePath);
+
+    public JsonObject[] CatalogPluginArray(string relativePath) =>
+        File(relativePath).Content["plugins"]!.AsArray().OfType<JsonObject>().ToArray();
+
+    public Dictionary<string, JsonObject> CatalogEntries(string relativePath) =>
+        CatalogPluginArray(relativePath)
+            .ToDictionary(entry => entry["name"]!.GetValue<string>(), StringComparer.Ordinal);
 }

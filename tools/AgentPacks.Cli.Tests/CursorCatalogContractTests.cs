@@ -104,7 +104,7 @@ public sealed class CursorCatalogContractTests
             run.File("plugins/squad/.cursor-plugin/plugin.json").Content["agents"]!.GetValue<string>());
 
         var remapped = run.Generated
-            .Select(file => file.RelativePath.Replace('\\', '/'))
+            .Select(file => file.NormalizedRelativePath)
             .Where(path => path.StartsWith("plugins/squad/.cursor-plugin/agents/", StringComparison.Ordinal))
             .Select(path => Path.GetFileNameWithoutExtension(path) ?? path)
             .OrderBy(name => name, StringComparer.Ordinal)
@@ -140,15 +140,9 @@ public sealed class CursorCatalogContractTests
         var run = repo.ValidateAndGenerate();
         Assert.False(run.HasErrors, run.Text);
 
-        var claudeEntries = run.File(".claude-plugin/marketplace.json").Content["plugins"]!.AsArray()
-            .OfType<JsonObject>()
-            .ToDictionary(entry => entry["name"]!.GetValue<string>(), StringComparer.Ordinal);
-        var copilotEntries = run.File(".github/plugin/marketplace.json").Content["plugins"]!.AsArray()
-            .OfType<JsonObject>()
-            .ToDictionary(entry => entry["name"]!.GetValue<string>(), StringComparer.Ordinal);
-        var cursorEntries = run.File(".cursor-plugin/marketplace.json").Content["plugins"]!.AsArray()
-            .OfType<JsonObject>()
-            .ToArray();
+        var claudeEntries = run.CatalogEntries(".claude-plugin/marketplace.json");
+        var copilotEntries = run.CatalogEntries(".github/plugin/marketplace.json");
+        var cursorEntries = run.CatalogPluginArray(".cursor-plugin/marketplace.json");
 
         foreach (var name in PluginNames)
         {
@@ -182,18 +176,10 @@ public sealed class CursorCatalogContractTests
             name => name == "security" ? CodexCategory.Security : CodexCategory.DeveloperTools,
             StringComparer.Ordinal);
 
-        var codexEntries = run.File(".agents/plugins/marketplace.json").Content["plugins"]!.AsArray()
-            .OfType<JsonObject>()
-            .ToDictionary(entry => entry["name"]!.GetValue<string>(), StringComparer.Ordinal);
-        var claudeEntries = run.File(".claude-plugin/marketplace.json").Content["plugins"]!.AsArray()
-            .OfType<JsonObject>()
-            .ToDictionary(entry => entry["name"]!.GetValue<string>(), StringComparer.Ordinal);
-        var copilotEntries = run.File(".github/plugin/marketplace.json").Content["plugins"]!.AsArray()
-            .OfType<JsonObject>()
-            .ToDictionary(entry => entry["name"]!.GetValue<string>(), StringComparer.Ordinal);
-        var cursorEntries = run.File(".cursor-plugin/marketplace.json").Content["plugins"]!.AsArray()
-            .OfType<JsonObject>()
-            .ToArray();
+        var codexEntries = run.CatalogEntries(".agents/plugins/marketplace.json");
+        var claudeEntries = run.CatalogEntries(".claude-plugin/marketplace.json");
+        var copilotEntries = run.CatalogEntries(".github/plugin/marketplace.json");
+        var cursorEntries = run.CatalogPluginArray(".cursor-plugin/marketplace.json");
 
         foreach (var (name, category) in expected)
         {
@@ -237,12 +223,8 @@ public sealed class CursorCatalogContractTests
             ["typescript"] = "TypeScript"
         };
 
-        var claudeEntries = run.File(".claude-plugin/marketplace.json").Content["plugins"]!.AsArray()
-            .OfType<JsonObject>()
-            .ToDictionary(entry => entry["name"]!.GetValue<string>(), StringComparer.Ordinal);
-        var copilotEntries = run.File(".github/plugin/marketplace.json").Content["plugins"]!.AsArray()
-            .OfType<JsonObject>()
-            .ToDictionary(entry => entry["name"]!.GetValue<string>(), StringComparer.Ordinal);
+        var claudeEntries = run.CatalogEntries(".claude-plugin/marketplace.json");
+        var copilotEntries = run.CatalogEntries(".github/plugin/marketplace.json");
 
         foreach (var (name, displayName) in expected)
         {
@@ -279,7 +261,7 @@ public sealed class CursorCatalogContractTests
         Assert.False(run.HasErrors, run.Text);
 
         var catalogs = run.Generated
-            .Select(file => file.RelativePath.Replace('\\', '/'))
+            .Select(file => file.NormalizedRelativePath)
             .Where(path => path.EndsWith("marketplace.json", StringComparison.Ordinal))
             .OrderBy(path => path, StringComparer.Ordinal)
             .ToArray();
@@ -293,7 +275,7 @@ public sealed class CursorCatalogContractTests
             catalogs);
         Assert.DoesNotContain(
             run.Generated,
-            file => file.RelativePath.Replace('\\', '/').Contains("/.cursor-plugin/marketplace.json", StringComparison.Ordinal));
+            file => file.NormalizedRelativePath.Contains("/.cursor-plugin/marketplace.json", StringComparison.Ordinal));
 
         var root = TestRepository.SourceRoot();
         Assert.DoesNotContain(

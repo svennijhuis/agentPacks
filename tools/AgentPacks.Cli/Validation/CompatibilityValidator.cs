@@ -17,7 +17,7 @@ internal sealed class CompatibilityValidator(RepositoryContext context)
     {
         foreach (var file in files)
         {
-            var relative = file.RelativePath.Replace('\\', '/');
+            var relative = file.NormalizedRelativePath;
 
             if (Path.GetFileName(relative) == ".mcp.json")
             {
@@ -45,7 +45,7 @@ internal sealed class CompatibilityValidator(RepositoryContext context)
 
     private void ValidateCodexMarketplace(GeneratedFile file)
     {
-        var path = file.RelativePath.Replace('\\', '/');
+        var path = file.NormalizedRelativePath;
 
         if (file.Content is not JsonObject marketplace ||
             string.IsNullOrWhiteSpace(marketplace["name"]?.GetValue<string>()) ||
@@ -115,7 +115,7 @@ internal sealed class CompatibilityValidator(RepositoryContext context)
     /// </summary>
     private void ValidateCursorMarketplace(GeneratedFile file)
     {
-        var path = file.RelativePath.Replace('\\', '/');
+        var path = file.NormalizedRelativePath;
 
         if (file.Content is not JsonObject marketplace)
         {
@@ -259,7 +259,7 @@ internal sealed class CompatibilityValidator(RepositoryContext context)
 
     private void ValidateMarketplace(GeneratedFile file)
     {
-        var path = file.RelativePath.Replace('\\', '/');
+        var path = file.NormalizedRelativePath;
 
         if (file.Content is not JsonObject marketplace)
         {
@@ -433,7 +433,7 @@ internal sealed class CompatibilityValidator(RepositoryContext context)
     /// </summary>
     private void ValidateGeneratedHooks(GeneratedFile file)
     {
-        var path = file.RelativePath.Replace('\\', '/');
+        var path = file.NormalizedRelativePath;
 
         if (file.Content is not JsonObject document || document["hooks"] is not JsonObject events)
         {
@@ -495,7 +495,7 @@ internal sealed class CompatibilityValidator(RepositoryContext context)
     /// <summary>The derived .mcp.json must still be a usable Claude MCP document.</summary>
     private void ValidateGeneratedMcp(GeneratedFile file)
     {
-        var path = file.RelativePath.Replace('\\', '/');
+        var path = file.NormalizedRelativePath;
 
         if (file.Content is not JsonObject document || document["mcpServers"] is not JsonObject servers)
         {

@@ -12,10 +12,7 @@ public sealed class HttpScenariosContractTests
     public void User_commands_stay_squad_squad_review_pack_check_plus_http_scenarios()
     {
         var root = TestRepository.SourceRoot();
-        var commands = Directory.GetFiles(Path.Combine(root, "plugins"), "*.md", SearchOption.AllDirectories)
-            .Where(path => path.Contains($"{Path.DirectorySeparatorChar}commands{Path.DirectorySeparatorChar}", StringComparison.Ordinal)
-                && !path.Contains($"{Path.DirectorySeparatorChar}com.", StringComparison.Ordinal)
-                && !path.Contains($"{Path.DirectorySeparatorChar}bin{Path.DirectorySeparatorChar}", StringComparison.Ordinal))
+        var commands = TestRepository.AuthoredMarkdown("commands", root)
             .Select(path => Path.GetFileNameWithoutExtension(path) ?? path)
             .OrderBy(name => name, StringComparer.Ordinal)
             .ToArray();
@@ -132,7 +129,7 @@ public sealed class HttpScenariosContractTests
         Assert.False(run.HasFile("plugins/squad/.cursor-plugin/commands/http-scenarios.md"));
 
         var leftover = run.Generated
-            .Where(file => file.RelativePath.Replace('\\', '/').Contains("/commands/", StringComparison.Ordinal)
+            .Where(file => file.NormalizedRelativePath.Contains("/commands/", StringComparison.Ordinal)
                 && file.RelativePath.Contains("http-scenarios", StringComparison.Ordinal))
             .Select(file => file.RelativePath)
             .ToArray();
