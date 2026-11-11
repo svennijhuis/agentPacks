@@ -28,4 +28,5 @@ SOFTWARE.
 
 This pack restates that method as a technical design in `docs/design/<name>/`.
 It is not a verbatim import. The map is a folder. The tickets are gaps.
+The change list is the "What we changed" note in SKILL.md.
 Advice never closes a gap.
