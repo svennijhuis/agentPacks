@@ -1,41 +1,58 @@
 # productivity
 
-A capability pack for a technical design developers can build. `/tech-design` closes gaps one at a time, with advice, until a later wayfinder pass can turn the design into tickets that take story points.
+A capability pack for a technical design developers can build. `/tech-design` charts a shared map, then closes gaps one at a time, until a later wayfinder pass can turn the design into tickets that take story points.
 
 Claude, Cursor, and Codex run `/tech-design` (Codex: `$tech-design`). Copilot picker: `/productivity:tech-design`. The skill is `tech-design`.
 
-The person types the command. The model does not start a design on its own. One session charts the folder, takes one gap, or runs the ready gate, then stops.
+The person types the command. The model does not start a design on its own. One session charts the folder, takes one gap, or runs the ready gate, then stops. Research gaps are the exception: chart can fire those subagents together.
 
 Adapted from Matt Pocock's wayfinder skill (`skills/engineering/wayfinder` at `4ae2317ddb22b046e26455e4f9c9b3aaaf62212d`). [NOTICE](skills/tech-design/NOTICE.md).
 
 ## Start
 
-`/tech-design new <name> [types]`
+`/tech-design new <name> [types]` charts the map.
 
-Creates `docs/design/<name>/` with `README.md`, `design.md` (status `draft`), `glossary.md`, `gaps.md`, and `log.md`. `research/` and `input/` appear when the first note is saved. `openapi.yaml` is added only when the api type is in use. Charting does not close a gap.
+1. Name the destination with `grilling` and `domain-modeling`: a technical design developers can build. The destination fixes the scope.
+2. Grill again, breadth-first, to map the frontier. If that surfaces no fog, a design map is not needed. Stop and ask how to proceed.
+3. Create `docs/design/<name>/` with `design.md` (status `draft`, map block filled, Decisions so far empty), `glossary.md`, `gaps.md`, and `log.md`. `research/` and `input/` appear when the first note is saved. `openapi.yaml` is added only when the api type is in use. This folder has no README of its own. This file is the owner guide.
+4. Add the gaps you can specify now, then wire the `blocks` column in a second pass. Sketch the rest in **Not yet specified**.
+5. Fire a research subagent for each research gap. Findings go in `research/<topic>.md`.
+6. Stop. Charting resolves nothing by hand.
 
-The design folder `README.md` says how to resume.
+A second `new` for a folder that already exists stops. Resume instead.
 
 ## Resume
 
-`/tech-design <name>` loads that folder and runs one gap, then stops.
+`/tech-design <name>` loads `design.md` (the status line and the map sections), `gaps.md`, and the last `log.md` line. It does not load every research note.
 
-`/tech-design <name> grill [gap]` researches first, then asks one question with the recommended option, then stops.
+Status `ready`, `committed`, or `abandoned`: say so and stop. Otherwise claim the first frontier gap (status `open`, nothing in `blocks` still open, no owner) before any work, or the gap the person named. Resolve that one gap by its type, then stop.
+
+`/tech-design <name> grill [gap]` is the same path. Research and advice come before the one question.
 
 `/tech-design <name> ready` runs the gap gate. It sets document status `ready` only when no gap is `open`, `research`, or `waiting-on-input`. It then writes `tickets.md` and `wayfinder-brief.md`.
 
 ## Loop
 
-One gap, in this order:
+One gap, then stop. Never more than one gap in a session, except research gaps.
+
+Claim it first (`owner` set). The frontier is the open, unblocked, unclaimed rows. Refer to a gap by its question, not by a bare id.
+
+- **Research** (AFK): a subagent calls `research`. Findings go in `research/<topic>.md`.
+- **Prototype** (HITL): a cheap artifact to react to, linked from the gap row. The human's reaction is the answer.
+- **Grilling** (HITL): call `grilling` and `domain-modeling`, then the flowchart below. The agent never answers its own grill question.
+- **Task** (HITL or AFK): work that unblocks a decision. No real call to a dependency. Proof is the owner's spec, or their written answer, saved in `input/`.
+
+A grilling gap, in this order:
 
 1. Research. Read the code first, call `research`, read specs in `input/`, and check known patterns.
 2. Draft advice. Offer 2 to 3 options, the recommended one, why with a source, and the risk if `accepted-risk` is chosen.
 3. Grill. Ask one question with the recommended option.
 4. The human or the dependency owner chooses.
-5. Update `gaps.md` and add one `log.md` line.
-6. Stop.
+5. Update the gap row, add one `log.md` line, and add a gist line under **Decisions so far**.
+6. Add gaps the answer made specifiable, graduate fog, rule out-of-scope gaps out, and update invalidated gaps.
+7. Stop.
 
-Advice alone never closes a gap. The skill makes no real call to a dependency. Proof is the owner's spec, or their written answer, saved in `input/`.
+Advice alone never closes a gap.
 
 ```mermaid
 flowchart TD
@@ -47,9 +64,19 @@ flowchart TD
   advice -.-> never["Advice alone never closes a gap"]
 ```
 
+## Fog, decisions, and out of scope
+
+The map block sits at the top of `design.md`, under the status line. It is an index, loaded once per session. The decision lives in the gap row. The map only gists it.
+
+**Decisions so far** is one line per closed gap: the question, a pointer to the row, and a one-line gist.
+
+**Not yet specified** is the fog of war: in-scope questions you cannot phrase yet. Fog or ticket: if you can state the question precisely now, it is a gap, even when it is blocked. If you cannot phrase it yet, it stays fog. Fog graduates as the frontier advances. Do not pre-slice it.
+
+**Out of scope** is work beyond the destination. It never graduates. Closing a gap that sits past the destination leaves one line here, and that line is not a decision.
+
 ## Gap status
 
-A row holds id, question, status, owner, due, waiting-on note, source or answer, and blocks. A `waiting-on-input` row has an owner and a due date. `decided` and `accepted-risk` do not block the ready gate.
+A row holds id, question, type, status, owner, due, waiting-on note, source or answer, and blocks. `blocks` lists the gaps that must be `decided` or `accepted-risk` first. A `waiting-on-input` row has an owner and a due date. `decided` and `accepted-risk` do not block the ready gate.
 
 ```mermaid
 stateDiagram-v2
