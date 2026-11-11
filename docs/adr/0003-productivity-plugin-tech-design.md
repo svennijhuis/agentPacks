@@ -29,9 +29,9 @@ Usage:
 
 The command produces a technical design a business architect prepares for developers. Almost all gaps are closed before the handoff, so wayfinder can turn the design into tickets that can take story points. Skills stay generic. Playbook text is our own words, with no sample system in a skill.
 
-**The skill has the same shape as Matt Pocock's wayfinder.** Same structure, same loop, same way to start and to resume. Only the content is a technical design. The wayfinder way is the core loop. Sessions stay small. One session takes one gap or one topic: grill, research, write, update `gaps.md`, append one `log.md` line, and stop. A session never writes the whole design.
+**The skill has the same shape as Matt Pocock's wayfinder.** Same structure, same loop, same way to start and to resume. Only the content is a technical design. The wayfinder way is the core loop. The agent researches code, docs and sources itself before it asks, and it only asks what that research cannot settle. Sessions stay small. One session takes one gap or one topic: research, grill, write, update `gaps.md`, append one `log.md` line, and stop. A session never writes the whole design.
 
-**Grill me asks one question at a time**, along the decision tree, and never fills a gap in silence. No answer moves that gap to `waiting-on-input`, with an owner and a due date.
+**Grill me asks one question at a time**, along the decision tree, and never fills a gap in silence. The tool asks the human, but always with advice. Each question comes with the agent's recommended answer and why, based on research the agent did first. The human confirms or overrides. That is the decision. The agent never writes a decision on its own. No answer moves that gap to `waiting-on-input`, with an owner and a due date.
 
 **Each design is a folder in the product repo, `docs/design/<name>/`.**
 
@@ -39,6 +39,7 @@ The command produces a technical design a business architect prepares for develo
 | --- | --- |
 | `README.md` | How to start, and how to resume |
 | `design.md` | The design |
+| `glossary.md` | The domain language |
 | `gaps.md` | One row per gap |
 | `research/<topic>.md` | Notes for one topic |
 | `input/<date>.md` | Input saved that day |
@@ -71,7 +72,7 @@ stateDiagram-v2
 
 **Every external dependency runs the dependency-contract playbook.** The same playbook can run on its own. The fields are owner and response time; access (auth method, level or scopes, how to request, lead time); environments (test and prod URLs, test accounts, allowlist or VPN); contract (request, response, version, errors, timeout); limits (rate, SLA, cost); change notice; and proof. The skill makes no real calls. Proof is the owner's spec, such as their OpenAPI file, or a written answer from the owner, saved under `input/`. Free text from a chat, or a promise, does not close the gap. Any empty field is a blocking gap. The owner's OpenAPI spec is requested, and a missing spec is a blocking gap.
 
-**Imports come from three MIT sources, and from nowhere else, not even as ideas.** Matt Pocock: `https://github.com/mattpocock/skills` at `4ae2317ddb22b046e26455e4f9c9b3aaaf62212d`. pstack and the Cursor team kit share `https://github.com/cursor/plugins` at `ae5650febf4320793844c12c4adaa937f417f8da` (pstack is the `pstack/` tree). A model-invocable skill is pinned in `plugins/productivity/external-skills.json` by exact name, path, and the full 40-hex SHA (`docs/EXTERNAL-SKILLS.md`, [ADR 0001](0001-source-of-truth-and-generated-files.md)). A pin is never copied by hand.
+**Imports come from three MIT sources, and from nowhere else, not even as ideas.** Matt Pocock: `https://github.com/mattpocock/skills` at `4ae2317ddb22b046e26455e4f9c9b3aaaf62212d`. pstack and the Cursor team kit share `https://github.com/cursor/plugins` at `ae5650febf4320793844c12c4adaa937f417f8da` (pstack is the `pstack/` tree). A model-invocable skill is pinned in `plugins/productivity/external-skills.json` by exact name, path, and the full 40-hex SHA (`docs/EXTERNAL-SKILLS.md`, [ADR 0001](0001-source-of-truth-and-generated-files.md)). A pin is never copied by hand. Six skills are pinned.
 
 | Skill | Path |
 | --- | --- |
@@ -79,13 +80,24 @@ stateDiagram-v2
 | `codebase-design` | `skills/engineering/codebase-design` |
 | `grilling` | `skills/productivity/grilling` |
 | `research` | skill directory at the pinned commit |
+| `writing-for-agents` | `skills/productivity/writing-for-agents` |
 | `deslop` | `cursor-team-kit/skills/deslop` |
 
-`domain-modeling`, `codebase-design`, `grilling`, and `research` are in `mattpocock/skills`. `deslop` is in `cursor/plugins`. `deslop` cleans `openapi.yaml` and any code snippets.
+`domain-modeling`, `codebase-design`, `grilling`, `research`, and `writing-for-agents` are in `mattpocock/skills` at `4ae2317`. `writing-for-agents` is a model-invocable pin. `deslop` is in `cursor/plugins`. `deslop` cleans `openapi.yaml` and any code snippets.
 
 Skills with `disable-model-invocation: true` are copied and adapted. That copy is the exception to the pin rule above. Each copy carries `NOTICE.md`, a Source line, and a What we changed note. The Source line names the upstream skill and the commit the text was taken from. From Matt Pocock: `wayfinder`, `to-spec`, `to-questionnaire`, and `to-tickets` (`to-tickets` is `skills/engineering/to-tickets`). From pstack, under `pstack/skills/`: `architect`, `principle-exhaust-the-design-space`, `statechart`, `blast-radius`, and `interrogate`. `statechart` contributes mermaid flows only. Its scripts are not copied.
 
-`technical-writing` and `unslop` (pstack) are copied and adapted as well, because they are user-invocable only. `technical-writing` is the writing style for `design.md`. `unslop` is the last pass on every document. `how` and `why` (pstack, `pstack/skills/how` and `pstack/skills/why`) are copied and adapted in TD2, with the loop. `how` reads the existing code before any gap is filled. `why` writes the reason and the source for every decision, in `gaps.md` and in the advice.
+`technical-writing` and `unslop` (pstack) are copied and adapted as well, because they are user-invocable only. `technical-writing` is the writing style for `design.md`. `unslop` cleans the prose after that writing pass. The no-op pass below is the last pass on every document. `how` and `why` (pstack, `pstack/skills/how` and `pstack/skills/why`) are copied and adapted in TD2, with the loop. `how` reads the existing code before any gap is filled. `why` writes the reason and the source for every decision, in `gaps.md` and in the advice.
+
+**Writing for humans and agents.** Sources: Matt Pocock's `writing-for-agents` skill, his post "The code, not the spec, should be the center of your universe", and poteto (pstack) "writing is thinking".
+
+1. Two readers. The design has a human reader and an agent reader. The agent researches and drafts. The human writes the decisions and the advice, and the grill step pulls them out of the human. The agent never writes a decision on its own. The tool asks the human, but always with advice. Each grill question comes with the agent's recommended answer and why, based on research the agent did first. The agent researches code, docs and sources itself before asking, and only asks what research cannot settle. The human confirms or overrides. That is the decision.
+2. Point to code. `design.md` links real files, symbols, and `openapi.yaml` instead of copying them.
+3. Keep it short. Detail goes to `research/` and the type playbooks. Every gap has a hard "done when".
+4. Glossary. Each design folder gets `glossary.md` with the domain language.
+5. No-op pass. After `technical-writing` and `unslop`, a last pass removes every line that does not change what the reader does.
+
+The plugin README (TD1) gets a short "Writing for humans and agents" section.
 
 `docs-canvas` (`docs-canvas/skills/docs-canvas` in `cursor/plugins`) is optional, for showing `design.md` at a meeting. It is outside the loop. If it is used, it is pinned the same way as `deslop`, at the same SHA.
 
@@ -95,12 +107,14 @@ The only command file is `tech-design`. Adapted skills are loaded by exact skill
 
 **`/tech-design <name> ready` runs the gate.** It does a final attack pass, sets document status `ready` only when the gap gate passes, writes tickets whose blockers are sized for story points, and writes a wayfinder brief.
 
-**Delivery is one pull request at a time.** TD0 is this record. TD1 is the plugin skeleton. TD2 is the loop core and grill. TD3 is the dependency contract. TD4 is web and api. TD5 is data and integration. TD6 is research, input, and options. TD7 is readiness. TD8 is smoke.
+**Delivery is one pull request at a time.** TD0 is this record. TD1 is the plugin skeleton. Its README gets a short "Writing for humans and agents" section. TD2 is the loop core and grill. TD3 is the dependency contract. TD4 is web and api. TD5 is data and integration. TD6 is research, input, and options. TD7 is readiness. TD8 is smoke.
 
 ## Consequences
 
 - Squad stays untouched while this work lands.
 - Product repos gain one command. Resume, grill, and the gate are arguments of that command.
+- Each grill question carries the agent's recommended answer and why. The human confirms or overrides, and that is the decision.
+- Each design folder includes `glossary.md` for the domain language.
 - A design stays below `ready` while any gap is `open`, `research`, or `waiting-on-input`.
 - A waiting gap has an owner, a due date, and a deadline in `design.md`.
 - An unproved dependency stays a blocking gap. Chat text is not proof. The skill makes no real call.
