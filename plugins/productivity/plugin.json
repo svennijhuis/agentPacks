@@ -1,0 +1,21 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "productivity",
+  "version": "0.1.5",
+  "description": "User-invoked /tech-design: start, resume, grill, or ready a technical design. One gap per session. The human closes the gap.",
+  "author": {
+    "name": "agentPacks Maintainers"
+  },
+  "license": "UNLICENSED",
+  "keywords": [
+    "productivity",
+    "design",
+    "tech-design",
+    "gaps"
+  ],
+  "extensions": {
+    "com.anthropic.claude-code": {},
+    "com.openai.codex": {},
+    "com.github.copilot": {}
+  }
+}

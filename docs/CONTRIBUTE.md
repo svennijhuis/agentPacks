@@ -11,7 +11,7 @@ Audience: platform + product test teams. Maintainers still own catalog decisions
 | **A. Pack contribute** | `svennijhuis/agentPacks` | New/updated skill, standard, language pack, or capability pack |
 | **B. App testing** | Your product repo | Unit / integration / smoke; `/scenarios` writes smoke md |
 
-Locked user commands: `/squad` · `/squad-review` · `/scenarios` · `/pack-check` (plus `/security-audit` on the security pack) and `/pack-author` (Claude and Cursor; Copilot `/pack-author:author`).
+Locked user commands: `/squad` · `/squad-review` · `/scenarios` · `/pack-check` (plus `/security-audit` on the security pack), `/pack-author` (Claude and Cursor; Copilot `/pack-author:author`), and `/tech-design` (Copilot `/productivity:tech-design`).
 
 ---
 
@@ -24,7 +24,7 @@ Marketplace authors make, review, or change a skill or an agent with `/pack-auth
 1. Read [`docs/PLAN.md`](https://github.com/svennijhuis/agentPacks/blob/main/docs/PLAN.md). Frameworks do **not** earn their own plugin.
 2. Pick the owner:
    - **Language pack** (`dotnet` / `rust` / `typescript`) if it needs a compiler and contracted slots.
-   - **Role / capability pack** (`squad`, `git`, `security`, `pack-check`, `pack-author`) if it is workflow, not a language.
+   - **Role / capability pack** (`squad`, `git`, `security`, `pack-check`, `pack-author`, `productivity`) if it is workflow, not a language.
 3. Prefer **update an existing pack** over a new plugin. New plugins need catalog proof.
 
 Deep how-tos (do not duplicate here):

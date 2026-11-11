@@ -16,7 +16,7 @@ public sealed class SkillInvocabilityGuardTests
     // (docs/ADD-SKILL.md). Every other skill is loaded only by agents and must say `audience: loop`.
     private static readonly HashSet<string> EntrypointSkills = new(StringComparer.Ordinal)
     {
-        "squad", "scenarios-md", "security-audit-md", "pack-author-md", "pack-check",
+        "squad", "scenarios-md", "security-audit-md", "pack-author-md", "pack-check", "tech-design",
     };
 
     [Fact]

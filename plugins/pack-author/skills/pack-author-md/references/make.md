@@ -17,7 +17,7 @@ Write one skill or one agent into a pack that already ships. Ask once when kind,
 Read [PLAN.md](../../../../../docs/PLAN.md).
 
 1. A compiler in the picture: the language pack that already ships (`dotnet`, `rust`, `typescript`).
-2. An existing capability workflow: `squad`, `pack-check`, `git`, `security`, or `pack-author`.
+2. An existing capability workflow: `squad`, `pack-check`, `git`, `security`, `pack-author`, or `productivity`.
 3. A framework (React, NestJS, Axum, ASP.NET, Next): a skill inside the language pack. Do not add a plugin.
 4. No shipped pack fits: stop and name the gap. Do not write `plugin.json`.
 
@@ -25,7 +25,7 @@ Do not edit `plugins/squad/skills/squad/SKILL.md`.
 
 ## Names
 
-Skill name equals the directory. Kebab-case. No periods. Skill name differs from the command name. Copilot's emitted command name differs from the plugin name. Claude, Cursor, and Codex command may equal the plugin name. The stub must pass [style](style.md) before you stop.
+Skill name equals the directory. Kebab-case. No periods. Skill name differs from the command name. Shipped homonyms: squad, pack-check, and tech-design. Copilot's emitted command name differs from the plugin name. Claude, Cursor, and Codex command may equal the plugin name. The stub must pass [style](style.md) before you stop.
 
 ## Skill stub
 

@@ -19,3 +19,7 @@ v1 scaffolds a skill or an agent. Commands, hooks, and rules stay on [ADD-CLIENT
 ## Lane A
 
 [`docs/CONTRIBUTE.md`](CONTRIBUTE.md) lists `/pack-author` with the locked user commands. Claude and Cursor type `/pack-author`. Copilot types `/pack-author:author`. Suggestions stay human-apply only. This pack does not auto-rewrite skills.
+
+## Later exception
+
+`/tech-design` on the productivity plugin is the later slash, granted by Sven in [ADR 0003](adr/0003-productivity-plugin-tech-design.md). It is not a pack-author mode and not a Squad phase. This page stays Lane A for marketplace authors.

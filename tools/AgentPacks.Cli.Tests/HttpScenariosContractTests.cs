@@ -20,7 +20,7 @@ public sealed class HttpScenariosContractTests
             .OrderBy(name => name, StringComparer.Ordinal)
             .ToArray();
 
-        Assert.Equal(["pack-author", "pack-check", "scenarios", "security-audit", "squad", "squad-review"], commands);
+        Assert.Equal(["pack-author", "pack-check", "scenarios", "security-audit", "squad", "squad-review", "tech-design"], commands);
         Assert.Equal(TestRepository.ShippedPluginNames, TestRepository.ShippedPluginDirectories(root));
 
         var skill = TestRepository.ParseFrontmatter(File.ReadAllText(ScenariosSkillPath(root)));
