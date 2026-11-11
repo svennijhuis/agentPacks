@@ -32,8 +32,7 @@ Each gap has an id and a question. In anything the human reads, name the questio
 
 | File | Role |
 | --- | --- |
-| `README.md` | How to start, and how to resume |
-| `design.md` | The design. Status lives here |
+| `design.md` | The design. Status and the map sections live here |
 | `glossary.md` | Domain language |
 | `gaps.md` | One row per gap |
 | `research/<topic>.md` | Notes for one topic |
@@ -91,7 +90,7 @@ The person types the command. Four modes. Never resolve more than one gap per se
 `/tech-design new <name> [types]`
 
 1. Name the destination in the words the person used: a technical design developers can build.
-2. Create the folder and the files in the table, except `openapi.yaml`, `tickets.md`, and `wayfinder-brief.md`. Status `draft`. `README.md` says how to resume: `/tech-design <name>`.
+2. Create the folder and the files in the table, except `openapi.yaml`, `tickets.md`, and `wayfinder-brief.md`. Status `draft`. Resume is `/tech-design <name>`.
 3. Record any types the person named. Do not invent a checklist. Add `openapi.yaml` only when api is named.
 4. If the person already named one sharp question, add that gap as `open` and set status `discussion`. Otherwise stay at `draft`.
 5. Stop. Do not resolve a gap in this session.
@@ -102,7 +101,7 @@ A second `new` for a folder that already exists stops. Tell them to resume.
 
 `/tech-design <name>`
 
-1. Load `README.md`, the status line, `gaps.md`, and the last `log.md` line. Do not load every research note.
+1. Load `design.md` (the status line and the map sections), `gaps.md`, and the last `log.md` line. Do not load every research note.
 2. Missing folder: stop. Tell them to run `new`. Status `ready`, `committed`, or `abandoned`: say so and stop.
 3. Pick the gap. If the person named one, use it. Otherwise take the first `open` or `research` gap that is not blocked.
 4. Run [One gap](#one-gap). Stop.

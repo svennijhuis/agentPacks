@@ -58,7 +58,6 @@ Advice is drafted before the question. Only the human or the dependency owner cl
 
 | File | Role |
 | --- | --- |
-| `README.md` | How to start, and how to resume |
 | `design.md` | The design |
 | `glossary.md` | The domain language |
 | `gaps.md` | One row per gap |
@@ -71,14 +70,12 @@ Advice is drafted before the question. Only the human or the dependency owner cl
 flowchart TB
   subgraph folder ["docs/design/name/"]
     design["design.md"]
-    readme["README.md"]
     glossary["glossary.md"]
     gaps["gaps.md"]
     researchDir["research/"]
     inputDir["input/"]
     log["log.md"]
     openapi["openapi.yaml when api"]
-    design --> readme
     design --> glossary
     design --> gaps
     design --> researchDir

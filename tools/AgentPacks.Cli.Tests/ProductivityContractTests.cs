@@ -54,6 +54,25 @@ public sealed class ProductivityContractTests
         Assert.Contains("MIT License", notice, StringComparison.Ordinal);
         Assert.Contains(MattSha, notice, StringComparison.Ordinal);
         Assert.Contains("docs/design/<name>/", skill, StringComparison.Ordinal);
+        Assert.DoesNotContain("README.md", skill, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void Design_folder_has_no_readme_and_resume_reads_the_map()
+    {
+        var skill = File.ReadAllText(Path.Combine(PackRoot(), "skills", "tech-design", "SKILL.md"));
+        Assert.Contains(
+            "Load `design.md` (the status line and the map sections), `gaps.md`, and the last `log.md` line.",
+            skill,
+            StringComparison.Ordinal);
+
+        var adr = File.ReadAllText(Path.Combine(
+            TestRepository.SourceRoot(),
+            "docs",
+            "adr",
+            "0003-productivity-plugin-tech-design.md"));
+        Assert.DoesNotContain("| `README.md` |", adr, StringComparison.Ordinal);
+        Assert.DoesNotContain("README.md", adr.Split("**Each design is a folder")[1].Split("## Consequences")[0], StringComparison.Ordinal);
     }
 
     [Fact]
