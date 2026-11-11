@@ -52,7 +52,7 @@ public sealed class ProductivityContractTests
         Assert.Contains(MattSha, notice, StringComparison.Ordinal);
         Assert.Contains("MIT License", notice, StringComparison.Ordinal);
         Assert.DoesNotContain("What we changed:", skill, StringComparison.Ordinal);
-        Assert.Contains("https://github.com/mattpocock/skills/tree/" + MattSha + "/skills/engineering/wayfinder", skill, StringComparison.Ordinal);
+        Assert.DoesNotContain("skills/engineering/wayfinder", skill, StringComparison.Ordinal);
         Assert.Contains("## Skill per step", skill, StringComparison.Ordinal);
         Assert.Contains("<only the skills this design really needs, picked from Skill per step>", skill, StringComparison.Ordinal);
         Assert.Contains("Advice alone never closes a gap.", skill, StringComparison.Ordinal);
