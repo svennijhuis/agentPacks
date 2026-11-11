@@ -40,6 +40,18 @@ Per gap, the order is:
 5. Update `gaps.md` and add one `log.md` line.
 6. Stop.
 
+```mermaid
+flowchart TD
+  research["Research: how, research, input specs, known patterns"] --> advice["Draft: 2 to 3 options, recommended, why and source, risk if accepted-risk"]
+  advice --> grill["Grill: one question"]
+  grill --> choice["Human or dependency owner chooses"]
+  choice --> record["Update gaps.md and one log.md line"]
+  record --> halt["Stop"]
+  advice -.-> never["Advice alone never closes a gap"]
+```
+
+Advice is drafted before the question. Only the human or the dependency owner closes the gap.
+
 **Grill me asks one question at a time**, along the decision tree, and never fills a gap in silence. The question includes the recommended option and why. No answer moves that gap to `waiting-on-input`, with an owner and a due date.
 
 **Each design is a folder in the product repo, `docs/design/<name>/`.**
@@ -54,6 +66,29 @@ Per gap, the order is:
 | `input/<date>.md` | Input saved that day |
 | `log.md` | One line per session |
 | `openapi.yaml` | Present when the api type is in use |
+
+```mermaid
+flowchart TB
+  subgraph folder ["docs/design/name/"]
+    design["design.md"]
+    readme["README.md"]
+    glossary["glossary.md"]
+    gaps["gaps.md"]
+    researchDir["research/"]
+    inputDir["input/"]
+    log["log.md"]
+    openapi["openapi.yaml when api"]
+    design --> readme
+    design --> glossary
+    design --> gaps
+    design --> researchDir
+    design --> inputDir
+    design --> log
+    design --> openapi
+  end
+```
+
+`design.md` links to the other files in `docs/design/<name>/`. `openapi.yaml` is present only when the api type is in use.
 
 **Gap statuses are `open`, `research`, `waiting-on-input`, `decided`, and `accepted-risk`.** A row holds id, question, status, owner, due, waiting-on note, source or answer, and blocks. A `waiting-on-input` row has an owner and a due date. Document status `ready` is allowed only when zero gaps are `open`, `research`, or `waiting-on-input`. `decided` and `accepted-risk` do not block that gate.
 
@@ -75,7 +110,25 @@ stateDiagram-v2
 
 **Document status lives in the design file in git**, in the style of an Oxide RFD. The words are `draft`, `discussion`, `ready`, `committed`, and `abandoned`. `draft` is the new folder. `discussion` is work while gaps remain. `ready` means the gap gate passed. `committed` means builders follow this design. `abandoned` means the work stopped.
 
+```mermaid
+flowchart TD
+  newCmd["new: status draft"] --> resume["resume: one gap per session"]
+  resume --> grill["grill: one question"]
+  grill --> discussion["status discussion"]
+  discussion --> resume
+  discussion --> gate{"ready check: no open, research, or waiting-on-input"}
+  gate -->|pass| ready["status ready"]
+  gate -->|stay| discussion
+  ready --> outputs["complete design, tickets, wayfinder brief"]
+  outputs --> committed["status committed"]
+  discussion --> abandoned["status abandoned"]
+```
+
+Resume and grill repeat once per gap while the status is `discussion`. The ready check writes the complete design, the tickets, and a wayfinder brief only when no gap is `open`, `research`, or `waiting-on-input`.
+
 **`design.md` uses a fixed section order**, modeled on a Google design doc, plus ideas from Amazon, Uber, Shopify, and Oxide. Sections, in order: user outcome, context and scope, goals, non-goals, glossary, design, dependencies, alternatives, cross-cutting concerns, type checklists, advice, risks, acceptance criteria, and sign-off. User outcome comes first. The design section holds an overview, a diagram, boundaries and contracts, a data model, and flows as mermaid. Each external dependency is one dependency-contract block. Alternatives include do nothing. Cross-cutting concerns are security, privacy, observability, rollout, and testing. Advice states the recommended choice, why, and what changes if a gap flips. Each waiting gap has a deadline.
+
+**`design.md`, the plugin README, and the playbooks use mermaid where a diagram helps.** Use a diagram for a flow, a boundary, a data model, or a sequence. Keep each diagram small, and place it next to the text it explains.
 
 **Type playbooks are separate files: web, api, data, and integration.** Types combine (`types: [web, api]`). Gaps are the union of those checklists, deduped by checklist key, so each gap appears once and names every type that raised it. The api playbook writes or updates `openapi.yaml` (OpenAPI 3.1) as the contract first. Each endpoint carries an auth level, error codes, and a version. An empty field becomes a gap.
 
@@ -115,6 +168,11 @@ The only command file is `tech-design`. Adapted skills are loaded by exact skill
 **`/tech-design <name> ready` runs the gate.** It does a final attack pass, sets document status `ready` only when the gap gate passes, writes tickets whose blockers are sized for story points, and writes a wayfinder brief.
 
 **Delivery is one pull request at a time.** TD0 is this record. TD1 is the plugin skeleton. Its README gets a short "Writing for humans and agents" section. TD2 is the loop core and grill. TD3 is the dependency contract. TD4 is web and api. TD5 is data and integration. TD6 is research, input, and options. TD7 is readiness. TD8 is smoke.
+
+```mermaid
+flowchart LR
+  TD0["TD0 this record"] --> TD1["TD1 plugin skeleton"] --> TD2["TD2 loop core and grill"] --> TD3["TD3 dependency contract"] --> TD4["TD4 web and api"] --> TD5["TD5 data and integration"] --> TD6["TD6 research, input, options"] --> TD7["TD7 readiness"] --> TD8["TD8 smoke"]
+```
 
 ## Consequences
 
