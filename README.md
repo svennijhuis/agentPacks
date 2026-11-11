@@ -335,7 +335,7 @@ Modes are `make`, `review`, and `change`. v1 writes a skill or an agent. Review 
 /tech-design <name> ready
 ```
 
-`new` charts `docs/design/<name>/` and does not close a gap. The bare name resumes that design and takes one gap. `grill` asks one question with a recommended option. `ready` sets document status `ready` only when no gap is `open`, `research`, or `waiting-on-input`, then writes tickets and a wayfinder brief. Copilot picker: `/productivity:tech-design`. [Its README](plugins/productivity/README.md) has the loop.
+`new` charts `docs/design/<name>/` and does not close a gap. The bare name resumes that design and takes one gap. `grill` asks one question with a recommended option. `ready` sets document status `ready` only when no gap is `open`, `research`, or `waiting-on-input`, then writes `tickets.md`. Copilot picker: `/productivity:tech-design`. [Its README](plugins/productivity/README.md) has start, resume, and ready.
 
 `git` needs no invocation either, and has nothing to ask: its hook blocks `git reset --hard`, `git clean -fd`, `git push --force`, `git branch -D`, `git checkout .` and `git restore .` before the client runs them, with the reason on stderr. [Its README](plugins/git/README.md) covers the `AGENTPACKS_GIT_GUARD=off` switch and which clients the blocking contract is actually verified on.
 

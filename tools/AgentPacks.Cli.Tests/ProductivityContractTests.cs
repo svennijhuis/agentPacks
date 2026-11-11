@@ -41,25 +41,23 @@ public sealed class ProductivityContractTests
     }
 
     [Fact]
-    public void Tech_design_is_our_text_and_credits_wayfinder_style()
+    public void Skill_is_ours_and_notice_credits_wayfinder_style()
     {
         var skill = File.ReadAllText(Path.Combine(PackRoot(), "skills", "tech-design", "SKILL.md"));
         var notice = File.ReadAllText(Path.Combine(PackRoot(), "skills", "tech-design", "NOTICE.md"));
 
-        Assert.Contains("Style inspired by Matt Pocock's wayfinder", notice, StringComparison.Ordinal);
-        Assert.Contains("https://github.com/mattpocock/skills/tree/" + MattSha + "/skills/engineering/wayfinder", notice, StringComparison.Ordinal);
-        Assert.Contains("skills/engineering/wayfinder", notice, StringComparison.Ordinal);
-        Assert.Contains(MattSha, notice, StringComparison.Ordinal);
-        Assert.Contains("MIT License", notice, StringComparison.Ordinal);
         Assert.DoesNotContain("What we changed:", skill, StringComparison.Ordinal);
-        Assert.Contains("## Sources", skill, StringComparison.Ordinal);
-        Assert.Contains("https://github.com/mattpocock/skills/tree/" + MattSha + "/skills/engineering/wayfinder", skill, StringComparison.Ordinal);
-        Assert.Contains("## Skill per step", skill, StringComparison.Ordinal);
-        Assert.Contains("<only the skills this design really needs, picked from Skill per step>", skill, StringComparison.Ordinal);
+        Assert.DoesNotContain("skills/engineering/wayfinder", skill, StringComparison.Ordinal);
         Assert.Contains("Advice alone never closes a gap.", skill, StringComparison.Ordinal);
+        Assert.Contains("NOTICE.md", skill, StringComparison.Ordinal);
         Assert.Contains(MattSha, skill, StringComparison.Ordinal);
         Assert.Contains("docs/design/<name>/", skill, StringComparison.Ordinal);
         Assert.DoesNotContain("README.md", skill, StringComparison.Ordinal);
+        Assert.Contains("## Skill per step", skill, StringComparison.Ordinal);
+        Assert.Contains("Style inspired by Matt Pocock's wayfinder", notice, StringComparison.Ordinal);
+        Assert.Contains("https://github.com/mattpocock/skills/tree/" + MattSha + "/skills/engineering/wayfinder", notice, StringComparison.Ordinal);
+        Assert.Contains("MIT License", notice, StringComparison.Ordinal);
+        Assert.Contains(MattSha, notice, StringComparison.Ordinal);
     }
 
     [Fact]
@@ -67,7 +65,7 @@ public sealed class ProductivityContractTests
     {
         var skill = File.ReadAllText(Path.Combine(PackRoot(), "skills", "tech-design", "SKILL.md"));
         Assert.Contains(
-            "Load `design.md` (the status line and the map sections), `gaps.md`, and the last `log.md` line.",
+            "Load the status line and the map sections in `design.md`, `gaps.md`, and the last `log.md` line.",
             skill,
             StringComparison.Ordinal);
 
@@ -121,15 +119,12 @@ public sealed class ProductivityContractTests
     }
 
     [Fact]
-    public void Readme_carries_the_loop_and_status_diagrams()
+    public void Readme_carries_start_resume_and_ready()
     {
         var readme = File.ReadAllText(Path.Combine(PackRoot(), "README.md"));
         Assert.Contains("## Start", readme, StringComparison.Ordinal);
         Assert.Contains("## Resume", readme, StringComparison.Ordinal);
-        Assert.Contains("## Writing for humans and agents", readme, StringComparison.Ordinal);
-        Assert.Contains("```mermaid", readme, StringComparison.Ordinal);
-        Assert.Contains("flowchart TD", readme, StringComparison.Ordinal);
-        Assert.Contains("stateDiagram-v2", readme, StringComparison.Ordinal);
+        Assert.Contains("## Ready", readme, StringComparison.Ordinal);
         Assert.Contains("waiting-on-input", readme, StringComparison.Ordinal);
         Assert.Contains("Advice alone never closes a gap", readme, StringComparison.Ordinal);
         Assert.DoesNotContain("\u2014", readme);
