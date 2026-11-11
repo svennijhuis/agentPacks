@@ -3,7 +3,7 @@ using System.Text.Json.Nodes;
 namespace AgentPacks.Cli.Tests;
 
 /// <summary>
-/// Inventory for the productivity plugin: one slash, one adapted skill, six pins.
+/// Inventory for the productivity plugin: one slash, one skill, six pins.
 /// </summary>
 public sealed class ProductivityContractTests
 {
@@ -41,18 +41,21 @@ public sealed class ProductivityContractTests
     }
 
     [Fact]
-    public void Wayfinder_copy_names_its_source_and_what_changed()
+    public void Tech_design_is_our_text_and_credits_wayfinder_style()
     {
         var skill = File.ReadAllText(Path.Combine(PackRoot(), "skills", "tech-design", "SKILL.md"));
         var notice = File.ReadAllText(Path.Combine(PackRoot(), "skills", "tech-design", "NOTICE.md"));
 
-        Assert.Contains("skills/engineering/wayfinder", skill, StringComparison.Ordinal);
-        Assert.Contains(MattSha, skill, StringComparison.Ordinal);
-        Assert.Contains("What we changed:", skill, StringComparison.Ordinal);
-        Assert.Contains("Advice alone never closes a gap.", skill, StringComparison.Ordinal);
-        Assert.Contains("NOTICE.md", skill, StringComparison.Ordinal);
-        Assert.Contains("MIT License", notice, StringComparison.Ordinal);
+        Assert.Contains("structure and style inspired by mattpocock/skills wayfinder @4ae2317, text rewritten", notice, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("skills/engineering/wayfinder", notice, StringComparison.Ordinal);
         Assert.Contains(MattSha, notice, StringComparison.Ordinal);
+        Assert.Contains("MIT License", notice, StringComparison.Ordinal);
+        Assert.DoesNotContain("What we changed:", skill, StringComparison.Ordinal);
+        Assert.DoesNotContain("skills/engineering/wayfinder", skill, StringComparison.Ordinal);
+        Assert.Contains("## Skill per step", skill, StringComparison.Ordinal);
+        Assert.Contains("<only the skills this design really needs, picked from Skill per step>", skill, StringComparison.Ordinal);
+        Assert.Contains("Advice alone never closes a gap.", skill, StringComparison.Ordinal);
+        Assert.Contains(MattSha, skill, StringComparison.Ordinal);
         Assert.Contains("docs/design/<name>/", skill, StringComparison.Ordinal);
         Assert.DoesNotContain("README.md", skill, StringComparison.Ordinal);
     }

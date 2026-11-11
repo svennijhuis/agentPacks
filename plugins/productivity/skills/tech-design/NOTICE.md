@@ -1,10 +1,13 @@
 # Notice
 
-The `/tech-design` loop (chart a map, work one decision, then stop) is adapted
-from Matt Pocock's wayfinder skill, MIT License.
+Structure and style inspired by mattpocock/skills wayfinder @4ae2317, text rewritten.
 
-Source: `skills/engineering/wayfinder` in https://github.com/mattpocock/skills
+The shape comes from `skills/engineering/wayfinder` in https://github.com/mattpocock/skills
 at `4ae2317ddb22b046e26455e4f9c9b3aaaf62212d`.
+
+https://github.com/mattpocock/skills/tree/4ae2317ddb22b046e26455e4f9c9b3aaaf62212d/skills/engineering/wayfinder
+
+MIT License
 
 Copyright (c) 2026 Matt Pocock
 
@@ -26,7 +29,4 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
-This pack restates that method as a technical design in `docs/design/<name>/`.
-It is not a verbatim import. The map is a folder. The tickets are gaps.
-The change list is the "What we changed" note in SKILL.md.
-Advice never closes a gap.
+The procedure in this folder is our text for a technical design in `docs/design/<name>/`.

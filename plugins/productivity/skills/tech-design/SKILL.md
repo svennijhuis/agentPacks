@@ -8,47 +8,21 @@ user-invocable: false
 
 # Tech design
 
-User-invoked. The command is the slash. The model does not start a design on its own.
+The person types the command. Chart a technical design in `docs/design/<name>/`, close one gap, or run the ready gate. Then stop. The design is what developers build. Almost every gap is closed before handoff, so a later pass can turn it into tickets that take story points.
 
-Load with the Skill tool by exact name `tech-design`. Never write `/tech-design` as prose to load it.
+Load this skill with the Skill tool by exact name `tech-design`.
 
-Source: `skills/engineering/wayfinder` in https://github.com/mattpocock/skills at `4ae2317ddb22b046e26455e4f9c9b3aaaf62212d`. See [NOTICE.md](NOTICE.md).
-
-What we changed:
-
-- The map is the design folder `docs/design/<name>/`, not an issue on a tracker. No tracker setup, no `wayfinder:map` label, and no child issues.
-- Tickets are gaps: rows in `gaps.md`. The name is the question. Blocking is the `blocks` column. The claim is `owner`, set before any work. The frontier is the open, unblocked, unclaimed gaps.
-- Destination, Notes, Decisions so far, Not yet specified, and Out of scope live at the top of `design.md` and are loaded once per session. Decisions so far is an index: one gist line and a pointer to the gap row. The decision lives in exactly one place, the gap.
-- Research subagents write `research/<topic>.md`. No throwaway branch and no pull request.
-- Prototype stays a HITL gap. This pack does not pin a prototype skill, so the session makes the cheap artifact and links it from the gap row.
-- A task gap makes no real dependency call. Proof is the owner's spec, or a written answer in `input/`.
-- A grilling gap researches first, drafts advice, then asks one question and stops. Advice alone never closes a gap. Which skill runs at which step is [Skill per step](#skill-per-step).
-- Gap statuses are `open`, `research`, `waiting-on-input`, `decided`, and `accepted-risk`. Document status on `design.md` is `draft`, `discussion`, `ready`, `committed`, or `abandoned`.
-- Fixed design sections follow the map block in `design.md`.
-- Resume and grill load the status line and the map sections in `design.md`, `gaps.md`, and the last `log.md` line.
-- Modes are chart (`/tech-design new <name> [types]`), work (resume and grill), and ready. Ready writes `tickets.md` and `wayfinder-brief.md`.
-
-A loose idea has arrived, too big for one agent session, and wrapped in fog: the way from here to the **destination** isn't visible yet. Tech design is about finding that way, not charging at the destination. This skill charts the way as a **shared map** in `docs/design/<name>/`, then works its **gaps** (questions whose resolution is a decision, not slices of a build to execute) one at a time until the route is clear.
-
-The destination varies per effort, and naming it is the first act of charting: it shapes every gap. Here it is a technical design developers can build. Almost all gaps are closed before handoff, so a later wayfinder pass can turn the design into tickets that take story points.
-
-## Plan, don't do
-
-Tech design is **planning** by default: each gap resolves a decision, and the map is done when the way is clear, with nothing left to decide before someone goes and does the thing. The pull to just do the work is usually the signal you've reached the edge of the map and it's time to hand off. An effort can override this in its **Notes**, carrying execution into the map itself, but absent that, produce decisions, not deliverables.
-
-Each session charts the folder, resolves one gap, or runs the ready gate. It does not write the whole design. It does not build the product.
+Write decisions, not the product. One session charts the folder, resolves one gap, or runs ready. It does not write the whole design, and it does not build the product. Research gaps are the exception at chart time: those subagents may run together. Stop when the next pull is to start building. That pull means the map is ready to hand off. Notes may carry execution for one effort. Otherwise hand off.
 
 ## Refer by name
 
-Every gap has a **name**: its question. In everything the human reads (narration, the map's Decisions so far), refer to it by that question, never by a bare id, number, or slug. A wall of `G1, G2, G3` is illegible; names read at a glance. The id doesn't vanish; the question wraps a pointer to its row, but the id rides _inside_ the name, never stands in for it.
+In anything a person reads, name a gap by its question. Put the id inside that name. A list of bare ids is hard to scan.
 
-## The Map
+## The map
 
-The map is the design folder `docs/design/<name>/`. `design.md` is the canonical artifact. Its gaps are rows in `gaps.md`.
+The map is the folder `docs/design/<name>/`. `design.md` is the index. A decision lives in one gap row. The map keeps a one-line gist and a pointer to that row.
 
-The map is an **index**, not a store. It lists the decisions made and points at the gaps that hold their detail; a decision lives in exactly one place, its gap, so the map never restates it, only gists it and links.
-
-There is no issue tracker. Blocking, claims, and the frontier live in `gaps.md`.
+There is no issue tracker. Blocking, the claim, and the frontier live in `gaps.md`.
 
 | File | Role |
 | --- | --- |
@@ -62,7 +36,7 @@ There is no issue tracker. Blocking, claims, and the frontier live in `gaps.md`.
 | `tickets.md` | Written by ready, after the gate passes |
 | `wayfinder-brief.md` | Written by ready, after the gate passes |
 
-Document status is the first line under the title: `Status: draft`, `discussion`, `ready`, `committed`, or `abandoned`.
+The first line under the title is the document status: `draft`, `discussion`, `ready`, `committed`, or `abandoned`.
 
 - `draft`: the new folder.
 - `discussion`: work while gaps remain. Resume and grill repeat here.
@@ -70,141 +44,135 @@ Document status is the first line under the title: `Status: draft`, `discussion`
 - `committed`: builders follow this design.
 - `abandoned`: the work stopped.
 
-The map block comes next, then the fixed sections, in order: user outcome, context and scope, goals, non-goals, glossary, design, dependencies, alternatives, cross-cutting concerns, type checklists, advice, risks, acceptance criteria, sign-off. User outcome is first among those sections. The design section holds an overview, a small diagram, boundaries and contracts, a data model, and flows as mermaid. Put each diagram next to the text it explains. Alternatives include do nothing. Cross-cutting concerns are security, privacy, observability, rollout, and testing. The advice section states the recommended choice, why, and what changes if a gap flips. Each waiting gap has a deadline in `design.md`. Link real files, symbols, and `openapi.yaml`. Do not paste them.
+The map block comes next. Then the fixed sections, in this order: user outcome, context and scope, goals, non-goals, glossary, design, dependencies, alternatives, cross-cutting concerns, type checklists, advice, risks, acceptance criteria, sign-off. User outcome is first. The design section holds an overview, a small diagram, boundaries and contracts, a data model, and flows as mermaid. Put each diagram next to the text it explains. Alternatives include do nothing. Cross-cutting concerns are security, privacy, observability, rollout, and testing. The advice section states the recommended choice, why, and what changes if a gap flips. Each waiting gap has a deadline in `design.md`. Link real files, symbols, and `openapi.yaml`. Do not paste them.
 
-Record named types on the design. Do not invent a type checklist. Type playbooks (web, api, data, integration) are coming in TD2+. When api is named, keep `openapi.yaml`. An empty contract field is a gap. A state diagram uses `statechart` (TD2+) and writes the mermaid state in `design.md`.
+Record only types the person named. Do not invent a type checklist. Type playbooks arrive in TD2+. When api is named, keep `openapi.yaml`. An empty contract field is a gap.
 
-### The map body
+On every edit of `design.md`, call the Skill tool with `writing-for-agents`. When `openapi.yaml` or a code snippet changes, call the Skill tool with `deslop`. When the design needs a state diagram, call the Skill tool with `statechart` (TD2+). The no-op pass deletes every line that does not change what the reader does.
 
-The whole map at low resolution, loaded once per session. These sections are the map block at the top of `design.md`. Open gaps are **not** listed: they are rows in `gaps.md`, found by reading that file.
+### Map block
+
+Load this block once per session. Open gaps are rows in `gaps.md`, not lines in this block.
 
 ```markdown
 ## Destination
 
-<what reaching the end of this map looks like: the technical design this effort is finding its way to. One or two lines; every session orients to it before choosing a gap.>
+<what reaching the end of this map looks like: the technical design this effort is finding its way to. One or two lines. Every session reads this before it chooses a gap.>
 
 ## Notes
 
-<domain; only the skills this design really needs, picked from Skill per step; standing preferences for this effort>
+<domain. <only the skills this design really needs, picked from Skill per step>. Standing preferences for this effort.>
 
 ## Decisions so far
 
-<!-- the index: one line per closed gap, enough to judge relevance, then zoom the gap row for the detail the gap holds. A decision lives in exactly one place, the gap. The map never restates it. -->
+<!-- one line per closed gap: the question, a pointer to its row, a one-line gist. The decision stays in the gap. -->
 
 - <gap question> (pointer to its row in gaps.md): <one-line gist of the answer>
 
 ## Not yet specified
 
-<!-- see "Fog of war": in-scope fog you can't write as a gap yet; graduates as the frontier advances -->
+<!-- in-scope questions you cannot phrase yet. See Fog of war. -->
 
 ## Out of scope
 
-<!-- see "Out of scope": work ruled beyond the destination; closed, never graduates -->
+<!-- work beyond the destination. Closed. It does not graduate. -->
 ```
 
 ### Gaps
 
-Each gap is a **row** in `gaps.md`. Columns: id, question, type, status, owner, due, waiting-on note, source or answer, blocks. The question is the decision or investigation this gap resolves, sized to one 100K token agent session, and it ends with a hard done-when.
+Each gap is a row in `gaps.md`. Columns: id, question, type, status, owner, due, waiting-on note, source or answer, blocks. The question is the decision this gap resolves. End it with a hard done-when. The question never states the type. Read the type column.
 
-Each gap carries a type, one of `research`, `prototype`, `grilling`, `task` (see [Gap types](#gap-types)). The question never states the type. Read the type column.
+A session claims a gap by setting `owner` before any work. An open gap with an empty owner is unclaimed. Concurrent sessions skip a claimed row.
 
-A session **claims** a gap by setting `owner` to the person driving the map, **first**, before any work, so concurrent sessions skip it. That owner _is_ the claim: an open gap with an empty owner is unclaimed.
+`blocks` lists the ids that must be `decided` or `accepted-risk` before this row. An empty `blocks` cell is unblocked. The frontier is the rows whose status is `open`, that are unblocked, and that have no owner.
 
-Blocking uses the `blocks` column: the ids of the gaps that must be resolved before this one. A gap is **unblocked** when every id in `blocks` is `decided` or `accepted-risk` (an empty `blocks` column is unblocked). The **frontier** is the rows whose status is `open`, that are unblocked, and that have no owner: the edge of the known.
-
-The answer isn't part of the question; it's recorded on resolution (see [Work through the map](#work-through-the-map)). Assets created while resolving a gap are linked from the row, not pasted in.
+The answer is recorded on resolution, not in the question. Link assets from the row. Do not paste them in.
 
 Statuses: `open`, `research`, `waiting-on-input`, `decided`, `accepted-risk`.
 
-This session moves a gap to `research` while it studies it. No answer: `to-questionnaire` (TD2+) writes the question in `input/`, then the row moves to `waiting-on-input` with an owner and a due date. The human or the dependency owner moves it to `decided` by an answer you save. They move it to `accepted-risk` only when they accept the risk you named. Advice alone never closes a gap.
+This session sets `research` while it studies the gap. No answer sets `waiting-on-input`, with an owner and a due date. Call the Skill tool with `to-questionnaire` (TD2+) and save the question under `input/`. The human or the dependency owner sets `decided` by an answer you save. They set `accepted-risk` only when they accept the risk you named. Advice alone never closes a gap.
 
 Saved input moves `waiting-on-input` back to `research`, or to `decided` when that input answers the question.
 
-Do not add a gap you cannot phrase. Unphrased in-scope work stays in **Not yet specified**.
+Leave an unphrased in-scope question in **Not yet specified**.
 
 ## Gap types
 
-Every gap is either **HITL** (human in the loop, worked _with_ a human who speaks for themselves) or **AFK**, driven by the agent alone. A HITL gap only resolves through that live exchange; the agent never stands in for the human's side of it (a grilling agent that answers its own questions has broken this). The agent never answers its own grill question.
+A gap is HITL or AFK. HITL means a human speaks for themselves. AFK means the agent drives it. A HITL gap closes only through that live exchange. The agent never answers its own grill question.
 
-- **Research** (AFK): Reading documentation, third-party APIs, or local resources like knowledge bases to surface a fact a decision waits on. Resolved by a subagent: `how` (TD2+) on the code, then call the Skill tool with `research` on the docs, and read `input/`. Findings go in `research/<topic>.md`. Use when knowledge outside the current working directory is required.
-- **Prototype** (HITL): Raise the fidelity of the discussion by making a cheap, rough, concrete artifact to react to (an outline, a rough take, a stub, or UI/logic code). Link the prototype from the gap row. Use when "how should it look" or "how should it behave" is the key question. Resolved only through the live human reaction to that artifact.
-- **Grilling** (HITL): Conversation. The default case. This session asks one question, the gap's question, then stops. Do not open another gap's question in the same session. The agent never answers its own grill question. Research first: `how` (TD2+) on the code, then call the Skill tool with `research` on the docs, and read `input/`. Draft advice: `architect` (TD2+) and `principle-exhaust-the-design-space` (TD2+) for options, call the Skill tool with `codebase-design` when a seam is in play, `why` (TD2+) for the source, and `blast-radius` (TD2+) for the risk line. Offer 2 to 3 options, the recommended one, why with a source, and the risk if `accepted-risk` is chosen. Then call the Skill tool with `grilling` and `domain-modeling`. The question includes the recommended option and why.
-- **Task** (HITL or AFK): Manual work that must happen before a _decision_ can be made: nothing to decide, prototype, or research, but the discussion is blocked until it's done. Signing up for a service so its API can be judged, provisioning access, moving data so its shape can be seen. This is the one type that _does_ rather than decides, and it earns its place by unblocking a decision, not by delivering the destination. The agent drives it alone where it can (AFK); otherwise it hands the human a precise checklist (HITL). Resolved when the work is done; the answer records what was done and any resulting facts (credentials location, new URLs, row counts) later gaps depend on. No real dependency calls. Proof is the owner's spec, or their written answer, saved in `input/`. Chat text is not proof. An empty proof field stays a blocking gap. The dependency-contract playbook is coming in TD2+.
-
+- **Research** (AFK). A fact the decision waits on, from docs, a third-party API, or a local source outside this working directory. A subagent calls the Skill tool with `how` (TD2+) on the code, then `research` on the docs, and reads `input/`. Findings go in `research/<topic>.md`.
+- **Prototype** (HITL). A cheap artifact the human can react to: an outline, a rough take, a stub, or a short piece of UI or logic. Link it from the row. The human's reaction is the answer. This pack does not pin a prototype skill.
+- **Grilling** (HITL). The default. Call the Skill tool with `grilling` and `domain-modeling`. Ask one question, the gap's question, then stop. The question includes the recommended option and why. When a term is in play, update `glossary.md`. Before the question, draft advice. Call the Skill tool with `architect` (TD2+) and `principle-exhaust-the-design-space` (TD2+) for the options, `codebase-design` when a seam is in play, `why` (TD2+) for the source, and `blast-radius` (TD2+) for the risk line. Offer 2 to 3 options, the recommended one, why with a source, and the risk if `accepted-risk` is chosen.
+- **Task** (HITL or AFK). Work that must happen before a decision, and that does not itself decide the destination. The agent drives it where it can. Otherwise hand the human a precise checklist. The answer records what was done and the facts later gaps need. Make no real dependency call. Proof is the owner's spec, or their written answer, saved in `input/`. Chat text is not proof. An empty proof field stays a blocking gap. The dependency-contract playbook arrives in TD2+.
 
 ## Fog of war
 
-The map is _deliberately_ incomplete: don't chart what you can't yet see. Beyond the live gaps lies the **fog of war**: the dim view of decisions and investigations you can tell are coming but can't yet pin down, because they hang on questions still open. Resolving a gap clears the fog ahead of it, graduating whatever's now specifiable into fresh gaps, one at a time, until the way to the destination is clear and no gaps remain.
+Leave the map incomplete on purpose. Fog of war is the in-scope work you can see coming and cannot phrase yet, because it hangs on an open question. Resolving a gap clears the fog ahead of it. Graduate what you can now phrase into new gaps, one patch at a time, until no gaps remain.
 
-The map's **Not yet specified** section is where that dim view is written down: the suspected question, the area to revisit later. It's the undiscovered frontier _toward_ the destination: everything here is in scope, just not sharp enough to write as a gap. Write as loosely or as fully as the view allows; it doubles as a signpost for collaborators reading where the effort is headed.
+Write that dim view under **Not yet specified**. The test is whether you can phrase the question now, not whether you can answer it.
 
-**Fog or ticket?** The test is whether you can state the question precisely now, _not_ whether you can answer it now.
+- Phrase it now, even if it is blocked: add a gap row.
+- You cannot phrase it yet: leave it in the fog. Do not pre-slice it. One patch may become several gaps, or none.
 
-- **Ticket when** the question is already sharp, even if it's blocked and you can't act on it yet. Write that ticket as a gap row.
-- **Not yet specified when** you can't yet phrase it that sharply. Don't pre-slice the fog into gap-sized pieces: it's coarser than a gap, and one patch may graduate into several gaps, or none, once the frontier reaches it.
-
-**Not yet specified** excludes what's already decided (Decisions so far), what's already a live gap, and what's out of scope (the next section).
+**Not yet specified** excludes decisions already made, live gaps, and work that is out of scope.
 
 ## Out of scope
 
-Fog only ever gathers _toward_ the destination. The destination fixes the scope, so work beyond it is **out of scope**: it isn't fog, and it doesn't belong in **Not yet specified**. It gets its own **Out of scope** section on the map: work you've consciously ruled out of _this_ effort. Scope, not sharpness, lands it here.
+Fog gathers toward the destination. Work past that destination is out of scope. It is not fog, and it does not graduate. It returns only if the destination is redrawn, as a new effort.
 
-Out-of-scope work never graduates (the frontier stops at the destination), so it returns only if the destination is redrawn, and then as a fresh effort, not a resumption.
-
-Ruling something out of scope is a scoping act, not a step on the route. When a gap that already exists turns out to sit past the destination (mis-scoped in while charting, or exposed by a resolution), **close it** (a closed gap is unambiguously off the frontier: drop the row, do not leave it `open`) and leave one line in the **Out of scope** section: the gist plus why it's out of scope, naming the question. It stays out of **Decisions so far**, which records the route actually walked; a scope boundary isn't a step on it. The non-goals section points at that line. It does not restate it.
+Ruling a live gap out of scope is a scope cut, not a decision on the route. Drop the row so it leaves the frontier. Add one line under **Out of scope**: the gist, why it is out, and the question. Leave it out of **Decisions so far**. The non-goals section points at that line and does not restate it.
 
 ## Skill per step
 
-Call a pinned skill with the Skill tool by exact name. A name marked (TD2+) ships in a later pack: name it at the step, and leave the call until that pack pins it.
+Call the Skill tool by the name in this table. `pin` means the skill is listed in `external-skills.json`. `copy + adapt` means the copy arrives in TD2+ per ADR 0003. Call a (TD2+) skill once that copy is in this pack. Until then, do the rest of the step and do not invent the missing skill.
 
-| Step | Skills | Output |
-| --- | --- | --- |
-| Chart: destination and frontier | `grilling` + `domain-modeling` | design.md map, gaps.md, glossary.md |
-| Research per gap (first) | `how` (TD2+) on the code, `research` on the docs, read input/ | research/<topic>.md |
-| Draft advice | `architect` (TD2+) + `principle-exhaust-the-design-space` (TD2+) for options, `codebase-design` when a seam is in play, `why` (TD2+) for the source, `blast-radius` (TD2+) for the risk line | advice block in the gap |
-| Grill (one question) | `grilling` + `domain-modeling` | answer in the gap, log line |
-| No answer | `to-questionnaire` (TD2+) | question in input/, waiting-on-input |
-| State diagram | `statechart` (TD2+) | mermaid state in design.md |
-| Every edit of design.md | `writing-for-agents`, plus `deslop` on openapi.yaml or code | (none) |
-| Ready | `interrogate` (TD2+) over the whole design, then `technical-writing` (TD2+), `unslop` (TD2+) and the no-op pass, then `to-spec` (TD2+) and `to-tickets` (TD2+) | tickets.md, wayfinder-brief.md |
+| Step | Skills | Use | Source | Output |
+| --- | --- | --- | --- | --- |
+| Chart: destination and frontier | grilling, domain-modeling | pin | [grilling](https://github.com/mattpocock/skills/tree/4ae2317ddb22b046e26455e4f9c9b3aaaf62212d/skills/productivity/grilling), [domain-modeling](https://github.com/mattpocock/skills/tree/4ae2317ddb22b046e26455e4f9c9b3aaaf62212d/skills/engineering/domain-modeling) | design.md map, gaps.md, glossary.md |
+| Research per gap (first) | how (TD2+) on the code, research on the docs, read input/ | copy + adapt for how, pin for research | [how](https://github.com/cursor/plugins/tree/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/how), [research](https://github.com/mattpocock/skills/tree/4ae2317ddb22b046e26455e4f9c9b3aaaf62212d/skills/engineering/research) | `research/<topic>.md` |
+| Draft advice | architect (TD2+) and principle-exhaust-the-design-space (TD2+) for options, codebase-design when a seam is in play, why (TD2+) for the source, blast-radius (TD2+) for the risk line | copy + adapt for architect, principle-exhaust-the-design-space, why, and blast-radius. pin for codebase-design | [architect](https://github.com/cursor/plugins/tree/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/architect), [principle-exhaust-the-design-space](https://github.com/cursor/plugins/tree/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/principle-exhaust-the-design-space), [codebase-design](https://github.com/mattpocock/skills/tree/4ae2317ddb22b046e26455e4f9c9b3aaaf62212d/skills/engineering/codebase-design), [why](https://github.com/cursor/plugins/tree/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/why), [blast-radius](https://github.com/cursor/plugins/tree/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/blast-radius) | advice block in the gap |
+| Grill (one question) | grilling, domain-modeling | pin | [grilling](https://github.com/mattpocock/skills/tree/4ae2317ddb22b046e26455e4f9c9b3aaaf62212d/skills/productivity/grilling), [domain-modeling](https://github.com/mattpocock/skills/tree/4ae2317ddb22b046e26455e4f9c9b3aaaf62212d/skills/engineering/domain-modeling) | answer in the gap, log line |
+| No answer | to-questionnaire (TD2+) | copy + adapt | [to-questionnaire](https://github.com/mattpocock/skills/tree/4ae2317ddb22b046e26455e4f9c9b3aaaf62212d/skills/productivity/to-questionnaire) | question in input/, waiting-on-input |
+| State diagram | statechart (TD2+) | copy + adapt | [statechart](https://github.com/cursor/plugins/tree/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/statechart) | mermaid state in design.md |
+| Every edit of design.md | writing-for-agents, plus deslop on openapi.yaml or code | pin | [writing-for-agents](https://github.com/mattpocock/skills/tree/4ae2317ddb22b046e26455e4f9c9b3aaaf62212d/skills/productivity/writing-for-agents), [deslop](https://github.com/cursor/plugins/tree/ae5650febf4320793844c12c4adaa937f417f8da/cursor-team-kit/skills/deslop) | (none) |
+| Ready | interrogate (TD2+) over the whole design, then technical-writing (TD2+), unslop (TD2+) and the no-op pass, then to-spec (TD2+) and to-tickets (TD2+) | copy + adapt for interrogate, technical-writing, unslop, to-spec, and to-tickets. The no-op pass is this skill | [interrogate](https://github.com/cursor/plugins/tree/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/interrogate), [technical-writing](https://github.com/cursor/plugins/tree/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/technical-writing), [unslop](https://github.com/cursor/plugins/tree/ae5650febf4320793844c12c4adaa937f417f8da/pstack/skills/unslop), [to-spec](https://github.com/mattpocock/skills/tree/4ae2317ddb22b046e26455e4f9c9b3aaaf62212d/skills/engineering/to-spec), [to-tickets](https://github.com/mattpocock/skills/tree/4ae2317ddb22b046e26455e4f9c9b3aaaf62212d/skills/engineering/to-tickets) | tickets.md, wayfinder-brief.md |
 
-## Invocation
+## Modes
 
-The person types the command. Chart and work are the two modes. Ready is the gate after the way is clear. Either way, **never resolve more than one gap per session**, with the exception of research gaps. Charting and ready resolve nothing by hand.
+Chart and work are the two modes. Ready is the gate after the way is clear. Resolve at most one gap per session. Research gaps are the exception. Charting and ready resolve nothing by hand.
 
 ### Chart the map
 
-User invokes with `/tech-design new <name> [types]`.
+The person runs `/tech-design new <name> [types]`.
 
-1. **Name the destination.** Call the Skill tool with `grilling` and `domain-modeling`, to pin down what this map is finding its way to: a technical design developers can build. The destination fixes the scope, so it's settled first. Record any types the person named. Do not invent a checklist.
-2. **Map the frontier.** Call the Skill tool with `grilling` and `domain-modeling` again, **breadth-first** this time: fan out across the whole space rather than deep on any one thread, surfacing the open decisions and the first steps takeable now. **If this surfaces no fog** (the way to the destination is already clear, the whole journey small enough for one session), a design map is not needed. Stop and ask the user how they'd like to proceed.
-3. **Create the folder** `docs/design/<name>/`: `design.md` (status `draft`, Destination and Notes filled in, Decisions so far empty, the fog sketched into **Not yet specified**), `glossary.md`, `gaps.md`, and `log.md`. Add `openapi.yaml` only when api is named. Call the Skill tool with `writing-for-agents` on this `design.md` edit, and with `deslop` when `openapi.yaml` or a code snippet changes. Leave `research/` and `input/` until there is a note to save. Leave `tickets.md` and `wayfinder-brief.md` for ready.
-4. **Create the gaps you can specify now** as rows in `gaps.md` (status `open`, owner empty, type set), then wire `blocks` in a **second pass** (rows need ids before they can reference each other). Write cross-references in that pass too, with real ids. Wiring sorts them into the frontier and the blocked; everything you can't yet specify stays in the fog: the **Not yet specified** section. If the person already named one sharp question, that row is `open` and document status becomes `discussion`. Otherwise stay at `draft`. Call the Skill tool with `writing-for-agents` on that status edit.
-5. **Fire the research subagents.** For each `research` gap you just created, spin up a subagent with a fresh context window that claims it (sets `owner`). `how` (TD2+) on the code, then call the Skill tool with `research` on the docs, and read `input/`. Findings go in `research/<topic>.md`, with a context pointer from the gap row. Open no PR.
-6. Stop: charting is one session's work; it resolves nothing by hand. Add one `log.md` line for the chart session.
+1. Name the destination. Call the Skill tool with `grilling` and `domain-modeling`. Pin the technical design developers will build. The destination fixes the scope, so settle it first. Record any types the person named. Update `glossary.md` when a term is in play.
+2. Grill again, breadth-first. Cover the whole space before you go deep on one thread. Name the open decisions and the first steps that are takeable now. If no fog shows up, and the whole journey fits one session, a design map is not needed. Stop and ask how to proceed.
+3. Create `docs/design/<name>/` with `design.md` (status `draft`, Destination and Notes filled, Decisions so far empty, fog sketched under **Not yet specified**), `glossary.md`, `gaps.md`, and `log.md`. Add `openapi.yaml` only when api is named. Leave `research/` and `input/` until there is a note to save. Leave `tickets.md` and `wayfinder-brief.md` for ready.
+4. Add the gaps you can phrase now as rows (status `open`, owner empty, type set). Then wire `blocks` in a second pass, after the rows have ids. Use real ids in that pass. What you cannot phrase yet stays under **Not yet specified**. If the person already named one sharp question, that row is `open` and document status becomes `discussion`. Otherwise stay at `draft`.
+5. For each research gap, start a subagent with a fresh context window. It claims the row, calls the Skill tool with `how` (TD2+) on the code, then `research`, and writes `research/<topic>.md`. The row points at that file. Open no pull request.
+6. Stop. Charting resolves nothing by hand. Add one `log.md` line for the chart session.
 
 A second `new` for a folder that already exists stops. Tell them to resume.
 
 ### Work through the map
 
-User invokes with `/tech-design <name>` (resume) or `/tech-design <name> grill [gap]`. A gap is **optional**: without one, you pick the next decision, not the user. Grill is this same path for the named gap, or for the first frontier gap if none was named.
+The person runs `/tech-design <name>` (resume) or `/tech-design <name> grill [gap]`. A gap is optional. With none named, pick the next frontier gap. Grill is this same path for the named gap, or for the first frontier gap if none was named.
 
-1. Load the **map** at low resolution, not every research note. Load `design.md` (the status line and the map sections), `gaps.md`, and the last `log.md` line. Missing folder: stop. Tell them to run `new`. Status `ready`, `committed`, or `abandoned`: say so and stop.
-2. Choose the gap. If the user named one, use it. Otherwise take the first frontier gap in order. **Claim it**: set `owner` before any work.
-3. Resolve it as the type its type column names (see [Gap types](#gap-types)). Read the type, not just the question: the question never states the type. **Zoom as needed**: read any related or closed gap row on demand; call the Skill tool for whichever skills the `## Notes` block names. On a grilling gap, research and advice come before the question.
-4. Record the resolution: write the answer in the gap row, append one `log.md` line (date, the question, the id beside that name, what changed), and append a gist line to **Decisions so far** (the question, a pointer to the row, one line). Call the Skill tool with `writing-for-agents` on that `design.md` edit, and with `deslop` when `openapi.yaml` or a code snippet changes. Status `decided`, or `accepted-risk` only when the human accepts the risk you named. No answer: `to-questionnaire` (TD2+) writes the question in `input/`, then set `waiting-on-input`, an owner, and a due date, and record the deadline in `design.md`. Advice alone never closes a gap.
-5. Add newly surfaced gaps (create, then wire `blocks`); graduate any fog the answer has made specifiable, clearing each graduated patch from **Not yet specified** so it lives only as its new gap. If the answer reveals that a gap (this one or another) sits beyond the destination, **rule it out of scope** rather than resolving it on the route. If the decision invalidates other parts of the map, update those gaps. Call the Skill tool with `writing-for-agents` on any `design.md` edit in this step, and with `deslop` when `openapi.yaml` or a code snippet changes.
+1. Load `design.md` (the status line and the map sections), `gaps.md`, and the last `log.md` line. Do not load every research note. Missing folder: stop. Tell them to run `new`. Status `ready`, `committed`, or `abandoned`: say so and stop.
+2. If the user named a gap, use it. Otherwise take the first frontier gap in order. Claim it: set `owner` before any work.
+3. Resolve it by the type column. See [Gap types](#gap-types). Read the type, not only the question. Read a related row when you need it. Call the Skill tool for the skills the Notes block names. If in doubt, call the Skill tool with `grilling` and `domain-modeling`. On a grilling gap, draft advice before the one question.
+4. Write the answer on the gap row. Append one `log.md` line: date, the question, the id beside that name, and what changed. Append a gist line under **Decisions so far**. Status `decided`, or `accepted-risk` only when the human accepts the risk you named. No answer: call the Skill tool with `to-questionnaire` (TD2+), set `waiting-on-input`, an owner, and a due date, save the question under `input/`, and record the deadline in `design.md`. Advice alone never closes a gap.
+5. Add gaps the answer made phraseable, then wire `blocks`. Clear each graduated patch from **Not yet specified**. If a gap sits past the destination, rule it out of scope. If the decision invalidates other rows, update those rows.
 
-The user may run unblocked gaps in parallel, so expect other sessions to be editing the folder concurrently.
+Other sessions may edit unblocked gaps at the same time.
 
 ### Ready
 
-User invokes with `/tech-design <name> ready`.
+The person runs `/tech-design <name> ready`.
 
 1. Read `gaps.md`. If any row is `open`, `research`, or `waiting-on-input`, list those rows by question and stop. Do not set `ready`.
-2. `decided` and `accepted-risk` do not block. A folder with no `decided` or `accepted-risk` row is not ready. Empty sections are not ready.
-3. When the gate passes, set status `ready`. Run `interrogate` (TD2+) over the whole design, then `technical-writing` (TD2+), `unslop` (TD2+) and the no-op pass, then `to-spec` (TD2+) and `to-tickets` (TD2+). The no-op pass deletes every line that does not change what the reader does. Call the Skill tool with `writing-for-agents` on the `design.md` edit, and with `deslop` when `openapi.yaml` or a code snippet changes. Write `tickets.md`: buildable slices whose blockers are sized for story points. Write `wayfinder-brief.md`: destination, decided gaps by question, accepted risks, and links to `design.md` and to `openapi.yaml` when it exists.
+2. `decided` and `accepted-risk` do not block the gate. A folder with no `decided` or `accepted-risk` row is not ready. Empty sections are not ready.
+3. When the gate passes, call the Skill tool with `interrogate` (TD2+) over the whole design, then `technical-writing` (TD2+), `unslop` (TD2+), and the no-op pass, then `to-spec` (TD2+) and `to-tickets` (TD2+). Set status `ready`. Write `tickets.md`: buildable slices whose blockers are sized for story points. Write `wayfinder-brief.md`: destination, decided gaps by question, accepted risks, and links to `design.md` and to `openapi.yaml` when it exists.
 4. Add one `log.md` line. Stop. Ready resolves nothing.
 
-Good: one gap, a recommended option with a source, the human's answer recorded, then stop.
-Bad: a full design in one session, a gap closed from advice, a dependency called to discover its contract.
+One gap, a recommended option with a source, the human's answer recorded, then stop.
