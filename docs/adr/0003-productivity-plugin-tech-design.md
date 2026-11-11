@@ -111,17 +111,15 @@ stateDiagram-v2
 **Document status lives in the design file in git**, in the style of an Oxide RFD. The words are `draft`, `discussion`, `ready`, `committed`, and `abandoned`. `draft` is the new folder. `discussion` is work while gaps remain. `ready` means the gap gate passed. `committed` means builders follow this design. `abandoned` means the work stopped.
 
 ```mermaid
-flowchart TD
-  newCmd["new: status draft"] --> resume["resume: one gap per session"]
-  resume --> grill["grill: one question"]
-  grill --> discussion["status discussion"]
-  discussion --> resume
-  discussion --> gate{"ready check: no open, research, or waiting-on-input"}
-  gate -->|pass| ready["status ready"]
-  gate -->|stay| discussion
-  ready --> outputs["complete design, tickets, wayfinder brief"]
-  outputs --> committed["status committed"]
-  discussion --> abandoned["status abandoned"]
+stateDiagram-v2
+  [*] --> draft: new folder
+  draft --> discussion: work begins
+  discussion --> discussion: one gap per session
+  discussion --> ready: gap gate passed
+  discussion --> abandoned: work stopped
+  ready --> committed: builders follow this design
+  committed --> [*]
+  abandoned --> [*]
 ```
 
 Resume and grill repeat once per gap while the status is `discussion`. The ready check writes the complete design, the tickets, and a wayfinder brief only when no gap is `open`, `research`, or `waiting-on-input`.
@@ -129,6 +127,14 @@ Resume and grill repeat once per gap while the status is `discussion`. The ready
 **`design.md` uses a fixed section order**, modeled on a Google design doc, plus ideas from Amazon, Uber, Shopify, and Oxide. Sections, in order: user outcome, context and scope, goals, non-goals, glossary, design, dependencies, alternatives, cross-cutting concerns, type checklists, advice, risks, acceptance criteria, and sign-off. User outcome comes first. The design section holds an overview, a diagram, boundaries and contracts, a data model, and flows as mermaid. Each external dependency is one dependency-contract block. Alternatives include do nothing. Cross-cutting concerns are security, privacy, observability, rollout, and testing. Advice states the recommended choice, why, and what changes if a gap flips. Each waiting gap has a deadline.
 
 **`design.md`, the plugin README, and the playbooks use mermaid where a diagram helps.** Use a diagram for a flow, a boundary, a data model, or a sequence. Keep each diagram small, and place it next to the text it explains.
+
+**The playbooks require these diagrams. TD2 through TD5 add them.** A diagram is never the only proof for a gap. The decision is always also in text.
+
+- Context, on every design: a flowchart of the system and all dependencies.
+- `api` and `integration`: one sequence diagram per main flow. The auth level is labeled on every arrow.
+- Data: an ER diagram.
+- Web: a flowchart of screens and navigation.
+- States: a state diagram wherever something has statuses.
 
 **Type playbooks are separate files: web, api, data, and integration.** Types combine (`types: [web, api]`). Gaps are the union of those checklists, deduped by checklist key, so each gap appears once and names every type that raised it. The api playbook writes or updates `openapi.yaml` (OpenAPI 3.1) as the contract first. Each endpoint carries an auth level, error codes, and a version. An empty field becomes a gap.
 
@@ -167,7 +173,7 @@ The only command file is `tech-design`. Adapted skills are loaded by exact skill
 
 **`/tech-design <name> ready` runs the gate.** It does a final attack pass, sets document status `ready` only when the gap gate passes, writes tickets whose blockers are sized for story points, and writes a wayfinder brief.
 
-**Delivery is one pull request at a time.** TD0 is this record. TD1 is the plugin skeleton. Its README gets a short "Writing for humans and agents" section. TD2 is the loop core and grill. TD3 is the dependency contract. TD4 is web and api. TD5 is data and integration. TD6 is research, input, and options. TD7 is readiness. TD8 is smoke.
+**Delivery is one pull request at a time.** TD0 is this record. TD1 is the plugin skeleton. Its README gets a short "Writing for humans and agents" section. The TD1 README gets the loop flowchart and the status state diagrams. TD2 is the loop core and grill. TD3 is the dependency contract. TD4 is web and api. TD5 is data and integration. TD6 is research, input, and options. TD7 is readiness. TD8 is smoke.
 
 ```mermaid
 flowchart LR
@@ -182,6 +188,8 @@ flowchart LR
 - A gap is decided only when the human or the dependency owner answers. AI advice alone does not close it.
 - Each design folder includes `glossary.md` for the domain language.
 - A design stays below `ready` while any gap is `open`, `research`, or `waiting-on-input`.
+- The TD1 README carries the loop flowchart and the status state diagrams.
+- From TD2 through TD5, the playbooks require the context flowchart, the api and integration sequence diagrams, the data ER diagram, the web screen flowchart, and a state diagram wherever something has statuses. A diagram is never the only proof for a gap. The decision is always also in text.
 - A waiting gap has an owner, a due date, and a deadline in `design.md`.
 - An unproved dependency stays a blocking gap. Chat text is not proof. The skill makes no real call.
 - Pins stay Skill-tool dependencies. Publication sets them `user-invocable: false` (`docs/EXTERNAL-SKILLS.md`), so a pin does not become a slash.
