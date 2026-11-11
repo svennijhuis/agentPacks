@@ -29,9 +29,18 @@ Usage:
 
 The command produces a technical design a business architect prepares for developers. Almost all gaps are closed before the handoff, so wayfinder can turn the design into tickets that can take story points. Skills stay generic. Playbook text is our own words, with no sample system in a skill.
 
-**The skill has the same shape as Matt Pocock's wayfinder.** Same structure, same loop, same way to start and to resume. Only the content is a technical design. The wayfinder way is the core loop. The agent researches code, docs and sources itself before it asks, and it only asks what that research cannot settle. Sessions stay small. One session takes one gap or one topic: research, grill, write, update `gaps.md`, append one `log.md` line, and stop. A session never writes the whole design.
+**The skill has the same shape as Matt Pocock's wayfinder.** Same structure, same loop, same way to start and to resume. Only the content is a technical design. The wayfinder way is the core loop. Sessions stay small. One session takes one gap or one topic, then stops. A session never writes the whole design. The tool asks the human, but always with advice. Each grill question comes with the agent's recommended answer and why, based on research the agent did first. Wayfinder style: the agent researches code, docs and sources itself before asking, and only asks what research cannot settle. The human confirms or overrides. That is the decision. A gap is decided only when the human or the dependency owner answers. AI advice alone never closes a gap.
 
-**Grill me asks one question at a time**, along the decision tree, and never fills a gap in silence. The tool asks the human, but always with advice. Each question comes with the agent's recommended answer and why, based on research the agent did first. The human confirms or overrides. That is the decision. The agent never writes a decision on its own. No answer moves that gap to `waiting-on-input`, with an owner and a due date.
+Per gap, the order is:
+
+1. Research. Read the code with `how`, use `research`, read specs in `input/`, and check known patterns.
+2. Draft with advice. Offer 2 to 3 options, the recommended one, why with source, and the risk if `accepted-risk` is chosen.
+3. Grill. Ask one question with the recommended option.
+4. The human's choice.
+5. Update `gaps.md` and add one `log.md` line.
+6. Stop.
+
+**Grill me asks one question at a time**, along the decision tree, and never fills a gap in silence. The question includes the recommended option and why. No answer moves that gap to `waiting-on-input`, with an owner and a due date.
 
 **Each design is a folder in the product repo, `docs/design/<name>/`.**
 
@@ -91,13 +100,11 @@ Skills with `disable-model-invocation: true` are copied and adapted. That copy i
 
 **Writing for humans and agents.** Sources: Matt Pocock's `writing-for-agents` skill, his post "The code, not the spec, should be the center of your universe", and poteto (pstack) "writing is thinking".
 
-1. Two readers. The design has a human reader and an agent reader. The agent researches and drafts. The human writes the decisions and the advice, and the grill step pulls them out of the human. The agent never writes a decision on its own. The tool asks the human, but always with advice. Each grill question comes with the agent's recommended answer and why, based on research the agent did first. The agent researches code, docs and sources itself before asking, and only asks what research cannot settle. The human confirms or overrides. That is the decision.
+1. Two readers. The design has a human reader and an agent reader. The agent researches and drafts. The human writes the decisions and the advice, and the grill step pulls them out of the human. The agent never writes a decision on its own. The tool asks the human, but always with advice. Each grill question comes with the agent's recommended answer and why, based on research the agent did first. Wayfinder style: the agent researches code, docs and sources itself before asking, and only asks what research cannot settle. The human confirms or overrides. That is the decision.
 2. Point to code. `design.md` links real files, symbols, and `openapi.yaml` instead of copying them.
 3. Keep it short. Detail goes to `research/` and the type playbooks. Every gap has a hard "done when".
 4. Glossary. Each design folder gets `glossary.md` with the domain language.
 5. No-op pass. After `technical-writing` and `unslop`, a last pass removes every line that does not change what the reader does.
-
-The plugin README (TD1) gets a short "Writing for humans and agents" section.
 
 `docs-canvas` (`docs-canvas/skills/docs-canvas` in `cursor/plugins`) is optional, for showing `design.md` at a meeting. It is outside the loop. If it is used, it is pinned the same way as `deslop`, at the same SHA.
 
@@ -114,6 +121,7 @@ The only command file is `tech-design`. Adapted skills are loaded by exact skill
 - Squad stays untouched while this work lands.
 - Product repos gain one command. Resume, grill, and the gate are arguments of that command.
 - Each grill question carries the agent's recommended answer and why. The human confirms or overrides, and that is the decision.
+- A gap is decided only when the human or the dependency owner answers. AI advice alone does not close it.
 - Each design folder includes `glossary.md` for the domain language.
 - A design stays below `ready` while any gap is `open`, `research`, or `waiting-on-input`.
 - A waiting gap has an owner, a due date, and a deadline in `design.md`.
@@ -130,6 +138,10 @@ The only command file is `tech-design`. Adapted skills are loaded by exact skill
 **Split start, grill, and ready into their own slashes.** One command covers all four forms.
 
 **Let one session write the whole design.** Open gaps would disappear into a long draft. The session stops after one gap or one topic.
+
+**Let the agent close a gap from its advice.** The human or the dependency owner answers. Advice alone never closes a gap.
+
+**Copy files, symbols, or `openapi.yaml` into `design.md`.** The design links them.
 
 **Fill a gap when nobody answers.** Silence is `waiting-on-input`, with an owner and a due date.
 
