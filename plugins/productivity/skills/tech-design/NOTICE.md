@@ -1,32 +1,5 @@
 # Notice
 
-Structure and style inspired by mattpocock/skills wayfinder @4ae2317, text rewritten.
+[Style inspired by Matt Pocock's wayfinder](https://github.com/mattpocock/skills/tree/4ae2317ddb22b046e26455e4f9c9b3aaaf62212d/skills/engineering/wayfinder), MIT License.
 
-The shape comes from `skills/engineering/wayfinder` in https://github.com/mattpocock/skills
-at `4ae2317ddb22b046e26455e4f9c9b3aaaf62212d`.
-
-https://github.com/mattpocock/skills/tree/4ae2317ddb22b046e26455e4f9c9b3aaaf62212d/skills/engineering/wayfinder
-
-MIT License
-
-Copyright (c) 2026 Matt Pocock
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-
-The procedure in this folder is our text for a technical design in `docs/design/<name>/`.
+The shape is the map, the gaps, the fog of war, one gap per session, and a stop. The text is ours. The map is `docs/design/<name>/`. Advice alone never closes a gap.

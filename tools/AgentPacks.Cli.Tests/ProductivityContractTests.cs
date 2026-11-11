@@ -46,7 +46,8 @@ public sealed class ProductivityContractTests
         var skill = File.ReadAllText(Path.Combine(PackRoot(), "skills", "tech-design", "SKILL.md"));
         var notice = File.ReadAllText(Path.Combine(PackRoot(), "skills", "tech-design", "NOTICE.md"));
 
-        Assert.Contains("structure and style inspired by mattpocock/skills wayfinder @4ae2317, text rewritten", notice, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("Style inspired by Matt Pocock's wayfinder", notice, StringComparison.Ordinal);
+        Assert.Contains("https://github.com/mattpocock/skills/tree/" + MattSha + "/skills/engineering/wayfinder", notice, StringComparison.Ordinal);
         Assert.Contains("skills/engineering/wayfinder", notice, StringComparison.Ordinal);
         Assert.Contains(MattSha, notice, StringComparison.Ordinal);
         Assert.Contains("MIT License", notice, StringComparison.Ordinal);
