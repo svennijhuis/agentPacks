@@ -104,6 +104,7 @@ The only command file is `tech-design`. Adapted skills are loaded by exact skill
 - An unproved dependency stays a blocking gap. Chat text is not proof.
 - Pins stay Skill-tool dependencies. Publication sets them `user-invocable: false` (`docs/EXTERNAL-SKILLS.md`), so a pin does not become a slash.
 - This plugin takes the `productivity` name from the catalog plan. Its command is `/tech-design`.
+- The root README, `docs/CONTRIBUTE.md`, and `docs/PLAN.md` still describe today's catalog. The plugin pull request is what updates them.
 - Copilot namespaces the command under the plugin, as the root README does for the other commands.
 
 ## Alternatives rejected
