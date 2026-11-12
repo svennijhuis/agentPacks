@@ -214,3 +214,48 @@ flowchart LR
 **Import any other repository, or borrow its ideas.** The three sources above are the whole set.
 
 **Put a sample system in a skill.** The playbooks stay generic, in our own words.
+
+## Amendment 2026-11-12: the strict content lands in TD1
+
+Sven's direction on 2026-11-12: the loop alone lets a design go `ready` with whole areas never asked about. A real case was a source that had to be connected, where nobody described the auth and nobody asked. The content rules move forward into TD1, as skill text only. Scripts and tests for these rules come later.
+
+Where this amendment and the text above disagree, the amendment wins.
+
+**Two rules outrank the rest.** An unknown is a gap and is never written as an assumption. An outside system opens its gaps the moment it is named: owner, access, credentials, environments, contract, limits, change notice, and proof.
+
+**The structure is always the same.** The folder is `docs/design/<yyyy-mm-dd>-<name>/`, so several designs stay apart and sort by date. It always holds `design.md`, `gaps.md`, `glossary.md`, `log.md`, `research/`, `questions/`, and `input/`, and `tickets.md` at ready. `design.md` has a header (status, size, types, created, updated, owner, approvers) and 14 sections in a fixed order: map, summary, context and scope, goals and non-goals, actors, requirements, design, failure modes, dependencies, alternatives, cross-cutting, assumptions and risks, acceptance criteria, sign-off. A section that does not apply keeps its heading and says `n/a` with a reason. This replaces the section order above. Advice stays on the gap row. Type checklists fold into the sections they check.
+
+**Size sets depth.** `small`, `medium`, and `big` are chosen at chart and only go up. Each has a line budget for `design.md` and a list of sections that may be `n/a`. Types add content on top. Neither changes the structure.
+
+**A gap sweep runs at chart and at ready.** Eighteen categories, one question each. Every category ends as a gap, a line of fog, or a logged reason it does not apply.
+
+**Requirements and criteria have a form.** Requirements are `R-` lines with WHEN, WHILE, or IF and THEN, and MUST in capitals. Numbers are tagged `measured`, `decided`, or `guessed`, and a guessed number is a gap. Acceptance criteria are `AC-` lines that cite the requirements they prove.
+
+**Research has triggers.** A gap is research when the answer is a fact a source can give. Subagents start at the end of chart and at the start of a work session, and never block it. A research subagent may close only its own research gap.
+
+**Stop and resume is a first-class path.** A waiting gap records who, when asked, and when due, and does not block the rest. Its question goes on a sheet in `questions/<person>.md` that the human can send as is. Every session ends by writing state to disk. Gap rows gain the columns category, waiting on, and asked.
+
+**The human can see and steer.** New arguments of the same skill: no argument lists all designs, `help`, `status`, `close <gap>`, `drop <gap>`, and `ready anyway`. `ready anyway` goes ready with open gaps only when the human accepts each one by name. The skill never offers it. Accepted gaps are listed under Open at ready, and tickets that touch them are blocked.
+
+**Diagrams are required by trigger.** Each diagram kind has a condition that makes it required, quality rules, and a text twin directly under it so no reader has to parse the picture. Only `flowchart`, `sequenceDiagram`, `stateDiagram-v2`, and `erDiagram` are used.
+
+**The ready gate is a checklist of 26 checks** in `references/ready-gate.md`. The agent prints pass or fail per check. Any fail stops ready.
+
+**Skill text carries no upstream URL and no commit SHA.** Companion skills are named only. Pins stay in `external-skills.json`. Setup is in the plugin README. The names marked TD2+ are removed from the skill until they exist.
+
+**The pack stands alone.** It needs no other pack from this repository.
+
+**"Not even as ideas" is narrowed.** The import rule above still holds for skill text and code: nothing is copied from outside the three sources. The document structure and the checks draw on public engineering practice, in our own words:
+
+- Design doc sections, non-goals, alternatives, context diagram: https://www.industrialempathy.com/posts/design-docs-at-google/
+- RFC sections for dependencies, SLAs, rollout, and approvers: https://blog.pragmaticengineer.com/scaling-engineering-teams-via-writing-things-down-rfcs/
+- Rollout and rollback questions: https://github.com/kubernetes/enhancements/blob/master/keps/NNNN-kep-template/README.md
+- Requirement syntax: https://alistairmavin.com/ears/ and https://www.rfc-editor.org/rfc/rfc2119
+- Category scan, vague-word check, and requirement to test tracing: https://github.com/github/spec-kit
+- Diagram notation checklist and levels: https://c4model.com/diagrams/checklist
+- Diagram kinds and when each is used: https://learn.microsoft.com/en-us/azure/well-architected/architect-role/design-diagrams
+- Trust boundaries in data flow diagrams: https://learn.microsoft.com/en-us/training/modules/tm-create-a-threat-model-using-foundational-data-flow-diagram-elements/1b-elements
+- Runtime scenarios and the context table: https://docs.arc42.org/section-6/ and https://docs.arc42.org/section-3/
+- Diagram paired with text, accessibility titles: https://docs.gitlab.com/development/documentation/styleguide/images_and_diagrams/
+
+**Delivery changes.** TD1 now carries the loop, the structure, sizes, the sweep, the dependency contract, research triggers, resume, diagrams, help, and the checklist gate. TD3 through TD7 shrink to what is left: the copied and adapted skills, a lint script for the gate, and contract tests for the new text. One existing test asserts the upstream SHA inside `SKILL.md`. It fails on this change and is fixed with those tests.
