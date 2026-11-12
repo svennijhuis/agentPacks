@@ -44,9 +44,10 @@ Internal. Do not run directly: Squad loads by exact Skill name.
 Loop-only; not as a user entrypoint.
 ```
 
-A user-invoked entrypoint (`squad`, `pack-check`, `scenarios-md`, `security-audit-md`, `pack-author-md`) adds
-`disable-model-invocation: true` and omits `audience: loop`. Load either kind with the Skill tool
-by exact name, never slash-prose.
+A user-invoked entrypoint that has a command (`squad`, `pack-check`, `scenarios-md`, `security-audit-md`, `pack-author-md`) adds
+`disable-model-invocation: true`, sets `user-invocable: false`, and omits `audience: loop`. The command is the slash.
+`tech-design` adds `disable-model-invocation: true` and omits `audience: loop`. It omits `user-invocable: false`, so `/tech-design` runs the skill. There is no command file.
+Load either kind with the Skill tool by exact name, never slash-prose.
 
 ## Writing the description
 

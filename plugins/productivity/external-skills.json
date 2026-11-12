@@ -1,0 +1,53 @@
+{
+  "$schema": "../../schema/external-skills.schema.json",
+  "sources": [
+    {
+      "name": "domain-modeling",
+      "description": "Sharpen domain terms and glossary.md while a technical design is open.",
+      "repository": "https://github.com/mattpocock/skills",
+      "path": "skills/engineering/domain-modeling",
+      "commit": "4ae2317ddb22b046e26455e4f9c9b3aaaf62212d",
+      "license": "MIT"
+    },
+    {
+      "name": "codebase-design",
+      "description": "Deep-module vocabulary when a design chooses a seam.",
+      "repository": "https://github.com/mattpocock/skills",
+      "path": "skills/engineering/codebase-design",
+      "commit": "4ae2317ddb22b046e26455e4f9c9b3aaaf62212d",
+      "license": "MIT"
+    },
+    {
+      "name": "research",
+      "description": "Primary-source notes for one design gap, saved under research/.",
+      "repository": "https://github.com/mattpocock/skills",
+      "path": "skills/engineering/research",
+      "commit": "4ae2317ddb22b046e26455e4f9c9b3aaaf62212d",
+      "license": "MIT"
+    },
+    {
+      "name": "grilling",
+      "description": "One grill question at a time on an open design gap.",
+      "repository": "https://github.com/mattpocock/skills",
+      "path": "skills/productivity/grilling",
+      "commit": "4ae2317ddb22b046e26455e4f9c9b3aaaf62212d",
+      "license": "MIT"
+    },
+    {
+      "name": "writing-for-agents",
+      "description": "Writing rules for design.md, which an agent and a human both read.",
+      "repository": "https://github.com/mattpocock/skills",
+      "path": "skills/productivity/writing-for-agents",
+      "commit": "4ae2317ddb22b046e26455e4f9c9b3aaaf62212d",
+      "license": "MIT"
+    },
+    {
+      "name": "deslop",
+      "description": "Clean code snippets in a technical design.",
+      "repository": "https://github.com/cursor/plugins",
+      "path": "cursor-team-kit/skills/deslop",
+      "commit": "ae5650febf4320793844c12c4adaa937f417f8da",
+      "license": "MIT"
+    }
+  ]
+}

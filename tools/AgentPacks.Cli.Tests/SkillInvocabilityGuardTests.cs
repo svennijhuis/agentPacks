@@ -8,15 +8,15 @@ namespace AgentPacks.Cli.Tests;
 /// </summary>
 public sealed class SkillInvocabilityGuardTests
 {
-    // pack-check is the only skill that had no `user-invocable: false` on main e84d469; it backs
-    // the /pack-check setup command. Every other skill on main, entrypoint or loop, already set it.
-    private static readonly HashSet<string> UserInvocableAllowlist = new(StringComparer.Ordinal) { "pack-check" };
+    // pack-check had no `user-invocable: false` on main e84d469; it backs the /pack-check command.
+    // tech-design is the entry the person types. There is no command file, so the skill stays invocable.
+    private static readonly HashSet<string> UserInvocableAllowlist = new(StringComparer.Ordinal) { "pack-check", "tech-design" };
 
     // On main, user-entrypoint skills set `disable-model-invocation: true` and omit `audience: loop`
     // (docs/ADD-SKILL.md). Every other skill is loaded only by agents and must say `audience: loop`.
     private static readonly HashSet<string> EntrypointSkills = new(StringComparer.Ordinal)
     {
-        "squad", "scenarios-md", "security-audit-md", "pack-author-md", "pack-check",
+        "squad", "scenarios-md", "security-audit-md", "pack-author-md", "pack-check", "tech-design",
     };
 
     [Fact]

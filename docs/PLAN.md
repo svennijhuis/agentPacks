@@ -43,8 +43,8 @@ Both give a Rust shop a way to avoid installing .NET skills. Only one stays read
 
 ## What ships today
 
-The repository currently ships **five capability packs and three language packs**: `squad`,
-`pack-check`, `git`, `security`, `pack-author`, `dotnet`, `rust`, and `typescript`. Authored `mcp.json` files are empty scaffolds.
+The repository currently ships **six capability packs and three language packs**: `squad`,
+`pack-check`, `git`, `security`, `pack-author`, `productivity`, `dotnet`, `rust`, and `typescript`. Authored `mcp.json` files are empty scaffolds.
 v1 ships no MCP server. `dotnet` still has the `dotnet-solution` skill (`dotnet sln` / `dotnet list`).
 
 The earlier catalog carried five role packs and three language packs, six of which held nothing but a `plugin.json`. An empty pack is not a placeholder: it is an install that appears in the marketplace, resolves, and does nothing, which is worse than not being listed. They were removed in the same branch that added Squad; the pinned external-skill imports and the two authored skills (`engineering/testing`, `dotnet/dotnet-review`) are in history at `007f609` and can be restored when there is a pack around them worth installing.
@@ -57,7 +57,7 @@ Role packs: installed because of how you work, not what you compile:
 
 | Plugin | Who installs it | Holds |
 | --- | --- | --- |
-| `productivity` | anyone driving an agent | `grill-me`, `grilling`, `writing-for-agents`, `caveman`, `caveman-compress` |
+| `productivity` | anyone driving an agent | user-invoked `/tech-design` (skill `tech-design`; Copilot `/productivity:tech-design`). One design folder, one gap per session |
 | `product` | product owners and managers | user stories, requirements, notes to spec *(empty for now)* |
 | `migrations` | platform teams | Azure DevOps to GitHub and similar moves *(empty for now)* |
 | `engineering` | any builder | **only** cross-language craft: `domain-modeling`, `codebase-design`, `diagnosing-bugs`, `improve-codebase-architecture`, `code-review`, `to-tickets`, `triage`, `wayfinder`, `research`, `grill-with-docs`, `setup-matt-pocock-skills`, `grilling`, `testing` |
@@ -80,6 +80,8 @@ The rule that falls out of it: **a capability pack is a workflow, and a phase of
 `security` clears both. It ships a command and subagents, and `/security-audit` is a full-repo hunt with adversarial validation: not Squad's per-change OWASP gate. Two packs share the security *subject*; they do not share a command or a phase. The methodology is adapted from Cloudflare's `security-audit-skill` and rewritten in this repository's skill/agent shape.
 
 `pack-author` clears both. It ships a command and a reviewer subagent. `/pack-author` makes, reviews, and changes skills and agents for this catalog. That loop is not a Squad phase and not pack-check's setup probe. v1 scaffolds a skill or an agent; commands, hooks, and rules stay on the ADD-* docs. It does not import an external skill catalog.
+
+`productivity` ships the `tech-design` skill. The person types `/tech-design`. It is not a Squad phase. This version pins six model-invocable skills and does not import the older productivity skill list (`grill-me`, `caveman`, `caveman-compress`, and the rest of that row).
 
 `git` is separate from the Loop. You want destructive-command
 protection whether or not a Squad run is in progress. The Loop states its no-commit hand-off in

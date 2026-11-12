@@ -231,6 +231,7 @@ public sealed class CursorCatalogContractTests
             ["git"] = "Git",
             ["pack-author"] = "Pack Author",
             ["pack-check"] = "Pack Check",
+            ["productivity"] = "Productivity",
             ["rust"] = "Rust",
             ["security"] = "Security",
             ["squad"] = "Squad",
@@ -259,6 +260,7 @@ public sealed class CursorCatalogContractTests
         }
 
         Assert.Equal("Pack Author", PluginDisplayName.From("pack-author"));
+        Assert.Equal("Productivity", PluginDisplayName.From("productivity"));
         Assert.Equal("Pack Check", PluginDisplayName.From("pack-check"));
         Assert.Equal("Squad", PluginDisplayName.From("squad"));
         Assert.Equal(".NET", PluginDisplayName.From("dotnet"));

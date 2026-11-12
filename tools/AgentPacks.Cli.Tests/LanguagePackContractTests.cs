@@ -376,7 +376,7 @@ public class LanguagePackContractTests
     /// <summary>
     /// Item 62: Claude marketplace omits hooks; authored command names do not collide
     /// with skill or plugin names except the (squad, squad), (pack-check, pack-check),
-    /// and (pack-author, pack-author) homonyms. Copilot rewrites those colliding factories.
+    /// and (pack-author, pack-author) homonyms. Copilot rewrites the factory collisions.
     /// </summary>
     [Fact]
     public void Command_names_differ_from_skill_and_plugin_names()
