@@ -231,9 +231,9 @@ Glob-scoped rules remain Cursor-only; other clients receive only always-on rules
 | `/pack-check` | Setup | not a Squad flow |
 | `/security-audit` | Dev | full-repo recon/hunt/validate report |
 | `/pack-author` | Marketplace author | make / review / change a skill or agent. Copilot: `/pack-author:author` |
-| `/tech-design` | Business architect | one technical design, one gap per session. Copilot: `/productivity:tech-design` |
+| `/tech-design` | Business architect | skill `tech-design`: one technical design, one gap per session. Copilot: `/productivity:tech-design` |
 
-The fifth slash is intentional. `/pack-author` is Lane A for marketplace authors, not a Squad phase. Detail: [`docs/PACK-AUTHOR.md`](docs/PACK-AUTHOR.md). `/tech-design` is the later exception on the productivity plugin, granted in [ADR 0003](docs/adr/0003-productivity-plugin-tech-design.md). It is not a Squad phase.
+The fifth slash is intentional. `/pack-author` is Lane A for marketplace authors, not a Squad phase. Detail: [`docs/PACK-AUTHOR.md`](docs/PACK-AUTHOR.md).
 
 The model does not pick the orchestrator. `/scenarios` is a sibling
 slash on the same plugin; it is not a Squad phase. `/security-audit` is a
@@ -335,7 +335,7 @@ Modes are `make`, `review`, and `change`. v1 writes a skill or an agent. Review 
 /tech-design <name> ready
 ```
 
-`new` charts `docs/design/<name>/` and does not close a gap. The bare name resumes that design and takes one gap. `grill` asks one question with a recommended option. `ready` sets document status `ready` only when no gap is `open`, `research`, or `waiting-on-input`, then writes `tickets.md`. Copilot picker: `/productivity:tech-design`. [Its README](plugins/productivity/README.md) has start, resume, and ready.
+`new` charts `docs/design/<name>/` and does not close a gap. The bare name resumes that design and takes one gap. `grill` asks one question with a recommended option. `ready` sets document status `ready` only when no gap is `open`, `research`, or `waiting-on-input`, then writes `tickets.md` from `design.md`. `design.md` is the spec. Copilot picker: `/productivity:tech-design`. [Its README](plugins/productivity/README.md) has start, resume, and ready.
 
 `git` needs no invocation either, and has nothing to ask: its hook blocks `git reset --hard`, `git clean -fd`, `git push --force`, `git branch -D`, `git checkout .` and `git restore .` before the client runs them, with the reason on stderr. [Its README](plugins/git/README.md) covers the `AGENTPACKS_GIT_GUARD=off` switch and which clients the blocking contract is actually verified on.
 

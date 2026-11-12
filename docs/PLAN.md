@@ -81,7 +81,7 @@ The rule that falls out of it: **a capability pack is a workflow, and a phase of
 
 `pack-author` clears both. It ships a command and a reviewer subagent. `/pack-author` makes, reviews, and changes skills and agents for this catalog. That loop is not a Squad phase and not pack-check's setup probe. v1 scaffolds a skill or an agent; commands, hooks, and rules stay on the ADD-* docs. It does not import an external skill catalog.
 
-`productivity` ships `/tech-design`. Sven granted that slash as the explicit exception to the few-slashes rule. It is not a Squad phase. This version pins six model-invocable skills and does not import the older productivity skill list (`grill-me`, `caveman`, `caveman-compress`, and the rest of that row).
+`productivity` ships the `tech-design` skill. The person types `/tech-design`. It is not a Squad phase. This version pins six model-invocable skills and does not import the older productivity skill list (`grill-me`, `caveman`, `caveman-compress`, and the rest of that row).
 
 `git` is separate from the Loop. You want destructive-command
 protection whether or not a Squad run is in progress. The Loop states its no-commit hand-off in

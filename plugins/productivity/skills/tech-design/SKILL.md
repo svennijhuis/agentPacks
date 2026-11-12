@@ -3,7 +3,6 @@ name: tech-design
 description: When the user types /tech-design to start, resume, grill, or ready a technical design.
 license: MIT
 disable-model-invocation: true
-user-invocable: false
 ---
 
 A technical design developers can build is too big for one session. This skill charts that design as a shared map at `docs/design/<name>/`. Each session resolves one gap, until a developer can build from the design. See [NOTICE.md](NOTICE.md).
@@ -24,7 +23,7 @@ A gap's name is its question. Use the question when you talk to the human and in
 
 The first line under the title is the status. The words are `draft`, `discussion`, `ready`, `committed`, and `abandoned`. `draft` is the new folder. `discussion` means gaps are still open. `ready` means the gate passed. `committed` means builders follow this design. `abandoned` means the work stopped.
 
-Under the map, write the design a developer builds from. Link files and symbols. Do not paste them. Settled terms go in `glossary.md` in this folder. A lifecycle with statuses follows the State diagram row. Draw it as a mermaid diagram next to the text it explains.
+Under the map, write the design a developer builds from. Link files and symbols. Do not paste them. When a type is api, write the contract in `design.md`: each endpoint, its auth level, and its errors, with a link to the real code. Settled terms go in `glossary.md` in this folder. A lifecycle with statuses follows the State diagram row. Draw it as a mermaid diagram next to the text it explains.
 
 ### The map body
 
@@ -100,7 +99,7 @@ When a gap sits past the destination, drop the row. Add one line under Out of sc
 
 ## Skill per step
 
-Call a pinned skill with the Skill tool by the exact name in the Skills column. A name marked (TD2+) is not pinned yet. Name it at that step. Call it once a later pack pins it. Until then, write that step yourself. On each edit of `design.md`, call `writing-for-agents`. When `openapi.yaml` or a code snippet changes, call `deslop`.
+Call a pinned skill with the Skill tool by the exact name in the Skills column. A name marked (TD2+) is not pinned yet. Name it at that step. Call it once a later pack pins it. Until then, write that step yourself. On each edit of `design.md`, call `writing-for-agents`. When a code snippet changes, call `deslop`. At ready, `to-spec` (TD2+) checks that `design.md` meets the spec bar. `to-tickets` (TD2+) writes `tickets.md` from `design.md`.
 
 | Step | Skills | Source |
 | --- | --- | --- |
@@ -122,7 +121,7 @@ Call a pinned skill with the Skill tool by the exact name in the Skills column. 
 
 ## Invocation
 
-The person types the command. Chart, then work. Ready runs once the design is specified. Resolve one gap per session, then stop. Research gaps may run together during chart. Chart and ready close no gap. A research subagent may close its own research gap.
+The person types `/tech-design`. Chart, then work. Ready runs once the design is specified. Resolve one gap per session, then stop. Research gaps may run together during chart. Chart and ready close no gap. A research subagent may close its own research gap.
 
 ### Chart the map
 
@@ -130,7 +129,7 @@ The person runs `/tech-design new <name> [types]`.
 
 1. **Name the destination.** Call `grilling` and `domain-modeling`. The destination is a technical design developers can build. Record any types the person named under Notes.
 2. **Map the frontier.** Call `grilling` and `domain-modeling` again, breadth-first. List the decisions you can phrase and the gaps you can work now. If you find no fog and one session can finish the design, stop and ask how to proceed.
-3. **Create the folder** `docs/design/<name>/` with `design.md`, `glossary.md`, `gaps.md`, and `log.md`. Set status `draft`. Fill the destination and notes. Leave Decisions so far empty. Write the fog in Not yet specified. When a named type is api, add `openapi.yaml`. Include an endpoint only when a source already lists it. Call `writing-for-agents` on `design.md`. Leave `research/` and `input/` until the first note. Leave `tickets.md` for ready.
+3. **Create the folder** `docs/design/<name>/` with `design.md`, `glossary.md`, `gaps.md`, and `log.md`. Set status `draft`. Fill the destination and notes. Leave Decisions so far empty. Write the fog in Not yet specified. When a named type is api, write the contract in `design.md`: each endpoint, its auth level, and its errors, with a link to the real code. Include an endpoint only when a source already lists it. Call `writing-for-agents` on `design.md`. Leave `research/` and `input/` until the first note. Leave `tickets.md` for ready.
 4. **Add the gaps you can phrase.** Each row starts `open`, with an empty owner and a type. Fill `blocks` in a second pass, using real ids. If the person already named one sharp question, set the document status to `discussion`.
 5. **Start the research subagents.** For each research gap, start a subagent with a fresh context. It claims the gap and follows the Research row. The row links `research/<topic>.md`.
 6. **Stop.** Add one `log.md` line. Charting is done when the folder exists and every non-research gap is still open.
@@ -144,7 +143,7 @@ The person runs `/tech-design <name>`. Grill is `/tech-design <name> grill`, and
 1. **Load the map.** Load the status line and the map sections in `design.md`, `gaps.md`, and the last `log.md` line. Skip the research notes. If the folder is missing, stop and tell them to run `new`. If the status is `ready`, `committed`, or `abandoned`, say so and stop.
 2. **Choose the gap and claim it.** If the user named one, use it. Otherwise take the first frontier gap. Set `owner` before any work.
 3. **Resolve it by type.** Read the type column. Read a related row when you need it. Call the skills Notes lists. On a grilling gap, advice comes before the one question.
-4. **Record the resolution.** Write the answer on the row. Append one `log.md` line with the date, the question, the id, and what changed. Append a gist to Decisions so far. Set `decided`, or `accepted-risk` when the human accepts the risk you named. With no answer, follow the No answer row, then set `waiting-on-input`, an owner, and a due date. Advice alone never closes a gap. If `design.md` changed, call `writing-for-agents`. If `openapi.yaml` or a code snippet changed, call `deslop`.
+4. **Record the resolution.** Write the answer on the row. Append one `log.md` line with the date, the question, the id, and what changed. Append a gist to Decisions so far. Set `decided`, or `accepted-risk` when the human accepts the risk you named. With no answer, follow the No answer row, then set `waiting-on-input`, an owner, and a due date. Advice alone never closes a gap. If `design.md` changed, call `writing-for-agents`. If a code snippet changed, call `deslop`.
 5. **Update the map.** Add new gaps, then fill `blocks`. Delete fog you can now phrase. Drop a gap that sits past the destination and record it under Out of scope. Update rows the decision invalidates. Stop. The session is done when that one gap is claimed and either closed or `waiting-on-input`.
 
 Other sessions may edit this folder at the same time.
@@ -155,4 +154,4 @@ The person runs `/tech-design <name> ready`.
 
 1. Read `gaps.md`. If any row is `open`, `research`, or `waiting-on-input`, name those questions and stop. Leave the status unchanged.
 2. If no row is `decided` or `accepted-risk`, stop. If Not yet specified still lists in-scope work, stop.
-3. Set status `ready`. Follow the Ready row. Write `tickets.md` with slices a developer can build and the blockers between them. Append one `log.md` line. Stop. Ready is done when `tickets.md` exists and every gap status is unchanged.
+3. Set status `ready`. Follow the Ready row. `design.md` is the spec. `to-spec` (TD2+) checks that `design.md` meets the spec bar. `to-tickets` (TD2+) writes `tickets.md` from `design.md`. Ready writes nothing else. Each ticket follows [the ready gate](references/ready-gate.md). Append one `log.md` line. Stop. Ready is done when `tickets.md` exists and every gap status is unchanged.

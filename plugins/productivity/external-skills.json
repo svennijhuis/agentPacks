@@ -43,7 +43,7 @@
     },
     {
       "name": "deslop",
-      "description": "Clean openapi.yaml and code snippets in a technical design.",
+      "description": "Clean code snippets in a technical design.",
       "repository": "https://github.com/cursor/plugins",
       "path": "cursor-team-kit/skills/deslop",
       "commit": "ae5650febf4320793844c12c4adaa937f417f8da",

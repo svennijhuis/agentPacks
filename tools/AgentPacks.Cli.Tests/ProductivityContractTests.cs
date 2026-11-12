@@ -3,7 +3,7 @@ using System.Text.Json.Nodes;
 namespace AgentPacks.Cli.Tests;
 
 /// <summary>
-/// Inventory for the productivity plugin: one slash, one skill, six pins.
+/// Inventory for the productivity plugin: one skill, no command, six pins.
 /// </summary>
 public sealed class ProductivityContractTests
 {
@@ -13,30 +13,24 @@ public sealed class ProductivityContractTests
     private static string PackRoot() => TestRepository.PluginRoot("productivity");
 
     [Fact]
-    public void Productivity_ships_one_command_and_one_entrypoint_skill()
+    public void Productivity_ships_one_entrypoint_skill_and_no_command()
     {
         var manifest = JsonNode.Parse(File.ReadAllText(Path.Combine(PackRoot(), "plugin.json")))!;
         Assert.Equal("productivity", manifest["name"]!.GetValue<string>());
         Assert.Equal("0.1.5", manifest["version"]!.GetValue<string>());
         Assert.DoesNotContain("language-pack", manifest["keywords"]!.ToJsonString(), StringComparison.Ordinal);
+        Assert.Null(manifest["commands"]);
 
-        var command = TestRepository.ParseFrontmatter(
-            File.ReadAllText(Path.Combine(PackRoot(), "commands", "tech-design.md")));
         var skill = TestRepository.ParseFrontmatter(
             File.ReadAllText(Path.Combine(PackRoot(), "skills", "tech-design", "SKILL.md")));
 
-        Assert.Equal("tech-design", command.Scalar("name"));
         Assert.Equal("tech-design", skill.Scalar("name"));
         Assert.Equal("true", skill.Scalar("disable-model-invocation"));
-        Assert.Equal("false", skill.Scalar("user-invocable"));
+        Assert.Null(skill.Scalar("user-invocable"));
         Assert.StartsWith("When ", skill.Scalar("description"));
-        Assert.Contains("tech-design", command.Body, StringComparison.Ordinal);
 
-        var commands = Directory.GetFiles(Path.Combine(PackRoot(), "commands"), "*.md")
-            .Select(path => Path.GetFileName(path))
-            .OrderBy(name => name, StringComparer.Ordinal)
-            .ToArray();
-        Assert.Equal(["tech-design.md"], commands);
+        Assert.False(Directory.Exists(Path.Combine(PackRoot(), "commands")));
+        Assert.False(File.Exists(Path.Combine(PackRoot(), "commands", "tech-design.md")));
         Assert.False(Directory.Exists(Path.Combine(PackRoot(), "agents")));
     }
 
@@ -54,6 +48,19 @@ public sealed class ProductivityContractTests
         Assert.Contains("docs/design/<name>/", skill, StringComparison.Ordinal);
         Assert.DoesNotContain("README.md", skill, StringComparison.Ordinal);
         Assert.Contains("## Skill per step", skill, StringComparison.Ordinal);
+        Assert.DoesNotContain("openapi.yaml", skill, StringComparison.Ordinal);
+        Assert.DoesNotContain("wayfinder-brief.md", skill, StringComparison.Ordinal);
+        Assert.DoesNotContain("spec.md", skill, StringComparison.Ordinal);
+        Assert.Contains("`design.md` is the spec.", skill, StringComparison.Ordinal);
+        Assert.Contains("references/ready-gate.md", skill, StringComparison.Ordinal);
+
+        var gate = File.ReadAllText(Path.Combine(PackRoot(), "skills", "tech-design", "references", "ready-gate.md"));
+        Assert.Contains("design.md#sign-off", gate, StringComparison.Ordinal);
+        Assert.Contains("acceptance criteria", gate, StringComparison.Ordinal);
+        Assert.Contains("story points", gate, StringComparison.Ordinal);
+        Assert.DoesNotContain("openapi.yaml", gate, StringComparison.Ordinal);
+        Assert.DoesNotContain("wayfinder-brief.md", gate, StringComparison.Ordinal);
+        Assert.DoesNotContain("spec.md", gate, StringComparison.Ordinal);
         Assert.Contains("Style inspired by Matt Pocock's wayfinder", notice, StringComparison.Ordinal);
         Assert.Contains("https://github.com/mattpocock/skills/tree/" + MattSha + "/skills/engineering/wayfinder", notice, StringComparison.Ordinal);
         Assert.Contains("MIT License", notice, StringComparison.Ordinal);
@@ -76,6 +83,10 @@ public sealed class ProductivityContractTests
             "0003-productivity-plugin-tech-design.md"));
         Assert.DoesNotContain("| `README.md` |", adr, StringComparison.Ordinal);
         Assert.DoesNotContain("README.md", adr.Split("**Each design is a folder")[1].Split("## Consequences")[0], StringComparison.Ordinal);
+        Assert.DoesNotContain("openapi.yaml", adr, StringComparison.Ordinal);
+        Assert.DoesNotContain("wayfinder brief", adr, StringComparison.Ordinal);
+        Assert.DoesNotContain("spec.md", adr, StringComparison.Ordinal);
+        Assert.DoesNotContain("slash-command exception", adr, StringComparison.Ordinal);
     }
 
     [Fact]
@@ -111,6 +122,8 @@ public sealed class ProductivityContractTests
         }
 
         var deslop = byName["deslop"];
+        Assert.Equal("Clean code snippets in a technical design.", deslop["description"]!.GetValue<string>());
+        Assert.DoesNotContain("openapi", deslop["description"]!.GetValue<string>(), StringComparison.OrdinalIgnoreCase);
         Assert.Equal("https://github.com/cursor/plugins", deslop["repository"]!.GetValue<string>());
         Assert.Equal("cursor-team-kit/skills/deslop", deslop["path"]!.GetValue<string>());
         Assert.Equal(CursorSha, deslop["commit"]!.GetValue<string>());
@@ -127,6 +140,9 @@ public sealed class ProductivityContractTests
         Assert.Contains("## Ready", readme, StringComparison.Ordinal);
         Assert.Contains("waiting-on-input", readme, StringComparison.Ordinal);
         Assert.Contains("Advice alone never closes a gap", readme, StringComparison.Ordinal);
+        Assert.Contains("`design.md` is the spec.", readme, StringComparison.Ordinal);
+        Assert.DoesNotContain("| Command |", readme, StringComparison.Ordinal);
+        Assert.DoesNotContain("openapi.yaml", readme, StringComparison.Ordinal);
         Assert.DoesNotContain("\u2014", readme);
         Assert.DoesNotContain("\u2013", readme);
     }

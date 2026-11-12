@@ -2,9 +2,9 @@
 
 A capability pack for a technical design developers can build. `/tech-design` charts a shared map in `docs/design/<name>/`, then resolves one gap per session. Ready writes `tickets.md` when every gap is closed.
 
-Claude, Cursor, and Codex run `/tech-design` (Codex: `$tech-design`). Copilot picker: `/productivity:tech-design`. The skill is `tech-design`.
+The skill is `tech-design`. Claude, Cursor, and Codex run `/tech-design` (Codex: `$tech-design`). Copilot picker: `/productivity:tech-design`.
 
-The person types the command. The model does not start a design on its own.
+The person types the skill. The model does not start a design on its own.
 
 Style inspired by Matt Pocock's wayfinder. [NOTICE](skills/tech-design/NOTICE.md).
 
@@ -31,20 +31,19 @@ If the status is `ready`, `committed`, or `abandoned`, say so and stop. Otherwis
 
 ## Ready
 
-`/tech-design <name> ready` stops while any gap is `open`, `research`, or `waiting-on-input`. It also stops while **Not yet specified** still lists in-scope work. When the gate passes, it sets status `ready` and writes `tickets.md`.
+`/tech-design <name> ready` stops while any gap is `open`, `research`, or `waiting-on-input`. It also stops while **Not yet specified** still lists in-scope work. When the gate passes, it sets status `ready`. `design.md` is the spec. `to-spec` checks that file. `to-tickets` writes `tickets.md` from it.
 
 ## Components
 
 | Component | Name | Responsibility |
 | --- | --- | --- |
-| Skill | `tech-design` | The person types the command. Modes are new, resume, grill, and ready. |
-| Command | `tech-design` | Runs the mode. Copilot picker: `/productivity:tech-design` |
+| Skill | `tech-design` | The person types `/tech-design`. Arguments are new, resume, grill, and ready. |
 
 Pins, loaded by exact Skill name: `domain-modeling`, `codebase-design`, `grilling`, `research`, `writing-for-agents`, `deslop`.
 
 ## Editing
 
-Authored: `plugin.json`, `skills/`, `commands/`, and `external-skills.json`.
+Authored: `plugin.json`, `skills/`, and `external-skills.json`.
 
 Generated only in validation output or on `marketplace` / `marketplace-beta`: client manifests.
 

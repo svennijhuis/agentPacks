@@ -11,7 +11,7 @@ Audience: platform + product test teams. Maintainers still own catalog decisions
 | **A. Pack contribute** | `svennijhuis/agentPacks` | New/updated skill, standard, language pack, or capability pack |
 | **B. App testing** | Your product repo | Unit / integration / smoke; `/scenarios` writes smoke md |
 
-Locked user commands: `/squad` · `/squad-review` · `/scenarios` · `/pack-check` (plus `/security-audit` on the security pack), `/pack-author` (Claude and Cursor; Copilot `/pack-author:author`), and `/tech-design` (Copilot `/productivity:tech-design`).
+Locked user commands: `/squad` · `/squad-review` · `/scenarios` · `/pack-check` (plus `/security-audit` on the security pack), `/pack-author` (Claude and Cursor; Copilot `/pack-author:author`). The `tech-design` skill is typed as `/tech-design` (Copilot `/productivity:tech-design`).
 
 ---
 

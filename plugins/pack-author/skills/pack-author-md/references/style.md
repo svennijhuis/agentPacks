@@ -42,12 +42,12 @@ skills/example-helper/
 | Router | Over 40 non-blank lines is `WARN`, not `FAIL`: keep a rich procedure, move only lookup detail to `references/` |
 | Name | Equals the directory (skill) or filename (agent). Kebab-case. No periods in skill names |
 | Disclosure | Every `references/` file outside `standards/` and `examples/` is linked from the router |
-| User entry | `disable-model-invocation: true`. Skill name differs from the command name. Shipped homonyms: squad, pack-check, and tech-design. Copilot's emitted command name differs from the plugin name. Claude, Cursor, and Codex command may equal the plugin name. |
+| User entry | `disable-model-invocation: true`. Skill name differs from the command name. Shipped homonyms: squad and pack-check. Copilot's emitted command name differs from the plugin name. Claude, Cursor, and Codex command may equal the plugin name. `tech-design` has no command: `disable-model-invocation: true`, and it omits `user-invocable: false`, so the person types the skill. |
 | Loop slot | Contracted `<lang>-*` skills: `audience: loop`, first body line `Internal. Do not run directly: Squad loads by exact Skill name.`, `user-invocable: false` |
 | Agent | One job. Numbered steps. One Good/Bad pair. Tools from `read`, `write`, `edit`, `grep`, `glob`, `bash`, `webfetch`, `websearch`. Model is `inherit`, `fast`, `standard`, or `frontier` |
 | Catalog | A framework ships as a skill inside the language pack. Prefer a pack that already ships. Do not add an empty pack. See [PLAN.md](../../../../../docs/PLAN.md) |
 
-Length bars only warn. These stay `FAIL`: frontmatter shape, hidden skills (`user-invocable: false`), the seven user commands (squad, squad-review, scenarios, pack-check, pack-author, security-audit, tech-design), and no secrets.
+Length bars only warn. These stay `FAIL`: frontmatter shape, hidden skills (`user-invocable: false`), the six user commands (squad, squad-review, scenarios, pack-check, pack-author, security-audit), and no secrets.
 
 ## Out
 

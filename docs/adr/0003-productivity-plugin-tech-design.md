@@ -4,9 +4,9 @@ Status: accepted
 
 ## Context
 
-A business architect needs a technical design that developers can build, with almost all gaps closed, so wayfinder can turn it into tickets a team can put story points on. The catalog has no command for that work.
+A business architect needs a technical design that developers can build, with almost all gaps closed, so the tickets can take story points. The catalog has no skill for that work.
 
-`docs/PLAN.md` already names a `productivity` role pack for anyone driving an agent. The name is Matt Pocock's `skills/productivity` folder. Squad work is in flight, so the command stays out of `plugins/squad/`.
+`docs/PLAN.md` already names a `productivity` role pack for anyone driving an agent. The name is Matt Pocock's `skills/productivity` folder. Squad work is in flight, so the skill stays out of `plugins/squad/`.
 
 User slashes stay few. `docs/pbi/64-squad-session-split.md` says "No 5th slash": `/squad split` stays inside `/squad`, and a later `/squad-split` only runs that contract section. `plugins/squad/skills/squad/references/session-split.md` says that section is the whole forced split. The root README and `docs/PACK-AUTHOR.md` call `/pack-author` the intentional fifth user slash: Lane A for marketplace authors. `docs/CONTRIBUTE.md` lists the locked user commands. The pack-author style checklist (`plugins/pack-author/skills/pack-author-md/references/style.md`) fails a command outside those six names. `plugins/squad/skills/squad/references/advisor-lite.md` says not to add an advisor command. `docs/PLAN.md` says a phase of an existing workflow is not a new pack, and two packs do not share a command.
 
@@ -18,7 +18,7 @@ Plan v3.1 was approved by the product owner on 2026-11-11, after Sven's directio
 
 **The plugin is `plugins/productivity/`.** The name is Matt Pocock's productivity folder, the same name `docs/PLAN.md` reserves, so later productivity commands can live there. It stands beside Squad, so Squad work in flight stays untouched. This version does not import the role-pack skill list on that row. A pack enters the catalog when it has content. This record adds no plugin files.
 
-**`/tech-design` is the one real slash, and the single explicit exception to the "no 5th slash" charter rule, granted by Sven.** It is a productivity command, not a Squad phase. This plan grants no other slash. Start, resume, grill, and ready are modes of this one command, as `/squad split` is a mode of `/squad`. The person types the command. The model does not start a design on its own.
+**The skill is `tech-design`.** The person types `/tech-design`. There is no command file. It is not a Squad phase. Start, resume, grill, and ready are arguments of this skill. The model does not start a design on its own.
 
 Usage:
 
@@ -27,7 +27,7 @@ Usage:
 - `/tech-design <name> grill [gap]`
 - `/tech-design <name> ready`
 
-The command produces a technical design a business architect prepares for developers. Almost all gaps are closed before the handoff, so wayfinder can turn the design into tickets that can take story points. Skills stay generic. Playbook text is our own words, with no sample system in a skill.
+The skill produces a technical design a business architect prepares for developers. Almost all gaps are closed before the handoff, and ready writes tickets from `design.md` that can take story points. Skills stay generic. Playbook text is our own words, with no sample system in a skill.
 
 **The skill has the same shape as Matt Pocock's wayfinder.** Same structure, same loop, same way to start and to resume. Only the content is a technical design. The wayfinder way is the core loop. Sessions stay small. One session takes one gap or one topic, then stops. A session never writes the whole design. The tool asks the human, but always with advice. Each grill question comes with the agent's recommended answer and why, based on research the agent did first. Wayfinder style: the agent researches code, docs and sources itself before asking, and only asks what research cannot settle. The human confirms or overrides. That is the decision. A gap is decided only when the human or the dependency owner answers. AI advice alone never closes a gap.
 
@@ -64,7 +64,6 @@ Advice is drafted before the question. Only the human or the dependency owner cl
 | `research/<topic>.md` | Notes for one topic |
 | `input/<date>.md` | Input saved that day |
 | `log.md` | One line per session |
-| `openapi.yaml` | Present when the api type is in use |
 
 ```mermaid
 flowchart TB
@@ -75,17 +74,15 @@ flowchart TB
     researchDir["research/"]
     inputDir["input/"]
     log["log.md"]
-    openapi["openapi.yaml when api"]
     design --> glossary
     design --> gaps
     design --> researchDir
     design --> inputDir
     design --> log
-    design --> openapi
   end
 ```
 
-`design.md` links to the other files in `docs/design/<name>/`. `openapi.yaml` is present only when the api type is in use.
+`design.md` links to the other files in `docs/design/<name>/`. When the api type is in use, the contract is written in `design.md`: each endpoint, its auth level, and its errors, with a link to the real code.
 
 **Gap statuses are `open`, `research`, `waiting-on-input`, `decided`, and `accepted-risk`.** A row holds id, question, status, owner, due, waiting-on note, source or answer, and blocks. A `waiting-on-input` row has an owner and a due date. Document status `ready` is allowed only when zero gaps are `open`, `research`, or `waiting-on-input`. `decided` and `accepted-risk` do not block that gate.
 
@@ -119,7 +116,7 @@ stateDiagram-v2
   abandoned --> [*]
 ```
 
-Resume and grill repeat once per gap while the status is `discussion`. The ready check writes the complete design, the tickets, and a wayfinder brief only when no gap is `open`, `research`, or `waiting-on-input`.
+Resume and grill repeat once per gap while the status is `discussion`. The ready check writes `tickets.md` from `design.md` only when no gap is `open`, `research`, or `waiting-on-input`. `design.md` is the spec.
 
 **`design.md` uses a fixed section order**, modeled on a Google design doc, plus ideas from Amazon, Uber, Shopify, and Oxide. Sections, in order: user outcome, context and scope, goals, non-goals, glossary, design, dependencies, alternatives, cross-cutting concerns, type checklists, advice, risks, acceptance criteria, and sign-off. User outcome comes first. The design section holds an overview, a diagram, boundaries and contracts, a data model, and flows as mermaid. Each external dependency is one dependency-contract block. Alternatives include do nothing. Cross-cutting concerns are security, privacy, observability, rollout, and testing. Advice states the recommended choice, why, and what changes if a gap flips. Each waiting gap has a deadline.
 
@@ -133,7 +130,7 @@ Resume and grill repeat once per gap while the status is `discussion`. The ready
 - Web: a flowchart of screens and navigation.
 - States: a state diagram wherever something has statuses.
 
-**Type playbooks are separate files: web, api, data, and integration.** Types combine (`types: [web, api]`). Gaps are the union of those checklists, deduped by checklist key, so each gap appears once and names every type that raised it. The api playbook writes or updates `openapi.yaml` (OpenAPI 3.1) as the contract first. Each endpoint carries an auth level, error codes, and a version. An empty field becomes a gap.
+**Type playbooks are separate files: web, api, data, and integration.** Types combine (`types: [web, api]`). Gaps are the union of those checklists, deduped by checklist key, so each gap appears once and names every type that raised it. The api playbook writes the contract in `design.md`. Each endpoint carries an auth level, error codes, and a version, and links the real code. An empty field becomes a gap.
 
 **Every external dependency runs the dependency-contract playbook.** The same playbook can run on its own. The fields are owner and response time; access (auth method, level or scopes, how to request, lead time); environments (test and prod URLs, test accounts, allowlist or VPN); contract (request, response, version, errors, timeout); limits (rate, SLA, cost); change notice; and proof. The skill makes no real calls. Proof is the owner's spec, such as their OpenAPI file, or a written answer from the owner, saved under `input/`. Free text from a chat, or a promise, does not close the gap. Any empty field is a blocking gap. The owner's OpenAPI spec is requested, and a missing spec is a blocking gap.
 
@@ -148,7 +145,7 @@ Resume and grill repeat once per gap while the status is `discussion`. The ready
 | `writing-for-agents` | `skills/productivity/writing-for-agents` |
 | `deslop` | `cursor-team-kit/skills/deslop` |
 
-`domain-modeling`, `codebase-design`, `grilling`, `research`, and `writing-for-agents` are in `mattpocock/skills` at `4ae2317`. `writing-for-agents` is a model-invocable pin. `deslop` is in `cursor/plugins`. `deslop` cleans `openapi.yaml` and any code snippets.
+`domain-modeling`, `codebase-design`, `grilling`, `research`, and `writing-for-agents` are in `mattpocock/skills` at `4ae2317`. `writing-for-agents` is a model-invocable pin. `deslop` is in `cursor/plugins`. `deslop` cleans code snippets.
 
 Skills with `disable-model-invocation: true` are copied and adapted. That copy is the exception to the pin rule above. Each copy carries `NOTICE.md`, a Source line, and a What we changed note. The Source line names the upstream skill and the commit the text was taken from. From Matt Pocock: `wayfinder`, `to-spec`, `to-questionnaire`, and `to-tickets` (`to-tickets` is `skills/engineering/to-tickets`). From pstack, under `pstack/skills/`: `architect`, `principle-exhaust-the-design-space`, `statechart`, `blast-radius`, and `interrogate`. `statechart` contributes mermaid flows only. Its scripts are not copied.
 
@@ -157,18 +154,18 @@ Skills with `disable-model-invocation: true` are copied and adapted. That copy i
 **Writing for humans and agents.** Sources: Matt Pocock's `writing-for-agents` skill, his post "The code, not the spec, should be the center of your universe", and poteto (pstack) "writing is thinking".
 
 1. Two readers. The design has a human reader and an agent reader. The agent researches and drafts. The human writes the decisions and the advice, and the grill step pulls them out of the human. The agent never writes a decision on its own. The tool asks the human, but always with advice. Each grill question comes with the agent's recommended answer and why, based on research the agent did first. Wayfinder style: the agent researches code, docs and sources itself before asking, and only asks what research cannot settle. The human confirms or overrides. That is the decision.
-2. Point to code. `design.md` links real files, symbols, and `openapi.yaml` instead of copying them.
+2. Point to code. `design.md` links real files and symbols. The api contract is written in `design.md` and links the real code.
 3. Keep it short. Detail goes to `research/` and the type playbooks. Every gap has a hard "done when".
 4. Glossary. Each design folder gets `glossary.md` with the domain language.
 5. No-op pass. After `technical-writing` and `unslop`, a last pass removes every line that does not change what the reader does.
 
 `docs-canvas` (`docs-canvas/skills/docs-canvas` in `cursor/plugins`) is optional, for showing `design.md` at a meeting. It is outside the loop. If it is used, it is pinned the same way as `deslop`, at the same SHA.
 
-The only command file is `tech-design`. Adapted skills are loaded by exact skill name from that command. A pointer to a skill outside this list is removed in the adapt step. The older productivity list in `docs/PLAN.md` is not imported.
+There is no command file. The person invokes the `tech-design` skill. Adapted skills are loaded by exact skill name from that skill. A pointer to a skill outside this list is removed in the adapt step. The older productivity list in `docs/PLAN.md` is not imported.
 
 **Check the real code first, and invent nothing.** That rule applies to every step. `how` is what makes the rule a step in the loop.
 
-**`/tech-design <name> ready` runs the gate.** It does a final attack pass, sets document status `ready` only when the gap gate passes, writes tickets whose blockers are sized for story points, and writes a wayfinder brief.
+**`/tech-design <name> ready` runs the gate.** It does a final attack pass, sets document status `ready` only when the gap gate passes, and writes `tickets.md` from `design.md`. `design.md` is the spec. `to-spec` checks that `design.md` meets the spec bar. `to-tickets` writes the tickets. Each ticket links the `design.md` section it comes from, and has acceptance criteria and story points. Ready writes nothing else.
 
 **Delivery is one pull request at a time.** TD0 is this record. TD1 is the plugin skeleton. Its README gets a short "Writing for humans and agents" section. The TD1 README gets the loop flowchart and the status state diagrams. TD2 is the loop core and grill. TD3 is the dependency contract. TD4 is web and api. TD5 is data and integration. TD6 is research, input, and options. TD7 is readiness. TD8 is smoke.
 
@@ -180,7 +177,7 @@ flowchart LR
 ## Consequences
 
 - Squad stays untouched while this work lands.
-- Product repos gain one command. Resume, grill, and the gate are arguments of that command.
+- Product repos gain the `tech-design` skill. Resume, grill, and the gate are arguments of that skill.
 - Each grill question carries the agent's recommended answer and why. The human confirms or overrides, and that is the decision.
 - A gap is decided only when the human or the dependency owner answers. AI advice alone does not close it.
 - Each design folder includes `glossary.md` for the domain language.
@@ -190,21 +187,21 @@ flowchart LR
 - A waiting gap has an owner, a due date, and a deadline in `design.md`.
 - An unproved dependency stays a blocking gap. Chat text is not proof. The skill makes no real call.
 - Pins stay Skill-tool dependencies. Publication sets them `user-invocable: false` (`docs/EXTERNAL-SKILLS.md`), so a pin does not become a slash.
-- This plugin takes the `productivity` name from the catalog plan. Its command is `/tech-design`.
+- This plugin takes the `productivity` name from the catalog plan. The person invokes the `tech-design` skill.
 - The root README, `docs/CONTRIBUTE.md`, `docs/PACK-AUTHOR.md`, and the style checklist still describe today's commands. The plugin pull request is what updates them.
-- Copilot namespaces the command under the plugin, as the root README does for the other commands.
+- Copilot picker: `/productivity:tech-design`.
 
 ## Alternatives rejected
 
 **Put `/tech-design` inside Squad.** Squad work is in flight, and the charter refuses another Squad slash.
 
-**Split start, grill, and ready into their own slashes.** One command covers all four forms.
+**Split start, grill, and ready into their own slashes.** One skill covers all four forms.
 
 **Let one session write the whole design.** Open gaps would disappear into a long draft. The session stops after one gap or one topic.
 
 **Let the agent close a gap from its advice.** The human or the dependency owner answers. Advice alone never closes a gap.
 
-**Copy files, symbols, or `openapi.yaml` into `design.md`.** The design links them.
+**Copy files or symbols into `design.md`.** The design links them. The api contract is written in `design.md` and links the real code.
 
 **Fill a gap when nobody answers.** Silence is `waiting-on-input`, with an owner and a due date.
 
